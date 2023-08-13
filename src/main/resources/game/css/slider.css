@@ -1,0 +1,12 @@
+ .thumb {
+    -fx-background-image :url("../images/gui/horizontal_hover_thumb.png");
+    -fx-background-color: transparent;
+    -fx-pref-width 15;
+    -fix-pref-height 38;
+}
+
+.slider .track {
+    -fx-background-image :url("../images/gui/horizontal_hover_bar.png");
+    -fx-background-color: transparent;
+}
+

@@ -1,0 +1,34 @@
+module RenJava {
+    requires javafx.graphics;
+    requires javafx.fxml;
+    requires javafx.controls;
+    requires javafx.media;
+    requires java.logging;
+    requires org.reflections;
+    requires javafx.base;
+    requires java.desktop;
+    requires org.apache.commons.io;
+    opens me.piitex.renjava to javafx.graphics;
+    exports me.piitex.renjava;
+    exports me.piitex.renjava.configuration;
+    exports me.piitex.renjava.gui;
+    exports me.piitex.renjava.utils;
+    exports me.piitex.renjava.api.characters;
+    exports me.piitex.renjava.gui.title;
+    exports me.piitex.renjava.gui.builders;
+    exports me.piitex.renjava.gui.overlay;
+    exports me.piitex.renjava.events;
+    exports me.piitex.renjava.events.exceptions;
+    exports me.piitex.renjava.events.types;
+    exports me.piitex.renjava.api.scenes;
+    exports me.piitex.renjava.api.stories;
+    exports me.piitex.renjava.music;
+    exports me.piitex.renjava.api.scenes.types;
+    exports me.piitex.renjava.api.scenes.types.choices;
+    exports me.piitex.renjava.api.player;
+    exports me.piitex.renjava.api.stories.handler;
+    exports me.piitex.renjava.gui.exceptions;
+    exports me.piitex.renjava.gui.splashscreen;
+    exports me.piitex.renjava.api.scenes.types.input;
+    exports me.piitex.renjava.api.saves.data;
+}
