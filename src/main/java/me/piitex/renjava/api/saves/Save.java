@@ -57,7 +57,7 @@ public class Save {
             appendString.append(";");
         }
 
-        // The appendString won't be sutiable for the save file. We can still use it to format our data but its best if we do a file format. YAML is a good example
+        // The appendString won't be suitable for the save file. We can still use it to format our data but its best if we do a file format. YAML is a good example
         String toWriteToFile = SaveFileUtils.toFormat(appendString.toString());
         logger.info("File: " + toWriteToFile);
         FileWriter writer = null;

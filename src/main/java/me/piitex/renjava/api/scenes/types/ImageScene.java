@@ -28,8 +28,27 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * Image scene typically contains an image and text.
- * The text is whatever character is talking. The image is the background image.
+ * The ImageScene class represents an image scene in the RenJava framework.
+ * It is used to display an image and text associated with a character.
+ * Image scenes are typically used to present visuals and dialogue during gameplay or narrative progression.
+ *
+ * <p>
+ * To create an image scene, instantiate the ImageScene class with the necessary parameters, such as the scene ID, character, dialogue, and background image loader.
+ * The character and dialogue parameters can be set to null if they are optional and not needed for a particular image scene.
+ * </p>
+ *
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ * Character myCharacter = new Character("character-1", "John", Color.BLUE);
+ * ImageLoader backgroundLoader = new ImageLoader("background.png");
+ * ImageScene scene = new ImageScene("scene-1", myCharacter, "This is character text!", backgroundLoader);
+ * }</pre>
+ * </p>
+ *
+ * <p>
+ * Note: The ImageScene class is used to create image scenes in the RenJava framework.
+ * </p>
  */
 public class ImageScene extends RenScene {
     private int index;
@@ -41,12 +60,14 @@ public class ImageScene extends RenScene {
     private final String characterDisplayName;
 
     /**
-     * Creates a scene which is displayed to the player. Scenes are created before the title screen is loaded and are viewed in order of creation.
+     * Creates an ImageScene object representing an image scene in the RenJava framework.
+     * An image scene is used to display an image and text associated with a character.
+     * Image scenes are typically used to present visuals and dialogue during gameplay or narrative progression.
      *
-     * @param id        - Used to identify the scene.
-     * @param character - The character who is talking. If no one is talking in the scene just set this to a random character.
-     * @param dialogue  - The dialogue of the character. If no one is talking set this to null or empty.
-     * @param loader    - The background image of the scene.
+     * @param id        The ID used to identify the scene.
+     * @param character The character who is talking. Pass null if no character is talking in the scene.
+     * @param dialogue  The dialogue of the character. Pass null or an empty string if no one is talking.
+     * @param loader    The background image loader for the scene.
      */
     public ImageScene(String id, @Nullable Character character, @Nullable String dialogue, ImageLoader loader) {
         super(id, loader);

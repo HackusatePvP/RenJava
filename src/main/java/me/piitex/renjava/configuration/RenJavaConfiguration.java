@@ -4,6 +4,7 @@ import javafx.scene.image.Image;
 
 import java.util.Map;
 
+// FIXME: 8/13/2023 Long time java 8 developer so records are a new concept to me. Depending on what I plan for this class it could be converted to a record at a later date.
 public class RenJavaConfiguration {
     private final String gameTitle;
     private final int width;

@@ -1,6 +1,7 @@
 package me.piitex.renjava;
 
 import javafx.stage.Stage;
+import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.stories.StoryManager;
 import me.piitex.renjava.api.characters.Character;
@@ -16,7 +17,7 @@ import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.builders.FontLoader;
 import me.piitex.renjava.gui.title.MainTitleScreenView;
-import me.piitex.renjava.music.Track;
+import me.piitex.renjava.api.music.Track;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +26,19 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- * Entry for framework. Create your own class and extend this to start.
+ * The `RenJava` class serves as the entry point for the RenJava framework. It provides the core functionality and structure for creating visual novel games.
+ * <p>
+ * To use the RenJava framework, create a new class that extends the `RenJava` class and override its methods to define the behavior of your game.
+ * The extended class will serve as the entry point for your game.
+ * <p>
+ * The `RenJava` class handles various aspects of the game, including managing the game window, handling events, managing characters and stories, and saving and loading game data.
+ * It also provides methods for registering event listeners, characters, and persistent data objects.
+ * <p>
+ * To start the game, create an instance of your extended `RenJava` class and pass the necessary parameters, such as the game name, author, and version, to the constructor.
+ * The `RenJava` framework will automatically create an instance of your class and initialize the game.
+ * <p>
+ * Note: Do not call the `RenJava` constructor directly. The framework creates a new instance of your class automatically using reflection.
+ *
  */
 public abstract class RenJava {
     private final String name;
@@ -49,6 +62,15 @@ public abstract class RenJava {
 
     private static RenJava instance;
 
+    /**
+     * Entry point for the RenJava framework. This class is designed to be extended by your own class, which will serve as the entry point for your game.
+     * <p>
+     * Note: Do not call this constructor directly. The RenJava framework creates a new instance of your class automatically using reflection.
+     *
+     * @param name    The name of the game, used for displaying the game in the window and other various places.
+     * @param author  The author of the game.
+     * @param version The current version of the game, used to display specific information about the game.
+     */
     public RenJava(String name, String author, String version) {
         instance = this;
         this.name = name;
@@ -95,7 +117,7 @@ public abstract class RenJava {
     }
 
     public String getBuildVersion() {
-        return "1.0.0.110";
+        return "0.0.153";
     }
 
     public Stage getStage() {
@@ -155,6 +177,20 @@ public abstract class RenJava {
         return registeredCharacters.get(id.toLowerCase());
     }
 
+    /**
+     * Registers a data class implementing the {@link PersistentData} interface for saving and loading data.
+     * <p>
+     * The {@code registerData} method is used to enable the saving feature for a data class. By registering the data class,
+     * its fields annotated with the {@link Data} annotation will be included in the save file.
+     * <p>
+     * To register a data class, pass an instance of the data class that implements the {@link PersistentData} interface as
+     * the parameter to this method.
+     *
+     * @param data The data class implementing the {@link PersistentData} interface to be registered for saving and loading data.
+     *
+     * @see PersistentData
+     * @see Data
+     */
     public void registerData(PersistentData data) {
         registeredData.add(data);
     }
@@ -163,6 +199,20 @@ public abstract class RenJava {
         return registeredData;
     }
 
+    /**
+     * Registers an {@link EventListener} to handle game events.
+     * <p>
+     * The {@code registerListener} method is used to register an {@link EventListener} that handles game events.
+     * Event listeners can listen for specific events and perform actions in response to those events.
+     * <p>
+     * To register an event listener, pass an instance of the event listener class that implements the {@link EventListener} interface
+     * as the parameter to this method.
+     *
+     * @param listener The event listener implementing the {@link EventListener} interface to be registered for handling game events.
+     *
+     * @see EventListener
+     * @see Listener
+     */
     public void registerListener(EventListener listener) {
         this.registeredListeners.add(listener);
     }
@@ -188,10 +238,20 @@ public abstract class RenJava {
      */
     public abstract SplashScreenView buildSplashScreen();
 
+    /**
+     * Called to create the main menu. (This is NOT optional)
+     * @return A MainTitleScreenView object which is parsed to a stage
+     */
     public abstract MainTitleScreenView buildTitleScreen();
 
+    /**
+     * Function used to create your story methods.
+     */
     public abstract void createStory();
 
+    /**
+     * Function called when a player starts a new game.
+     */
     public abstract void start();
 
     public static RenJava getInstance() {
@@ -201,7 +261,30 @@ public abstract class RenJava {
     /* All static methods below */
 
     /**
-     * Invokes all {@link Listener} methods for the given {@link Event}
+     * The event system in RenJava allows for the handling of various game events and actions. Events are an extension of "actions" during the game, such as player clicks or game flow changes.
+     * <p>
+     * The event system follows a listener-based architecture, where event listeners can register to listen for specific events and perform actions in response to those events.
+     * <p>
+     * To create a custom event, you can extend the {@link Event} class and define your own event-specific properties and methods.
+     * <p>
+     * To handle events, you can implement the {@link EventListener} interface and register your listener with the RenJava framework.
+     * <p>
+     * The event system supports different event priorities, allowing you to control the order in which listeners are invoked for a particular event.
+     * <p>
+     * To trigger an event, you can use the {@link RenJava#callEvent(Event)} method, which will invoke all registered listeners for that event.
+     * <p>
+     * To handle events, annotate a method with the {@link Listener} annotation and provide the event type as the parameter. For example:
+     * <pre>{@code
+     *     @Listener
+     *     public void onMouseClickEvent(MouseClickEvent event) {
+     *         // Code to handle the mouse click event
+     *     }
+     * }</pre>
+     *
+     * @see Event
+     * @see EventListener
+     * @see Listener
+     *
      * @param event Event to be executed.
      */
     public static void callEvent(Event event) {
@@ -232,28 +315,21 @@ public abstract class RenJava {
         }
         // There has got to be a way to make this better.
         for (Method method : highMethods) {
-            try {
-                method.invoke(method.getDeclaringClass().getDeclaredConstructor().newInstance(), event);
-            } catch (IllegalAccessException | InvocationTargetException | InstantiationException |
-                     NoSuchMethodException e) {
-                e.printStackTrace();
-            }
+            invokeMethod(method, event);
         }
         for (Method method : normalMethods) {
-            try {
-                method.invoke(method.getDeclaringClass().getDeclaredConstructor().newInstance(), event);
-            } catch (IllegalAccessException | InvocationTargetException | InstantiationException |
-                     NoSuchMethodException e) {
-                e.printStackTrace();
-            }
+            invokeMethod(method, event);
         }
         for (Method method : lowMethods) {
-            try {
-                method.invoke(method.getDeclaringClass().getDeclaredConstructor().newInstance(), event);
-            } catch (IllegalAccessException | InvocationTargetException | InstantiationException |
-                     NoSuchMethodException e) {
-                e.printStackTrace();
-            }
+           invokeMethod(method, event);
+        }
+    }
+
+    private static void invokeMethod(Method method, Event event) {
+        try {
+            method.invoke(method.getDeclaringClass().getDeclaredConstructor().newInstance(), event);
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            e.printStackTrace();
         }
     }
 }

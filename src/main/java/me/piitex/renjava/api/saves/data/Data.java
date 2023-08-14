@@ -6,8 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation processor for storing generic types into a save file.
- * @apiNote Only use on fields. Fields cannot be final.
+ * The {@code Data} annotation is used to mark fields that should be saved in the save file.
+ * <p>
+ * Fields annotated with {@code Data} will be included in the save file.
+ * The annotated fields can be private or public, but they cannot be final.
+ *
+ * @apiNote Only use this annotation on fields. Fields cannot be final.
  */
 @Target(ElementType.FIELD)
 @Retention(value = RetentionPolicy.RUNTIME)

@@ -100,8 +100,6 @@ public class PreferenceScreenView extends ScreenView {
         transitions.setFont(menuFontSmall.getFont());
         root.getChildren().add(transitions.build());
 
-
-
         // Add slider options and text labels
         Text textSpeedText = new Text("Text Speed");
         textSpeedText.setFont(menuFont.getFont());
@@ -181,7 +179,7 @@ public class PreferenceScreenView extends ScreenView {
             scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/button.css").toURI().toURL().toExternalForm());
             scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/slider.css").toURI().toURL().toExternalForm());
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         stage.setScene(scene);
         RenJava.getInstance().setStage(stage, StageType.OPTIONS_MENU);

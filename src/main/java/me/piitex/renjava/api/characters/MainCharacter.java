@@ -3,7 +3,7 @@ package me.piitex.renjava.api.characters;
 import javafx.scene.paint.Color;
 
 /**
- * Represents the main playable character. This object stores by default relationship values with other characters (optional).
+ * Represents the main playable character.
  */
 public abstract class MainCharacter extends Character {
 

@@ -29,9 +29,9 @@ public class Load {
                 // classname@field1;value@field2;value@ect..@ect..;clasname2@field;value@field;value@field;value
 
                 // me.piitex.test.TestClass
-                //    fieldName: FieldVaue
+                //    fieldName: FieldValue
                 // me.piitext.test.NextClass
-                //    me.piitex.test.TestClass
+                //    fieldName: FieldValue
                 String data = scanner.nextLine();
                 if (!data.startsWith("   ")) {
                     if (sectionKeyValue != null) {
@@ -62,33 +62,6 @@ public class Load {
                     }
                 });
             });
-        }
-    }
-
-    /**
-     * Testing string stuff should be removed.
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        String data = "classname@field!value1@field2!value;clasname2@field!value@field!value@field!value";
-        String[] clasz = data.split(";");
-        for (String s : clasz) {
-            String classname = "Unknown";
-            String[] fields = s.split("@");
-            boolean clazDetect = false;
-            for (String s1 : fields) {
-                if (!clazDetect) {
-                    classname = s1;
-                    clazDetect = true;
-                } else {
-                    String field = s1.split("!")[0];
-                    String value = s1.split("!")[1];
-                    System.out.println("Class: " + classname);
-                    System.out.println("Field: " + field);
-                    System.out.println("Value: " + value);
-                }
-            }
         }
     }
 }

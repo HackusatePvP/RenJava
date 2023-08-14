@@ -26,7 +26,7 @@ public class GameFlowEventListener implements EventListener {
         Player player = RenJava.getInstance().getPlayer();
         MouseButton button = event.getEvent().getButton();
 
-        // Only do this if its not the title screen or any other menu screen
+        // Only do this if it's not the title screen or any other menu screen
 
         switch (button) {
             case MIDDLE -> {

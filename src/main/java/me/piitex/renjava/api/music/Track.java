@@ -1,4 +1,4 @@
-package me.piitex.renjava.music;
+package me.piitex.renjava.api.music;
 
 import me.piitex.renjava.RenJava;
 
@@ -32,7 +32,7 @@ public class Track {
             this.clip = clip;
             RenJava.getInstance().setTrack(this); // Set the track when playing.
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 

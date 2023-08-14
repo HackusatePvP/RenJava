@@ -2,6 +2,8 @@ package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.types.ImageScene;
+import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
@@ -10,9 +12,41 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * This is class is used to fix the previous limitation for RenJa. You can organize scenes inside a story , very helpful if you give the player the freedom to go to different locations.
- * This also makes it possible to trigger events in different orders. (Not being forced to do one thing before the other).
- * This also makes the game flow a little more freely.
+ * The Story class represents a narrative or gameplay progression in the RenJava framework.
+ * It provides a way to organize and present a collection of scenes in a specific order to create a cohesive story or gameplay experience.
+ * Stories provide a structured way to define the flow and progression of the game.
+ *
+ * <p>
+ * To create a custom story, extend the Story class and implement the necessary methods and functionality.
+ * Add scenes to the story, define the starting and ending points, and handle the flow of the story.
+ * </p>
+ *
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ * public class MyStory extends Story {
+ *
+ *     public MyStory(String id) {
+ *         super(id);
+ *         // You can start creating scenes in here or call private function.
+ *         load();
+ *     }
+ *
+ *     private void load() {
+ *         // You can create scenes here.
+ *     }
+ *
+ * }
+ * }</pre>
+ * </p>
+ *
+ * <p>
+ * Note: The Story class is an abstract class and should be extended to create custom stories.
+ * </p>
+ *
+ * @see RenScene
+ * @see ImageScene
+ * @see InteractableScene
  */
 public abstract class Story {
     private final String id;

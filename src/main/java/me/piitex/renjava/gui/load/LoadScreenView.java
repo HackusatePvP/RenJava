@@ -35,7 +35,7 @@ public class LoadScreenView extends ScreenView {
             ImageView imageView = new ImageView(backgroundImage.build());
             root.getChildren().add(imageView);
         } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         new DefaultMainTitleScreenView(this);
 

@@ -17,8 +17,48 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 import java.util.LinkedHashSet;
 
+
 /**
- * Similar to an iterable scene this scene represents the player with choices that can lead to different dialogues and stories.
+ * The ChoiceScene class represents a scene in the RenJava framework that presents the player with multiple choices.
+ * Choice scenes allow players to make decisions that affect the game's progression or narrative.
+ * Each choice is associated with an event handler, allowing developers to define custom actions when a choice is selected.
+ *
+ * <p>
+ * To create a ChoiceScene, provide a unique identifier (id) and the background image for the scene.
+ * The id is used to identify the scene and can be used to retrieve the scene later.
+ * The background image sets the visual background for the scene.
+ * </p>
+ *
+ * <p>
+ * ChoiceScene supports up to 5 choices per scene. To add choices to the scene, use the {@link #addChoice(Choice)} method.
+ * Each choice is represented by a {@link Choice} object, which contains the choice's identifier and text.
+ * </p>
+ *
+ * <p>
+ * To handle the player's choice selection, use the {@link #onChoice(ChoiceSelectInterface)} method.
+ * The ChoiceSelectInterface is a functional interface that allows you to define custom actions when a choice is selected.
+ * </p>
+ *
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ * ImageLoader backgroundImage = new ImageLoader("background.png");
+ * ChoiceScene scene = new ChoiceScene("myScene", backgroundImage);
+ * scene.addChoice(new Choice("choice1", "Option 1"));
+ * scene.addChoice(new Choice("choice2", "Option 2"));
+ * scene.onChoice(event -> {
+ *     if (event.getChoice().getId().equals("choice1")) {
+ *         // Handle choice 1 selection
+ *     } else if (event.getChoice().getId().equals("choice2")) {
+ *         // Handle choice 2 selection
+ *     }
+ * });
+ * }</pre>
+ * </p>
+ *
+ * @see RenScene
+ * @see Choice
+ * @see ChoiceSelectInterface
  */
 public class ChoiceScene extends RenScene {
     private final ImageLoader backgroundImage;
@@ -27,6 +67,12 @@ public class ChoiceScene extends RenScene {
 
     private final LinkedHashSet<Choice> choices = new LinkedHashSet<>();
 
+    /**
+     * Creates a ChoiceScene object with the specified identifier and background image.
+     *
+     * @param id               The unique identifier for the scene.
+     * @param backgroundImage  The background image for the scene.
+     */
     public ChoiceScene(String id, ImageLoader backgroundImage) {
         super(id, backgroundImage);
         this.backgroundImage = backgroundImage;
@@ -37,6 +83,33 @@ public class ChoiceScene extends RenScene {
         return this;
     }
 
+    /**
+     * Sets the event handler for the player's choice selection in the ChoiceScene.
+     * The ChoiceSelectInterface is a functional interface that allows you to define custom actions when a choice is selected.
+     *
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     * ChoiceScene scene = new ChoiceScene("myScene", backgroundImage);
+     * scene.addChoice(new Choice("choice1", "Option 1"));
+     * scene.addChoice(new Choice("choice2", "Option 2"));
+     * scene.onChoice(event -> {
+     *     if (event.getChoice().getId().equals("choice1")) {
+     *         // Handle choice 1 selection
+     *     } else if (event.getChoice().getId().equals("choice2")) {
+     *         // Handle choice 2 selection
+     *     }
+     * });
+     * }</pre>
+     * </p>
+     *
+     * @param selectInterface The ChoiceSelectInterface implementation that defines the custom actions for choice selection.
+     *
+     * @return The ChoiceScene object itself, allowing for method chaining.
+     *
+     * @see Choice
+     * @see ChoiceSelectInterface
+     */
     public ChoiceScene onChoice(ChoiceSelectInterface selectInterface) {
         this.selectInterface = selectInterface;
         return this;

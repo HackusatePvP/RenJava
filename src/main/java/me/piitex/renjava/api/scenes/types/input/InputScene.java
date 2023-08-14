@@ -15,14 +15,34 @@ import me.piitex.renjava.gui.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 /**
- * Input scenes are scenes that require player input (text).
- * This can be used for setting the character name and other options.
+ * The InputScene class represents a scene in the RenJava framework that allows the player to input text.
+ * It is used to capture player input for purposes such as setting character names or other options.
+ *
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ * InputScene inputScene = new InputScene("inputScene", backgroundImage);
+ * inputScene.onSet(event -> {
+ *     String userInput = event.getInputField().getText();
+ *     // Handle the user input
+ * });
+ * }</pre>
+ * </p>
+ *
+ * @see RenScene
+ * @see InputSetInterface
  */
 public class InputScene extends RenScene {
     private final ImageLoader loader;
     private TextField inputField;
     private InputSetInterface setInterface;
 
+    /**
+     * Constructs an InputScene with the specified ID and image loader.
+     *
+     * @param id     The ID of the InputScene.
+     * @param loader The image loader used to load the background image.
+     */
     public InputScene(String id, ImageLoader loader) {
         super(id, loader);
         this.loader = loader;

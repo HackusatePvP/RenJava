@@ -22,7 +22,7 @@ module RenJava {
     exports me.piitex.renjava.events.types;
     exports me.piitex.renjava.api.scenes;
     exports me.piitex.renjava.api.stories;
-    exports me.piitex.renjava.music;
+    exports me.piitex.renjava.api.music;
     exports me.piitex.renjava.api.scenes.types;
     exports me.piitex.renjava.api.scenes.types.choices;
     exports me.piitex.renjava.api.player;

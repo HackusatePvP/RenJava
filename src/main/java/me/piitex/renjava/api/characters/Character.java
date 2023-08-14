@@ -13,7 +13,6 @@ public abstract class Character {
     private String displayName;
 
     /**
-     *
      * @param id The ID must be unique. The ID system allows you to have multiple characters with the same name.
      * @param name This is the name display for the character.
      * @param color The color is used to color the displayname.

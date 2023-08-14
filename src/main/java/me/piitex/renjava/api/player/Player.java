@@ -7,7 +7,7 @@ import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 
 /**
- * Class that stores player data such as game progress and what scenes they have viewed.
+ * Class that stores player data such as game progress and what scenes they have viewed. Some of the information stored is only useful to the framework but feel free to explore.
  */
 public class Player implements PersistentData {
     private boolean rightClickMenu;
