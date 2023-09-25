@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -32,11 +33,9 @@ public class MainTitleScreenView extends ScreenView {
     private String titleDisplay;
     private ImageLoader image = new ImageLoader("/gui/main_menu.png");
 
-    private final RenJavaConfiguration configuration;
-
 
     public MainTitleScreenView(RenJava renJava) {
-        this.configuration = renJava.getConfiguration();
+        RenJavaConfiguration configuration = renJava.getConfiguration();
         this.width = configuration.getWidth();
         this.height = configuration.getHeight();
         this.titleDisplay = configuration.getGameTitle();
@@ -115,8 +114,36 @@ public class MainTitleScreenView extends ScreenView {
         }
 
         logger.info("Creating buttons...");
-        // Buttons have to go on top of everything.
+        VBox vBox = new VBox();
+        vBox.setSpacing(5);
         if (getStartButton() != null) {
+            Button button = getStartButton().build();
+            vBox.getChildren().add(button);
+        }
+        if (getLoadButton() != null) {
+            Button button = getLoadButton().build();
+            vBox.getChildren().add(button);
+        }
+        if (getOptionsButton() != null) {
+            Button button = getOptionsButton().build();
+            vBox.getChildren().add(button);
+        }
+        if (getAboutButton() != null) {
+            Button button = getAboutButton().build();
+            vBox.getChildren().add(button);
+        }
+        if (getHelpButton() != null) {
+            Button button = getHelpButton().build();
+            vBox.getChildren().add(button);
+        }
+        if (getQuitButton() != null) {
+            Button button = getQuitButton().build();
+            vBox.getChildren().add(button);
+        }
+        root.getChildren().add(vBox);
+
+        // Buttons have to go on top of everything.
+        /*if (getStartButton() != null) {
             Button button = getStartButton().build();
             button.setTranslateY(getStartButton().getX());
             button.setTranslateY(getStartButton().getY());
@@ -151,7 +178,7 @@ public class MainTitleScreenView extends ScreenView {
             button.setTranslateY(getQuitButton().getX());
             button.setTranslateY(getQuitButton().getY());
             root.getChildren().add(button);
-        }
+        }*/
 
         logger.info("Creating scene...");
         Scene scene = new Scene(root);

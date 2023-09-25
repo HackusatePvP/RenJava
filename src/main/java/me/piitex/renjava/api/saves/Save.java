@@ -19,7 +19,6 @@ public class Save {
     /**
      * Creates a current save for the desired slot.
      * @param slot Slot to be saved, there is no limit on slots.
-     * @param currentSceneImage The current image of the scene, this is used as a preview for the current save.
      */
     public Save(int slot) {
         // Slot is needed for the save slot.
@@ -35,16 +34,14 @@ public class Save {
         }
         StringBuilder appendString = new StringBuilder();
         Logger logger = RenJava.getInstance().getLogger();
-        // String data = "classname@field!value1@field2!value;clasname2@field!value@field!value@field!value";
-
         for (PersistentData data : RenJava.getInstance().getRegisteredData()) {
             Class<?> claz = data.getClass();
             appendString.append(claz.getName());
             for (Field field : claz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Data.class)) {
-                    appendString.append("@");
+                    appendString.append("@@@@");
                     appendString.append(field.getName());
-                    appendString.append("!");
+                    appendString.append("!!!!");
                     field.setAccessible(true);
                     try {
                         Object object = field.get(data);
@@ -54,9 +51,8 @@ public class Save {
                     }
                 }
             }
-            appendString.append(";");
+            appendString.append(";;;;");
         }
-
         // The appendString won't be suitable for the save file. We can still use it to format our data but its best if we do a file format. YAML is a good example
         String toWriteToFile = SaveFileUtils.toFormat(appendString.toString());
         logger.info("File: " + toWriteToFile);
@@ -76,5 +72,4 @@ public class Save {
             }
         }
     }
-
 }

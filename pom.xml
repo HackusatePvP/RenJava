@@ -6,7 +6,7 @@
 
     <groupId>me.piitex</groupId>
     <artifactId>RenJava</artifactId>
-    <version>0.0.141-SNAPSHOT</version>
+    <version>0.0.153-SNAPSHOT</version>
     <name>RenJava</name>
 
     <properties>
@@ -43,17 +43,6 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
             <version>19.0.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.almasb</groupId>
-            <artifactId>fxgl</artifactId>
-            <version>11.17</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

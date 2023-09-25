@@ -12,6 +12,7 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.defaults.GameFlowEventListener;
 import me.piitex.renjava.events.defaults.MenuClickEventListener;
+import me.piitex.renjava.events.defaults.ScenesEventListener;
 import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
@@ -39,6 +40,7 @@ import java.util.logging.*;
  * <p>
  * Note: Do not call the `RenJava` constructor directly. The framework creates a new instance of your class automatically using reflection.
  *
+ * @author Hackusate (piitex)
  */
 public abstract class RenJava {
     private final String name;
@@ -50,6 +52,7 @@ public abstract class RenJava {
     private StageType stageType;
     private RenJavaConfiguration configuration;
     private FontLoader defaultFont;
+
     // Story manager
     private StoryManager storyManager;
 
@@ -92,6 +95,7 @@ public abstract class RenJava {
         this.registerListener(new MenuClickEventListener());
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
+        this.registerListener(new ScenesEventListener());
         this.registerData(player);
         new RenLoader(this);
     }
@@ -165,6 +169,17 @@ public abstract class RenJava {
         this.track = track;
     }
 
+    /**
+     * Registers a character in the RenJava framework.
+     * <p>
+     * The registerCharacter() method is used to register a character in the RenJava framework.
+     * Registered characters can be accessed and managed by other parts of the framework using their unique ID.
+     *
+     * @param character The character object to be registered.
+     *
+     * @see Character
+     * @see RenJava#getCharacter(String)
+     */
     public void registerCharacter(Character character) {
         registeredCharacters.put(character.getId().toLowerCase(), character);
     }
@@ -173,6 +188,18 @@ public abstract class RenJava {
         return registeredCharacters.values();
     }
 
+    /**
+     * Retrieves a character by its ID.
+     * <p>
+     * The getCharacter() method is used to retrieve a character object based on its ID.
+     * Characters are registered using the registerCharacter() method and can be accessed using their unique ID.
+     *
+     * @param id The ID of the character to retrieve.
+     * @return The character object with the specified ID, or null if no character is found with the given ID.
+     *
+     * @see Character
+     * @see RenJava#registerCharacter(Character)
+     */
     public Character getCharacter(String id) {
         return registeredCharacters.get(id.toLowerCase());
     }
@@ -195,6 +222,16 @@ public abstract class RenJava {
         registeredData.add(data);
     }
 
+    /**
+     * Returns a collection of registered persistent data objects.
+     * <p>
+     * The getRegisteredData() method is used to retrieve a collection of persistent data objects that have been registered using the registerData() method.
+     * These data objects implement the PersistentData interface and are used for saving and loading data in the game.
+     * @return A collection of registered persistent data objects.
+     *
+     * @see PersistentData
+     * @see RenJava#registerData(PersistentData)
+     */
     public Collection<PersistentData> getRegisteredData() {
         return registeredData;
     }
@@ -222,19 +259,79 @@ public abstract class RenJava {
     }
 
     /**
-     * This is called before the games title screen is shown. It is recommended to create player data and global vars at this stage.
+     * This method is called before the game's title screen is shown. It is recommended to implement this method to perform any necessary setup or initialization tasks before the game starts.
+     * <p>
+     * In the `preEnabled()` method, you can create player data, initialize global variables, or perform any other actions that need to be done before the game begins.
+     * This method provides an opportunity to set up the initial state of the game and prepare any necessary resources.
+     * <p>
+     * It is important to note that this method is called before the title screen is loaded, so any UI-related operations should be avoided in this method.
+     * Instead, focus on setting up the game's initial state and preparing any data or variables that will be used throughout the game.
+     * <p>
+     * Implementing this method allows you to customize the behavior of your game and ensure that it is properly initialized before the player starts interacting with it.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *     public void preEnabled() {
+     *         // Register events, setup global variables, ect...
+     *     }
+     * }</pre>
      */
     public abstract void preEnabled();
 
     /**
-     * This is called after the splash screen is created and before the title screen is loaded. Create characters and story elements here.
+     * This method is called after the splash screen is created and before the title screen is loaded. It is used to create characters and perform any necessary setup tasks.
+     * <p>
+     * In the `createBaseData()` method, you can create instances of your characters, initialize their properties, and add them to the game.
+     * You can also perform any other necessary setup tasks that need to be done before the game starts.
+     * <p>
+     * This method provides an opportunity to set up the initial characters and perform any necessary setup tasks that will be used in your game.
+     * It is recommended to create and configure your characters and perform any necessary setup tasks in this method to ensure they are ready for use when the game starts.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *     public void createBaseData() {
+     *         // Create and configure characters
+     *         Character character1 = new Character("character1", "Character 1", Color.RED);
+     *         character1.setDisplayName("C1");
+     *         RenJava.getInstance().registerCharacter(character1);
+     *
+     *         Character character2 = new Character("character2", "Character 2", Color.BLUE);
+     *         character2.setDisplayName("C2");
+     *         RenJava.getInstance().registerCharacter(character2);
+     *
+     *         // Perform any other necessary setup tasks
+     *     }
+     * }</pre>
      */
     public abstract void createBaseData();
 
     /**
-     * Called to create a 800x800 splash screen (small box). (Optional)
+     * Called to create a splash screen that is displayed before the title screen is loaded.
+     * <p>
+     * The `buildSplashScreen()` method should return a `SplashScreenView` object, which represents the splash screen view to be displayed.
+     * You can customize the appearance and behavior of the splash screen by configuring the `SplashScreenView` object.
+     * <p>
+     * The `SplashScreenView` class provides methods for setting the splash screen image, duration, and any additional UI elements or animations.
+     * You can use these methods to create an engaging and visually appealing splash screen for your game.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *     public SplashScreenView buildSplashScreen() {
+     *         // Create a SplashScreenView object
+     *         SplashScreenView splashScreen = new SplashScreenView();
      *
-     * @return A SplashScreenView object which is parsed to a stage.
+     *         // Set the splash screen image
+     *         splashScreen.setImage("splash.png");
+     *
+     *         // Set the duration of the splash screen (in seconds)
+     *         splashScreen.setDuration(3);
+     *
+     *         // Return the SplashScreenView object
+     *         return splashScreen;
+     *     }
+     * }</pre>
+     *
+     * @return A `SplashScreenView` object representing the splash screen view to be displayed.
      */
     public abstract SplashScreenView buildSplashScreen();
 
@@ -246,19 +343,69 @@ public abstract class RenJava {
 
     /**
      * Function used to create your story methods.
+     * <p>
+     * In the `createStory()` method, you can define and create your story methods.
+     * This is where you can define the flow of your visual novel game, including the scenes, choices, and branching paths.
+     * <p>
+     * You can create a subclass of the `Story` class and implement the necessary methods and functionality to define your story.
+     * Add scenes to the story, define the starting and ending points, and handle the flow of the story.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     *     public class MyStory extends Story {
+     *
+     *         public MyStory(String id) {
+     *             super(id);
+     *             // You can start creating scenes in here or call private function.
+     *             load();
+     *         }
+     *
+     *         private void load() {
+     *             // You can create scenes here.
+     *         }
+     *
+     *     }
+     * }</pre>
+     *
+     * Initializing Story class:
+     * <pre>{@code
+     *     public class MyRenJavaClass extends RenJava {
+     *
+     *         @Override
+     *         public void createStory() {
+     *           new MyStoryClass("my-story-id);
+     *         }
+     *
+     *     }
+     * }</pre>
      */
     public abstract void createStory();
 
     /**
-     * Function called when a player starts a new game.
+     * Displays the first scene of the story and begins the story route.
+     * <br>
+     * <p>
+     *     The start() method is used to initiate the story by displaying the first scene of the story.
+     *     It retrieves the current story from the StoryManager using the story ID and builds the scene on the stage.
+     *     This method should be called when the game starts or when a new story is about to begin.
+     * </p>
+     *
+     * Example usage:
+     * <pre>{@code
+     *     // Get the current story from the StoryManager
+     *     Story myStory = this.getStoryManager().getStory("my-story");
+     *     // Start the story
+     *     myStory.start();
+     * }</pre>
      */
     public abstract void start();
+
+    /* All static methods below */
 
     public static RenJava getInstance() {
         return instance;
     }
 
-    /* All static methods below */
 
     /**
      * The event system in RenJava allows for the handling of various game events and actions. Events are an extension of "actions" during the game, such as player clicks or game flow changes.
@@ -328,7 +475,9 @@ public abstract class RenJava {
     private static void invokeMethod(Method method, Event event) {
         try {
             method.invoke(method.getDeclaringClass().getDeclaredConstructor().newInstance(), event);
-        } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException e) {
+            throw new RuntimeException();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
     }

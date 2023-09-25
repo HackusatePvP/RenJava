@@ -5,13 +5,19 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.Nullable;
+import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.characters.Character;
+import me.piitex.renjava.api.gui.layouts.impl.HorizontalLayout;
+import me.piitex.renjava.api.gui.layouts.Layout;
+import me.piitex.renjava.api.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
@@ -24,6 +30,7 @@ import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 import me.piitex.renjava.gui.overlay.TextOverlay;
 
+import java.awt.*;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -55,7 +62,6 @@ public class ImageScene extends RenScene {
     private final Character character;
     private final String dialogue;
     private final ImageLoader loader;
-    private final Collection<Overlay> additionalOverlays = new HashSet<>();
 
     private final String characterDisplayName;
 
@@ -69,16 +75,12 @@ public class ImageScene extends RenScene {
      * @param dialogue  The dialogue of the character. Pass null or an empty string if no one is talking.
      * @param loader    The background image loader for the scene.
      */
-    public ImageScene(String id, @Nullable Character character, @Nullable String dialogue, ImageLoader loader) {
+    public ImageScene(String id, Character character, String dialogue, ImageLoader loader) {
         super(id, loader);
         this.character = character;
         this.dialogue = dialogue;
         this.loader = loader;
         this.characterDisplayName = character.getDisplayName();
-    }
-
-    public void addOverlay(Overlay overlay) {
-        additionalOverlays.add(overlay);
     }
 
     public Character getCharacter() {
@@ -89,13 +91,9 @@ public class ImageScene extends RenScene {
         return characterDisplayName;
     }
 
-    /**
-     * Story is loaded way before it is built.
-     * @param stage
-     */
     @Override
     public void build(Stage stage) {
-        RenJava.getInstance().setStage(stage, StageType.GAME_WINDOW);
+        RenJava.getInstance().setStage(stage, StageType.IMAGE_SCENE);
         Group root = new Group();
 
         // Add background image
@@ -160,7 +158,7 @@ public class ImageScene extends RenScene {
             // Add the displayName in the top
         }
 
-        for (Overlay overlay : additionalOverlays) {
+        for (Overlay overlay : getAdditionalOverlays()) {
             // Add the additional overlays to the scene
             if (overlay instanceof ImageOverlay imageOverlay) {
                 ImageView imageView1 = new ImageView(imageOverlay.image());

@@ -24,8 +24,14 @@ public class FontLoader {
     }
 
     public FontLoader(String name) {
+        File directory = new File(System.getProperty("user.dir") + "/game/fonts/");
+        File file = new File(directory, name);
         this.name = name;
-        this.font = Font.font("Arial", 24);
+        try {
+            this.font = Font.loadFont(new FileInputStream(file), 24);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         this.size = 24;
     }
 

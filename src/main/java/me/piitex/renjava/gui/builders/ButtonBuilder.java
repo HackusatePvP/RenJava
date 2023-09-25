@@ -9,9 +9,6 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
-/**
- * Start button for the main menu. Simply create and set this class to override the default one.
- */
 public class ButtonBuilder {
     private final String id;
     private String text;
@@ -179,15 +176,15 @@ public class ButtonBuilder {
     public Button build() {
         Button button = new Button();
         button.setId(id);
+        if (image != null) {
+            ImageView imageView = new ImageView(image);
+            button.setGraphic(imageView);
+        }
         if (text != null && !text.isEmpty()) {
             button.setText(text);
         }
         if (font != null) {
             button.setFont(font);
-        }
-        if (image != null) {
-            ImageView imageView = new ImageView(image);
-            button.setGraphic(imageView);
         }
         if (color != null) {
             button.setTextFill(color);

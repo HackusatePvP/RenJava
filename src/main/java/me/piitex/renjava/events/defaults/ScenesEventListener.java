@@ -23,6 +23,7 @@ public class ScenesEventListener implements EventListener {
 
     @Listener
     public void onSceneEnd(SceneEndEvent event) {
+        Player player = RenJava.getInstance().getPlayer();
         if (event.getScene() instanceof InputScene scene) {
             TextField field = scene.getInputField();
             InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
@@ -33,12 +34,21 @@ public class ScenesEventListener implements EventListener {
     @Listener
     public void onChoiceButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
+
+        RenJava.getInstance().getLogger().info("Testing choice stuff");
         RenScene scene = event.getScene();
         if (scene instanceof ChoiceScene choiceScene) {
+            RenJava.getInstance().getLogger().info("Button clicked on choice scene");
             Choice choice = choiceScene.getChoice(button.getId());
             if (choice != null) {
+                RenJava.getInstance().getLogger().info("choice not null");
                 ChoiceSelectEvent selectEvent = new ChoiceSelectEvent(choice, scene.getStory(), scene);
                 RenJava.callEvent(selectEvent);
+
+                if (choiceScene.getSelectInterface() != null) {
+                    choiceScene.getSelectInterface().onChoiceSelect(selectEvent);
+                }
+                RenJava.getInstance().getLogger().info("choice done");
             }
         }
     }

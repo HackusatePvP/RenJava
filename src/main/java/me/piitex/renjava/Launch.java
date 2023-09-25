@@ -19,7 +19,7 @@ import java.util.HashSet;
 public class Launch extends Application {
 
     public static void main(String[] args) {
-        // Scans for all classes in all packages. (We need to do all packages because this allows the author the freedom to do their own package scheme.
+        // Scans for all classes in all packages. (We need to do all packages because this allows the author the freedom to do their own package scheme.)
         Collection<URL> allPackagePrefixes = Arrays.stream(Package.getPackages()).map(p -> p.getName())
                 .map(s -> s.split("\\.")[0]).distinct().map(s -> ClasspathHelper.forPackage(s)).reduce((c1, c2) -> {
                     Collection<URL> c3 = new HashSet<>();
@@ -64,5 +64,4 @@ public class Launch extends Application {
         // When launched load the gui stuff.
         new GuiLoader(stage, RenJava.getInstance());
     }
-
 }

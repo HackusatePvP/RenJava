@@ -27,6 +27,7 @@ public class GuiLoader {
     }
 
     private void buildSplashScreen() {
+
         renJava.getLogger().info("Creating Splash screen...");
         SplashScreenView splashScreenView = renJava.buildSplashScreen();
         if (splashScreenView == null) {
@@ -36,16 +37,17 @@ public class GuiLoader {
 
         splashScreenView.build(stage);
 
-        int seconds = 3;
+        int seconds = splashScreenView.getDuration(); // Defaults to 3 seconds.
         PauseTransition wait = new PauseTransition(Duration.seconds(seconds));
         wait.setOnFinished(actionEvent -> {
+            renJava.getLogger().info("Creating base data...");
+            renJava.createBaseData();
+            renJava.getLogger().info("Creating story...");
+            renJava.createStory();
             buildMainMenu();
         });
 
         wait.play();
-        renJava.getLogger().info("Creating base data...");
-        renJava.createBaseData();
-        renJava.createStory();
     }
 
     private void buildMainMenu() {

@@ -62,7 +62,6 @@ public class InputScene extends RenScene {
 
     @Override
     public void build(Stage stage) {
-        RenJava.getInstance().setStage(stage, StageType.GAME_WINDOW);
         Group root = new Group();
         // Add background image
         Image background;
@@ -93,6 +92,8 @@ public class InputScene extends RenScene {
         inputField.setTranslateY(setY + 100);
         root.getChildren().add(inputField);
 
+        hookOverlays(root);
+
         Scene scene = new Scene(root);
         scene.setOnMouseClicked(event -> {
             MouseClickEvent event1 = new MouseClickEvent(event);
@@ -103,5 +104,6 @@ public class InputScene extends RenScene {
         RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
         SceneStartEvent startEvent = new SceneStartEvent(this);
         RenJava.callEvent(startEvent);
+        RenJava.getInstance().setStage(stage, StageType.INPUT_SCENE);
     }
 }

@@ -24,11 +24,9 @@ import java.net.MalformedURLException;
 public class PreferenceScreenView extends ScreenView {
     private final ImageLoader backgroundImage;
 
-
     public PreferenceScreenView(ImageLoader backgroundImage) {
         this.backgroundImage = backgroundImage;
     }
-
 
     public void build(Stage stage) {
         Group root = new Group();

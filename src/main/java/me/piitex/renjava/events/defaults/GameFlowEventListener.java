@@ -6,6 +6,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
+import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.MouseClickEvent;
@@ -28,22 +29,31 @@ public class GameFlowEventListener implements EventListener {
 
         // Only do this if it's not the title screen or any other menu screen
 
+        final boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
+
         switch (button) {
             case MIDDLE -> {
-                if (stageType == StageType.GAME_WINDOW) {
+                if (gameMenu) {
                     // Roll back.
 
                     // Rollback will probably not work at this time. I have to figure out a way to play a previous story and the development of stories has just started. I need to implement more functionality before attempting this.
-                    ImageScene previousScene = RenJava.getInstance().getStoryManager().getScene(scene.getIndex() - 1);
-                    if (previousScene != null) {
+                    RenScene previousScene = RenJava.getInstance().getPlayer().getCurrentStory().getPreviousSceneFromCurrent();
+                    if (previousScene == null) {
+
+                        // Scan for the previous story
+                        Story previousStory = RenJava.getInstance().getPlayer().getPreviousStory(); // Gets the previous story by the index of the story.
+                        if (previousStory != null) {
+                            previousStory.getScene(previousStory.getLastIndex()).build(stage);
+                        }
+                        RenJava.getInstance().getLogger().warning("Could not find rollback scene.");
+                    } else {
                         previousScene.build(stage);
                     }
                 }
             } case PRIMARY -> {
                 // Go Forward
-                if (stageType == StageType.GAME_WINDOW) {
+                if (gameMenu) {
                     // Go to the next scene map
-
                     // Play next scene in the story or call the scene end event. StoryHandlerEvent controls stories just call the end event (I think)
                     SceneEndEvent endEvent = new SceneEndEvent(scene);
                     RenJava.callEvent(endEvent);
@@ -63,9 +73,8 @@ public class GameFlowEventListener implements EventListener {
                 } else {
                     logger.info("Player is in right click menu return them to the previous scene.");
                     // Return to previous screen
-                    stage.hide(); // Hide current scene.
-                    //enScene renScene = player.getPreviousScene();
-                    //renScene.build(stage);
+                    RenScene renScene = player.getCurrentStory().getPreviousScene(player.getCurrentScene().getId());
+                    renScene.build(stage);
                 }
             }
         }

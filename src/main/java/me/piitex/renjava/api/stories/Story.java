@@ -1,6 +1,7 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.api.scenes.types.InteractableScene;
@@ -11,44 +12,44 @@ import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
 import java.util.*;
 import java.util.logging.Logger;
 
+
 /**
  * The Story class represents a narrative or gameplay progression in the RenJava framework.
  * It provides a way to organize and present a collection of scenes in a specific order to create a cohesive story or gameplay experience.
  * Stories provide a structured way to define the flow and progression of the game.
  *
  * <p>
- * To create a custom story, extend the Story class and implement the necessary methods and functionality.
- * Add scenes to the story, define the starting and ending points, and handle the flow of the story.
+ * To create a custom story, instantiate the Story class with a unique ID and add scenes to it using the {@link #addScene(RenScene)} or {@link #addScenes(RenScene...)} methods.
+ * Define the starting and ending points of the story using the {@link #onStart(StoryStartInterface)} and {@link #onEnd(StoryEndInterface)} methods, respectively.
  * </p>
  *
  * <p>
  * Example usage:
  * <pre>{@code
- * public class MyStory extends Story {
- *
- *     public MyStory(String id) {
- *         super(id);
- *         // You can start creating scenes in here or call private function.
- *         load();
- *     }
- *
- *     private void load() {
- *         // You can create scenes here.
- *     }
- *
- * }
+ * Story myStory = new Story("my-story-id");
+ * myStory.addScene(scene1);
+ * myStory.addScene(scene2);
+ * myStory.onStart(() -> {
+ *     // Code to execute when the story starts
+ * });
+ * myStory.onEnd(() -> {
+ *     // Code to execute when the story ends
+ * });
  * }</pre>
  * </p>
  *
  * <p>
- * Note: The Story class is an abstract class and should be extended to create custom stories.
+ * Note: The Story class is no longer abstract and can be instantiated directly to create custom stories.
  * </p>
  *
  * @see RenScene
  * @see ImageScene
  * @see InteractableScene
+ * @see StoryStartInterface
+ * @see StoryEndInterface
  */
-public abstract class Story {
+@APIChange(changedVersion = "0.0.153", description = "Story class use to be abstract however upon testing and feedback it will work the same as scenes. JavaDoc has been updated to reflect these changes.")
+public class Story {
     private final String id;
 
     private final LinkedHashMap<String, RenScene> scenes = new LinkedHashMap<>(); // Linked maps should order by insertion.
@@ -99,12 +100,21 @@ public abstract class Story {
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
         renScene.build(RenJava.getInstance().getStage());
+
+        // Update RenJava Player
+        RenJava.getInstance().getPlayer().setCurrentStory(this.getId());
+    }
+
+    public void refresh() {
+        scenes.clear();
+        sceneIndexMap.clear();
     }
 
     /**
      * Scenes are ordered the same way they are created. The first scene in a story is the first scene that was created.
      * @param scene Scene to add the story.
      */
+    @APIChange(changedVersion = "0.0.153", description = "The RenJava Player will now automatically track the stories when they start.")
     public void addScene(RenScene scene) {
         if (scenes.containsKey(scene.getId())) {
             new DuplicateSceneIdException(scene.getId()).printStackTrace();
@@ -145,6 +155,7 @@ public abstract class Story {
      * @return The last index.
      */
     public int getLastIndex() {
+        // FIXME: 8/19/2023 subtracting by one doesn't make sense this may be wrong but haven't tested to find out.
         return scenes.size() - 1; // Always subtract one because indexing is 0 based. First entry of the index is 0 while the size will be one.
     }
 
@@ -177,18 +188,10 @@ public abstract class Story {
         RenScene scene = scenes.get(id);
         int index = scene.getIndex() + 1;
         return sceneIndexMap.get(index);
-        /*boolean next = false;
-        for (Map.Entry<String, RenScene> sceneEntry : scenes.entrySet()) {
-            String key = sceneEntry.getKey();
-            if (!next) {
-                if (key.equalsIgnoreCase(id)) {
-                    next = true;
-                }
-            } else {
-                return scenes.get(key);
-            }
-        }
-        return null;*/
+    }
+
+    public RenScene getNextSceneFromCurrent() {
+        return getNextScene(RenJava.getInstance().getPlayer().getCurrentScene().getId());
     }
 
     /**
@@ -201,17 +204,17 @@ public abstract class Story {
         RenScene scene = scenes.get(id);
         int index = scene.getIndex() + 1;
         return sceneIndexMap.get(index);
+    }
 
-        /*String previousKey = "";
-        for (Map.Entry<String, RenScene> sceneEntry : scenes.entrySet()) {
-            String key = sceneEntry.getKey();
-            if (key.equalsIgnoreCase(id)) {
-                return scenes.get(previousKey);
-            } else {
-                previousKey = key;
-            }
-        }
+    public RenScene getPreviousSceneFromCurrent() {
+        return getPreviousScene(RenJava.getInstance().getPlayer().getCurrentScene().getId());
+    }
 
-        return null; */
+    public LinkedHashMap<String, RenScene> getScenes() {
+        return scenes;
+    }
+
+    public TreeMap<Integer, RenScene> getSceneIndexMap() {
+        return sceneIndexMap;
     }
 }

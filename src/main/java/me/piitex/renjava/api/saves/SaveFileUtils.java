@@ -4,10 +4,10 @@ public class SaveFileUtils {
 
     public static String toFormat(String data) {
         StringBuilder builder = new StringBuilder();
-        String[] clasz = data.split(";");
+        String[] clasz = data.split(";;;;");
         for (String s : clasz) {
             String classname = "Unknown";
-            String[] fields = s.split("@");
+            String[] fields = s.split("@@@@");
             boolean clazDetect = false;
             for (String s1 : fields) {
                 if (!clazDetect) {
@@ -15,8 +15,8 @@ public class SaveFileUtils {
                     builder.append(classname).append(":").append("\n");
                     clazDetect = true;
                 } else {
-                    String field = s1.split("!")[0];
-                    String value = s1.split("!")[1];
+                    String field = s1.split("!!!!")[0];
+                    String value = s1.split("!!!!")[1];
                     builder.append("    ").append(field).append(": ").append(value);
                     System.out.println("Class: " + classname);
                     System.out.println("Field: " + field);

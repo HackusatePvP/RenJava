@@ -1,12 +1,15 @@
 package me.piitex.renjava.gui;
 
+import me.piitex.renjava.api.gui.Container;
 import me.piitex.renjava.gui.builders.ButtonBuilder;
 import me.piitex.renjava.gui.overlay.Overlay;
 
 import java.util.Collection;
 import java.util.HashSet;
 
-public abstract class ScreenView {
+public abstract class ScreenView extends Container {
+
+    @Deprecated
     private final Collection<Overlay> overlays = new HashSet<>();
 
     private ButtonBuilder startButton;
@@ -64,10 +67,12 @@ public abstract class ScreenView {
         this.quitButton = quitButton;
     }
 
+    @Deprecated
     public void addOverlay(Overlay overlay) {
         overlays.add(overlay);
     }
 
+    @Deprecated
     public Collection<Overlay> getOverlays() {
         return overlays;
     }

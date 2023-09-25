@@ -46,7 +46,7 @@ public class RenLoader {
     }
 
     private void loadRPAFiles() {
-        // load rap files
+        // load rpa files
     }
 
 }

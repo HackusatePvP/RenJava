@@ -7,6 +7,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.ScreenView;
@@ -18,11 +19,22 @@ import me.piitex.renjava.gui.title.DefaultMainTitleScreenView;
 public class LoadScreenView extends ScreenView {
     private final ImageLoader backgroundImage;
 
+    private int page;
+
     public LoadScreenView(ImageLoader backgroundImage) {
         this.backgroundImage = backgroundImage;
+        page = 1;
     }
 
-    public void build(int page) {
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public void build(Stage stage) {
         Group root = new Group();
         RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
         FontLoader defaultFont = RenJava.getInstance().getDefaultFont();
@@ -53,10 +65,14 @@ public class LoadScreenView extends ScreenView {
         HBox topBox = new HBox();
         HBox bottomBox = new HBox();
 
+        mainBox.getChildren().add(topBox);
+        mainBox.getChildren().add(bottomBox);
 
-        for (int i = 0; i < 6; i++) {
-            if (i < 3) {
 
+        for (int i = page - 1; i < 6 * page; i++) {
+            if (i < 3 * page) {
+                // Get the selected Save at the page index.
+                // Return Empty Save if null
             }
         }
     }

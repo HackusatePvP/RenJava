@@ -1,6 +1,7 @@
 package me.piitex.renjava.events.defaults;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
@@ -18,12 +19,12 @@ public class StoryHandlerEventListener implements EventListener {
     public void onSceneStartEvent(SceneStartEvent event) {
         RenScene scene = event.getScene();
         Story story = event.getScene().getStory();
-
+        Player player = RenJava.getInstance().getPlayer();
         if (scene.getStartInterface() != null) {
             scene.getStartInterface().onStart(event);
         }
-
-        if (story == null) return;
+        if (story == null) return; // Why this would return null? No clue but its built in java so...
+        player.getViewedStories().put(story.getId(), story);
         // Check to see if this scene is the first scene in the story.
         if (story.getSceneIndex(scene) == 0) { // 0 means the first entry.
             // Update the story tracker
@@ -77,5 +78,6 @@ public class StoryHandlerEventListener implements EventListener {
         if (story.getEndInterface() != null) {
             story.getEndInterface().onStoryEnd(event);
         }
+        story.refresh();
     }
 }

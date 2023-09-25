@@ -34,7 +34,6 @@ public class AnimationScene extends RenScene {
     private final VideoLoader loader;
     private String dialogue;
     private String characterDisplayName;
-    private final Collection<Overlay> additionalOverlays = new HashSet<>();
 
     public AnimationScene(String id, VideoLoader loader) {
         super(id, null);
@@ -59,34 +58,12 @@ public class AnimationScene extends RenScene {
 
     @Override
     public void build(Stage stage) {
-        RenJava.getInstance().setStage(stage, StageType.GAME_WINDOW);
         Group root = new Group();
         MediaPlayer player = loader.getPlayer();
         MediaView mediaView = new MediaView(player);
         root.getChildren().add(mediaView);
         // player.setVolume(0);
         // TODO: 8/1/2023 When settings is finished to the volume of the audio accordingly.
-
-        /*
-        Text text = null;
-        Text characterDisplay = null;
-        if (dialogue != null && !dialogue.isEmpty()) {
-            text = new Text(dialogue);
-            if (getCharacterNameDisplay() != null && !getCharacterNameDisplay().isEmpty()) {
-                // Set character display
-                RenJava.getInstance().getLogger().info("Character Display Name Validation: " + getCharacterNameDisplay());
-                characterDisplay = new Text(getCharacterNameDisplay());
-            } else {
-                RenJava.getInstance().getLogger().info("Character Display Name Validation: " + character.getDisplayName());
-                characterDisplay = new Text(character.getDisplayName());
-            }
-            characterDisplay.setFill(character.getColor());
-            text.setFont(new FontLoader("JandaManateeSolid.ttf", 24).getFont());
-        } else {
-            // TODO: 7/30/2023
-            // No text was provided for the box so maye don't display the text box as well?
-        }
-         */
 
         // Adds the text box stuff if necessary.
         Text text = null;
@@ -141,28 +118,8 @@ public class AnimationScene extends RenScene {
         RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
         // Add the displayName in the top
 
-        for (Overlay overlay : additionalOverlays) {
-            // Add the additional overlays to the scene
-            if (overlay instanceof ImageOverlay imageOverlay) {
-                ImageView imageView1 = new ImageView(imageOverlay.image());
-                imageView1.setX(imageOverlay.x());
-                imageView1.setY(imageOverlay.y());
-                root.getChildren().add(imageView1);
-            } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text1 = new Text(textOverlay.text());
-                text1.setX(textOverlay.x());
-                text1.setY(textOverlay.y());
-                text1.setScaleX(textOverlay.xScale());
-                text1.setScaleY(textOverlay.yScale());
-                root.getChildren().add(text1);
-            } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                RenJava.getInstance().getLogger().info("Adding button...");
-                Button button = buttonOverlay.button();
-                button.setTranslateX(buttonOverlay.x());
-                button.setTranslateY(buttonOverlay.y());
-                root.getChildren().add(button);
-            }
-        }
+        hookOverlays(root);
+
         Scene scene = new Scene(root);
         scene.setOnMouseClicked(event -> {
             MouseClickEvent event1 = new MouseClickEvent(event);
@@ -175,5 +132,7 @@ public class AnimationScene extends RenScene {
         player.play();
         SceneStartEvent startEvent = new SceneStartEvent(this);
         RenJava.callEvent(startEvent);
+        RenJava.getInstance().setStage(stage, StageType.ANIMATION_SCENE);
+
     }
 }

@@ -7,9 +7,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
+import me.piitex.renjava.events.types.MouseClickEvent;
+import me.piitex.renjava.events.types.SceneStartEvent;
+import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
@@ -50,6 +54,12 @@ import java.util.HashSet;
  * Story story = new Story("myStory");
  * story.addScene(scene);
  *
+ * story.onEnd(event -> {
+ *    // Handle story end event.
+ *    // Most cases you want to start the next story.
+ *    nextStory.start();
+ * });
+ *
  * }</pre>
  * </p>
  *
@@ -58,8 +68,7 @@ import java.util.HashSet;
  * @see EventListener
  * @see Story
  */
-public abstract class InteractableScene extends RenScene {
-    private final Collection<Overlay> overlays = new HashSet<>();
+public class InteractableScene extends RenScene {
 
     private final ImageLoader backgroundImage;
 
@@ -89,19 +98,11 @@ public abstract class InteractableScene extends RenScene {
      *
      * @see RenScene
      * @see Overlay
-     * @see me.piitex.renjava.events.EventListener
+     * @see EventListener
      */
     public InteractableScene(String id, ImageLoader backgroundImage) {
         super(id, backgroundImage);
         this.backgroundImage = backgroundImage;
-    }
-
-    public void addOverlay(Overlay overlay) {
-        overlays.add(overlay);
-    }
-
-    public void end() {
-
     }
 
     @Override
@@ -116,29 +117,18 @@ public abstract class InteractableScene extends RenScene {
         }
         root.getChildren().add(backgroundView);
 
-        for (Overlay overlay : overlays) {
-            // Add the additional overlays to the scene
-            if (overlay instanceof ImageOverlay imageOverlay) {
-                ImageView imageView1 = new ImageView(imageOverlay.image());
-                imageView1.setX(imageOverlay.x());
-                imageView1.setY(imageOverlay.y());
-                root.getChildren().add(imageView1);
-            } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text1 = new Text(textOverlay.text());
-                text1.setX(textOverlay.x());
-                text1.setY(textOverlay.y());
-                text1.setScaleX(textOverlay.xScale());
-                text1.setScaleY(textOverlay.yScale());
-                root.getChildren().add(text1);
-            } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                RenJava.getInstance().getLogger().info("Adding button...");
-                Button button = buttonOverlay.button();
-                button.setTranslateX(buttonOverlay.x());
-                button.setTranslateY(buttonOverlay.y());
-                root.getChildren().add(button);
-            }
-        }
+        hookOverlays(root);
+
         Scene scene = new Scene(root);
+        scene.setOnMouseClicked(event -> {
+            MouseClickEvent event1 = new MouseClickEvent(event);
+            RenJava.callEvent(event1);
+        });
         stage.setScene(scene);
+        stage.show();
+        RenJava.getInstance().setStage(stage, StageType.INTERACTABLE_SCENE);
+        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
+        SceneStartEvent startEvent = new SceneStartEvent(this);
+        RenJava.callEvent(startEvent);
     }
 }

@@ -34,6 +34,7 @@ public class AboutScreenView extends ScreenView {
             root.getChildren().add(imageView);
         } catch (ImageNotFoundException e) {
             e.printStackTrace();
+            return;
         }
         new DefaultMainTitleScreenView(this);
         Text gameTitle = new Text(RenJava.getInstance().getName());
