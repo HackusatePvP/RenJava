@@ -33,6 +33,7 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
  * @see InputSetInterface
  */
 public class InputScene extends RenScene {
+    private final String text;
     private final ImageLoader loader;
     private TextField inputField;
     private InputSetInterface setInterface;
@@ -43,8 +44,9 @@ public class InputScene extends RenScene {
      * @param id     The ID of the InputScene.
      * @param loader The image loader used to load the background image.
      */
-    public InputScene(String id, ImageLoader loader) {
+    public InputScene(String id, String text, ImageLoader loader) {
         super(id, loader);
+        this.text = text;
         this.loader = loader;
     }
 
@@ -87,7 +89,7 @@ public class InputScene extends RenScene {
 
         double setX = imageView.getX();
         double setY = imageView.getY();
-        inputField = new TextField();
+        inputField = new TextField(text);
         inputField.setTranslateX(setX + 250);
         inputField.setTranslateY(setY + 100);
         root.getChildren().add(inputField);
