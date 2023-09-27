@@ -23,7 +23,7 @@ public class StoryHandlerEventListener implements EventListener {
         if (scene.getStartInterface() != null) {
             scene.getStartInterface().onStart(event);
         }
-        if (story == null) return; // Why this would return null? No clue but its built in java so...
+        if (story == null) return; // Why this would return null? No clue but this is built in java so...
         player.getViewedStories().put(story.getId(), story);
         // Check to see if this scene is the first scene in the story.
         if (story.getSceneIndex(scene) == 0) { // 0 means the first entry.
@@ -56,6 +56,7 @@ public class StoryHandlerEventListener implements EventListener {
         }
 
         // Call next if the story did not end.
+
         RenScene nextScene = story.getNextScene(scene.getId());
         nextScene.build(RenJava.getInstance().getStage());
     }

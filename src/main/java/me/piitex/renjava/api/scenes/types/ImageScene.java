@@ -5,19 +5,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.characters.Character;
-import me.piitex.renjava.api.gui.layouts.impl.HorizontalLayout;
-import me.piitex.renjava.api.gui.layouts.Layout;
-import me.piitex.renjava.api.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
@@ -29,10 +22,6 @@ import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 import me.piitex.renjava.gui.overlay.TextOverlay;
-
-import java.awt.*;
-import java.util.Collection;
-import java.util.HashSet;
 
 /**
  * The ImageScene class represents an image scene in the RenJava framework.
@@ -58,7 +47,6 @@ import java.util.HashSet;
  * </p>
  */
 public class ImageScene extends RenScene {
-    private int index;
     private final Character character;
     private final String dialogue;
     private final ImageLoader loader;
