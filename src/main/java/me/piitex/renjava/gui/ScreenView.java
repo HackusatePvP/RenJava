@@ -67,12 +67,10 @@ public abstract class ScreenView extends Container {
         this.quitButton = quitButton;
     }
 
-    @Deprecated
     public void addOverlay(Overlay overlay) {
         overlays.add(overlay);
     }
 
-    @Deprecated
     public Collection<Overlay> getOverlays() {
         return overlays;
     }
