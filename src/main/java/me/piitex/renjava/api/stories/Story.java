@@ -3,8 +3,11 @@ package me.piitex.renjava.api.stories;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.types.AnimationScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.api.scenes.types.InteractableScene;
+import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
+import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
@@ -19,37 +22,43 @@ import java.util.logging.Logger;
  * Stories provide a structured way to define the flow and progression of the game.
  *
  * <p>
- * To create a custom story, instantiate the Story class with a unique ID and add scenes to it using the {@link #addScene(RenScene)} or {@link #addScenes(RenScene...)} methods.
+ * To create a custom story, create a subclass of the Story class and implement the necessary methods and functionality to define your story.
+ * Add scenes to the story using the {@link #addScene(RenScene)} or {@link #addScenes(RenScene...)} methods.
  * Define the starting and ending points of the story using the {@link #onStart(StoryStartInterface)} and {@link #onEnd(StoryEndInterface)} methods, respectively.
  * </p>
  *
  * <p>
  * Example usage:
  * <pre>{@code
- * Story myStory = new Story("my-story-id");
- * myStory.addScene(scene1);
- * myStory.addScene(scene2);
- * myStory.onStart(() -> {
- *     // Code to execute when the story starts
- * });
- * myStory.onEnd(() -> {
- *     // Code to execute when the story ends
- * });
+ * public class MyStory extends Story {
+ *
+ *     public MyStory(String id) {
+ *         super(id);
+ *     }
+ *
+ *      @Override
+ *      public void init() {
+ *          // Add scenes to the story.
+ *      }
+ *
+ *     // Implement necessary methods and functionality for your story
+ * }
  * }</pre>
  * </p>
  *
  * <p>
- * Note: The Story class is no longer abstract and can be instantiated directly to create custom stories.
+ * Note: The Story class is now abstract and should be extended to create custom stories.
  * </p>
  *
  * @see RenScene
  * @see ImageScene
  * @see InteractableScene
- * @see StoryStartInterface
- * @see StoryEndInterface
+ * @see AnimationScene
+ * @see ChoiceScene
+ * @see InputScene
  */
-@APIChange(changedVersion = "0.0.153", description = "Story class use to be abstract however upon testing and feedback it will work the same as scenes. JavaDoc has been updated to reflect these changes.")
-public class Story {
+@APIChange(changedVersion = "0.0.261", description = "Reverted back abstraction.")
+public abstract class Story {
     private final String id;
 
     private final LinkedHashMap<String, RenScene> scenes = new LinkedHashMap<>(); // Linked maps should order by insertion.
@@ -89,6 +98,8 @@ public class Story {
         return endInterface;
     }
 
+    public abstract void init();
+
     public String getId() {
         return id;
     }
@@ -96,7 +107,11 @@ public class Story {
     /**
      * Displays the first scene of the story and begins the story route.
      */
+
     public void start() {
+        refresh();
+        init();
+
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
         renScene.build(RenJava.getInstance().getStage());
