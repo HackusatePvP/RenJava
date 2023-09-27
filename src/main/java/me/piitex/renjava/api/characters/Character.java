@@ -2,6 +2,7 @@ package me.piitex.renjava.api.characters;
 
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.saves.data.PersistentData;
 
 /**
  * The `Character` class represents a character in the game within the RenJava framework. It is used for displaying text and managing character-related variables, such as relationship values.
@@ -55,6 +56,10 @@ public abstract class Character {
         this.displayName = name;
 
         RenJava.getInstance().registerCharacter(this);
+
+        if (this instanceof PersistentData) {
+            RenJava.getInstance().registerData((PersistentData) this);
+        }
     }
 
     public String getId() {
