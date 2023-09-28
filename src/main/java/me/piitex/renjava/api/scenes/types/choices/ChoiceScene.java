@@ -203,23 +203,8 @@ public class ChoiceScene extends RenScene {
 
         hookOverlays(root);
 
-        Scene scene = new Scene(root);
+        addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/button.css"));
 
-        try {
-            scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/button.css").toURI().toURL().toExternalForm());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
-        RenJava.getInstance().setStage(stage, StageType.CHOICE_SCENE);
+        setStage(stage, root, StageType.CHOICE_SCENE);
     }
 }

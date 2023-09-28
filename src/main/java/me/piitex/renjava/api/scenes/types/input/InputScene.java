@@ -95,17 +95,6 @@ public class InputScene extends RenScene {
         root.getChildren().add(inputField);
 
         hookOverlays(root);
-
-        Scene scene = new Scene(root);
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
-        RenJava.getInstance().setStage(stage, StageType.INPUT_SCENE);
+        setStage(stage, root, StageType.INPUT_SCENE);
     }
 }

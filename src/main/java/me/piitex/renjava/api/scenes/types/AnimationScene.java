@@ -79,7 +79,7 @@ public class AnimationScene extends RenScene {
                 characterDisplay = new Text(character.getDisplayName());
             }
             characterDisplay.setFill(character.getColor());
-            text.setFont(new FontLoader("JandaManateeSolid.ttf", 24).getFont()); // TODO: 8/1/2023 Set a default font
+            text.setFont(RenJava.getInstance().getDefaultFont().getFont()); // TODO: 8/1/2023 Set a default font/make font param or something
         }
 
         if (text != null) {
@@ -118,21 +118,13 @@ public class AnimationScene extends RenScene {
         RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
         // Add the displayName in the top
 
+        // play video
+        // TODO: 9/26/2023 loop until player ends scene -optional maybe add param or something
+        loader.play(true);
+
         hookOverlays(root);
 
-        Scene scene = new Scene(root);
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-
-        // play video
-        player.play();
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
-        RenJava.getInstance().setStage(stage, StageType.ANIMATION_SCENE);
+        setStage(stage, root, StageType.ANIMATION_SCENE);
 
     }
 }

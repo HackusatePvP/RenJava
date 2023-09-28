@@ -81,7 +81,6 @@ public class ImageScene extends RenScene {
 
     @Override
     public void build(Stage stage) {
-        RenJava.getInstance().setStage(stage, StageType.IMAGE_SCENE);
         Group root = new Group();
 
         // Add background image
@@ -146,36 +145,7 @@ public class ImageScene extends RenScene {
             // Add the displayName in the top
         }
 
-        for (Overlay overlay : getAdditionalOverlays()) {
-            // Add the additional overlays to the scene
-            if (overlay instanceof ImageOverlay imageOverlay) {
-                ImageView imageView1 = new ImageView(imageOverlay.image());
-                imageView1.setX(imageOverlay.x());
-                imageView1.setY(imageOverlay.y());
-                root.getChildren().add(imageView1);
-            } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text1 = new Text(textOverlay.text());
-                text1.setX(textOverlay.x());
-                text1.setY(textOverlay.y());
-                text1.setScaleX(textOverlay.xScale());
-                text1.setScaleY(textOverlay.yScale());
-                root.getChildren().add(text1);
-            } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                Button button = buttonOverlay.button();
-                button.setTranslateX(buttonOverlay.x());
-                button.setTranslateY(buttonOverlay.y());
-                root.getChildren().add(button);
-            }
-        }
-        Scene scene = new Scene(root);
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
+        hookOverlays(root);
+        setStage(stage, root, StageType.IMAGE_SCENE);
     }
 }

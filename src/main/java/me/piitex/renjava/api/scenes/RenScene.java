@@ -2,9 +2,11 @@ package me.piitex.renjava.api.scenes;
 
 import javafx.scene.Group;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.gui.Container;
 import me.piitex.renjava.api.scenes.types.AnimationScene;
@@ -13,12 +15,18 @@ import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
+import me.piitex.renjava.events.types.KeyPressEvent;
+import me.piitex.renjava.events.types.MouseClickEvent;
+import me.piitex.renjava.events.types.SceneStartEvent;
+import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.builders.ImageLoader;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 import me.piitex.renjava.gui.overlay.TextOverlay;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -46,6 +54,8 @@ public abstract class RenScene extends Container {
     private SceneEndInterface endInterface;
 
     private final Collection<Overlay> additionalOverlays = new HashSet<>();
+
+    private final Collection<File> styleSheets = new HashSet<>();
 
     public RenScene(String id, ImageLoader backgroundImage) {
         this.id = id;
@@ -125,5 +135,42 @@ public abstract class RenScene extends Container {
                 root.getChildren().add(button);
             }
         }
+    }
+
+    public void addStyleSheets(File file) {
+        styleSheets.add(file);
+    }
+
+    public void setStage(Stage stage, Group root, StageType type) {
+        Scene scene = new Scene(root);
+
+        for (File file : styleSheets) {
+            try {
+                scene.getStylesheets().add(file.toURI().toURL().toExternalForm());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        scene.setOnMouseClicked(event -> {
+            MouseClickEvent event1 = new MouseClickEvent(event);
+            RenJava.callEvent(event1);
+        });
+        scene.setOnKeyPressed(keyEvent -> {
+            RenJava.getInstance().getLogger().info("JavaFX key pressed.");
+            KeyPressEvent event1 = new KeyPressEvent(this, keyEvent.getCode());
+            RenJava.callEvent(event1);
+        });
+        scene.setOnKeyReleased(keyEvent -> {
+            RenJava.getInstance().getLogger().info("JavaFX key pressed.");
+            KeyPressEvent event1 = new KeyPressEvent(this, keyEvent.getCode());
+            RenJava.callEvent(event1);
+        });
+        stage.setScene(scene);
+        stage.show();
+        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
+        SceneStartEvent startEvent = new SceneStartEvent(this);
+        RenJava.callEvent(startEvent);
+        RenJava.getInstance().setStage(stage, type);
     }
 }

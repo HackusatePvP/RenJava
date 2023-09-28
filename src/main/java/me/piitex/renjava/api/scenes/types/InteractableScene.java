@@ -116,19 +116,7 @@ public class InteractableScene extends RenScene {
             e.printStackTrace();
         }
         root.getChildren().add(backgroundView);
-
         hookOverlays(root);
-
-        Scene scene = new Scene(root);
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-        RenJava.getInstance().setStage(stage, StageType.INTERACTABLE_SCENE);
-        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
+        setStage(stage, root, StageType.INTERACTABLE_SCENE);
     }
 }
