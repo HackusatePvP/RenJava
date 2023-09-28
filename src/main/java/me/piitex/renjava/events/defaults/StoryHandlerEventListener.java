@@ -8,6 +8,7 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.*;
 
+import java.util.AbstractMap;
 import java.util.logging.Logger;
 
 /**
@@ -48,6 +49,11 @@ public class StoryHandlerEventListener implements EventListener {
             logger.info("Scene has no story returning.");
             return;
         }
+
+        // Add scene to view. Complicated mapping but it shooould work
+        Player player = RenJava.getInstance().getPlayer();
+        player.getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, scene.getId()), scene);
+
         if (scene.getIndex() == story.getLastIndex()) {
             logger.info("Calling story end event...");
             StoryEndEvent endEvent = new StoryEndEvent(story);
@@ -58,7 +64,9 @@ public class StoryHandlerEventListener implements EventListener {
         // Call next if the story did not end.
 
         RenScene nextScene = story.getNextScene(scene.getId());
-        nextScene.build(RenJava.getInstance().getStage());
+        if (nextScene != null) {
+            nextScene.build(RenJava.getInstance().getStage());
+        }
     }
 
     @Listener

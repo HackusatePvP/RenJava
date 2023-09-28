@@ -24,6 +24,8 @@ public class Player implements PersistentData {
     private final LinkedHashMap<String, Story> viewedStories = new LinkedHashMap<>(); // Ordered map of what stories the player has viewed.
     private final Map<Integer, Story> viewedStoriesIndex = new HashMap<>(); // Indexing of the viewedStories
 
+    private final Map<Map.Entry<Story, String>, RenScene> viewedScenes = new HashMap<>();
+
     public RenScene getCurrentScene() {
         if (getCurrentStory() != null) {
             return getCurrentStory().getScene(currentScene);
@@ -64,6 +66,10 @@ public class Player implements PersistentData {
 
     public LinkedHashMap<String, Story> getViewedStories() {
         return viewedStories;
+    }
+
+    public Map<Map.Entry<Story, String>, RenScene> getViewedScenes() {
+        return viewedScenes;
     }
 
     /**
