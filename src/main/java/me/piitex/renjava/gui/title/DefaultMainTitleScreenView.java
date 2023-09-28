@@ -53,7 +53,17 @@ public class DefaultMainTitleScreenView {
 
         int yBuffer = 80;
 
-        ButtonBuilder startButton = new ButtonBuilder("menu-start-button", "Start", Color.WHITE, 100, 400 ,2.5,2.5);
+        // If you are creating your own title screen you probably don't need to use scales. Scales are really only needed as they support multiple resolutions.
+        // However, when you build your game you define the resolution in the configuration. If you know your resolution you can just define the exact coordinates no need to scale.
+        double widthScale = configuration.getWidthScale();
+        double heightScale = configuration.getHeightScale();
+
+        // Sample logging as this is still be tested.
+        RenJava.getInstance().getLogger().info("Width Scale: " + widthScale);
+        RenJava.getInstance().getLogger().info("Height Scale: " + heightScale);
+
+        // Only testing start button for now.
+        ButtonBuilder startButton = new ButtonBuilder("menu-start-button", "Start", Color.WHITE, 100 * heightScale, 400 * widthScale ,2.5,2.5);
         screenView.setStartButton(startButton);
 
         ButtonBuilder loadButton = new ButtonBuilder("menu-load-button", "Load", Color.WHITE, startButton.getX(),startButton.getY() + yBuffer, 2.5, 2.5);
