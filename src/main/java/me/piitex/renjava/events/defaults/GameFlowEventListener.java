@@ -1,19 +1,24 @@
 package me.piitex.renjava.events.defaults;
 
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
+import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
+import me.piitex.renjava.events.types.KeyPressEvent;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.events.types.SceneEndEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.title.MainTitleScreenView;
 
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class GameFlowEventListener implements EventListener {
@@ -75,6 +80,28 @@ public class GameFlowEventListener implements EventListener {
                     // Return to previous screen
                     RenScene renScene = player.getCurrentStory().getPreviousScene(player.getCurrentScene().getId());
                     renScene.build(stage);
+                }
+            }
+        }
+    }
+
+    @Listener
+    public void onKeyPress(KeyPressEvent event) {
+        // Handle actions when a player presses a key.
+
+        RenScene scene = event.getScene();
+        KeyCode code = event.getCode();
+        Player player = RenJava.getInstance().getPlayer();
+        // First do skip which is ctrl
+        if (!(scene instanceof InteractableScene)) {
+            if (code == KeyCode.CONTROL) {
+                RenJava.getInstance().getLogger().info("Skipping scene...");
+                AbstractMap.SimpleEntry<Story, String> entry  = new AbstractMap.SimpleEntry<>(scene.getStory(), scene.getId());
+                // TODO: 9/26/2023 Check if the player has played the scene or if they have skip unseen text enabled
+                if (player.getViewedScenes().get(entry) != null) {
+                    // Player has seen scene
+                    SceneEndEvent endEvent = new SceneEndEvent(scene);
+                    RenJava.callEvent(endEvent);
                 }
             }
         }
