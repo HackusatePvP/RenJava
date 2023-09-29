@@ -180,7 +180,6 @@ public abstract class Story {
      * @return {@link RenScene} or null if the index does not exist.
      */
     public RenScene getScene(int index) {
-        logger.info("Map size: " + sceneIndexMap.size());
         return sceneIndexMap.get(index);
     }
 
@@ -201,6 +200,9 @@ public abstract class Story {
      */
     public RenScene getNextScene(String id) {
         RenScene scene = scenes.get(id);
+        if (scene == null) {
+            return null;
+        }
         int index = scene.getIndex() + 1;
         return sceneIndexMap.get(index);
     }
