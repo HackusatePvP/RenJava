@@ -6,23 +6,27 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.KeyPressEvent;
+import me.piitex.renjava.events.types.KeyReleaseEvent;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.events.types.SceneEndEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.title.MainTitleScreenView;
+import me.piitex.renjava.tasks.KeyHeldTask;
 
-import java.util.AbstractMap;
-import java.util.Map;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class GameFlowEventListener implements EventListener {
+    // Also experimental, task that runs while the ctrl key is held. Maybe I can change this to a do while or something... I'm not sure.
+    private KeyHeldTask heldTask;
 
+    private final Timer timer = new Timer();
     @Listener
     public void onMouseClick(MouseClickEvent event) {
         // RenJa keeps track of current Stages and other stuff
@@ -91,17 +95,24 @@ public class GameFlowEventListener implements EventListener {
 
         RenScene scene = event.getScene();
         KeyCode code = event.getCode();
-        Player player = RenJava.getInstance().getPlayer();
         // First do skip which is ctrl
         if (!(scene instanceof InteractableScene)) {
             if (code == KeyCode.CONTROL) {
-                RenJava.getInstance().getLogger().info("Skipping scene...");
-                AbstractMap.SimpleEntry<Story, String> entry  = new AbstractMap.SimpleEntry<>(scene.getStory(), scene.getId());
-                // TODO: 9/26/2023 Check if the player has played the scene or if they have skip unseen text enabled
-                if (player.getViewedScenes().get(entry) != null) {
-                    // Player has seen scene
-                    SceneEndEvent endEvent = new SceneEndEvent(scene);
-                    RenJava.callEvent(endEvent);
+                heldTask = new KeyHeldTask(event.getScene());
+                //timer.scheduleAtFixedRate(heldTask, TimeUnit.MILLISECONDS.toMillis(500L), TimeUnit.MILLISECONDS.toMillis(500L));
+            }
+        }
+    }
+
+    @Listener
+    public void onKeyRelease(KeyReleaseEvent event) {
+        RenScene scene = event.getScene();
+        KeyCode code = event.getCode();
+        // First do skip which is ctrl
+        if (!(scene instanceof InteractableScene)) {
+            if (code == KeyCode.CONTROL) {
+                if (heldTask != null) {
+                    timer.cancel();
                 }
             }
         }
