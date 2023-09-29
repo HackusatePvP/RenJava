@@ -1,4 +1,4 @@
-package me.piitex.renjava.gui.builders;
+package me.piitex.renjava.api.builders;
 
 import javafx.scene.image.Image;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;

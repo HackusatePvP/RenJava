@@ -1,4 +1,4 @@
-package me.piitex.renjava.gui.builders;
+package me.piitex.renjava.api.builders;
 
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
