@@ -1,6 +1,8 @@
 package me.piitex.renjava;
 
 import java.io.*;
+import java.util.Properties;
+
 import me.piitex.renjava.api.stories.StoryManager;
 
 public class RenLoader {
@@ -43,6 +45,26 @@ public class RenLoader {
         loadRPAFiles();
         renJava.preEnabled();
         renJava.setStoryManager(new StoryManager());
+
+        // Build setting file
+        File directory = new File(System.getProperty("user.dir") + "/renjava/");
+        directory.mkdir();
+        File file = new File(directory, "settings.properties");
+        if (!file.exists()) {
+            // Create file and preset values
+            try {
+                file.createNewFile();
+                Properties properties = new Properties();
+                properties.load(new FileInputStream(file));
+                properties.setProperty("skip-unseen-text", "false");
+                properties.setProperty("transitions", "true");
+                properties.setProperty("fullscreen", "false");
+                properties.setProperty("volume", "1");
+                properties.store(new FileOutputStream(file), null);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private void loadRPAFiles() {
