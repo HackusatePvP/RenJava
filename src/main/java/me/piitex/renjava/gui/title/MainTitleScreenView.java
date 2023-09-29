@@ -14,7 +14,7 @@ import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
@@ -149,7 +149,6 @@ public class MainTitleScreenView extends ScreenView {
             button.setTranslateY(getStartButton().getY());
             root.getChildren().add(button);
         }*/
-
         logger.info("Creating scene...");
         Scene scene = new Scene(root);
         try {

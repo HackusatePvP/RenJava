@@ -12,9 +12,9 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.ButtonBuilder;
-import me.piitex.renjava.gui.builders.FontLoader;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ButtonBuilder;
+import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.title.DefaultMainTitleScreenView;
 

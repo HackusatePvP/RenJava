@@ -7,7 +7,7 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 import me.piitex.renjava.gui.about.AboutScreenView;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.prefernces.PreferenceScreenView;
 
 public class MenuClickEventListener implements EventListener {

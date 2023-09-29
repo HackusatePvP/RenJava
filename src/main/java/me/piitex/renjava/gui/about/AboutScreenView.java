@@ -12,12 +12,9 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.title.DefaultMainTitleScreenView;
-
-import java.io.File;
-import java.net.MalformedURLException;
 
 public class AboutScreenView extends ScreenView {
     private final ImageLoader backgroundImage;

@@ -1,7 +1,7 @@
 package me.piitex.renjava.gui;
 
 import me.piitex.renjava.api.gui.Container;
-import me.piitex.renjava.gui.builders.ButtonBuilder;
+import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.gui.overlay.Overlay;
 
 import java.util.Collection;

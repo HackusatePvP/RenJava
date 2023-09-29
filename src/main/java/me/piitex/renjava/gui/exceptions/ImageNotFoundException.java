@@ -1,6 +1,6 @@
 package me.piitex.renjava.gui.exceptions;
 
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 
 public class ImageNotFoundException extends Exception {
 

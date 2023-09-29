@@ -4,10 +4,10 @@ import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.ScreenView;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
-import me.piitex.renjava.gui.builders.ButtonBuilder;
+import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.gui.overlay.TextOverlay;
 
 /**
@@ -23,8 +23,6 @@ public class DefaultMainTitleScreenView {
     }
 
     public void build() {
-        // FIXME: 8/8/2023 This currently does not utilize vboxes hboxes or other modern layout solutions. Meaning this is complete and utter trash and needs to be redone
-
         RenJava.getInstance().getLogger().warning("Building default layout. You should setup your own layout.");
 
         // Left Horizontal display bar

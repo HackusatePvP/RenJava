@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APIChange;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
