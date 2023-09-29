@@ -1,17 +1,13 @@
 package me.piitex.renjava.api.scenes.types.input;
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.events.types.MouseClickEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 /**

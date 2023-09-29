@@ -1,28 +1,15 @@
 package me.piitex.renjava.api.scenes.types;
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
-import me.piitex.renjava.events.types.MouseClickEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
-import me.piitex.renjava.gui.overlay.TextOverlay;
-
-import java.util.Collection;
-import java.util.HashSet;
 
 /**
  * The InteractableScene class represents an interactable scene in the RenJava framework.
