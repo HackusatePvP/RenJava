@@ -39,8 +39,8 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
  * </p>
  */
 public class ImageScene extends RenScene {
-    private final Character character;
-    private final String dialogue;
+    private Character character;
+    private String dialogue;
     private final ImageLoader loader;
 
     private final String characterDisplayName;
@@ -69,6 +69,14 @@ public class ImageScene extends RenScene {
 
     public String getCharacterNameDisplay() {
         return characterDisplayName;
+    }
+
+    public void setCharacter(Character character) {
+        this.character = character;
+    }
+
+    public void setDialogue(String dialogue) {
+        this.dialogue = dialogue;
     }
 
     @Override
