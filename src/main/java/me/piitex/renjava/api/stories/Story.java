@@ -110,7 +110,6 @@ public abstract class Story {
 
     public void start() {
         refresh();
-        init();
 
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
@@ -123,6 +122,7 @@ public abstract class Story {
     public void refresh() {
         scenes.clear();
         sceneIndexMap.clear();
+        init();
     }
 
     /**
@@ -170,7 +170,6 @@ public abstract class Story {
      * @return The last index.
      */
     public int getLastIndex() {
-        // FIXME: 8/19/2023 subtracting by one doesn't make sense this may be wrong but haven't tested to find out.
         return scenes.size() - 1; // Always subtract one because indexing is 0 based. First entry of the index is 0 while the size will be one.
     }
 
@@ -225,6 +224,25 @@ public abstract class Story {
 
     public RenScene getPreviousSceneFromCurrent() {
         return getPreviousScene(RenJava.getInstance().getPlayer().getCurrentScene().getId());
+    }
+
+    public void displayScene(int id) {
+        RenScene scene = getScene(id);
+        scene.build(RenJava.getInstance().getStage());
+    }
+
+    public void displayScene(String id) {
+        // FIXME: 9/30/2023 Does not call SceneEndEvent for the current scene displayed.
+        RenScene scene = getScene(id);
+        scene.build(RenJava.getInstance().getStage());
+    }
+
+    public void displayScene(RenScene scene) {
+        scene.build(RenJava.getInstance().getStage());
+    }
+
+    public void displayNextScene() {
+        getNextSceneFromCurrent().build(RenJava.getInstance().getStage());
     }
 
     public LinkedHashMap<String, RenScene> getScenes() {
