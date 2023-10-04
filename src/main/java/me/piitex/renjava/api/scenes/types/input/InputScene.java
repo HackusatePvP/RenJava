@@ -10,6 +10,8 @@ import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
+import java.io.File;
+
 /**
  * The InputScene class represents a scene in the RenJava framework that allows the player to input text.
  * It is used to capture player input for purposes such as setting character names or other options.
@@ -89,7 +91,7 @@ public class InputScene extends RenScene {
         inputField.setTranslateX(setX + 250);
         inputField.setTranslateY(setY + 100);
         root.getChildren().add(inputField);
-
+        addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/inputfield.css"));
         hookOverlays(root);
         setStage(stage, root, StageType.INPUT_SCENE);
     }
