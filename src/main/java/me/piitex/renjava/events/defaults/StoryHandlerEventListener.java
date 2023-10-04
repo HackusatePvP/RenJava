@@ -35,11 +35,12 @@ public class StoryHandlerEventListener implements EventListener {
         }
     }
 
-    @Listener
+    /*@Listener
     public void onSceneEndEvent(SceneEndEvent event) {
         Logger logger = RenJava.getInstance().getLogger();
         logger.info("Handling story scene end event...");
         RenScene scene = event.getScene();
+        if (scene == null) return;
         if (scene.getEndInterface() != null) {
             scene.getEndInterface().onEnd(event);
         }
@@ -67,7 +68,7 @@ public class StoryHandlerEventListener implements EventListener {
         if (nextScene != null) {
             nextScene.build(RenJava.getInstance().getStage());
         }
-    }
+    }*/
 
     @Listener
     public void onStoryStart(StoryStartEvent event) {
