@@ -11,6 +11,7 @@ import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
+import me.piitex.renjava.events.types.SceneEndEvent;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -218,7 +219,7 @@ public abstract class Story {
      */
     public RenScene getPreviousScene(String id) {
         RenScene scene = scenes.get(id);
-        int index = scene.getIndex() + 1;
+        int index = scene.getIndex() - 1;
         return sceneIndexMap.get(index);
     }
 
@@ -232,16 +233,19 @@ public abstract class Story {
     }
 
     public void displayScene(String id) {
-        // FIXME: 9/30/2023 Does not call SceneEndEvent for the current scene displayed.
         RenScene scene = getScene(id);
-        scene.build(RenJava.getInstance().getStage());
+        displayScene(scene);
     }
 
     public void displayScene(RenScene scene) {
+        SceneEndEvent event = new SceneEndEvent(getPreviousScene(scene.getId()));
+        RenJava.callEvent(event);
         scene.build(RenJava.getInstance().getStage());
     }
 
     public void displayNextScene() {
+        SceneEndEvent event = new SceneEndEvent(getPreviousSceneFromCurrent());
+        RenJava.callEvent(event);
         getNextSceneFromCurrent().build(RenJava.getInstance().getStage());
     }
 
