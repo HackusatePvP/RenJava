@@ -69,4 +69,13 @@ public class RenJavaConfiguration {
     public Map.Entry<Integer, Integer> getTopRight() {
         return Map.entry(getCurrentWidth(), 5);
     }
+
+    // TODO: 9/26/2023 set a scale from 1920 1080 being 1
+    public double getHeightScale() {
+        return height / 1080d;
+    }
+
+    public double getWidthScale() {
+        return width / 1920d;
+    }
 }

@@ -1,8 +1,6 @@
 package me.piitex.renjava.api.scenes.types;
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.MediaPlayer;
@@ -14,20 +12,11 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.events.types.MouseClickEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.FontLoader;
-import me.piitex.renjava.gui.builders.ImageLoader;
-import me.piitex.renjava.gui.builders.VideoLoader;
+import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.builders.VideoLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
-import me.piitex.renjava.gui.overlay.Overlay;
-import me.piitex.renjava.gui.overlay.TextOverlay;
-
-import java.util.Collection;
-import java.util.HashSet;
 
 public class AnimationScene extends RenScene {
     private Character character;
@@ -79,7 +68,7 @@ public class AnimationScene extends RenScene {
                 characterDisplay = new Text(character.getDisplayName());
             }
             characterDisplay.setFill(character.getColor());
-            text.setFont(new FontLoader("JandaManateeSolid.ttf", 24).getFont()); // TODO: 8/1/2023 Set a default font
+            text.setFont(RenJava.getInstance().getDefaultFont().getFont()); // TODO: 8/1/2023 Set a default font/make font param or something
         }
 
         if (text != null) {
@@ -112,27 +101,18 @@ public class AnimationScene extends RenScene {
             // Set the text a little down from the top and over to the right.
             // Name of character will be top right of the text box
             root.getChildren().add(characterDisplay);
-
         }
 
         RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
         // Add the displayName in the top
 
+        // play video
+        // TODO: 9/26/2023 loop until player ends scene -optional maybe add param or something
+        loader.play(true);
+
         hookOverlays(root);
 
-        Scene scene = new Scene(root);
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-
-        // play video
-        player.play();
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
-        RenJava.getInstance().setStage(stage, StageType.ANIMATION_SCENE);
+        setStage(stage, root, StageType.ANIMATION_SCENE);
 
     }
 }

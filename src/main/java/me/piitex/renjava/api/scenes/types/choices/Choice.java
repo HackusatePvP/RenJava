@@ -1,6 +1,6 @@
 package me.piitex.renjava.api.scenes.types.choices;
 
-import me.piitex.renjava.gui.builders.ButtonBuilder;
+import me.piitex.renjava.api.builders.ButtonBuilder;
 
 /**
  * The Choice class represents a choice in a ChoiceScene within the RenJava framework.

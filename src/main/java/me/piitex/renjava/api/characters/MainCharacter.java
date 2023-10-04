@@ -10,5 +10,4 @@ public abstract class MainCharacter extends Character {
     public MainCharacter(String id, String name, Color color) {
         super(id, name, color);
     }
-
 }

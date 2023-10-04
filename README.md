@@ -9,6 +9,11 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 - [intellij](https://www.jetbrains.com/idea/download/?section=windows) or [Eclipse](https://www.eclipse.org/downloads/)
 - Maven (should come with your IDE.)
 
+## Application Requirements
+- Java
+- Windows 7/10/11
+- Linux and Mac are not supported (yet).
+
 ## Getting started
 Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about te framework and all of its features.
 

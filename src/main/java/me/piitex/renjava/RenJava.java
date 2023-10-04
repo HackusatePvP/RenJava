@@ -1,6 +1,7 @@
 package me.piitex.renjava;
 
 import javafx.stage.Stage;
+import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.stories.StoryManager;
@@ -16,9 +17,8 @@ import me.piitex.renjava.events.defaults.ScenesEventListener;
 import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.FontLoader;
+import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.gui.title.MainTitleScreenView;
-import me.piitex.renjava.api.music.Track;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -26,8 +26,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.logging.*;
 
-/**
- * The `RenJava` class serves as the entry point for the RenJava framework. It provides the core functionality and structure for creating visual novel games.
+ /**
+ * The RenJava class serves as the entry point for the RenJava framework. It provides the core functionality and structure for creating visual novel games.
  * <p>
  * To use the RenJava framework, create a new class that extends the `RenJava` class and override its methods to define the behavior of your game.
  * The extended class will serve as the entry point for your game.
@@ -37,17 +37,28 @@ import java.util.logging.*;
  * <p>
  * To start the game, create an instance of your extended `RenJava` class and pass the necessary parameters, such as the game name, author, and version, to the constructor.
  * The `RenJava` framework will automatically create an instance of your class and initialize the game.
- * <p>
- * Note: Do not call the `RenJava` constructor directly. The framework creates a new instance of your class automatically using reflection.
+ * <pre>{@code
+ *     public class MyGameClass extends RenJava {
  *
- * @author Hackusate (piitex)
+ *         // Note: The constructor cannot contain any parameters.
+ *         public MyGameClass() {
+ *             super("game name", "author", "version");
+ *         }
+ *
+ *         // abstraction methods.
+ *     }
+ * }</pre>
+ *
+ * Note: Do not call the `RenJava` constructor directly. The framework creates a new instance of your class automatically using reflections.
  */
 public abstract class RenJava {
     private final String name;
-    private final String author;
-    private final String version;
-    private final Logger logger;
-    private final Player player;
+    private String author;
+    private String version;
+    private Logger logger;
+    private Player player;
+    // Audio Tracking
+    private Tracks tracks;
     private Stage stage; // Move this somewhere else.
     private StageType stageType;
     private RenJavaConfiguration configuration;
@@ -55,9 +66,6 @@ public abstract class RenJava {
 
     // Story manager
     private StoryManager storyManager;
-
-    // Audio tracking
-    private Track track;
 
     private final Map<String, Character> registeredCharacters = new HashMap<>();
     private final Collection<EventListener> registeredListeners = new HashSet<>();
@@ -80,6 +88,7 @@ public abstract class RenJava {
         this.author = author;
         this.version = version;
         this.player = new Player();
+        this.tracks = new Tracks();
         // Load logger
         this.logger = Logger.getLogger(name);
         FileHandler fileHandler;
@@ -116,12 +125,16 @@ public abstract class RenJava {
         return player;
     }
 
+    public Tracks getTracks() {
+        return tracks;
+    }
+
     public Logger getLogger() {
         return logger;
     }
 
     public String getBuildVersion() {
-        return "0.0.153";
+        return "0.0.261";
     }
 
     public Stage getStage() {
@@ -159,14 +172,6 @@ public abstract class RenJava {
 
     public void setStoryManager(StoryManager storyManager) {
         this.storyManager = storyManager;
-    }
-
-    public Track getTrack() {
-        return track;
-    }
-
-    public void setTrack(Track track) {
-        this.track = track;
     }
 
     /**
@@ -356,11 +361,10 @@ public abstract class RenJava {
      *
      *         public MyStory(String id) {
      *             super(id);
-     *             // You can start creating scenes in here or call private function.
-     *             load();
      *         }
      *
-     *         private void load() {
+     *         @Override
+     *         private void init() {
      *             // You can create scenes here.
      *         }
      *
@@ -405,7 +409,6 @@ public abstract class RenJava {
     public static RenJava getInstance() {
         return instance;
     }
-
 
     /**
      * The event system in RenJava allows for the handling of various game events and actions. Events are an extension of "actions" during the game, such as player clicks or game flow changes.

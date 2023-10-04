@@ -1,4 +1,4 @@
-package me.piitex.renjava.gui.builders;
+package me.piitex.renjava.api.builders;
 
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -17,7 +17,7 @@ public class ButtonBuilder {
 
     private Color color;
 
-    private int x, y;
+    private double x, y;
     private final double xScale, yScale;
 
     /**
@@ -31,7 +31,7 @@ public class ButtonBuilder {
      * @param xScale X-Axis scale of the button.
      * @param yScale Y-Axis scale of the button.
      */
-    public ButtonBuilder(String id, String text, Color color, int x, int y, double xScale, double yScale) {
+    public ButtonBuilder(String id, String text, Color color, double x, double y, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.color = color;
@@ -88,7 +88,7 @@ public class ButtonBuilder {
     }
 
     /**
-     * Create a button with only an image.
+     * Create a button with image and text
      *
      * @param id          Identifier for the button.
      * @param imageLoader Image to be displayed inside the button.
@@ -149,15 +149,15 @@ public class ButtonBuilder {
         this.color = color;
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 

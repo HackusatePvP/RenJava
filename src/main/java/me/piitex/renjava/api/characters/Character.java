@@ -2,6 +2,8 @@ package me.piitex.renjava.api.characters;
 
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.saves.data.Data;
+import me.piitex.renjava.api.saves.data.PersistentData;
 
 /**
  * The `Character` class represents a character in the game within the RenJava framework. It is used for displaying text and managing character-related variables, such as relationship values.
@@ -19,10 +21,10 @@ import me.piitex.renjava.RenJava;
  * @see me.piitex.renjava.RenJava
  */
 public abstract class Character {
-    private final String id; // The ID must be unique. The ID system allows you to have multiple characters with the same name.
-    private String name; // This is the name display for the character.
-    private final Color color;
-    private String displayName;
+    @Data private final String id; // The ID must be unique. The ID system allows you to have multiple characters with the same name.
+    @Data private String name; // This is the name display for the character.
+    @Data private final Color color;
+    @Data private String displayName;
 
     /**
      * Creates a new character object with the specified ID, name, and color.
@@ -55,6 +57,10 @@ public abstract class Character {
         this.displayName = name;
 
         RenJava.getInstance().registerCharacter(this);
+
+        if (this instanceof PersistentData) {
+            RenJava.getInstance().registerData((PersistentData) this);
+        }
     }
 
     public String getId() {

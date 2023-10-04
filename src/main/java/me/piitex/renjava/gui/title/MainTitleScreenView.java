@@ -14,7 +14,7 @@ import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
@@ -81,7 +81,7 @@ public class MainTitleScreenView extends ScreenView {
         Stage stage = new Stage();
         Group root = new Group();
         logger.info("Setting background image...");
-        ImageView backgroundView = null;
+        ImageView backgroundView;
         try {
             backgroundView = new ImageView(image.build());
         } catch (ImageNotFoundException e) {
@@ -148,38 +148,7 @@ public class MainTitleScreenView extends ScreenView {
             button.setTranslateY(getStartButton().getX());
             button.setTranslateY(getStartButton().getY());
             root.getChildren().add(button);
-        }
-        if (getLoadButton() != null) {
-            Button button = getLoadButton().build();
-            button.setTranslateY(getLoadButton().getX());
-            button.setTranslateY(getLoadButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getOptionsButton() != null) {
-            Button button = getOptionsButton().build();
-            button.setTranslateY(getOptionsButton().getX());
-            button.setTranslateY(getOptionsButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getAboutButton() != null) {
-            Button button = getAboutButton().build();
-            button.setTranslateY(getAboutButton().getX());
-            button.setTranslateY(getAboutButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getHelpButton() != null) {
-            Button button = getHelpButton().build();
-            button.setTranslateY(getHelpButton().getX());
-            button.setTranslateY(getHelpButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getQuitButton() != null) {
-            Button button = getQuitButton().build();
-            button.setTranslateY(getQuitButton().getX());
-            button.setTranslateY(getQuitButton().getY());
-            root.getChildren().add(button);
         }*/
-
         logger.info("Creating scene...");
         Scene scene = new Scene(root);
         try {

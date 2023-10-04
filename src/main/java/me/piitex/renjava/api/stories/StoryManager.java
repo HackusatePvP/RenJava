@@ -21,11 +21,9 @@ public class StoryManager {
 
     public void addStory(Story story) {
         storyIdMap.put(story.getId(), story);
-
     }
 
     public Story getStory(String id) {
         return storyIdMap.get(id);
     }
-
 }

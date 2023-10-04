@@ -1,38 +1,19 @@
 package me.piitex.renjava.api.scenes.types;
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.characters.Character;
-import me.piitex.renjava.api.gui.layouts.impl.HorizontalLayout;
-import me.piitex.renjava.api.gui.layouts.Layout;
-import me.piitex.renjava.api.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.events.types.MouseClickEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.FontLoader;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
-import me.piitex.renjava.gui.overlay.Overlay;
-import me.piitex.renjava.gui.overlay.TextOverlay;
-
-import java.awt.*;
-import java.util.Collection;
-import java.util.HashSet;
 
 /**
  * The ImageScene class represents an image scene in the RenJava framework.
@@ -58,9 +39,8 @@ import java.util.HashSet;
  * </p>
  */
 public class ImageScene extends RenScene {
-    private int index;
-    private final Character character;
-    private final String dialogue;
+    private Character character;
+    private String dialogue;
     private final ImageLoader loader;
 
     private final String characterDisplayName;
@@ -91,9 +71,16 @@ public class ImageScene extends RenScene {
         return characterDisplayName;
     }
 
+    public void setCharacter(Character character) {
+        this.character = character;
+    }
+
+    public void setDialogue(String dialogue) {
+        this.dialogue = dialogue;
+    }
+
     @Override
     public void build(Stage stage) {
-        RenJava.getInstance().setStage(stage, StageType.IMAGE_SCENE);
         Group root = new Group();
 
         // Add background image
@@ -158,36 +145,7 @@ public class ImageScene extends RenScene {
             // Add the displayName in the top
         }
 
-        for (Overlay overlay : getAdditionalOverlays()) {
-            // Add the additional overlays to the scene
-            if (overlay instanceof ImageOverlay imageOverlay) {
-                ImageView imageView1 = new ImageView(imageOverlay.image());
-                imageView1.setX(imageOverlay.x());
-                imageView1.setY(imageOverlay.y());
-                root.getChildren().add(imageView1);
-            } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text1 = new Text(textOverlay.text());
-                text1.setX(textOverlay.x());
-                text1.setY(textOverlay.y());
-                text1.setScaleX(textOverlay.xScale());
-                text1.setScaleY(textOverlay.yScale());
-                root.getChildren().add(text1);
-            } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                Button button = buttonOverlay.button();
-                button.setTranslateX(buttonOverlay.x());
-                button.setTranslateY(buttonOverlay.y());
-                root.getChildren().add(button);
-            }
-        }
-        Scene scene = new Scene(root);
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
+        hookOverlays(root);
+        setStage(stage, root, StageType.IMAGE_SCENE);
     }
 }

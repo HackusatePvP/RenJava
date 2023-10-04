@@ -8,6 +8,7 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.*;
 
+import java.util.AbstractMap;
 import java.util.logging.Logger;
 
 /**
@@ -23,7 +24,7 @@ public class StoryHandlerEventListener implements EventListener {
         if (scene.getStartInterface() != null) {
             scene.getStartInterface().onStart(event);
         }
-        if (story == null) return; // Why this would return null? No clue but its built in java so...
+        if (story == null) return; // Why this would return null? No clue but this is built in java so...
         player.getViewedStories().put(story.getId(), story);
         // Check to see if this scene is the first scene in the story.
         if (story.getSceneIndex(scene) == 0) { // 0 means the first entry.
@@ -34,11 +35,12 @@ public class StoryHandlerEventListener implements EventListener {
         }
     }
 
-    @Listener
+    /*@Listener
     public void onSceneEndEvent(SceneEndEvent event) {
         Logger logger = RenJava.getInstance().getLogger();
         logger.info("Handling story scene end event...");
         RenScene scene = event.getScene();
+        if (scene == null) return;
         if (scene.getEndInterface() != null) {
             scene.getEndInterface().onEnd(event);
         }
@@ -48,6 +50,11 @@ public class StoryHandlerEventListener implements EventListener {
             logger.info("Scene has no story returning.");
             return;
         }
+
+        // Add scene to view. Complicated mapping but it shooould work
+        Player player = RenJava.getInstance().getPlayer();
+        player.getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, scene.getId()), scene);
+
         if (scene.getIndex() == story.getLastIndex()) {
             logger.info("Calling story end event...");
             StoryEndEvent endEvent = new StoryEndEvent(story);
@@ -56,9 +63,12 @@ public class StoryHandlerEventListener implements EventListener {
         }
 
         // Call next if the story did not end.
+
         RenScene nextScene = story.getNextScene(scene.getId());
-        nextScene.build(RenJava.getInstance().getStage());
-    }
+        if (nextScene != null) {
+            nextScene.build(RenJava.getInstance().getStage());
+        }
+    }*/
 
     @Listener
     public void onStoryStart(StoryStartEvent event) {

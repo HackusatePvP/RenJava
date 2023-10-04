@@ -1,18 +1,16 @@
 package me.piitex.renjava.api.scenes.types.input;
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.events.types.MouseClickEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.builders.ImageLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+
+import java.io.File;
 
 /**
  * The InputScene class represents a scene in the RenJava framework that allows the player to input text.
@@ -33,6 +31,7 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
  * @see InputSetInterface
  */
 public class InputScene extends RenScene {
+    private final String text;
     private final ImageLoader loader;
     private TextField inputField;
     private InputSetInterface setInterface;
@@ -43,8 +42,9 @@ public class InputScene extends RenScene {
      * @param id     The ID of the InputScene.
      * @param loader The image loader used to load the background image.
      */
-    public InputScene(String id, ImageLoader loader) {
+    public InputScene(String id, String text, ImageLoader loader) {
         super(id, loader);
+        this.text = text;
         this.loader = loader;
     }
 
@@ -87,23 +87,12 @@ public class InputScene extends RenScene {
 
         double setX = imageView.getX();
         double setY = imageView.getY();
-        inputField = new TextField();
+        inputField = new TextField(text);
         inputField.setTranslateX(setX + 250);
         inputField.setTranslateY(setY + 100);
         root.getChildren().add(inputField);
-
+        addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/inputfield.css"));
         hookOverlays(root);
-
-        Scene scene = new Scene(root);
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        stage.setScene(scene);
-        stage.show();
-        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
-        RenJava.getInstance().setStage(stage, StageType.INPUT_SCENE);
+        setStage(stage, root, StageType.INPUT_SCENE);
     }
 }
