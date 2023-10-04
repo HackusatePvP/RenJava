@@ -1,6 +1,8 @@
 package me.piitex.renjava.gui.load;
 
 import javafx.scene.Group;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -9,6 +11,7 @@ import javafx.scene.text.Text;
 
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.api.builders.FontLoader;
@@ -73,6 +76,16 @@ public class LoadScreenView extends ScreenView {
             if (i < 3 * page) {
                 // Get the selected Save at the page index.
                 // Return Empty Save if null
+                RenJava.getInstance().getLogger().info("Creating save " + i);
+                Button button = new Button("save-" + i);
+                try {
+                    button.setGraphic(new ImageView(new ImageLoader("gui/frame.png").build()));
+                } catch (ImageNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                button.setText("Save " + i);
+                button.setContentDisplay(ContentDisplay.BOTTOM);
+                topBox.getChildren().add(button);
             }
         }
     }

@@ -88,7 +88,7 @@ public class ButtonBuilder {
     }
 
     /**
-     * Create a button with only an image.
+     * Create a button with image and text
      *
      * @param id          Identifier for the button.
      * @param imageLoader Image to be displayed inside the button.
