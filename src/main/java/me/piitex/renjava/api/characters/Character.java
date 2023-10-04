@@ -2,6 +2,7 @@ package me.piitex.renjava.api.characters;
 
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 
 /**
@@ -20,10 +21,10 @@ import me.piitex.renjava.api.saves.data.PersistentData;
  * @see me.piitex.renjava.RenJava
  */
 public abstract class Character {
-    private final String id; // The ID must be unique. The ID system allows you to have multiple characters with the same name.
-    private String name; // This is the name display for the character.
-    private final Color color;
-    private String displayName;
+    @Data private final String id; // The ID must be unique. The ID system allows you to have multiple characters with the same name.
+    @Data private String name; // This is the name display for the character.
+    @Data private final Color color;
+    @Data private String displayName;
 
     /**
      * Creates a new character object with the specified ID, name, and color.
