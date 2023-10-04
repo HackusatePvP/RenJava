@@ -1,0 +1,36 @@
+package me.piitex.renjava.tasks;
+
+import javafx.application.Platform;
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.player.Player;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.stories.Story;
+import me.piitex.renjava.events.types.SceneEndEvent;
+
+import java.util.AbstractMap;
+import java.util.TimerTask;
+
+public class KeyHeldTask extends TimerTask {
+    private final RenScene scene;
+
+    private boolean cancel = false;
+
+    public KeyHeldTask(RenScene scene) {
+        this.scene = scene;
+    }
+
+    @Override
+    public void run() {
+        RenJava.getInstance().getLogger().info("Skipping scene...");
+        Player player = RenJava.getInstance().getPlayer();
+        AbstractMap.SimpleEntry<Story, String> entry = new AbstractMap.SimpleEntry<>(scene.getStory(), scene.getId());
+        // TODO: 9/26/2023 Check if the player has played the scene or if they have skip unseen text enabled
+        if (player.getViewedScenes().get(entry) != null) {
+            // Player has seen scene
+            Platform.runLater(() -> {
+                SceneEndEvent endEvent = new SceneEndEvent(scene);
+                RenJava.callEvent(endEvent);
+            });
+        }
+    }
+}
