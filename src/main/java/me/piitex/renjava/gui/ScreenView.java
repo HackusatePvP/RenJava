@@ -8,10 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public abstract class ScreenView extends Container {
-
-    @Deprecated
     private final Collection<Overlay> overlays = new HashSet<>();
-
     private ButtonBuilder startButton;
     private ButtonBuilder loadButton;
     private ButtonBuilder optionsButton;
