@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class Player implements PersistentData {
     private boolean rightClickMenu;
-    private int mostProgressedScene;
+    @Deprecated private int mostProgressedScene;
     @Data private String currentScene;
     @Data private String currentStory;
 
