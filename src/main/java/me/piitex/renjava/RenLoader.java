@@ -16,6 +16,8 @@ public class RenLoader {
     private void setupMain() {
         File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
         gameDirectory.mkdir();
+        File renJavaDirectory = new File(System.getProperty("user.dir") + "/renjava/");
+        renJavaDirectory.mkdir();
         File logFile = new File(System.getProperty("user.dir"), "log.txt");
         try {
             logFile.createNewFile();
@@ -70,5 +72,4 @@ public class RenLoader {
     private void loadRPAFiles() {
         // load rpa files
     }
-
 }
