@@ -1,6 +1,15 @@
 All changes regarding the project and API will be documented here. The latest version wIll always be on top.
-## Build 0.0.153 
+
 Changes here are made when the RenJava project was still private.
+## Build 0.0.261
+- Expanded documentation.
+- If a [Character]() class implements [PersistentData]() the class wll automatically register itself as a data class. 
+- [Story]()'s will now update and refresh automatically.
+  - Added abstract void `init` which is used to create the scenes for the story.
+  - Stories have been reverted back to abstraction. More testing will be required before making a final decision on the layout.
+- 
+
+## Build 0.0.153
 - Added [Container]() which supports layouts and additional alignment features.
   - Started implementation of the save functionality. All classes which contain data you want to save must be implemented with `PersistentData`.
   All fields that contain the data you want to save cannot be final and must be annotated with `@Data`.
