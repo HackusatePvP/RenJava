@@ -1,0 +1,6 @@
+.text-field {
+    -fx-text-box-border: transparent;
+}
+.text-field:focused {
+    -fx-focus-color: transparent;
+}
