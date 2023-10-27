@@ -1,6 +1,8 @@
 package me.piitex.renjava.api.builders;
 
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +12,28 @@ public class FontLoader {
     private final String name;
     private int size;
     private Font font;
+    private FontWeight weight;
+    private FontPosture posture;
+
+    public FontLoader(Font font, int size) {
+        this.name = font.getName();
+        this.size = size;
+        this.font = Font.font(font.getFamily(), size);
+    }
+
+    public FontLoader(Font font, FontWeight weight, int size) {
+        this.name = font.getName();
+        this.size = size;
+        this.weight = weight;
+        this.font = Font.font(font.getFamily(), weight, size);
+    }
+
+    public FontLoader(Font font, FontPosture posture, int size) {
+        this.name = font.getName();
+        this.size = size;
+        this.posture = posture;
+        this.font = Font.font(font.getFamily(), posture, size);
+    }
 
     public FontLoader(String name, int size) {
         this.name = name;
@@ -19,7 +43,7 @@ public class FontLoader {
         try {
             this.font = Font.loadFont(new FileInputStream(file), size);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            this.font = Font.font(name, size);
         }
     }
 
@@ -30,7 +54,7 @@ public class FontLoader {
         try {
             this.font = Font.loadFont(new FileInputStream(file), 24);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            this.font = Font.font(name, size);
         }
         this.size = 24;
     }
