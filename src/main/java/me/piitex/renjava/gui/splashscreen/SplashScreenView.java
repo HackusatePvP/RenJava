@@ -130,7 +130,11 @@ public class SplashScreenView {
         }
 
         stage.initStyle(StageStyle.UNDECORATED);
-        stage.getIcons().add(RenJava.getInstance().getConfiguration().getGameIcon());
+        try {
+            stage.getIcons().add(RenJava.getInstance().getConfiguration().getGameIcon().buildRaw());
+        } catch (ImageNotFoundException e) {
+            e.printStackTrace();
+        }
         stage.setScene(scene);
         stage.show();
     }

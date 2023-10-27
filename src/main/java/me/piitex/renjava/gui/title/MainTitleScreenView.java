@@ -50,6 +50,15 @@ public class MainTitleScreenView extends ScreenView {
         this.height = configuration.getHeight();
         this.titleDisplay = configuration.getGameTitle();
         this.stage = new Stage();
+        if (configuration.getGameIcon() != null) {
+            renJava.getLogger().info("Setting game icon...");
+            try {
+                stage.getIcons().add(configuration.getGameIcon().buildRaw());
+            } catch (ImageNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        stage.setTitle(titleDisplay);
         stage.setOnHiding(windowEvent -> {
             // FIXME: 10/10/2023 Shutdown all threads
             Platform.exit();
@@ -157,8 +166,6 @@ public class MainTitleScreenView extends ScreenView {
         stage.setMaximized(true);
         stage.setWidth(width);
         stage.setHeight(height);
-        stage.getIcons().add(RenJava.getInstance().getConfiguration().getGameIcon());
-        stage.setTitle(RenJava.getInstance().getConfiguration().getGameTitle());
 
         // Call dispatch event
         MainMenDispatchEvent event = new MainMenDispatchEvent(stage, scene);
