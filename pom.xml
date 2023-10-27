@@ -6,7 +6,7 @@
 
     <groupId>me.piitex</groupId>
     <artifactId>RenJava</artifactId>
-    <version>0.0.261-SNAPSHOT</version>
+    <version>0.0.289-SNAPSHOT</version>
     <name>RenJava</name>
 
     <properties>
