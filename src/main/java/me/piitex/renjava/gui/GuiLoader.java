@@ -5,10 +5,10 @@ import javafx.animation.PauseTransition;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.events.types.GameStartEvent;
 import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.title.MainTitleScreenView;
-
 
 /**
  * Loader class for loading the GUI. Starts with the splash screen first.
@@ -20,18 +20,21 @@ public class GuiLoader {
     public GuiLoader(Stage stage, RenJava renJava) {
         this.stage = stage;
         this.renJava = renJava;
-        renJava.setStage(stage, StageType.MAIN_MENU);
         GameStartEvent event = new GameStartEvent(renJava);
         RenJava.callEvent(event);
         buildSplashScreen();
     }
 
     private void buildSplashScreen() {
-
         renJava.getLogger().info("Creating Splash screen...");
         SplashScreenView splashScreenView = renJava.buildSplashScreen();
         if (splashScreenView == null) {
             renJava.getLogger().warning("Splash screen not found.");
+            renJava.getLogger().info("Creating base data...");
+            renJava.createBaseData();
+            renJava.getLogger().info("Creating story...");
+            renJava.createStory();
+            buildMainMenu();
             return; // Don't create a splash screen if one wasn't set.
         }
 
@@ -45,21 +48,27 @@ public class GuiLoader {
             renJava.getLogger().info("Creating story...");
             renJava.createStory();
             buildMainMenu();
+            stage.close();
         });
 
         wait.play();
     }
 
     private void buildMainMenu() {
+        // Gonna put some default checks here.
+        // IF there is no default font set one
+        if (renJava.getDefaultFont() == null) {
+            renJava.getLogger().severe("No default font set.");
+            renJava.setDefaultFont(new FontLoader("JandaManateeSolid.ttf", 24));
+        }
+
         MainTitleScreenView view = renJava.buildTitleScreen();
         if (view == null) {
             RenJava.getInstance().getLogger().severe("Main title screen returned null. Make sure your RenJava class is properly setup.");
             view = new MainTitleScreenView(renJava);
         }
-        view.build(stage);
+        view.build(stage, false);
+        renJava.setMainTitleScreenView(view);
     }
 
-    public RenJava getRenJava() {
-        return renJava;
-    }
 }
