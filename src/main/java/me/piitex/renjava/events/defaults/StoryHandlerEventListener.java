@@ -29,7 +29,7 @@ public class StoryHandlerEventListener implements EventListener {
         // Check to see if this scene is the first scene in the story.
         if (story.getSceneIndex(scene) == 0) { // 0 means the first entry.
             // Update the story tracker
-            RenJava.getInstance().getStoryManager().setCurrentStory(story);
+            RenJava.getInstance().getPlayer().setCurrentStory(story);
             StoryStartEvent startEvent = new StoryStartEvent(story);
             RenJava.callEvent(startEvent);
         }
