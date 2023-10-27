@@ -11,7 +11,6 @@ public class SceneStartEvent extends Event {
     private final RenScene renScene;
 
     public SceneStartEvent(RenScene renScene) {
-        RenJava.getInstance().getLogger().info("Calling SceneStartEvent");
         this.renScene = renScene;
     }
 

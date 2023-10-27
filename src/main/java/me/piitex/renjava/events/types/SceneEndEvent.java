@@ -5,6 +5,7 @@ import me.piitex.renjava.events.Event;
 
 public class SceneEndEvent extends Event {
     private final RenScene scene;
+    private boolean autoPlayNextScene = true;
 
     public RenScene getScene() {
         return scene;
@@ -12,5 +13,13 @@ public class SceneEndEvent extends Event {
 
     public SceneEndEvent(RenScene scene) {
         this.scene = scene;
+    }
+
+    public void setAutoPlayNextScene(boolean autoPlayNextScene) {
+        this.autoPlayNextScene = autoPlayNextScene;
+    }
+
+    public boolean isAutoPlayNextScene() {
+        return autoPlayNextScene;
     }
 }
