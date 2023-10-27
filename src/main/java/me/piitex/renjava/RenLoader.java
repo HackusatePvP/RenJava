@@ -1,9 +1,10 @@
 package me.piitex.renjava;
 
 import java.io.*;
-import java.util.Properties;
 
+import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.api.stories.StoryManager;
+import me.piitex.renjava.configuration.SettingsProperties;
 
 public class RenLoader {
     private final RenJava renJava;
@@ -31,6 +32,13 @@ public class RenLoader {
         File directory = new File(System.getProperty("user.dir") + "/game/");
         File audioDirectory = new File(directory, "/audio/");
         audioDirectory.mkdir();
+
+        int audioLoaded = 0;
+        for (File file : audioDirectory.listFiles()) {
+            audioLoaded++;
+            renJava.getTracks().addTrack(file.getName(), new Track(file));
+        }
+        renJava.getLogger().info("Loaded " + audioLoaded + " audio file(s)");
         File imageDirectory = new File(directory, "/images/");
         imageDirectory.mkdir();
         File savesDirectory = new File(directory, "/saves/");
@@ -51,22 +59,7 @@ public class RenLoader {
         // Build setting file
         File directory = new File(System.getProperty("user.dir") + "/renjava/");
         directory.mkdir();
-        File file = new File(directory, "settings.properties");
-        if (!file.exists()) {
-            // Create file and preset values
-            try {
-                file.createNewFile();
-                Properties properties = new Properties();
-                properties.load(new FileInputStream(file));
-                properties.setProperty("skip-unseen-text", "false");
-                properties.setProperty("transitions", "true");
-                properties.setProperty("fullscreen", "false");
-                properties.setProperty("volume", "1");
-                properties.store(new FileOutputStream(file), null);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        renJava.setSettings(new SettingsProperties());
     }
 
     private void loadRPAFiles() {
