@@ -1,67 +1,25 @@
 package me.piitex.renjava.gui;
 
+import javafx.scene.layout.VBox;
 import me.piitex.renjava.api.gui.Container;
 import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.gui.overlay.Overlay;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public abstract class ScreenView extends Container {
     private final Collection<Overlay> overlays = new HashSet<>();
-    private ButtonBuilder startButton;
-    private ButtonBuilder loadButton;
-    private ButtonBuilder optionsButton;
-    private ButtonBuilder aboutButton;
-    private ButtonBuilder helpButton;
-    private ButtonBuilder quitButton;
+    private final LinkedHashSet<ButtonBuilder> buttons = new LinkedHashSet<>();
+    private final VBox buttonVbox = new VBox();
 
-    public ButtonBuilder getStartButton() {
-        return startButton;
+    public LinkedHashSet<ButtonBuilder> getButtons() {
+        return buttons;
     }
 
-    public void setStartButton(ButtonBuilder startButton) {
-        this.startButton = startButton;
-    }
-
-    public ButtonBuilder getLoadButton() {
-        return loadButton;
-    }
-
-    public void setLoadButton(ButtonBuilder loadButton) {
-        this.loadButton = loadButton;
-    }
-
-    public ButtonBuilder getOptionsButton() {
-        return optionsButton;
-    }
-
-    public void setOptionsButton(ButtonBuilder optionsButton) {
-        this.optionsButton = optionsButton;
-    }
-
-    public ButtonBuilder getAboutButton() {
-        return aboutButton;
-    }
-
-    public void setAboutButton(ButtonBuilder aboutButton) {
-        this.aboutButton = aboutButton;
-    }
-
-    public ButtonBuilder getHelpButton() {
-        return helpButton;
-    }
-
-    public void setHelpButton(ButtonBuilder helpButton) {
-        this.helpButton = helpButton;
-    }
-
-    public ButtonBuilder getQuitButton() {
-        return quitButton;
-    }
-
-    public void setQuitButton(ButtonBuilder quitButton) {
-        this.quitButton = quitButton;
+    public VBox getButtonVbox() {
+        return buttonVbox;
     }
 
     public void addOverlay(Overlay overlay) {
