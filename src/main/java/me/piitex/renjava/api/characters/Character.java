@@ -21,9 +21,9 @@ import me.piitex.renjava.api.saves.data.PersistentData;
  * @see me.piitex.renjava.RenJava
  */
 public abstract class Character {
-    @Data private final String id; // The ID must be unique. The ID system allows you to have multiple characters with the same name.
+    private final String id; // The ID must be unique. The ID system allows you to have multiple characters with the same name.
     @Data private String name; // This is the name display for the character.
-    @Data private final Color color;
+    private final Color color;
     @Data private String displayName;
 
     /**
