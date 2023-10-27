@@ -8,7 +8,6 @@ public class MouseClickEvent extends Event {
     private final MouseEvent event;
 
     public MouseClickEvent(MouseEvent event) {
-        RenJava.getInstance().getLogger().info("User clicked!");
         this.event = event;
     }
 

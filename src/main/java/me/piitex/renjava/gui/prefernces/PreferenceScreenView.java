@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -20,6 +21,9 @@ import me.piitex.renjava.gui.title.DefaultMainTitleScreenView;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class PreferenceScreenView extends ScreenView {
     private final ImageLoader backgroundImage;
@@ -28,7 +32,7 @@ public class PreferenceScreenView extends ScreenView {
         this.backgroundImage = backgroundImage;
     }
 
-    public void build(Stage stage) {
+    public void build(Stage stage, boolean ui) {
         Group root = new Group();
         RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
         FontLoader defaultFont = RenJava.getInstance().getDefaultFont();
@@ -133,43 +137,13 @@ public class PreferenceScreenView extends ScreenView {
         autoForwardTime.setTranslateX(autoForwardTimeText.getY() + 50);
         root.getChildren().add(autoForwardTime);
 
-        // Buttons have to go on top of everything.
-        if (getStartButton() != null) {
-            Button button = getStartButton().build();
-            button.setTranslateY(getStartButton().getX());
-            button.setTranslateY(getStartButton().getY());
-            root.getChildren().add(button);
+        VBox vBox = getButtonVbox();
+        List<ButtonBuilder> list = new ArrayList<>(getButtons());
+        Collections.reverse(list);
+        for (ButtonBuilder builder : list) {
+            vBox.getChildren().add(builder.build());
         }
-        if (getLoadButton() != null) {
-            Button button = getLoadButton().build();
-            button.setTranslateY(getLoadButton().getX());
-            button.setTranslateY(getLoadButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getOptionsButton() != null) {
-            Button button = getOptionsButton().build();
-            button.setTranslateY(getOptionsButton().getX());
-            button.setTranslateY(getOptionsButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getAboutButton() != null) {
-            Button button = getAboutButton().build();
-            button.setTranslateY(getAboutButton().getX());
-            button.setTranslateY(getAboutButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getHelpButton() != null) {
-            Button button = getHelpButton().build();
-            button.setTranslateY(getHelpButton().getX());
-            button.setTranslateY(getHelpButton().getY());
-            root.getChildren().add(button);
-        }
-        if (getQuitButton() != null) {
-            Button button = getQuitButton().build();
-            button.setTranslateY(getQuitButton().getX());
-            button.setTranslateY(getQuitButton().getY());
-            root.getChildren().add(button);
-        }
+        root.getChildren().add(vBox);
 
 
         Scene scene = new Scene(root);
