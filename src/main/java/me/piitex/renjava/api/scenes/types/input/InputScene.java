@@ -4,7 +4,10 @@ import javafx.scene.Group;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
@@ -61,7 +64,7 @@ public class InputScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage) {
+    public void build(Stage stage, boolean ui) {
         Group root = new Group();
         // Add background image
         Image background;
@@ -84,15 +87,28 @@ public class InputScene extends RenScene {
             imageView.setY(1080 - textbox.getHeight()); // Set the text box to the bottom
             root.getChildren().add(imageView);
         }
-
         double setX = imageView.getX();
         double setY = imageView.getY();
-        inputField = new TextField(text);
-        inputField.setTranslateX(setX + 250);
-        inputField.setTranslateY(setY + 100);
+        setX += 250;
+        setY += 100;
+        inputField = new TextField();
+        if (text != null && !text.isEmpty()) {
+            Text beforeText = new Text(text);
+            beforeText.setTranslateX(setX);
+            beforeText.setTranslateY(setY);
+            beforeText.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), 24).getFont());
+            root.getChildren().add(beforeText);
+            inputField.setTranslateY(beforeText.getTranslateY() - 30);
+            inputField.setTranslateX(beforeText.getTranslateX() + 210);
+        } else {
+            inputField.setTranslateX(setX);
+            inputField.setTranslateY(setY);
+        }
+        inputField.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), 18).getFont());
+        inputField.setStyle("-fx-control-inner-background: transparent; -fx-background-color transparent;");
         root.getChildren().add(inputField);
         addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/inputfield.css"));
         hookOverlays(root);
-        setStage(stage, root, StageType.INPUT_SCENE);
+        setStage(stage, root, StageType.INPUT_SCENE, !ui);
     }
 }
