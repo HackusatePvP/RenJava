@@ -1,5 +1,6 @@
 package me.piitex.renjava.api.player;
 
+import javafx.scene.image.ImageView;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.APINote;
@@ -17,14 +18,18 @@ import java.util.Map;
  */
 public class Player implements PersistentData {
     private boolean rightClickMenu;
-    @Deprecated private int mostProgressedScene;
     @Data private String currentScene;
     @Data private String currentStory;
+    private ImageView lastDisplayedImage;
+
+    private boolean uiToggled = true;
 
     private final LinkedHashMap<String, Story> viewedStories = new LinkedHashMap<>(); // Ordered map of what stories the player has viewed.
     private final Map<Integer, Story> viewedStoriesIndex = new HashMap<>(); // Indexing of the viewedStories
 
     private final Map<Map.Entry<Story, String>, RenScene> viewedScenes = new HashMap<>();
+
+    private final Map<String, Story> storyIdMap = new HashMap<>();
 
     public RenScene getCurrentScene() {
         if (getCurrentStory() != null) {
@@ -38,30 +43,33 @@ public class Player implements PersistentData {
     }
 
     public Story getCurrentStory() {
-        return RenJava.getInstance().getStoryManager().getStory(currentStory);
+        return getStory(currentStory);
     }
 
     public void setCurrentStory(String currentStoryID) {
         this.currentStory = currentStoryID;
-        Story story = RenJava.getInstance().getStoryManager().getStory(currentStoryID);
+        Story story = getStory(currentStoryID);
         viewedStories.put(currentStoryID, story); // When setting story update the viewedStory for rollback.
         int index = viewedStoriesIndex.size();
         viewedStoriesIndex.put(index, story);
+    }
+
+    public void setCurrentStory(Story currentStory) {
+       setCurrentStory(currentStory.getId());
+    }
+
+    public void addStory(Story story) {
+        storyIdMap.put(story.getId(), story);
+    }
+
+    public Story getStory(String id) {
+        return storyIdMap.get(id);
     }
 
     @APIChange(changedVersion = "0.0.153", description = "Added functionality to get the previous story the player has viewed.")
     @APINote(description = "There is no method to get the next Story as story routes and dictated by the choices the player makes. Meaning it's impossible to predict with accuracy where the player will go.")
     public Story getPreviousStory() {
         return viewedStoriesIndex.get(viewedStoriesIndex.size()); // Get last story
-    }
-
-    /**
-     * @deprecated Old method that no longer works. This doesn't take into account Stories which is what scenes depend on.
-     * @return null
-     */
-    @Deprecated
-    public int getMostProgressedScene() {
-        return mostProgressedScene;
     }
 
     public LinkedHashMap<String, Story> getViewedStories() {
@@ -72,15 +80,6 @@ public class Player implements PersistentData {
         return viewedScenes;
     }
 
-    /**
-     * @deprecated Old method that no longer works. This doesn't take into account Stories which is what scenes depend on.
-     * @return null
-     */
-    @Deprecated
-    public void setMostProgressedScene(int mostProgressedScene) {
-        this.mostProgressedScene = mostProgressedScene;
-    }
-
     public boolean isRightClickMenu() {
         return rightClickMenu;
     }
@@ -89,4 +88,19 @@ public class Player implements PersistentData {
         this.rightClickMenu = rightClickMenu;
     }
 
+    public ImageView getLastDisplayedImage() {
+        return lastDisplayedImage;
+    }
+
+    public void setLastDisplayedImage(ImageView lastDisplayedImage) {
+        this.lastDisplayedImage = lastDisplayedImage;
+    }
+
+    public boolean isUiToggled() {
+        return uiToggled;
+    }
+
+    public void setUiToggled(boolean uiToggled) {
+        this.uiToggled = uiToggled;
+    }
 }

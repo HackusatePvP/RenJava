@@ -8,6 +8,7 @@ import me.piitex.renjava.api.stories.StoryManager;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
+import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.Event;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
@@ -18,6 +19,7 @@ import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.gui.title.CustomTitleScreen;
 import me.piitex.renjava.gui.title.MainTitleScreenView;
 
 import java.io.IOException;
@@ -53,19 +55,26 @@ import java.util.logging.*;
  */
 public abstract class RenJava {
     private final String name;
-    private String author;
-    private String version;
-    private Logger logger;
-    private Player player;
+    private final String author;
+    private final String version;
+    private final Logger logger;
+    private final Player player;
     // Audio Tracking
-    private Tracks tracks;
+    private final Tracks tracks;
     private Stage stage; // Move this somewhere else.
     private StageType stageType;
+
+    private MainTitleScreenView mainTitleScreenView;
+    private CustomTitleScreen customTitleScreen;
+
     private RenJavaConfiguration configuration;
     private FontLoader defaultFont;
 
     // Story manager
     private StoryManager storyManager;
+
+    // User settings
+     private SettingsProperties settings;
 
     private final Map<String, Character> registeredCharacters = new HashMap<>();
     private final Collection<EventListener> registeredListeners = new HashSet<>();
@@ -100,7 +109,6 @@ public abstract class RenJava {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.defaultFont = new FontLoader("JandaManateeSolid.ttf", 16);
         this.registerListener(new MenuClickEventListener());
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
@@ -134,7 +142,7 @@ public abstract class RenJava {
     }
 
     public String getBuildVersion() {
-        return "0.0.261";
+        return "0.0.289";
     }
 
     public Stage getStage() {
@@ -150,7 +158,23 @@ public abstract class RenJava {
         return stageType;
     }
 
-    public RenJavaConfiguration getConfiguration() {
+     public MainTitleScreenView getMainTitleScreenView() {
+         return mainTitleScreenView;
+     }
+
+     public void setMainTitleScreenView(MainTitleScreenView mainTitleScreenView) {
+         this.mainTitleScreenView = mainTitleScreenView;
+     }
+
+     public CustomTitleScreen getCustomTitleScreen() {
+         return customTitleScreen;
+     }
+
+     public void setCustomTitleScreen(CustomTitleScreen customTitleScreen) {
+         this.customTitleScreen = customTitleScreen;
+     }
+
+     public RenJavaConfiguration getConfiguration() {
         return configuration;
     }
 
@@ -166,6 +190,7 @@ public abstract class RenJava {
         this.defaultFont = defaultFont;
     }
 
+    @Deprecated
     public StoryManager getStoryManager() {
         return storyManager;
     }
@@ -174,7 +199,15 @@ public abstract class RenJava {
         this.storyManager = storyManager;
     }
 
-    /**
+     public SettingsProperties getSettings() {
+         return settings;
+     }
+
+     public void setSettings(SettingsProperties settings) {
+         this.settings = settings;
+     }
+
+     /**
      * Registers a character in the RenJava framework.
      * <p>
      * The registerCharacter() method is used to register a character in the RenJava framework.
@@ -296,13 +329,8 @@ public abstract class RenJava {
      * <pre>{@code
      *     public void createBaseData() {
      *         // Create and configure characters
-     *         Character character1 = new Character("character1", "Character 1", Color.RED);
-     *         character1.setDisplayName("C1");
-     *         RenJava.getInstance().registerCharacter(character1);
-     *
-     *         Character character2 = new Character("character2", "Character 2", Color.BLUE);
-     *         character2.setDisplayName("C2");
-     *         RenJava.getInstance().registerCharacter(character2);
+     *         new Character("character1", "Character 1", Color.RED);
+     *         new Character("character2", "Character 2", Color.BLUE);
      *
      *         // Perform any other necessary setup tasks
      *     }
@@ -391,7 +419,7 @@ public abstract class RenJava {
      * <p>
      *     The start() method is used to initiate the story by displaying the first scene of the story.
      *     It retrieves the current story from the StoryManager using the story ID and builds the scene on the stage.
-     *     This method should be called when the game starts or when a new story is about to begin.
+     *     This method should be called when the game starts.
      * </p>
      *
      * Example usage:
@@ -441,6 +469,7 @@ public abstract class RenJava {
         Collection<Method> lowMethods = new HashSet<>();
         Collection<Method> normalMethods = new HashSet<>();
         Collection<Method> highMethods = new HashSet<>();
+
         for (EventListener listener : RenJava.getInstance().getRegisteredListeners()) {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.isAnnotationPresent(Listener.class)) {

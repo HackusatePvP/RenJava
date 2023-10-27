@@ -16,7 +16,6 @@ import me.piitex.renjava.events.types.SceneEndEvent;
 import java.util.*;
 import java.util.logging.Logger;
 
-
 /**
  * The Story class represents a narrative or gameplay progression in the RenJava framework.
  * It provides a way to organize and present a collection of scenes in a specific order to create a cohesive story or gameplay experience.
@@ -78,7 +77,7 @@ public abstract class Story {
         this.id = id;
         // Global var
         RenJava renJava = RenJava.getInstance();
-        renJava.getStoryManager().addStory(this); // Registers the story.
+        renJava.getPlayer().addStory(this); // Registers the story.
     }
 
     public Story onEnd(StoryEndInterface endInterface) {
@@ -114,7 +113,7 @@ public abstract class Story {
 
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
-        renScene.build(RenJava.getInstance().getStage());
+        renScene.build(RenJava.getInstance().getStage(), true);
 
         // Update RenJava Player
         RenJava.getInstance().getPlayer().setCurrentStory(this.getId());
@@ -227,9 +226,9 @@ public abstract class Story {
         return getPreviousScene(RenJava.getInstance().getPlayer().getCurrentScene().getId());
     }
 
-    public void displayScene(int id) {
-        RenScene scene = getScene(id);
-        scene.build(RenJava.getInstance().getStage());
+    public void displayScene(int index) {
+        RenScene scene = getScene(index);
+        scene.build(RenJava.getInstance().getStage(), true);
     }
 
     public void displayScene(String id) {
@@ -238,15 +237,17 @@ public abstract class Story {
     }
 
     public void displayScene(RenScene scene) {
-        SceneEndEvent event = new SceneEndEvent(getPreviousScene(scene.getId()));
-        RenJava.callEvent(event);
-        scene.build(RenJava.getInstance().getStage());
+        if (getPreviousScene(scene.getId()) != null) {
+            SceneEndEvent event = new SceneEndEvent(getPreviousScene(scene.getId()));
+            RenJava.callEvent(event);
+        }
+        scene.build(RenJava.getInstance().getStage(), true);
     }
 
     public void displayNextScene() {
         SceneEndEvent event = new SceneEndEvent(getPreviousSceneFromCurrent());
         RenJava.callEvent(event);
-        getNextSceneFromCurrent().build(RenJava.getInstance().getStage());
+        getNextSceneFromCurrent().build(RenJava.getInstance().getStage(), true);
     }
 
     public LinkedHashMap<String, RenScene> getScenes() {

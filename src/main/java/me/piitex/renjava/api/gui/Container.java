@@ -19,5 +19,5 @@ public abstract class Container {
         return layouts;
     }
 
-    public abstract void build(Stage stage);
+    public abstract void build(Stage stage, boolean ui);
 }

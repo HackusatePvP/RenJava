@@ -129,7 +129,7 @@ public class ChoiceScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage) {
+    public void build(Stage stage, boolean ui) {
         Group root = new Group();
 
         // Add background image
@@ -145,6 +145,7 @@ public class ChoiceScene extends RenScene {
             }
         }
 
+        // FIXME: 10/26/2023 Remove limit create scroll pane
         int limit = 5; // Max of 5 choices per scene.
         int i = 0; // Counter
         VBox vBox = new VBox(); // Choices will be stacked so we will make a vbox for this
@@ -167,8 +168,6 @@ public class ChoiceScene extends RenScene {
                 return;
             }
             i++;
-            // LinkedHashSet should loop in order from first to last entry (hopefully)
-            // Make a choicebox
             ButtonBuilder builder = new ButtonBuilder(choice.getId(), choice.getText(), RenJava.getInstance().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
             Button button = builder.build();
 
@@ -189,16 +188,9 @@ public class ChoiceScene extends RenScene {
             });
             vBox.getChildren().add(button);
         }
-
-        int x = RenJava.getInstance().getConfiguration().getWidth();
-        int y = RenJava.getInstance().getConfiguration().getHeight();
-
         root.getChildren().add(vBox);
-
         hookOverlays(root);
-
         addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/button.css"));
-
-        setStage(stage, root, StageType.CHOICE_SCENE);
+        setStage(stage, root, StageType.CHOICE_SCENE, false);
     }
 }

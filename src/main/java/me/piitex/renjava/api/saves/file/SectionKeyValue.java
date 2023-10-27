@@ -7,7 +7,6 @@ public class SectionKeyValue {
     private final String section;
     private final Map<String, String> keyValueMap = new HashMap<>();
 
-
     public SectionKeyValue(String section) {
         this.section = section;
     }

@@ -1,19 +1,25 @@
 package me.piitex.renjava.api.scenes.types;
 
+import javafx.animation.FadeTransition;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.scene.text.TextFlow;
+import javafx.scene.text.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.logging.Logger;
 
 /**
  * The ImageScene class represents an image scene in the RenJava framework.
@@ -43,7 +49,11 @@ public class ImageScene extends RenScene {
     private String dialogue;
     private final ImageLoader loader;
 
-    private final String characterDisplayName;
+    private String characterDisplayName;
+
+    private Transitions beginningTransition;
+
+    private final RenJavaConfiguration configuration;
 
     /**
      * Creates an ImageScene object representing an image scene in the RenJava framework.
@@ -55,12 +65,20 @@ public class ImageScene extends RenScene {
      * @param dialogue  The dialogue of the character. Pass null or an empty string if no one is talking.
      * @param loader    The background image loader for the scene.
      */
-    public ImageScene(String id, Character character, String dialogue, ImageLoader loader) {
+    public ImageScene(String id, @Nullable Character character, String dialogue, ImageLoader loader) {
         super(id, loader);
         this.character = character;
         this.dialogue = dialogue;
         this.loader = loader;
-        this.characterDisplayName = character.getDisplayName();
+        if (character != null) {
+            this.characterDisplayName = character.getDisplayName();
+        }
+        configuration = RenJava.getInstance().getConfiguration();
+    }
+
+    public ImageScene setBeginningTransition(Transitions transition) {
+        this.beginningTransition = transition;
+        return this;
     }
 
     public Character getCharacter() {
@@ -80,9 +98,9 @@ public class ImageScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage) {
+    public void build(Stage stage, boolean ui) {
         Group root = new Group();
-
+        Logger logger = RenJava.getInstance().getLogger();
         // Add background image
         Image background;
         try {
@@ -91,61 +109,76 @@ public class ImageScene extends RenScene {
             throw new RuntimeException(e);
         }
         ImageView imageView = new ImageView(background);
+        // play beginning transition for image
+        if (beginningTransition != null) {
+            ImageView previousView = RenJava.getInstance().getPlayer().getLastDisplayedImage();
+            root.getChildren().add(previousView);
+            if (beginningTransition instanceof FadingTransition fadingTransition) {
+                fadingTransition.play(imageView);
+            }
+        }
         root.getChildren().add(imageView);
+        RenJava.getInstance().getPlayer().setLastDisplayedImage(imageView);
 
-        Text text = null;
-        Text characterDisplay = null;
-        if (dialogue != null && !dialogue.isEmpty()) {
-            text = new Text(dialogue);
-            if (getCharacterNameDisplay() != null && !getCharacterNameDisplay().isEmpty()) {
-                // Set character display
-                RenJava.getInstance().getLogger().info("Character Display Name Validation: " + getCharacterNameDisplay());
-                characterDisplay = new Text(getCharacterNameDisplay());
-            } else {
-                RenJava.getInstance().getLogger().info("Character Display Name Validation: " + character.getDisplayName());
-                characterDisplay = new Text(character.getDisplayName());
+        if (ui) {
+            Text text = null;
+            Text characterDisplay = null;
+            if (dialogue != null && !dialogue.isEmpty()) {
+                text = new Text(dialogue);
+                if (getCharacterNameDisplay() != null) {
+                    // Set character display
+                    characterDisplay = new Text(getCharacterNameDisplay());
+                } else {
+                    characterDisplay = new Text(character.getDisplayName());
+                }
+                characterDisplay.setFill(character.getColor());
+                text.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), configuration.getTextSize()).getFont());
+                text.setFill(configuration.getDialogueColor());
             }
-            characterDisplay.setFill(character.getColor());
-            text.setFont(new FontLoader("JandaManateeSolid.ttf", 24).getFont());
+            if (text != null) {
+                // Create the text box
+                Image textbox = null;
+                try {
+                    textbox = new ImageLoader("/gui/textbox.png").build();
+                } catch (ImageNotFoundException e) {
+                    e.printStackTrace();
+                }
+                if (textbox != null) {
+                    imageView = new ImageView(textbox);
+                    imageView.setY(configuration.getWidth() + configuration.getDialogueOffsetY());
+                    root.getChildren().add(imageView);
+                }
+
+                double setX = configuration.getDialogueBoxX();
+                double setY = configuration.getDialogueBoxY();
+
+                logger.info("Text Box X: " + setX);
+                logger.info("Text Box Y: " + setY);
+
+                // Create a text flow pane for the text
+                TextFlow texFlow = new TextFlow();
+                texFlow.getChildren().add(text);
+
+                // Adjust the textFlow settings.
+                texFlow.setTextAlignment(TextAlignment.JUSTIFY);
+                texFlow.setPrefSize(configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                texFlow.setTranslateX(configuration.getTextX() + configuration.getTextOffsetX());
+                texFlow.setTranslateY(configuration.getTextY() + configuration.getTextOffsetY());
+                root.getChildren().add(texFlow);
+
+                logger.info("Text X: " + (setX + configuration.getTextOffsetX()));
+                logger.info("Text Y: " + (setY + configuration.getTextOffsetY()));
+
+                characterDisplay.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
+                characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
+                characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
+                root.getChildren().add(characterDisplay);
+            }
+        } else {
+            RenJava.getInstance().getLogger().info("No user interface is displayed.");
         }
 
-        if (text != null) {
-            // Create the text box
-            Image textbox = null;
-            try {
-                textbox = new ImageLoader("/gui/textbox.png").build();
-            } catch (ImageNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (textbox != null) {
-                imageView = new ImageView(textbox);
-                imageView.setY(1080 - textbox.getHeight()); // Set the text box to the bottom
-                root.getChildren().add(imageView);
-            }
-
-            // This is the size of the text box (This is set the top right corner of the image)
-            double setX = imageView.getX();
-            double setY = imageView.getY();
-            // Create a text flow pane for the text
-            TextFlow texFlow = new TextFlow();
-            texFlow.setTextAlignment(TextAlignment.JUSTIFY);
-            texFlow.setPrefSize(1000, 600);
-            texFlow.setTranslateX(setX + 250); // Over 250 to the right
-            texFlow.setTranslateY(setY + 100); // Down 100
-            texFlow.getChildren().add(text); // Add the text to the textflow
-            root.getChildren().add(texFlow);
-
-            characterDisplay.setFont(new FontLoader("JandaManateeSolid.ttf", 36).getFont());
-            characterDisplay.setX(setX + 200);
-            characterDisplay.setY(setY + 70);
-
-            // Set the text a little down from the top and over to the right.
-            // Name of character will be top right of the text box
-            root.getChildren().add(characterDisplay);
-            // Add the displayName in the top
-        }
-
-        hookOverlays(root);
-        setStage(stage, root, StageType.IMAGE_SCENE);
+        //hookOverlays(root);
+        setStage(stage, root, StageType.IMAGE_SCENE, false);
     }
 }

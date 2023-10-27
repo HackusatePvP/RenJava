@@ -21,12 +21,16 @@ public class Tracks {
         return currentTrack;
     }
 
-    public void play(Track track) {
+    public void play(String fileName, boolean loop) {
+        play(getTrack(fileName), loop);
+    }
+
+    public void play(Track track, boolean loop) {
         if (currentTrack != null) {
             currentTrack.stop();
-
         }
-        track.play();
+        currentTrack = track;
+        track.play(loop);
     }
 
     public void stop() {

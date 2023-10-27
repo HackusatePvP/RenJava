@@ -17,8 +17,25 @@ public class ButtonBuilder {
 
     private Color color;
 
-    private double x, y;
+    private double x = -1, y = -1;
     private final double xScale, yScale;
+
+    public ButtonBuilder(String id, String text, Color color, double xScale, double yScale) {
+        this.id = id;
+        this.text = text;
+        this.color = color;
+        this.xScale = x;
+        this.yScale = y;
+    }
+
+    public ButtonBuilder(String id, String text, Color color, Font font, double xScale, double yScale) {
+        this.id = id;
+        this.text = text;
+        this.color = color;
+        this.font = font;
+        this.xScale = x;
+        this.yScale = y;
+    }
 
     /**
      * Create a button with only text.
@@ -53,7 +70,7 @@ public class ButtonBuilder {
      * @param xScale X-Axis scale of the button.
      * @param yScale Y-Axis scale of the button.
      */
-    public ButtonBuilder(String id, String text, Font font, Color color, int x, int y, double xScale, double yScale) {
+    public ButtonBuilder(String id, String text, Font font, Color color, double x, double y, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -74,7 +91,7 @@ public class ButtonBuilder {
      * @param xScale      X-Axis scale of the button.
      * @param yScale      Y-Axis scale of the button.
      */
-    public ButtonBuilder(String id, ImageLoader imageLoader, int x, int y, double xScale, double yScale) {
+    public ButtonBuilder(String id, ImageLoader imageLoader, double x, double y, double xScale, double yScale) {
         this.id = id;
         try {
             this.image = imageLoader.build();
@@ -98,7 +115,7 @@ public class ButtonBuilder {
      * @param xScale      X-Axis scale of the button.
      * @param yScale      Y-Axis scale of the button.
      */
-    public ButtonBuilder(String id, ImageLoader imageLoader, String text, int x, int y, double xScale, double yScale) {
+    public ButtonBuilder(String id, ImageLoader imageLoader, String text, double x, double y, double xScale, double yScale) {
         this.id = id;
         try {
             this.image = imageLoader.build();
@@ -111,7 +128,6 @@ public class ButtonBuilder {
         this.xScale = xScale;
         this.yScale = yScale;
     }
-
 
     public String getId() {
         return id;
@@ -189,8 +205,10 @@ public class ButtonBuilder {
         if (color != null) {
             button.setTextFill(color);
         }
-        button.setTranslateX(x);
-        button.setTranslateY(y);
+        if (x != -1 && y != -1) {
+            button.setTranslateX(x);
+            button.setTranslateY(y);
+        }
         button.setScaleX(xScale);
         button.setScaleY(yScale);
         button.setOnAction(actionEvent -> {
@@ -198,5 +216,11 @@ public class ButtonBuilder {
             RenJava.callEvent(event);
         });
         return button;
+    }
+
+    public static ButtonBuilder copyOf(String id, ButtonBuilder builder) {
+        ButtonBuilder toReturn = new ButtonBuilder(id, builder.getText(), builder.getFont(), builder.getColor(), builder.getX(), builder.getY(), builder.getXScale(), builder.getYScale());
+        toReturn.setImage(builder.getImage());
+        return toReturn;
     }
 }

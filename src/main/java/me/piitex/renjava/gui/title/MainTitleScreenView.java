@@ -1,5 +1,6 @@
 package me.piitex.renjava.gui.title;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,7 +11,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
+import me.piitex.renjava.events.types.MainMenDispatchEvent;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
@@ -23,6 +26,9 @@ import me.piitex.renjava.gui.overlay.TextOverlay;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -33,12 +39,22 @@ public class MainTitleScreenView extends ScreenView {
     private String titleDisplay;
     private ImageLoader image = new ImageLoader("/gui/main_menu.png");
 
+    private final Stage stage;
+
+    private final RenJava renJava;
 
     public MainTitleScreenView(RenJava renJava) {
+        this.renJava = renJava;
         RenJavaConfiguration configuration = renJava.getConfiguration();
         this.width = configuration.getWidth();
         this.height = configuration.getHeight();
         this.titleDisplay = configuration.getGameTitle();
+        this.stage = new Stage();
+        stage.setOnHiding(windowEvent -> {
+            // FIXME: 10/10/2023 Shutdown all threads
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
     public int getWidth() {
@@ -73,14 +89,9 @@ public class MainTitleScreenView extends ScreenView {
         this.image = image;
     }
 
-    public void build(Stage splashStage) {
+    public void build(Stage splashStage, boolean rightClicked) {
         Logger logger = RenJava.getInstance().getLogger();
-        logger.info("Building main menu screen...");
-        splashStage.hide();
-
-        Stage stage = new Stage();
         Group root = new Group();
-        logger.info("Setting background image...");
         ImageView backgroundView;
         try {
             backgroundView = new ImageView(image.build());
@@ -88,8 +99,6 @@ public class MainTitleScreenView extends ScreenView {
             throw new RuntimeException(e);
         }
         root.getChildren().add(backgroundView);
-
-        logger.info("Adding overlays...");
         for (Overlay overlay : getOverlays()) {
             // Add the additional overlays to the scene
             if (overlay instanceof ImageOverlay imageOverlay) {
@@ -105,7 +114,6 @@ public class MainTitleScreenView extends ScreenView {
                 text.setScaleY(textOverlay.yScale());
                 root.getChildren().add(text);
             } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                RenJava.getInstance().getLogger().info("Adding button...");
                 Button button = buttonOverlay.button();
                 button.setTranslateX(buttonOverlay.x());
                 button.setTranslateY(buttonOverlay.y());
@@ -114,41 +122,26 @@ public class MainTitleScreenView extends ScreenView {
         }
 
         logger.info("Creating buttons...");
-        VBox vBox = new VBox();
-        vBox.setSpacing(5);
-        if (getStartButton() != null) {
-            Button button = getStartButton().build();
-            vBox.getChildren().add(button);
+
+        VBox vBox = getButtonVbox();
+        if (rightClicked) {
+            vBox.getChildren().clear();
         }
-        if (getLoadButton() != null) {
-            Button button = getLoadButton().build();
-            vBox.getChildren().add(button);
-        }
-        if (getOptionsButton() != null) {
-            Button button = getOptionsButton().build();
-            vBox.getChildren().add(button);
-        }
-        if (getAboutButton() != null) {
-            Button button = getAboutButton().build();
-            vBox.getChildren().add(button);
-        }
-        if (getHelpButton() != null) {
-            Button button = getHelpButton().build();
-            vBox.getChildren().add(button);
-        }
-        if (getQuitButton() != null) {
-            Button button = getQuitButton().build();
-            vBox.getChildren().add(button);
+        List<ButtonBuilder> list = new ArrayList<>(getButtons());
+        Collections.reverse(list);
+        for (ButtonBuilder builder : list) {
+            if (rightClicked) {
+                if (builder.getId().toLowerCase().contains("load")) {
+                    ButtonBuilder saveBuilder = ButtonBuilder.copyOf("menu-save-button", builder);
+                    saveBuilder.setText("Save");
+                    vBox.getChildren().add(saveBuilder.build());
+                    continue;
+                }
+            }
+            vBox.getChildren().add(builder.build());
         }
         root.getChildren().add(vBox);
 
-        // Buttons have to go on top of everything.
-        /*if (getStartButton() != null) {
-            Button button = getStartButton().build();
-            button.setTranslateY(getStartButton().getX());
-            button.setTranslateY(getStartButton().getY());
-            root.getChildren().add(button);
-        }*/
         logger.info("Creating scene...");
         Scene scene = new Scene(root);
         try {
@@ -166,8 +159,16 @@ public class MainTitleScreenView extends ScreenView {
         stage.setHeight(height);
         stage.getIcons().add(RenJava.getInstance().getConfiguration().getGameIcon());
         stage.setTitle(RenJava.getInstance().getConfiguration().getGameTitle());
-        RenJava.getInstance().setStage(stage, StageType.MAIN_MENU);
+
+        // Call dispatch event
+        MainMenDispatchEvent event = new MainMenDispatchEvent(stage, scene);
+        RenJava.callEvent(event);
         stage.show();
+        renJava.setStage(stage, StageType.MAIN_MENU);
         logger.info("Dispatched main menu.");
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 }

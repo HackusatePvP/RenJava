@@ -8,6 +8,7 @@ module RenJava {
     requires javafx.base;
     requires java.desktop;
     requires org.apache.commons.io;
+    requires org.jetbrains.annotations;
     opens me.piitex.renjava to javafx.graphics;
     exports me.piitex.renjava;
     exports me.piitex.renjava.configuration;
@@ -25,6 +26,7 @@ module RenJava {
     exports me.piitex.renjava.api.music;
     exports me.piitex.renjava.api.scenes.types;
     exports me.piitex.renjava.api.scenes.types.choices;
+    exports me.piitex.renjava.api.scenes.transitions;
     exports me.piitex.renjava.api.player;
     exports me.piitex.renjava.api.stories.handler;
     exports me.piitex.renjava.gui.exceptions;

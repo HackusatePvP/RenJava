@@ -23,7 +23,7 @@ public class AboutScreenView extends ScreenView {
         this.backgroundImage = backgroundImage;
     }
 
-    public void build(Stage stage) {
+    public void build(Stage stage, boolean ui) {
         Group root = new Group();
         //backgroundImage = new ImageLoader("/gui/" + RenJava.getInstance().getStyle().name().toLowerCase() + "/overlay/game_menu.png");
         try {
@@ -31,7 +31,6 @@ public class AboutScreenView extends ScreenView {
             root.getChildren().add(imageView);
         } catch (ImageNotFoundException e) {
             e.printStackTrace();
-            return;
         }
         new DefaultMainTitleScreenView(this);
         Text gameTitle = new Text(RenJava.getInstance().getName());

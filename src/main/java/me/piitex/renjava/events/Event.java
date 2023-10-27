@@ -39,8 +39,16 @@ import me.piitex.renjava.RenJava;
  * }</pre>
  * In the example above, we create an instance of the `CustomEvent` class and pass it to the `RenJava.callEvent()` method to trigger the event. This will invoke all registered listeners for the `CustomEvent`.
  * <p>
+ * You can pass your custom events in a listener class to handle the data.
+ * <pre {@code
+ * public class MyListenerClass implements EventListener {
+ *     @Listener
+ *     public void onEvent(CustomEvent event) {
+ *         // Gather and process event data.
+ *     }
+ * }
+ * }</pre>
+ * <p>
  * Overall, events provide a way to handle and respond to various game actions and events in a structured and organized manner.
  */
-public abstract class Event {
-
-}
+public abstract class Event { }

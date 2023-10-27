@@ -13,12 +13,11 @@ import me.piitex.renjava.gui.overlay.TextOverlay;
 /**
  * This is just a default setup for the main menu. Call this if you are just testing stuff out, or you are early in development.
  */
-public class DefaultMainTitleScreenView {
-    private final ScreenView screenView;
+public class DefaultMainTitleScreenView extends CustomTitleScreen{
     private final RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
 
     public DefaultMainTitleScreenView(ScreenView screenView) {
-        this.screenView = screenView;
+        super(screenView);
         build();
     }
 
@@ -40,14 +39,14 @@ public class DefaultMainTitleScreenView {
                 }
             }
         }
-        screenView.addOverlay(imageOverlay);
+        getTitleScreenView().addOverlay(imageOverlay);
 
         // Bottom right text that displays the game name and version. (Similar to RenPy's default setup)
         TextOverlay textOverlay = new TextOverlay(configuration.getGameTitle(), configuration.getBottomRight().getKey() - 250, configuration.getBottomRight().getValue() - 100, 5, 5);
-        screenView.addOverlay(textOverlay);
+        getTitleScreenView().addOverlay(textOverlay);
 
         textOverlay = new TextOverlay(RenJava.getInstance().getVersion(),configuration.getBottomRight().getKey() - 55, configuration.getBottomLeft().getValue() - 50, 2, 2);
-        screenView.addOverlay(textOverlay);
+        getTitleScreenView().addOverlay(textOverlay);
 
         int yBuffer = 80;
 
@@ -62,21 +61,22 @@ public class DefaultMainTitleScreenView {
 
         // Only testing start button for now.
         ButtonBuilder startButton = new ButtonBuilder("menu-start-button", "Start", Color.WHITE, 100 * heightScale, 400 * widthScale ,2.5,2.5);
-        screenView.setStartButton(startButton);
+        getTitleScreenView().getButtons().add(startButton);
 
         ButtonBuilder loadButton = new ButtonBuilder("menu-load-button", "Load", Color.WHITE, startButton.getX(),startButton.getY() + yBuffer, 2.5, 2.5);
-        screenView.setLoadButton(loadButton);
+        getTitleScreenView().getButtons().add(loadButton);
 
         ButtonBuilder preferenceButton = new ButtonBuilder("menu-preference-button", "Preferences", Color.WHITE, loadButton.getX(), loadButton.getY() + yBuffer, 2.5, 2.5);
-        screenView.setOptionsButton(preferenceButton);
+        getTitleScreenView().getButtons().add(preferenceButton);
 
         ButtonBuilder aboutButton = new ButtonBuilder("menu-about-button", "About", Color.WHITE, startButton.getX() + 5, preferenceButton.getY() + yBuffer, 2.5, 2.5);
-        screenView.setAboutButton(aboutButton);
+        getTitleScreenView().getButtons().add(aboutButton);
 
         ButtonBuilder helpButton = new ButtonBuilder("menu-help-button", "Help", Color.WHITE, loadButton.getX() + 1, aboutButton.getY() + yBuffer, 2.5, 2.5);
-        screenView.setHelpButton(helpButton);
+        getTitleScreenView().getButtons().add(helpButton);
 
         ButtonBuilder quitButton = new ButtonBuilder("menu-quit-button", "Quit", Color.WHITE, startButton.getX(), helpButton.getY() + yBuffer, 2.5, 2.5);
-        screenView.setQuitButton(quitButton);
+        getTitleScreenView().getButtons().add(quitButton);
+
     }
 }

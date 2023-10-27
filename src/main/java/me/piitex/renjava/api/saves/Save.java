@@ -3,24 +3,32 @@ package me.piitex.renjava.api.saves;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.stories.Story;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Represents a save slot. All data is stored via a .dat file.
  */
 public class Save {
+    private final Story story;
+    private final RenScene scene;
 
     /**
      * Creates a current save for the desired slot.
      * @param slot Slot to be saved, there is no limit on slots.
      */
-    public Save(int slot) {
+    public Save(int slot, String storyID, String sceneID) {
+        this.story = RenJava.getInstance().getPlayer().getStory(storyID);
+        this.scene = story.getScene(sceneID);
         // Slot is needed for the save slot.
         File directory = new File(System.getProperty("user.dir") + "/game/saves/" + slot + "/");
         directory.mkdir();
@@ -34,10 +42,13 @@ public class Save {
         }
         StringBuilder appendString = new StringBuilder();
         Logger logger = RenJava.getInstance().getLogger();
+        appendString.append("configuration").append("@@@@").append("storyID").append("!!!!").append(storyID).append("@@@@").append("sceneID").append("!!!!").append(sceneID).append(";;;;");
         for (PersistentData data : RenJava.getInstance().getRegisteredData()) {
             Class<?> claz = data.getClass();
             appendString.append(claz.getName());
-            for (Field field : claz.getDeclaredFields()) {
+            List<Field> fields = new ArrayList<>(List.of(claz.getDeclaredFields()));
+            fields.addAll(List.of(claz.getFields()));
+            for (Field field : fields) {
                 if (field.isAnnotationPresent(Data.class)) {
                     appendString.append("@@@@");
                     appendString.append(field.getName());
@@ -71,5 +82,13 @@ public class Save {
                 }
             }
         }
+    }
+
+    public Story getStory() {
+        return story;
+    }
+
+    public RenScene getScene() {
+        return scene;
     }
 }

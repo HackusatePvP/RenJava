@@ -93,7 +93,7 @@ public class InteractableScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage) {
+    public void build(Stage stage, boolean ui) {
         Group root = new Group();
 
         ImageView backgroundView = null;
@@ -104,6 +104,6 @@ public class InteractableScene extends RenScene {
         }
         root.getChildren().add(backgroundView);
         hookOverlays(root);
-        setStage(stage, root, StageType.INTERACTABLE_SCENE);
+        setStage(stage, root, StageType.INTERACTABLE_SCENE, false);
     }
 }
