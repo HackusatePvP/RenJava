@@ -4,7 +4,6 @@ import javafx.stage.Stage;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
-import me.piitex.renjava.api.stories.StoryManager;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
@@ -70,9 +69,6 @@ public abstract class RenJava {
     private RenJavaConfiguration configuration;
     private FontLoader defaultFont;
 
-    // Story manager
-    private StoryManager storyManager;
-
     // User settings
      private SettingsProperties settings;
 
@@ -114,6 +110,7 @@ public abstract class RenJava {
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
         this.registerData(player);
+        this.registerData(tracks);
         new RenLoader(this);
     }
 
@@ -188,15 +185,6 @@ public abstract class RenJava {
 
     public void setDefaultFont(FontLoader defaultFont) {
         this.defaultFont = defaultFont;
-    }
-
-    @Deprecated
-    public StoryManager getStoryManager() {
-        return storyManager;
-    }
-
-    public void setStoryManager(StoryManager storyManager) {
-        this.storyManager = storyManager;
     }
 
      public SettingsProperties getSettings() {

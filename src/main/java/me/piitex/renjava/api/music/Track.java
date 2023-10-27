@@ -11,14 +11,18 @@ import java.io.File;
 import java.io.IOException;
 
 public class Track {
+    private final String id;
     private final File file;
-
     private boolean loop;
-
     private MediaPlayer player;
 
     public Track(File file) {
+        this.id = file.getName();
         this.file = file;
+    }
+
+    public String getId() {
+        return id;
     }
 
     @APIChange(description = "Switched to using MediaPlayer instead of Clip. Most audio files should be supported with this change.", changedVersion = "0.0.289")
@@ -29,6 +33,10 @@ public class Track {
             player.setOnEndOfMedia(() -> {
                 player.seek(Duration.ZERO);
                 player.play();
+            });
+        } else {
+            player.setOnEndOfMedia(() -> {
+                RenJava.getInstance().getTracks().setPlaying(false);
             });
         }
         RenJava.getInstance().getLogger().warning("Volume: " + RenJava.getInstance().getSettings().getVolume() / 500d);

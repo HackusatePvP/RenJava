@@ -3,7 +3,6 @@ package me.piitex.renjava;
 import java.io.*;
 
 import me.piitex.renjava.api.music.Track;
-import me.piitex.renjava.api.stories.StoryManager;
 import me.piitex.renjava.configuration.SettingsProperties;
 
 public class RenLoader {
@@ -36,7 +35,7 @@ public class RenLoader {
         int audioLoaded = 0;
         for (File file : audioDirectory.listFiles()) {
             audioLoaded++;
-            renJava.getTracks().addTrack(file.getName(), new Track(file));
+            renJava.getTracks().addTrack(new Track(file));
         }
         renJava.getLogger().info("Loaded " + audioLoaded + " audio file(s)");
         File imageDirectory = new File(directory, "/images/");
@@ -54,7 +53,6 @@ public class RenLoader {
         renJava.getLogger().info("Generating pre-load data...");
         loadRPAFiles();
         renJava.preEnabled();
-        renJava.setStoryManager(new StoryManager());
 
         // Build setting file
         File directory = new File(System.getProperty("user.dir") + "/renjava/");
