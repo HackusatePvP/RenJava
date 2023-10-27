@@ -36,7 +36,15 @@ public class ScenesEventListener implements EventListener {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    Platform.runLater(story::displayNextScene);
+                    RenScene renScene = story.getNextSceneFromCurrent();
+                    if (renScene != null) {
+                        Platform.runLater(story::displayNextScene);
+                    } else {
+                        Platform.runLater(() -> {
+                            // Call story end
+                            RenJava.callEvent(new StoryEndEvent(story));
+                        });
+                    }
                 }
             }, TimeUnit.SECONDS.toMillis(duration));
         }
