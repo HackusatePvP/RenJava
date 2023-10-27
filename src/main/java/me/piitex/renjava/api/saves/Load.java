@@ -9,6 +9,9 @@ import me.piitex.renjava.api.stories.Story;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -49,22 +52,8 @@ public class Load {
 
             while (scanner.hasNextLine()) {
                 // classname@field1;value@field2;value@ect..@ect..;clasname2@field;value@field;value@field;value
-
-                // # Start of file
-                // configuration:
-                //    storyID: storyID
-                //    sceneID: sceneID
-                // me.piitex.test.TestClass
-                //    fieldName: FieldValue
-                // me.piitext.test.NextClass
-                //    fieldName: FieldValue
                 String data = scanner.nextLine();
 
-                // Flags
-
-                // Build configuration
-                String currentStory = "";
-                String currentScene = "";
                 if (data.startsWith("configuration")) {
                     config = true;
                 } else if (data.contains("me.piitex.renjava.api.music.Tracks")) {
@@ -75,10 +64,10 @@ public class Load {
                         if (sectionKeyValue != null) {
                             keyValues.add(sectionKeyValue);
                         }
-                        sectionKeyValue = new SectionKeyValue(data.replace(": ", ""));
+                        sectionKeyValue = new SectionKeyValue(data.replace(":", "").trim());
                     } else if (sectionKeyValue != null) {
-                        String key = data.split(": ")[0];
-                        String value = data.split(": ")[1];
+                        String key = data.split(": ")[0].trim();
+                        String value = data.split(": ")[1].trim();
                         sectionKeyValue.addKeyValue(key, value);
                     }
                 }
@@ -132,30 +121,71 @@ public class Load {
 
         for (PersistentData data : RenJava.getInstance().getRegisteredData()) {
             // Loop through data and check if it matches any of the section key data
-            keyValues.stream().filter(sectionKeyValue -> data.getClass().getName().equalsIgnoreCase(sectionKeyValue.getSection())).forEach(sectionKeyValue -> {
-                // Set the fields and values for the desired data
-                sectionKeyValue.getKeyValueMap().forEach((s, s2) -> {
-                    try {
-                        data.getClass().getField(s).set(s2, data);
-                    } catch (IllegalAccessException | NoSuchFieldException e) {
-                        e.printStackTrace();
-                    }
-                });
-            });
+            logger.info("Class: " + data.getClass().getName());
+            for (SectionKeyValue sectionKeyValue : keyValues) {
+                if (sectionKeyValue.getSection().equalsIgnoreCase(data.getClass().getName())) {
+                    sectionKeyValue.getKeyValueMap().forEach((string, string2) -> {
+                        logger.info("Setting fields...");
+                        Field field;
+                        try {
+                            field = data.getClass().getField(string);
+                            field.setAccessible(true);
+                            Type type = field.getGenericType();
+                            if (type.getTypeName().toLowerCase().contains("string")) {
+                                field.set(data, string2);
+                            } else if (type.getTypeName().toLowerCase().contains("int")) {
+                                field.set(data, Integer.parseInt(string2));
+                            } else if (type.getTypeName().toLowerCase().contains("boolean")) {
+                                field.set(data, Boolean.parseBoolean(string2));
+                            } else if (type.getTypeName().toLowerCase().contains("double")) {
+                                field.set(data, Double.parseDouble(string2));
+                            } else if (type.getTypeName().toLowerCase().contains("float")) {
+                                field.set(data, Float.parseFloat(string2));
+                            } else if (type.getTypeName().toLowerCase().contains("long")) {
+                                field.set(data, Long.parseLong(string2));
+                            } else if (type.getTypeName().toLowerCase().contains("short")) {
+                                field.set(data, Short.parseShort(string2));
+                            } else if (type.getTypeName().toLowerCase().contains("byte")) {
+                                field.set(data, Byte.parseByte(string2));
+                            }
+                            logger.info("Type: " + type.getTypeName());
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        } catch (NoSuchFieldException e) {
+                            // If its no such field see if its a declared field
+                            try {
+                                field = data.getClass().getDeclaredField(string);
+                                field.setAccessible(true);
+                                Type type = field.getGenericType();
+                                if (type.getTypeName().toLowerCase().contains("string")) {
+                                    field.set(data, string2);
+                                } else if (type.getTypeName().toLowerCase().contains("int")) {
+                                    field.set(data, Integer.parseInt(string2));
+                                } else if (type.getTypeName().toLowerCase().contains("boolean")) {
+                                    field.set(data, Boolean.parseBoolean(string2));
+                                } else if (type.getTypeName().toLowerCase().contains("double")) {
+                                    field.set(data, Double.parseDouble(string2));
+                                } else if (type.getTypeName().toLowerCase().contains("float")) {
+                                    field.set(data, Float.parseFloat(string2));
+                                } else if (type.getTypeName().toLowerCase().contains("long")) {
+                                    field.set(data, Long.parseLong(string2));
+                                } else if (type.getTypeName().toLowerCase().contains("short")) {
+                                    field.set(data, Short.parseShort(string2));
+                                } else if (type.getTypeName().toLowerCase().contains("byte")) {
+                                    field.set(data, Byte.parseByte(string2));
+                                }
+                            } catch (IllegalAccessException | NoSuchFieldException ignored) {
+                                // This is ignored because it will throw NoSuchFieldException as it loops through ALL saved data in the file.
+                            }
+                        }
+                    });
+                }
+            }
         }
 
         Story loadedStory = RenJava.getInstance().getPlayer().getStory(story);
         loadedStory.init(); // Add scenes and stuff
-        for (String s : loadedStory.getScenes().keySet()) {
-            logger.info("Map Key: " + s);
-        }
         loadedStory.displayScene(scene);
-
-        logger.info("Checking track info...");
-        logger.info("Current Track: " + currentTrack);
-        logger.info("Playing Track: " + isPlaying);
-        logger.info("Looping: " + isLooping);
-
         if (isPlaying) {
             RenJava.getInstance().getTracks().play(currentTrack, isLooping);
         }
