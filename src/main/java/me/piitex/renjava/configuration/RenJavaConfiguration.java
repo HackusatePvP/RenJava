@@ -1,15 +1,39 @@
 package me.piitex.renjava.configuration;
 
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.Map;
 
-// FIXME: 8/13/2023 Long time java 8 developer so records are a new concept to me. Depending on what I plan for this class it could be converted to a record at a later date.
 public class RenJavaConfiguration {
     private final String gameTitle;
     private final int width;
     private final int height;
     private final Image gameIcon;
+
+    private Paint dialogueColor = Color.BLACK;
+
+    private int dialogueBoxWidth = 1000;
+    private int dialogueBoxHeight = 600;
+
+    private int dialogueBoxX = 0;
+    private int dialogueBoxY = 870;
+    private int dialogueOffsetX = 0;
+    private int dialogueOffsetY = 0;
+
+    private int textSize = 24;
+    private int characterTextSize = 36;
+
+    private int textX = 400;
+    private int textY = 920;
+    private int textOffsetX = 0;
+    private int textOffsetY = 0;
+
+    private int characterTextX = 600;
+    private int characterTextY = 170;
+    private int characterTextOffsetX = 0;
+    private int characterTextOffsetY = 0;
 
     /**
      * Used to create your own customized configuration easily.
@@ -48,6 +72,171 @@ public class RenJavaConfiguration {
 
     public Image getGameIcon() {
         return gameIcon;
+    }
+
+    public Paint getDialogueColor() {
+        return dialogueColor;
+    }
+
+    public void setDialogueColor(Paint dialogueColor) {
+        this.dialogueColor = dialogueColor;
+    }
+
+    public int getDialogueBoxWidth() {
+        return dialogueBoxWidth;
+    }
+
+    public void setDialogueBoxWidth(int dialogueBoxWidth) {
+        this.dialogueBoxWidth = dialogueBoxWidth;
+    }
+
+    public int getDialogueBoxHeight() {
+        return dialogueBoxHeight;
+    }
+
+    public void setDialogueBoxHeight(int dialogueBoxHeight) {
+        this.dialogueBoxHeight = dialogueBoxHeight;
+    }
+
+    public int getDialogueBoxX() {
+        return dialogueBoxX;
+    }
+
+    public void setDialogueBoxX(int dialogueBoxX) {
+        this.dialogueBoxX = dialogueBoxX;
+    }
+
+    public int getDialogueBoxY() {
+        return dialogueBoxY;
+    }
+
+    public void setDialogueBoxY(int dialogueBoxY) {
+        this.dialogueBoxY = dialogueBoxY;
+    }
+
+    public int getDialogueOffsetX() {
+        return dialogueOffsetX;
+    }
+
+    public void setDialogueOffsetX(int dialogueOffsetX) {
+        this.dialogueOffsetX = dialogueOffsetX;
+    }
+
+    public int getDialogueOffsetY() {
+        return dialogueOffsetY;
+    }
+
+    public void setDialogueOffsetY(int dialogueOffsetY) {
+        this.dialogueOffsetY = dialogueOffsetY;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getTextSize() {
+        return textSize;
+    }
+
+    /**
+     * Sets the dialogue font's text size.
+     * @param textSize
+     */
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
+    }
+
+    public int getCharacterTextSize() {
+        return characterTextSize;
+    }
+
+    /**
+     * Sets the Characters name font size.
+     * @param characterTextSize
+     */
+    public void setCharacterTextSize(int characterTextSize) {
+        this.characterTextSize = characterTextSize;
+    }
+
+    public int getTextX() {
+        return textX;
+    }
+
+    public void setTextX(int textX) {
+        this.textX = textX;
+    }
+
+    public int getTextY() {
+        return textY;
+    }
+
+    public void setTextY(int textY) {
+        this.textY = textY;
+    }
+
+    public int getTextOffsetX() {
+        return textOffsetX;
+    }
+
+    /**
+     * Sets how far to the right the dialogue will be displayed. This is already aligned to the corner of the image.
+     * @param textOffsetX
+     */
+    public void setTextOffsetX(int textOffsetX) {
+        this.textOffsetX = textOffsetX;
+    }
+
+
+    public int getTextOffsetY() {
+        return textOffsetY;
+    }
+
+    /**
+     * Sets how far down the dialogue will be displayed. This is already aligned to the corner of the image.
+     * @param textOffsetY
+     */
+    public void setTextOffsetY(int textOffsetY) {
+        this.textOffsetY = textOffsetY;
+    }
+
+    public int getCharacterTextX() {
+        return characterTextX;
+    }
+
+    public void setCharacterTextX(int characterTextX) {
+        this.characterTextX = characterTextX;
+    }
+
+    public int getCharacterTextY() {
+        return characterTextY;
+    }
+
+    public void setCharacterTextY(int characterTextY) {
+        this.characterTextY = characterTextY;
+    }
+
+    public int getCharacterTextOffsetX() {
+        return characterTextOffsetX;
+    }
+
+    /**
+     * Sets how far to the right the character display name will be displayed. This is already aligned to the corner of the image.
+     * @param characterTextOffsetX
+     */
+    public void setCharacterTextOffsetX(int characterTextOffsetX) {
+        this.characterTextOffsetX = characterTextOffsetX;
+    }
+
+    public int getCharacterTextOffsetY() {
+        return characterTextOffsetY;
+    }
+
+    /**
+     * Sets how far down the character display name will be displayed. This is already aligned to the corner of the image.
+     * @param characterTextOffsetY
+     */
+    public void setCharacterTextOffsetY(int characterTextOffsetY) {
+        this.characterTextOffsetY = characterTextOffsetY;
     }
 
     // bottom left is 0 on the x and max on the y
