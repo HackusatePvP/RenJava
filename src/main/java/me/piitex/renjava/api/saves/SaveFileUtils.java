@@ -18,12 +18,12 @@ public class SaveFileUtils {
                     String field = s1.split("!!!!")[0];
                     String value = s1.split("!!!!")[1];
                     builder.append("    ").append(field).append(": ").append(value);
+                    builder.append("\n");
                     System.out.println("Class: " + classname);
                     System.out.println("Field: " + field);
                     System.out.println("Value: " + value);
                 }
             }
-            builder.append("\n");
         }
         return builder.toString();
     }
