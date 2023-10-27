@@ -2,6 +2,7 @@ package me.piitex.renjava.api.builders;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import me.piitex.renjava.RenJava;
 
 import java.io.File;
 
@@ -30,6 +31,7 @@ public class VideoLoader {
      */
     public void play(boolean loop) {
         player = new MediaPlayer(media);
+        player.setVolume(RenJava.getInstance().getSettings().getVolume() / 500d);
         player.play();
         if (loop) {
             player.setCycleCount(MediaPlayer.INDEFINITE);
