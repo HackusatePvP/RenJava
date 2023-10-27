@@ -15,6 +15,7 @@
           <include>**/*.ttf</include>
           <include>**/*.png</include>
           <include>**/*.jpeg</include>
+          <include>**/*.webp</include>
           <include>**/*.webm</include>
           <include>**/*.mp3</include>
           <include>**/*.wav</include>
