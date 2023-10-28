@@ -10,6 +10,7 @@ import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
+import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.*;
@@ -52,23 +53,6 @@ public class GameFlowEventListener implements EventListener {
                     player.setUiToggled(!player.isUiToggled());
                     logger.info("After Ui Toggled: " + player.isUiToggled());
                     scene.build(stage, player.isUiToggled());
-
-                    // Roll back.
-
-                    /*
-                    // Rollback will probably not work at this time. I have to figure out a way to play a previous story and the development of stories has just started. I need to implement more functionality before attempting this.
-                    RenScene previousScene = RenJava.getInstance().getPlayer().getCurrentStory().getPreviousSceneFromCurrent();
-                    if (previousScene == null) {
-
-                        // Scan for the previous story
-                        Story previousStory = RenJava.getInstance().getPlayer().getPreviousStory(); // Gets the previous story by the index of the story.
-                        if (previousStory != null) {
-                            previousStory.getScene(previousStory.getLastIndex()).build(stage);
-                        }
-                        RenJava.getInstance().getLogger().warning("Could not find rollback scene.");
-                    } else {
-                        previousScene.build(stage);
-                    }*/
                 }
             } case PRIMARY -> {
                 // Go Forward
@@ -112,7 +96,7 @@ public class GameFlowEventListener implements EventListener {
                         // Call next if the story did not end.
                         RenScene nextScene = story.getNextScene(scene.getId());
                         if (nextScene != null) {
-                            nextScene.build(RenJava.getInstance().getStage(), true);
+                            nextScene.build(stage, true);
                         } else {
                             logger.info("Next scene not found. Ending story...");
                         }
@@ -145,20 +129,43 @@ public class GameFlowEventListener implements EventListener {
     @Listener
     public void onKeyPress(KeyPressEvent event) {
         // Handle actions when a player presses a key.
-
-        RenScene scene = event.getScene();
         KeyCode code = event.getCode();
-        // First do skip which is ctrl
-        if (!(scene instanceof InteractableScene)) {
-            if (code == KeyCode.CONTROL) {
-                heldTask = new KeyHeldTask(event.getScene());
-                //timer.scheduleAtFixedRate(heldTask, TimeUnit.MILLISECONDS.toMillis(500L), TimeUnit.MILLISECONDS.toMillis(500L));
+        Stage stage = null;
+        boolean setFullScreen = false;
+        if (code == KeyCode.F11) {
+            SettingsProperties properties = RenJava.getInstance().getSettings();
+            if (properties.isFullscreen()) {
+                properties.setFullscreen(false);
+                stage = RenJava.getInstance().getStage();
+                stage.setFullScreen(false);
+            } else {
+                setFullScreen = true;
+                properties.setFullscreen(true);
+                stage = RenJava.getInstance().getStage();
+                stage.setFullScreen(true);
             }
         }
 
-        if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
-            SceneEndEvent endEvent = new SceneEndEvent(scene);
-            RenJava.callEvent(endEvent);
+        // Absolutely
+
+        RenScene scene = event.getScene();
+        if (scene != null) {
+            if (stage != null) {
+                if (setFullScreen) {
+                    RenJava.getInstance().setStage(stage, scene.getStageType());
+                }
+            }
+            // First do skip which is ctrl
+            if (!(scene instanceof InteractableScene)) {
+                if (code == KeyCode.CONTROL) {
+                    heldTask = new KeyHeldTask(event.getScene());
+                    //timer.scheduleAtFixedRate(heldTask, TimeUnit.MILLISECONDS.toMillis(500L), TimeUnit.MILLISECONDS.toMillis(500L));
+                }
+            }
+
+            if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
+                scene.getStory().displayNextScene();
+            }
         }
     }
 

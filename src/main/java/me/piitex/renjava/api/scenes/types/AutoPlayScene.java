@@ -39,4 +39,9 @@ public class AutoPlayScene extends RenScene {
     public int getDuration() {
         return duration;
     }
+
+    @Override
+    public StageType getStageType() {
+        return StageType.IMAGE_SCENE;
+    }
 }

@@ -13,7 +13,6 @@ public class FadingTransition extends Transitions {
     private final int cycleCount;
     private final boolean autoReverse;
 
-
     public FadingTransition(TransitionType transitionType, double fromValue, double toValue, int cycleCount, boolean autoReverse, int duration) {
         super(duration);
         this.transitionType = transitionType;

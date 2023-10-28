@@ -59,6 +59,11 @@ public class InteractableScene extends RenScene {
 
     private final ImageLoader backgroundImage;
 
+    @Override
+    public StageType getStageType() {
+        return StageType.INTERACTABLE_SCENE;
+    }
+
     /**
      * Creates an InteractableScene object representing an interactable scene in the RenJava framework.
      * Interactable scenes are scenes that allow player interaction, such as maps and playable areas.

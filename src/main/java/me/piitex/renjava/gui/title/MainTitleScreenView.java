@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
+import me.piitex.renjava.configuration.SettingsProperties;
+import me.piitex.renjava.events.types.KeyPressEvent;
 import me.piitex.renjava.events.types.MainMenDispatchEvent;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.gui.ScreenView;
@@ -152,7 +154,14 @@ public class MainTitleScreenView extends ScreenView {
         root.getChildren().add(vBox);
 
         logger.info("Creating scene...");
-        Scene scene = new Scene(root);
+        Scene scene;
+        if (stage.getScene() != null) {
+            scene = stage.getScene();
+            stage.getScene().setRoot(root);
+        } else {
+            stage.setScene(new Scene(root));
+            scene = stage.getScene();
+        }
         try {
             scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/button.css").toURI().toURL().toExternalForm());
         } catch (MalformedURLException e) {
@@ -162,8 +171,16 @@ public class MainTitleScreenView extends ScreenView {
             MouseClickEvent clickEvent = new MouseClickEvent(event);
             RenJava.callEvent(clickEvent);
         });
-        stage.setScene(scene);
-        stage.setMaximized(true);
+        scene.setOnKeyPressed(event -> {
+            KeyPressEvent event1 = new KeyPressEvent(null, event.getCode());
+            RenJava.callEvent(event1);
+        });
+        SettingsProperties settingsProperties = RenJava.getInstance().getSettings();
+        if (!settingsProperties.isFullscreen()) {
+            stage.setMaximized(true);
+        } else {
+            stage.setFullScreen(true);
+        }
         stage.setWidth(width);
         stage.setHeight(height);
 

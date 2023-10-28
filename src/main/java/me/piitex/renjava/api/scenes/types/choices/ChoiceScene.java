@@ -68,6 +68,11 @@ public class ChoiceScene extends RenScene {
 
     private final LinkedHashSet<Choice> choices = new LinkedHashSet<>();
 
+    @Override
+    public StageType getStageType() {
+        return StageType.CHOICE_SCENE;
+    }
+
     /**
      * Creates a ChoiceScene object with the specified identifier and background image.
      *

@@ -15,6 +15,7 @@ import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
+import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.types.KeyPressEvent;
 import me.piitex.renjava.events.types.KeyReleaseEvent;
 import me.piitex.renjava.events.types.MouseClickEvent;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 
 /**
@@ -56,16 +58,18 @@ public abstract class RenScene extends Container {
     private SceneEndInterface endInterface;
 
     // Extremely experimental. Setting a global scene achives the ctrl skip feature but could cause ALOT of other issues.
-    private Scene scene = new Scene(new Group());
+    private final Stage stage = RenJava.getInstance().getStage();
 
     private final Collection<Overlay> additionalOverlays = new HashSet<>();
 
     private final Collection<File> styleSheets = new HashSet<>();
 
+    public abstract StageType getStageType();
+
     public RenScene(String id, ImageLoader backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
-        setInputControls(scene);
+        setInputControls(stage.getScene());
     }
 
     private void setInputControls(Scene scene) {
@@ -167,19 +171,31 @@ public abstract class RenScene extends Container {
     }
 
     public void setStage(Stage stage, Group root, StageType type, boolean resetScene) {
+        Logger logger = RenJava.getInstance().getLogger();
         if (resetScene) {
-            scene = new Scene(root);
+            logger.info("Resetting scene...");
+            stage.setScene(new Scene(root));
         } else {
-            scene.setRoot(root);
+            stage.getScene().setRoot(root);
         }
         for (File file : styleSheets) {
             try {
-                scene.getStylesheets().add(file.toURI().toURL().toExternalForm());
+                stage.getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         }
-        stage.setScene(scene);
+
+        if (stage.isFullScreen()) {
+            logger.info("Stage is Fullscreen");
+        } else {
+            logger.info("Stage is Windowed.");
+        }
+        SettingsProperties settingsProperties = RenJava.getInstance().getSettings();
+        if (settingsProperties.isFullscreen()) {
+            stage.setFullScreen(true);
+        }
+        stage.getScene().setRoot(root); // Should fix fullscreen bug
         stage.show();
         RenJava.getInstance().getPlayer().setCurrentStory(this.getStory().getId());
         RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
