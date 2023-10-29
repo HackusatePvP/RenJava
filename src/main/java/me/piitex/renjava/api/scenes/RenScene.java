@@ -4,6 +4,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
@@ -27,6 +28,7 @@ import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 import me.piitex.renjava.gui.overlay.TextOverlay;
 
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Collection;
@@ -69,26 +71,6 @@ public abstract class RenScene extends Container {
     public RenScene(String id, ImageLoader backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
-        setInputControls(stage.getScene());
-    }
-
-    private void setInputControls(Scene scene) {
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        scene.setOnKeyPressed(keyEvent -> {
-            // TODO: 9/28/2023 Call a repeatable task that ends when the key is released
-            KeyPressEvent event1 = new KeyPressEvent(this, keyEvent.getCode());
-            RenJava.callEvent(event1);
-        });
-        scene.setOnKeyReleased(keyEvent -> {
-            KeyReleaseEvent event1 = new KeyReleaseEvent(this, keyEvent.getCode());
-            RenJava.callEvent(event1);
-        });
-        scene.setOnScroll(scrollEvent -> {
-            // TODO: 9/28/2023 check if they are scrolling down or something????
-        });
     }
 
     public RenScene onStart(SceneStartInterface sceneInterface) {
@@ -195,7 +177,6 @@ public abstract class RenScene extends Container {
         if (settingsProperties.isFullscreen()) {
             stage.setFullScreen(true);
         }
-        stage.getScene().setRoot(root); // Should fix fullscreen bug
         stage.show();
         RenJava.getInstance().getPlayer().setCurrentStory(this.getStory().getId());
         RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
