@@ -454,6 +454,7 @@ public abstract class RenJava {
      * @param event Event to be executed.
      */
     public static void callEvent(Event event) {
+        Collection<Method> lowest = new HashSet<>();
         Collection<Method> lowMethods = new HashSet<>();
         Collection<Method> normalMethods = new HashSet<>();
         Collection<Method> highMethods = new HashSet<>();
@@ -475,6 +476,7 @@ public abstract class RenJava {
                             case HIGH -> highMethods.add(method);
                             case NORMAL -> normalMethods.add(method);
                             case LOW -> lowMethods.add(method);
+                            case LOWEST -> lowMethods.add(method);
                         }
                     }
                 }
@@ -489,6 +491,9 @@ public abstract class RenJava {
         }
         for (Method method : lowMethods) {
            invokeMethod(method, event);
+        }
+        for (Method method : lowMethods) {
+            invokeMethod(method, event);
         }
     }
 
