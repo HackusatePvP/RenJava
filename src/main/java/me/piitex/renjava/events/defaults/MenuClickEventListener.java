@@ -1,5 +1,6 @@
 package me.piitex.renjava.events.defaults;
 
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import me.piitex.renjava.RenJava;
 
@@ -11,7 +12,6 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 import me.piitex.renjava.gui.about.AboutScreenView;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.load.LoadScreenView;
 import me.piitex.renjava.gui.prefernces.PreferenceScreenView;
 
 public class MenuClickEventListener implements EventListener {
@@ -39,6 +39,9 @@ public class MenuClickEventListener implements EventListener {
         }
         if (button.getId().equalsIgnoreCase("menu-save-button")) {
             new Save(1, RenJava.getInstance().getPlayer().getCurrentStory().getId(), RenJava.getInstance().getPlayer().getCurrentScene().getId());
+        }
+        if (button.getId().equalsIgnoreCase("menu-quit-button")) {
+            Platform.exit();
         }
     }
 
