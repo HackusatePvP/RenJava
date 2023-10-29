@@ -8,7 +8,6 @@ import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
-import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.EventListener;
@@ -20,7 +19,6 @@ import me.piitex.renjava.tasks.KeyHeldTask;
 
 import java.util.AbstractMap;
 import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class GameFlowEventListener implements EventListener {
@@ -49,15 +47,12 @@ public class GameFlowEventListener implements EventListener {
                 if (gameMenu) {
                     // Hide ui elements from scene
                     RenJava.getInstance().getLogger().info("Toggling UI!");
-                    logger.info("Before Ui Toggled: " + player.isUiToggled());
                     player.setUiToggled(!player.isUiToggled());
-                    logger.info("After Ui Toggled: " + player.isUiToggled());
                     scene.build(stage, player.isUiToggled());
                 }
             } case PRIMARY -> {
                 // Go Forward
                 if (gameMenu) {
-
                     if (scene == null) {
                         logger.severe("The scene is null.");
                         return;
@@ -146,8 +141,6 @@ public class GameFlowEventListener implements EventListener {
             }
         }
 
-        // Absolutely
-
         RenScene scene = event.getScene();
         if (scene != null) {
             if (stage != null) {
@@ -161,10 +154,6 @@ public class GameFlowEventListener implements EventListener {
                     heldTask = new KeyHeldTask(event.getScene());
                     //timer.scheduleAtFixedRate(heldTask, TimeUnit.MILLISECONDS.toMillis(500L), TimeUnit.MILLISECONDS.toMillis(500L));
                 }
-            }
-
-            if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
-                scene.getStory().displayNextScene();
             }
         }
     }

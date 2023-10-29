@@ -178,7 +178,7 @@ public class ImageScene extends RenScene {
             RenJava.getInstance().getLogger().info("No user interface is displayed.");
         }
 
-        //hookOverlays(root);
+        hookOverlays(root);
         setStage(stage, root, StageType.IMAGE_SCENE, false);
     }
 
