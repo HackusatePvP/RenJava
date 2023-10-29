@@ -5,6 +5,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -15,6 +16,7 @@ import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.types.KeyPressEvent;
+import me.piitex.renjava.events.types.KeyReleaseEvent;
 import me.piitex.renjava.events.types.MainMenDispatchEvent;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.gui.ScreenView;
@@ -59,6 +61,9 @@ public class MainTitleScreenView extends ScreenView {
             } catch (ImageNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+        if (renJava.getSettings().isFullscreen()) {
+            stage.setFullScreen(true);
         }
         stage.setTitle(titleDisplay);
         stage.setOnHiding(windowEvent -> {
@@ -167,10 +172,9 @@ public class MainTitleScreenView extends ScreenView {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-            MouseClickEvent clickEvent = new MouseClickEvent(event);
-            RenJava.callEvent(clickEvent);
-        });
+
+        setInputControls(scene);
+
         scene.setOnKeyPressed(event -> {
             KeyPressEvent event1 = new KeyPressEvent(null, event.getCode());
             RenJava.callEvent(event1);
@@ -194,5 +198,25 @@ public class MainTitleScreenView extends ScreenView {
 
     public Stage getStage() {
         return stage;
+    }
+
+    private void setInputControls(Scene scene) {
+        // FIXME: 10/29/2023 This seems to cause issue #1
+        scene.setOnMouseClicked(event -> {
+            MouseClickEvent event1 = new MouseClickEvent(event);
+            RenJava.callEvent(event1);
+        });
+        /*scene.setOnKeyPressed(keyEvent -> {
+            // TODO: 9/28/2023 Call a repeatable task that ends when the key is released
+            KeyPressEvent event1 = new KeyPressEvent(this, keyEvent.getCode());
+            RenJava.callEvent(event1);
+        });
+        scene.setOnKeyReleased(keyEvent -> {
+            KeyReleaseEvent event1 = new KeyReleaseEvent(this, keyEvent.getCode());
+            //RenJava.callEvent(event1);
+        });*/
+        scene.setOnScroll(scrollEvent -> {
+            // TODO: 9/28/2023 check if they are scrolling down or something????
+        });
     }
 }
