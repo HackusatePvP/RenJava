@@ -5,8 +5,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -15,10 +13,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
-import me.piitex.renjava.events.types.KeyPressEvent;
-import me.piitex.renjava.events.types.KeyReleaseEvent;
-import me.piitex.renjava.events.types.MainMenDispatchEvent;
-import me.piitex.renjava.events.types.MouseClickEvent;
+import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
@@ -216,7 +211,8 @@ public class MainTitleScreenView extends ScreenView {
             //RenJava.callEvent(event1);
         });*/
         scene.setOnScroll(scrollEvent -> {
-            // TODO: 9/28/2023 check if they are scrolling down or something????
+            ScrollInputEvent event = new ScrollInputEvent(scrollEvent);
+            RenJava.callEvent(event);
         });
     }
 }

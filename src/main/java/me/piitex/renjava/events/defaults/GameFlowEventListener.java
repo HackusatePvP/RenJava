@@ -12,6 +12,7 @@ import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
+import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.title.MainTitleScreenView;
@@ -98,6 +99,44 @@ public class GameFlowEventListener implements EventListener {
 
         if (code == KeyCode.CONTROL) {
             // TODO: 10/31/2023
+        }
+    }
+
+    @Listener
+    public void onScrollInput(ScrollInputEvent event) {
+        RenJava.getInstance().getLogger().info("Scroll Y: " + event.getScrollEvent().getDeltaY());
+
+        // If the scroll y is less than 0 they are scrolling down.
+        double y = event.getScrollEvent().getDeltaY();
+        if (y > 0) {
+            ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
+            RenJava.callEvent(scrollUpEvent);
+        } else {
+            ScrollDownEvent scrollDownEvent = new ScrollDownEvent();
+            RenJava.callEvent(scrollDownEvent);
+        }
+
+    }
+
+    @Listener(priority = Priority.LOWEST)
+    public void onScrollUp(ScrollUpEvent event) {
+        Logger logger = RenJava.getInstance().getLogger();
+        logger.info("Scroll up called!");
+        if (RenJava.getInstance().getPlayer().getCurrentScene() != null) {
+            if (event.isDisplayPreviousScene()) {
+                Story story = RenJava.getInstance().getPlayer().getCurrentStory();
+                RenScene renScene = story.getPreviousSceneFromCurrent();
+                if (renScene == null) {
+                    // log for testing
+                    logger.info("Previous scene not found.");
+                } else {
+                    renScene.build(RenJava.getInstance().getStage(), true);
+                }
+            } else {
+                logger.info("Cannot display next scene...");
+            }
+        } else {
+            logger.info("Current scene is null...");
         }
     }
 
