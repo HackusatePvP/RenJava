@@ -24,6 +24,8 @@ public class Player implements PersistentData {
 
     private boolean uiToggled = true;
 
+    private boolean skipAutoScene = false;
+
     private final LinkedHashMap<String, Story> viewedStories = new LinkedHashMap<>(); // Ordered map of what stories the player has viewed.
     private final Map<Integer, Story> viewedStoriesIndex = new HashMap<>(); // Indexing of the viewedStories
 
@@ -102,5 +104,13 @@ public class Player implements PersistentData {
 
     public void setUiToggled(boolean uiToggled) {
         this.uiToggled = uiToggled;
+    }
+
+    public boolean isSkipAutoScene() {
+        return skipAutoScene;
+    }
+
+    public void setSkipAutoScene(boolean skipAutoScene) {
+        this.skipAutoScene = skipAutoScene;
     }
 }

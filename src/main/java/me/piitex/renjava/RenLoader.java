@@ -11,6 +11,8 @@ public class RenLoader {
     public RenLoader(RenJava renJava) {
         this.renJava = renJava;
         setupMain();
+        setupGame();
+        startPreProcess();
     }
 
     private void setupMain() {
@@ -24,7 +26,6 @@ public class RenLoader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        setupGame();
     }
 
     private void setupGame() {
@@ -46,7 +47,6 @@ public class RenLoader {
         fontsDirectory.mkdir();
         File cssDirectory = new File(directory, "/css/");
         cssDirectory.mkdir();
-        startPreProcess();
     }
 
     private void startPreProcess() {
