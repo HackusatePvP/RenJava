@@ -52,57 +52,10 @@ public class GameFlowEventListener implements EventListener {
                 }
             } case PRIMARY -> {
                 // Go Forward
-                if (gameMenu) {
-                    if (scene == null) {
-                        logger.severe("The scene is null.");
-                        return;
-                    }
-                    // Go to the next scene map
-                    // Play next scene in the story or call the scene end event. StoryHandlerEvent controls stories just call the end event (I think)
-
-                    // Some scenes you don't want to end with a click or space.
-                    if (scene instanceof InteractableScene || scene instanceof ChoiceScene) {
-                        return;
-                    }
-                    // Handle endScene first
-                    SceneEndEvent endEvent = new SceneEndEvent(scene);
-                    if (scene.getEndInterface() != null) {
-                        scene.getEndInterface().onEnd(endEvent);
-                    }
-                    RenJava.callEvent(endEvent);
-
-                    // Jump to next scene second
-                    Story story = scene.getStory();
-                    if (story == null) {
-                        logger.info("Scene has no story returning.");
-                        return;
-                    }
-
-                    // Add scene to view. Complicated mapping but it shooould work
-                    player.getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, scene.getId()), scene);
-                    if (scene.getIndex() == story.getLastIndex()) {
-                        logger.info("Calling story end event...");
-                        StoryEndEvent storyEndEvent = new StoryEndEvent(story);
-                        RenJava.callEvent(storyEndEvent);
-                        return;
-                    }
-
-                    if (endEvent.isAutoPlayNextScene()) {
-                        // Call next if the story did not end.
-                        RenScene nextScene = story.getNextScene(scene.getId());
-                        if (nextScene != null) {
-                            nextScene.build(stage, true);
-                        } else {
-                            logger.info("Next scene not found. Ending story...");
-                        }
-                    }
-                }
+                playNextScene();
             }
             case SECONDARY -> {
-                // FIXME: 8/5/2023 Uses old methods that have since been removed.
-
                 // Open Main Menu
-                logger.info("Right click detected");
                 if (!player.isRightClickMenu()) {
                     logger.info("Player is not in menu, opening menu...");
                     MainTitleScreenView screenView = RenJava.getInstance().getMainTitleScreenView();
@@ -110,9 +63,7 @@ public class GameFlowEventListener implements EventListener {
                     player.setRightClickMenu(true);
 
                 } else {
-                    logger.info("Player is in right click menu return them to the previous scene.");
                     // Return to previous screen
-                    logger.info("Current scene: " + player.getCurrentScene());
                     RenScene renScene = player.getCurrentScene();
                     renScene.build(stage, true);
                     player.setRightClickMenu(false);
@@ -141,20 +92,12 @@ public class GameFlowEventListener implements EventListener {
             }
         }
 
-        RenScene scene = event.getScene();
-        if (scene != null) {
-            if (stage != null) {
-                if (setFullScreen) {
-                    RenJava.getInstance().setStage(stage, scene.getStageType());
-                }
-            }
-            // First do skip which is ctrl
-            if (!(scene instanceof InteractableScene)) {
-                if (code == KeyCode.CONTROL) {
-                    heldTask = new KeyHeldTask(event.getScene());
-                    //timer.scheduleAtFixedRate(heldTask, TimeUnit.MILLISECONDS.toMillis(500L), TimeUnit.MILLISECONDS.toMillis(500L));
-                }
-            }
+        if (code == KeyCode.SPACE || code == KeyCode.ENTER) {
+            playNextScene();
+        }
+
+        if (code == KeyCode.CONTROL) {
+            // TODO: 10/31/2023
         }
     }
 
@@ -167,6 +110,60 @@ public class GameFlowEventListener implements EventListener {
             if (code == KeyCode.CONTROL) {
                 if (heldTask != null) {
                     timer.cancel();
+                }
+            }
+        }
+    }
+
+    private void playNextScene() {
+        Stage stage = RenJava.getInstance().getStage();
+        StageType stageType = RenJava.getInstance().getStageType();
+        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        Player player = RenJava.getInstance().getPlayer();
+        Logger logger = RenJava.getInstance().getLogger();
+
+        // Only do this if it's not the title screen or any other menu screen
+        boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
+
+        if (gameMenu) {
+            if (scene == null) {
+                logger.severe("The scene is null.");
+                return;
+            }
+            // Go to the next scene map
+            // Play next scene in the story or call the scene end event. StoryHandlerEvent controls stories just call the end event (I think)
+
+            // Some scenes you don't want to end with a click or space.
+            if (scene instanceof InteractableScene || scene instanceof ChoiceScene) {
+                return;
+            }
+            // Handle endScene first
+            SceneEndEvent endEvent = new SceneEndEvent(scene);
+            if (scene.getEndInterface() != null) {
+                scene.getEndInterface().onEnd(endEvent);
+            }
+            RenJava.callEvent(endEvent);
+
+            // Jump to next scene second
+            Story story = scene.getStory();
+            if (story == null) {
+                return;
+            }
+
+            // Add scene to view. Complicated mapping but it shooould work
+            player.getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, scene.getId()), scene);
+            if (scene.getIndex() == story.getLastIndex()) {
+                logger.info("Calling story end event...");
+                StoryEndEvent storyEndEvent = new StoryEndEvent(story);
+                RenJava.callEvent(storyEndEvent);
+                return;
+            }
+
+            if (endEvent.isAutoPlayNextScene()) {
+                // Call next if the story did not end.
+                RenScene nextScene = story.getNextScene(scene.getId());
+                if (nextScene != null) {
+                    nextScene.build(stage, true);
                 }
             }
         }
