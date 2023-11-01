@@ -7,6 +7,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AutoPlayScene;
+import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.api.scenes.types.choices.Choice;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
@@ -46,7 +47,7 @@ public class ScenesEventListener implements EventListener {
                         });
                     }
                 }
-            }, TimeUnit.SECONDS.toMillis(duration));
+            }, TimeUnit.MILLISECONDS.toMillis(duration));
         }
     }
 
@@ -60,6 +61,11 @@ public class ScenesEventListener implements EventListener {
             }
             InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
             RenJava.callEvent(endEvent);
+        }
+        if (event.getScene() instanceof ImageScene imageScene) {
+            if (imageScene.getBeginningTransition() != null) {
+                imageScene.getBeginningTransition().stop();
+            }
         }
     }
 

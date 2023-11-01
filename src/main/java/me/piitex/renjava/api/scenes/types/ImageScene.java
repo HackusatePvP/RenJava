@@ -81,6 +81,10 @@ public class ImageScene extends RenScene {
         return this;
     }
 
+    public Transitions getBeginningTransition() {
+        return beginningTransition;
+    }
+
     public Character getCharacter() {
         return character;
     }
@@ -111,8 +115,8 @@ public class ImageScene extends RenScene {
         ImageView imageView = new ImageView(background);
         // play beginning transition for image
         if (beginningTransition != null) {
-            ImageView previousView = RenJava.getInstance().getPlayer().getLastDisplayedImage();
-            root.getChildren().add(previousView);
+            //ImageView previousView = RenJava.getInstance().getPlayer().getLastDisplayedImage();
+            //root.getChildren().add(previousView);
             if (beginningTransition instanceof FadingTransition fadingTransition) {
                 fadingTransition.play(imageView);
             }
