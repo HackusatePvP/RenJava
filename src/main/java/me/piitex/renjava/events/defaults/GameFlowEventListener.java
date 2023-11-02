@@ -98,7 +98,7 @@ public class GameFlowEventListener implements EventListener {
         }
 
         if (code == KeyCode.CONTROL) {
-            // TODO: 10/31/2023
+            playNextScene();
         }
     }
 
@@ -141,15 +141,16 @@ public class GameFlowEventListener implements EventListener {
     }
 
     @Listener
-    public void onKeyRelease(KeyReleaseEvent event) {
-        RenScene scene = event.getScene();
-        KeyCode code = event.getCode();
-        // First do skip which is ctrl
-        if (!(scene instanceof InteractableScene)) {
-            if (code == KeyCode.CONTROL) {
-                if (heldTask != null) {
-                    timer.cancel();
-                }
+    public void onScrollDown(ScrollDownEvent event) {
+        // If they scroll down it acts like skipping.
+        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        if (scene != null) {
+
+            // This is off by one scene... Test the next scene?
+            Story story = scene.getStory();
+            RenScene nextScene = story.getNextSceneFromCurrent();
+            if (nextScene != null && RenJava.getInstance().getPlayer().hasSeenScene(story, nextScene.getId())) {
+                nextScene.build(RenJava.getInstance().getStage(), true);
             }
         }
     }
@@ -189,8 +190,6 @@ public class GameFlowEventListener implements EventListener {
                 return;
             }
 
-            // Add scene to view. Complicated mapping but it shooould work
-            player.getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, scene.getId()), scene);
             if (scene.getIndex() == story.getLastIndex()) {
                 logger.info("Calling story end event...");
                 StoryEndEvent storyEndEvent = new StoryEndEvent(story);

@@ -171,7 +171,7 @@ public class MainTitleScreenView extends ScreenView {
         setInputControls(scene);
 
         scene.setOnKeyPressed(event -> {
-            KeyPressEvent event1 = new KeyPressEvent(null, event.getCode());
+            KeyPressEvent event1 = new KeyPressEvent(event.getCode());
             RenJava.callEvent(event1);
         });
         SettingsProperties settingsProperties = RenJava.getInstance().getSettings();
@@ -201,15 +201,15 @@ public class MainTitleScreenView extends ScreenView {
             MouseClickEvent event1 = new MouseClickEvent(event);
             RenJava.callEvent(event1);
         });
-        /*scene.setOnKeyPressed(keyEvent -> {
+        scene.setOnKeyPressed(keyEvent -> {
             // TODO: 9/28/2023 Call a repeatable task that ends when the key is released
-            KeyPressEvent event1 = new KeyPressEvent(this, keyEvent.getCode());
+            KeyPressEvent event1 = new KeyPressEvent(keyEvent.getCode());
             RenJava.callEvent(event1);
         });
         scene.setOnKeyReleased(keyEvent -> {
-            KeyReleaseEvent event1 = new KeyReleaseEvent(this, keyEvent.getCode());
-            //RenJava.callEvent(event1);
-        });*/
+            KeyReleaseEvent event1 = new KeyReleaseEvent(keyEvent.getCode());
+            RenJava.callEvent(event1);
+        });
         scene.setOnScroll(scrollEvent -> {
             ScrollInputEvent event = new ScrollInputEvent(scrollEvent);
             RenJava.callEvent(event);

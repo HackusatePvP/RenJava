@@ -31,6 +31,7 @@ import me.piitex.renjava.gui.overlay.TextOverlay;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.logging.Logger;
@@ -183,5 +184,8 @@ public abstract class RenScene extends Container {
         SceneStartEvent startEvent = new SceneStartEvent(this);
         RenJava.callEvent(startEvent);
         RenJava.getInstance().setStage(stage, type);
+
+        // Add scene to view. Complicated mapping but it shooould work
+        RenJava.getInstance().getPlayer().getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, this.getId()), this);
     }
 }

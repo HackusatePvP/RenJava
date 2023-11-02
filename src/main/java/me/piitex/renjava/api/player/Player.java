@@ -33,6 +33,10 @@ public class Player implements PersistentData {
 
     private final Map<String, Story> storyIdMap = new HashMap<>();
 
+    public boolean hasSeenScene(Story story, String sceneID) {
+        return viewedScenes.containsValue(story.getScene(sceneID));
+    }
+
     public RenScene getCurrentScene() {
         if (getCurrentStory() != null) {
             return getCurrentStory().getScene(currentScene);
