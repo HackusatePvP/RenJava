@@ -4,14 +4,12 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.saves.exceptions.SaveFileNotFound;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
-import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -126,54 +124,17 @@ public class Load {
                 if (sectionKeyValue.getSection().equalsIgnoreCase(data.getClass().getName())) {
                     sectionKeyValue.getKeyValueMap().forEach((string, string2) -> {
                         logger.info("Setting fields...");
-                        Field field;
+
                         try {
-                            field = data.getClass().getField(string);
-                            field.setAccessible(true);
-                            Type type = field.getGenericType();
-                            if (type.getTypeName().toLowerCase().contains("string")) {
-                                field.set(data, string2);
-                            } else if (type.getTypeName().toLowerCase().contains("int")) {
-                                field.set(data, Integer.parseInt(string2));
-                            } else if (type.getTypeName().toLowerCase().contains("boolean")) {
-                                field.set(data, Boolean.parseBoolean(string2));
-                            } else if (type.getTypeName().toLowerCase().contains("double")) {
-                                field.set(data, Double.parseDouble(string2));
-                            } else if (type.getTypeName().toLowerCase().contains("float")) {
-                                field.set(data, Float.parseFloat(string2));
-                            } else if (type.getTypeName().toLowerCase().contains("long")) {
-                                field.set(data, Long.parseLong(string2));
-                            } else if (type.getTypeName().toLowerCase().contains("short")) {
-                                field.set(data, Short.parseShort(string2));
-                            } else if (type.getTypeName().toLowerCase().contains("byte")) {
-                                field.set(data, Byte.parseByte(string2));
-                            }
-                            logger.info("Type: " + type.getTypeName());
+                            Field field = data.getClass().getField(string);
+                            setField(field, data, string2);
                         } catch (IllegalAccessException e) {
                             throw new RuntimeException(e);
                         } catch (NoSuchFieldException e) {
                             // If its no such field see if its a declared field
                             try {
-                                field = data.getClass().getDeclaredField(string);
-                                field.setAccessible(true);
-                                Type type = field.getGenericType();
-                                if (type.getTypeName().toLowerCase().contains("string")) {
-                                    field.set(data, string2);
-                                } else if (type.getTypeName().toLowerCase().contains("int")) {
-                                    field.set(data, Integer.parseInt(string2));
-                                } else if (type.getTypeName().toLowerCase().contains("boolean")) {
-                                    field.set(data, Boolean.parseBoolean(string2));
-                                } else if (type.getTypeName().toLowerCase().contains("double")) {
-                                    field.set(data, Double.parseDouble(string2));
-                                } else if (type.getTypeName().toLowerCase().contains("float")) {
-                                    field.set(data, Float.parseFloat(string2));
-                                } else if (type.getTypeName().toLowerCase().contains("long")) {
-                                    field.set(data, Long.parseLong(string2));
-                                } else if (type.getTypeName().toLowerCase().contains("short")) {
-                                    field.set(data, Short.parseShort(string2));
-                                } else if (type.getTypeName().toLowerCase().contains("byte")) {
-                                    field.set(data, Byte.parseByte(string2));
-                                }
+                                Field field = data.getClass().getDeclaredField(string);
+                                setField(field, data, string2);
                             } catch (IllegalAccessException | NoSuchFieldException ignored) {
                                 // This is ignored because it will throw NoSuchFieldException as it loops through ALL saved data in the file.
                             }
@@ -182,12 +143,33 @@ public class Load {
                 }
             }
         }
-
         Story loadedStory = RenJava.getInstance().getPlayer().getStory(story);
         loadedStory.init(); // Add scenes and stuff
         loadedStory.displayScene(scene);
         if (isPlaying) {
             RenJava.getInstance().getTracks().play(currentTrack, isLooping);
+        }
+    }
+
+    private void setField(Field field, PersistentData data, String string2) throws NoSuchFieldException, IllegalAccessException {
+        field.setAccessible(true);
+        Type type = field.getGenericType();
+        if (type.getTypeName().toLowerCase().contains("string")) {
+            field.set(data, string2);
+        } else if (type.getTypeName().toLowerCase().contains("int")) {
+            field.set(data, Integer.parseInt(string2));
+        } else if (type.getTypeName().toLowerCase().contains("boolean")) {
+            field.set(data, Boolean.parseBoolean(string2));
+        } else if (type.getTypeName().toLowerCase().contains("double")) {
+            field.set(data, Double.parseDouble(string2));
+        } else if (type.getTypeName().toLowerCase().contains("float")) {
+            field.set(data, Float.parseFloat(string2));
+        } else if (type.getTypeName().toLowerCase().contains("long")) {
+            field.set(data, Long.parseLong(string2));
+        } else if (type.getTypeName().toLowerCase().contains("short")) {
+            field.set(data, Short.parseShort(string2));
+        } else if (type.getTypeName().toLowerCase().contains("byte")) {
+            field.set(data, Byte.parseByte(string2));
         }
     }
 }
