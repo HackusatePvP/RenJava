@@ -11,8 +11,7 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 
 ## Application Requirements
 - Java
-- Windows 7/10/11
-- Linux and Mac are not supported (yet).
+- The OS has to support Java 17 JDK.
 
 ## Getting started
 Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about te framework and all of its features.
@@ -23,6 +22,9 @@ Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started
 - If you are struggling with anything at all join our discord, and we will help.
 
 ## Compile from source
+There are different branches you can clone from; Master, Development, Experimental. Master is the stable branch, this is the recommended branch for cloning.
+
+Development A.K.A. Experimental is the branch that has the latest untested features and bug fixes. Once the development branch is tested, it is merged with Master and a new build is released.
 - Download RenJava via clone or file.
 - Extract file and open RenJava with any IDE that supports Maven.
 - Run `mvn clean install` from the IDE or command line inside the root directory.
