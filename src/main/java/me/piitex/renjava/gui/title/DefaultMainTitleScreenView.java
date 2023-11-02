@@ -13,11 +13,12 @@ import me.piitex.renjava.gui.overlay.TextOverlay;
 /**
  * This is just a default setup for the main menu. Call this if you are just testing stuff out, or you are early in development.
  */
-public class DefaultMainTitleScreenView extends CustomTitleScreen{
+public class DefaultMainTitleScreenView extends CustomTitleScreen {
     private final RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
 
     public DefaultMainTitleScreenView(ScreenView screenView) {
         super(screenView);
+        RenJava.getInstance().setCustomTitleScreen(this);
         build();
     }
 
