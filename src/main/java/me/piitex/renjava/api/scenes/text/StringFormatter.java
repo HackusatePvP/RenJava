@@ -34,7 +34,7 @@ public class StringFormatter {
             } else if (c == '{' && bold) {
                 String boldText = dialogue.substring(formatBeginChar, i);
                 parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", ""));
-                parts.add("bbbb " + boldText);
+                parts.add("bbbb: " + boldText.replace("b}", ""));
                 beforeText = "";
                 bold = false;
             } else {
