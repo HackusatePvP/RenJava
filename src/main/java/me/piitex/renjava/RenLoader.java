@@ -1,23 +1,36 @@
 package me.piitex.renjava;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.stream.Stream;
 
+import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 
 public class RenLoader {
     private final RenJava renJava;
 
     public RenLoader(RenJava renJava) {
         this.renJava = renJava;
+        renJava.getLogger().info("Starting processes...");
         setupMain();
         setupGame();
         startPreProcess();
     }
 
     private void setupMain() {
+        renJava.getLogger().info("Checking game environment...");
         File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
-        gameDirectory.mkdir();
+        if (gameDirectory.mkdir()) {
+            renJava.getLogger().severe("Game directory does not exist. The game will not work properly, please move all assets into the newly created game directory.");
+        }
         File renJavaDirectory = new File(System.getProperty("user.dir") + "/renjava/");
         renJavaDirectory.mkdir();
         File logFile = new File(System.getProperty("user.dir"), "log.txt");
@@ -45,6 +58,16 @@ public class RenLoader {
         savesDirectory.mkdir();
         File fontsDirectory = new File(directory, "/fonts/");
         fontsDirectory.mkdir();
+        renJava.getLogger().info("Loading fonts...");
+
+        int fonts = 0;
+        for (File file : fontsDirectory.listFiles()) {
+            if (file.getName().endsWith(".ttf")) {
+                fonts++;
+                new FontLoader(file.getName());
+            }
+        }
+        renJava.getLogger().info("Loaded " + fonts + " font(s).");
         File cssDirectory = new File(directory, "/css/");
         cssDirectory.mkdir();
     }
