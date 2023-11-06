@@ -3,6 +3,7 @@ package me.piitex.renjava.configuration;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
 
 import java.util.Map;
@@ -13,6 +14,9 @@ public class RenJavaConfiguration {
     private final int height;
     private final ImageLoader gameIcon;
 
+    private FontLoader defaultFont;
+    private FontLoader italicFont;
+    private FontLoader boldFont;
     private Paint dialogueColor = Color.BLACK;
 
     private int dialogueBoxWidth = 1000;
@@ -73,6 +77,30 @@ public class RenJavaConfiguration {
 
     public ImageLoader getGameIcon() {
         return gameIcon;
+    }
+
+    public FontLoader getDefaultFont() {
+        return defaultFont;
+    }
+
+    public void setDefaultFont(FontLoader defaultFont) {
+        this.defaultFont = defaultFont;
+    }
+
+    public FontLoader getBoldFont() {
+        return boldFont;
+    }
+
+    public void setBoldFont(FontLoader boldFont) {
+        this.boldFont = boldFont;
+    }
+
+    public FontLoader getItalicFont() {
+        return italicFont;
+    }
+
+    public void setItalicFont(FontLoader italicFont) {
+        this.italicFont = italicFont;
     }
 
     public Paint getDialogueColor() {
