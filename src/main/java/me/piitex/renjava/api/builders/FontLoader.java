@@ -10,25 +10,25 @@ import java.io.FileNotFoundException;
 
 public class FontLoader {
     private final String name;
-    private int size;
+    private double size;
     private Font font;
     private FontWeight weight;
     private FontPosture posture;
 
-    public FontLoader(Font font, int size) {
+    public FontLoader(Font font, double size) {
         this.name = font.getName();
         this.size = size;
         this.font = Font.font(font.getFamily(), size);
     }
 
-    public FontLoader(Font font, FontWeight weight, int size) {
+    public FontLoader(Font font, FontWeight weight, double size) {
         this.name = font.getName();
         this.size = size;
         this.weight = weight;
         this.font = Font.font(font.getFamily(), weight, size);
     }
 
-    public FontLoader(Font font, FontPosture posture, int size) {
+    public FontLoader(Font font, FontPosture posture, double size) {
         this.name = font.getName();
         this.size = size;
         this.posture = posture;
@@ -63,7 +63,7 @@ public class FontLoader {
         return name;
     }
 
-    public int getSize() {
+    public double getSize() {
         return size;
     }
 
