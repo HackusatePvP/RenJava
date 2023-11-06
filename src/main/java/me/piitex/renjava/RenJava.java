@@ -1,6 +1,8 @@
 package me.piitex.renjava;
 
 import javafx.stage.Stage;
+import me.piitex.renjava.api.APIChange;
+import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -67,6 +69,9 @@ public abstract class RenJava {
     private CustomTitleScreen customTitleScreen;
 
     private RenJavaConfiguration configuration;
+
+    @Deprecated
+    @APIChange(description = "Field has been moved to the RenJavaConfiguration.", changedVersion = "0.0.289")
     private FontLoader defaultFont;
 
     // User settings
@@ -114,11 +119,11 @@ public abstract class RenJava {
         new RenLoader(this);
     }
 
-    public String getName() {
-        return name;
-    }
+     public String getName() {
+         return name;
+     }
 
-    public String getAuthor() {
+     public String getAuthor() {
         return author;
     }
 
@@ -179,12 +184,16 @@ public abstract class RenJava {
         this.configuration = configuration;
     }
 
+    @Deprecated
+    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.289")
     public FontLoader getDefaultFont() {
-        return defaultFont;
+        return configuration.getDefaultFont();
     }
 
+    @Deprecated
+    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.289")
     public void setDefaultFont(FontLoader defaultFont) {
-        this.defaultFont = defaultFont;
+        configuration.setDefaultFont(defaultFont);
     }
 
      public SettingsProperties getSettings() {

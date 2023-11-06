@@ -17,9 +17,7 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.configuration.SettingsProperties;
-import me.piitex.renjava.events.types.KeyPressEvent;
-import me.piitex.renjava.events.types.KeyReleaseEvent;
-import me.piitex.renjava.events.types.MouseClickEvent;
+
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
@@ -28,7 +26,7 @@ import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 import me.piitex.renjava.gui.overlay.TextOverlay;
 
-import java.awt.event.MouseEvent;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.AbstractMap;
