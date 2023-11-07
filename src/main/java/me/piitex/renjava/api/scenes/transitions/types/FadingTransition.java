@@ -13,6 +13,7 @@ public class FadingTransition extends Transitions {
     private final int cycleCount;
     private final boolean autoReverse;
 
+    private FadeTransition fadeTransition;
 
     public FadingTransition(TransitionType transitionType, double fromValue, double toValue, int cycleCount, boolean autoReverse, int duration) {
         super(duration);
@@ -43,13 +44,21 @@ public class FadingTransition extends Transitions {
         return autoReverse;
     }
 
+    @Override
     public void play(Node node) {
-        FadeTransition fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "s"));
+        fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));
         fadeTransition.setFromValue(getFromValue());
         fadeTransition.setToValue(getToValue());
         fadeTransition.setCycleCount(getCycleCount());
         fadeTransition.setAutoReverse(isAutoReverse());
         fadeTransition.setNode(node);
         fadeTransition.play();
+    }
+
+    @Override
+    public void stop() {
+        if (fadeTransition != null) {
+            fadeTransition.stop();
+        }
     }
 }

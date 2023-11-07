@@ -3,6 +3,8 @@ package me.piitex.renjava.configuration;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.builders.ImageLoader;
 
 import java.util.Map;
 
@@ -10,8 +12,9 @@ public class RenJavaConfiguration {
     private final String gameTitle;
     private final int width;
     private final int height;
-    private final Image gameIcon;
+    private final ImageLoader gameIcon;
 
+    private FontLoader defaultFont;
     private Paint dialogueColor = Color.BLACK;
 
     private int dialogueBoxWidth = 1000;
@@ -43,7 +46,7 @@ public class RenJavaConfiguration {
      * @param height    - Height of the game.
      * @param gameIcon  - The game icon is used for the windows bar on the top as well as the icon for the taskbar.
      */
-    public RenJavaConfiguration(String gameTitle, int width, int height, Image gameIcon) {
+    public RenJavaConfiguration(String gameTitle, int width, int height, ImageLoader gameIcon) {
         this.gameTitle = gameTitle;
         this.width = width;
         this.height = height;
@@ -70,8 +73,16 @@ public class RenJavaConfiguration {
         return 1920;
     }
 
-    public Image getGameIcon() {
+    public ImageLoader getGameIcon() {
         return gameIcon;
+    }
+
+    public FontLoader getDefaultFont() {
+        return defaultFont;
+    }
+
+    public void setDefaultFont(FontLoader defaultFont) {
+        this.defaultFont = defaultFont;
     }
 
     public Paint getDialogueColor() {
@@ -259,7 +270,6 @@ public class RenJavaConfiguration {
         return Map.entry(getCurrentWidth(), 5);
     }
 
-    // TODO: 9/26/2023 set a scale from 1920 1080 being 1
     public double getHeightScale() {
         return height / 1080d;
     }

@@ -115,4 +115,9 @@ public class AnimationScene extends RenScene {
         setStage(stage, root, StageType.ANIMATION_SCENE, false);
 
     }
+
+    @Override
+    public StageType getStageType() {
+        return StageType.ANIMATION_SCENE;
+    }
 }

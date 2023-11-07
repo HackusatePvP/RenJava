@@ -111,4 +111,9 @@ public class InputScene extends RenScene {
         hookOverlays(root);
         setStage(stage, root, StageType.INPUT_SCENE, !ui);
     }
+
+    @Override
+    public StageType getStageType() {
+        return StageType.INPUT_SCENE;
+    }
 }

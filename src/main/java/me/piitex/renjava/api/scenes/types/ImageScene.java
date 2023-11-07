@@ -10,6 +10,7 @@ import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
@@ -19,6 +20,8 @@ import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -81,6 +84,10 @@ public class ImageScene extends RenScene {
         return this;
     }
 
+    public Transitions getBeginningTransition() {
+        return beginningTransition;
+    }
+
     public Character getCharacter() {
         return character;
     }
@@ -111,8 +118,8 @@ public class ImageScene extends RenScene {
         ImageView imageView = new ImageView(background);
         // play beginning transition for image
         if (beginningTransition != null) {
-            ImageView previousView = RenJava.getInstance().getPlayer().getLastDisplayedImage();
-            root.getChildren().add(previousView);
+            //ImageView previousView = RenJava.getInstance().getPlayer().getLastDisplayedImage();
+            //root.getChildren().add(previousView);
             if (beginningTransition instanceof FadingTransition fadingTransition) {
                 fadingTransition.play(imageView);
             }
@@ -121,10 +128,8 @@ public class ImageScene extends RenScene {
         RenJava.getInstance().getPlayer().setLastDisplayedImage(imageView);
 
         if (ui) {
-            Text text = null;
             Text characterDisplay = null;
             if (dialogue != null && !dialogue.isEmpty()) {
-                text = new Text(dialogue);
                 if (getCharacterNameDisplay() != null) {
                     // Set character display
                     characterDisplay = new Text(getCharacterNameDisplay());
@@ -132,10 +137,8 @@ public class ImageScene extends RenScene {
                     characterDisplay = new Text(character.getDisplayName());
                 }
                 characterDisplay.setFill(character.getColor());
-                text.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), configuration.getTextSize()).getFont());
-                text.setFill(configuration.getDialogueColor());
             }
-            if (text != null) {
+            if (dialogue != null && !dialogue.isEmpty()) {
                 // Create the text box
                 Image textbox = null;
                 try {
@@ -157,7 +160,17 @@ public class ImageScene extends RenScene {
 
                 // Create a text flow pane for the text
                 TextFlow texFlow = new TextFlow();
-                texFlow.getChildren().add(text);
+                System.out.println("Dialogue: " + dialogue);
+                LinkedList<Text> texts = StringFormatter.formatText(dialogue);
+                if (texts.isEmpty()) {
+                    Text text = new Text(dialogue);
+                    text.setFont(RenJava.getInstance().getConfiguration().getDefaultFont().getFont());
+                    texFlow.getChildren().add(text);
+                } else {
+                    for (Text text : StringFormatter.formatText(dialogue)) {
+                        texFlow.getChildren().add(text);
+                    }
+                }
 
                 // Adjust the textFlow settings.
                 texFlow.setTextAlignment(TextAlignment.JUSTIFY);
@@ -178,7 +191,12 @@ public class ImageScene extends RenScene {
             RenJava.getInstance().getLogger().info("No user interface is displayed.");
         }
 
-        //hookOverlays(root);
+        hookOverlays(root);
         setStage(stage, root, StageType.IMAGE_SCENE, false);
+    }
+
+    @Override
+    public StageType getStageType() {
+        return StageType.IMAGE_SCENE;
     }
 }

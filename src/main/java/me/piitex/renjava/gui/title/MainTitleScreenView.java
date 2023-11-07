@@ -5,7 +5,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -13,8 +12,8 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
-import me.piitex.renjava.events.types.MainMenDispatchEvent;
-import me.piitex.renjava.events.types.MouseClickEvent;
+import me.piitex.renjava.configuration.SettingsProperties;
+import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
@@ -50,6 +49,18 @@ public class MainTitleScreenView extends ScreenView {
         this.height = configuration.getHeight();
         this.titleDisplay = configuration.getGameTitle();
         this.stage = new Stage();
+        if (configuration.getGameIcon() != null) {
+            renJava.getLogger().info("Setting game icon...");
+            try {
+                stage.getIcons().add(configuration.getGameIcon().buildRaw());
+            } catch (ImageNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        if (renJava.getSettings().isFullscreen()) {
+            stage.setFullScreen(true);
+        }
+        stage.setTitle(titleDisplay);
         stage.setOnHiding(windowEvent -> {
             // FIXME: 10/10/2023 Shutdown all threads
             Platform.exit();
@@ -143,22 +154,34 @@ public class MainTitleScreenView extends ScreenView {
         root.getChildren().add(vBox);
 
         logger.info("Creating scene...");
-        Scene scene = new Scene(root);
+        Scene scene;
+        if (stage.getScene() != null) {
+            scene = stage.getScene();
+            stage.getScene().setRoot(root);
+        } else {
+            stage.setScene(new Scene(root));
+            scene = stage.getScene();
+        }
         try {
             scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/button.css").toURI().toURL().toExternalForm());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-            MouseClickEvent clickEvent = new MouseClickEvent(event);
-            RenJava.callEvent(clickEvent);
+
+        setInputControls(scene);
+
+        scene.setOnKeyPressed(event -> {
+            KeyPressEvent event1 = new KeyPressEvent(event.getCode());
+            RenJava.callEvent(event1);
         });
-        stage.setScene(scene);
-        stage.setMaximized(true);
+        SettingsProperties settingsProperties = RenJava.getInstance().getSettings();
+        if (!settingsProperties.isFullscreen()) {
+            stage.setMaximized(true);
+        } else {
+            stage.setFullScreen(true);
+        }
         stage.setWidth(width);
         stage.setHeight(height);
-        stage.getIcons().add(RenJava.getInstance().getConfiguration().getGameIcon());
-        stage.setTitle(RenJava.getInstance().getConfiguration().getGameTitle());
 
         // Call dispatch event
         MainMenDispatchEvent event = new MainMenDispatchEvent(stage, scene);
@@ -170,5 +193,26 @@ public class MainTitleScreenView extends ScreenView {
 
     public Stage getStage() {
         return stage;
+    }
+
+    private void setInputControls(Scene scene) {
+        // FIXME: 10/29/2023 This seems to cause issue #1
+        scene.setOnMouseClicked(event -> {
+            MouseClickEvent event1 = new MouseClickEvent(event);
+            RenJava.callEvent(event1);
+        });
+        scene.setOnKeyPressed(keyEvent -> {
+            // TODO: 9/28/2023 Call a repeatable task that ends when the key is released
+            KeyPressEvent event1 = new KeyPressEvent(keyEvent.getCode());
+            RenJava.callEvent(event1);
+        });
+        scene.setOnKeyReleased(keyEvent -> {
+            KeyReleaseEvent event1 = new KeyReleaseEvent(keyEvent.getCode());
+            RenJava.callEvent(event1);
+        });
+        scene.setOnScroll(scrollEvent -> {
+            ScrollInputEvent event = new ScrollInputEvent(scrollEvent);
+            RenJava.callEvent(event);
+        });
     }
 }

@@ -1,39 +1,126 @@
 package me.piitex.renjava.api.scenes.text;
 
-import java.util.HashMap;
-import java.util.Map;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.configuration.RenJavaConfiguration;
+
+import java.util.LinkedList;
 
 public class StringFormatter {
-    public static Map<String, String> getFormattedParts(String text) {
-        Map<String, String> formatMap = new HashMap<>();
-        String[] parts = text.split("\\{");
 
-        for (String part : parts) {
-            if (part.contains("}")) {
-                String[] subParts = part.split("\\}");
-                String format = subParts[0];
-                if (format.startsWith("/")) {
-                    continue;
-                }
-                String content = subParts.length > 1 ? subParts[1] : "";
-                System.out.println("Format: " + format);
-                System.out.println("Content: " + content);
-                formatMap.put(content, format);
+
+    public static LinkedList<Text> formatText(String dialogue) {
+        boolean italic = false;
+        boolean bold = false;
+        int formatBeginChar = 0;
+
+        LinkedList<String> parts = new LinkedList<>();
+        String beforeText = "";
+        for (int i = 0; i < dialogue.length(); i++) {
+            char c = dialogue.charAt(i);
+            if (c == '{' && dialogue.charAt(i + 1) == 'i') {
+                formatBeginChar = i + 1;
+                italic = true;
+            } else if (c == '{' && dialogue.charAt(i + 1) == 'b') {
+                formatBeginChar = i + 1;
+                bold = true;
+            } else if (c == '{' && italic) {
+                String italicText = dialogue.substring(formatBeginChar, i);
+                parts.add(beforeText.replace(italicText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add("iiii: " + italicText.replace("i}", ""));
+                beforeText = "";
+                italic = false;
+            } else if (c == '{' && bold) {
+                String boldText = dialogue.substring(formatBeginChar, i);
+                parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add("bbbb: " + boldText.replace("b}", ""));
+                beforeText = "";
+                bold = false;
+            } else {
+                // Process text that is not formatted.
+                beforeText += c;
             }
         }
+        beforeText = beforeText.replace("/i}", "").replace("/b}", "");
+        parts.add(beforeText);
 
-        return formatMap;
+        LinkedList<Text> texts = new LinkedList<>();
+
+        RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
+        Font currentFont = configuration.getDefaultFont().getFont();
+        Font italicFont = Font.font(currentFont.getFamily(), FontWeight.NORMAL, FontPosture.ITALIC, currentFont.getSize());
+        Font boldFont = Font.font(currentFont.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, currentFont.getSize());
+
+        for (String s : parts) {
+            if (s.startsWith("bbbb: ")) {
+                s = s.replace("bbbb: ", "");
+                Text text1 = new Text(s);
+                text1.setFont(boldFont);
+                texts.add(text1);
+            } else if (s.startsWith("iiii: ")) {
+                s = s.replace("iiii: ", "");
+                Text text1 = new Text(s);
+                text1.setFont(italicFont);
+                texts.add(text1);
+            } else {
+                Text text1 = new Text(s);
+                text1.setFont(currentFont);
+                texts.add(text1);
+            }
+        }
+        return texts;
     }
 
-    // Just some testing.
+    // Testing function. Should be removed later
     public static void main(String[] args) {
-        String text = "Hey {i}there!{/i} I {b}HOPE{/b} you are doing good!";
-        /*Map<String, String> formatMap = getFormattedParts(text);
-        formatMap.entrySet().forEach(stringStringEntry -> {
-            String content = stringStringEntry.getKey();
-            String format = stringStringEntry.getValue();
-            System.out.println("Content: " + content);
-            System.out.println("Format: " + format);
-        });*/
+        String data = "{i}Heey{/i} I've been waiting for you. You were {b}SUPPOSED{/b} to be here by now.";
+
+        boolean italic = false;
+        boolean bold = false;
+
+        int formatBeginChar = 0;
+
+        LinkedList<String> parts = new LinkedList<>();
+        String beforeText = "";
+        for (int i = 0; i < data.length(); i++) {
+            char c = data.charAt(i);
+            if (c == '{' && data.charAt(i + 1) == 'i') {
+                formatBeginChar = i + 1;
+                italic = true;
+            } else if (c == '{' && data.charAt(i + 1) == 'b') {
+                formatBeginChar = i + 1;
+                bold = true;
+            } else if (c == '{' && italic) {
+                String italicText = data.substring(formatBeginChar, i);
+                System.out.println("Italic Text: " + italicText);
+                parts.add(beforeText.replace(italicText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add(italicText.replace("i}", ""));
+                beforeText = "";
+                italic = false;
+            } else if (c == '{' && bold) {
+                String boldText = data.substring(formatBeginChar, i);
+                System.out.println("Bold Text: " + boldText);
+                System.out.println("Before Text: " + beforeText);
+                parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add(boldText.replace("b}", ""));
+                beforeText = "";
+                bold = false;
+            } else {
+                // Process text that is not formatted.
+                beforeText += c;
+                System.out.println("Before Text: " + beforeText);
+            }
+        }
+        beforeText = beforeText.replaceAll("/i}", "").replace("/b}", "");
+        parts.add(beforeText);
+        String text = "";
+        for (String s : parts) {
+            text += s;
+        }
+        System.out.println("Text: " + text);
     }
 }

@@ -4,6 +4,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
@@ -15,9 +16,8 @@ import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
-import me.piitex.renjava.events.types.KeyPressEvent;
-import me.piitex.renjava.events.types.KeyReleaseEvent;
-import me.piitex.renjava.events.types.MouseClickEvent;
+import me.piitex.renjava.configuration.SettingsProperties;
+
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
@@ -26,10 +26,13 @@ import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 import me.piitex.renjava.gui.overlay.TextOverlay;
 
+
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 
 /**
@@ -56,35 +59,17 @@ public abstract class RenScene extends Container {
     private SceneEndInterface endInterface;
 
     // Extremely experimental. Setting a global scene achives the ctrl skip feature but could cause ALOT of other issues.
-    private Scene scene = new Scene(new Group());
+    private final Stage stage = RenJava.getInstance().getStage();
 
     private final Collection<Overlay> additionalOverlays = new HashSet<>();
 
     private final Collection<File> styleSheets = new HashSet<>();
 
+    public abstract StageType getStageType();
+
     public RenScene(String id, ImageLoader backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
-        setInputControls(scene);
-    }
-
-    private void setInputControls(Scene scene) {
-        scene.setOnMouseClicked(event -> {
-            MouseClickEvent event1 = new MouseClickEvent(event);
-            RenJava.callEvent(event1);
-        });
-        scene.setOnKeyPressed(keyEvent -> {
-            // TODO: 9/28/2023 Call a repeatable task that ends when the key is released
-            KeyPressEvent event1 = new KeyPressEvent(this, keyEvent.getCode());
-            RenJava.callEvent(event1);
-        });
-        scene.setOnKeyReleased(keyEvent -> {
-            KeyReleaseEvent event1 = new KeyReleaseEvent(this, keyEvent.getCode());
-            RenJava.callEvent(event1);
-        });
-        scene.setOnScroll(scrollEvent -> {
-            // TODO: 9/28/2023 check if they are scrolling down or something????
-        });
     }
 
     public RenScene onStart(SceneStartInterface sceneInterface) {
@@ -167,24 +152,38 @@ public abstract class RenScene extends Container {
     }
 
     public void setStage(Stage stage, Group root, StageType type, boolean resetScene) {
+        Logger logger = RenJava.getInstance().getLogger();
         if (resetScene) {
-            scene = new Scene(root);
+            logger.info("Resetting scene...");
+            stage.setScene(new Scene(root));
         } else {
-            scene.setRoot(root);
+            stage.getScene().setRoot(root);
         }
         for (File file : styleSheets) {
             try {
-                scene.getStylesheets().add(file.toURI().toURL().toExternalForm());
+                stage.getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         }
-        stage.setScene(scene);
+
+        if (stage.isFullScreen()) {
+            logger.info("Stage is Fullscreen");
+        } else {
+            logger.info("Stage is Windowed.");
+        }
+        SettingsProperties settingsProperties = RenJava.getInstance().getSettings();
+        if (settingsProperties.isFullscreen()) {
+            stage.setFullScreen(true);
+        }
         stage.show();
         RenJava.getInstance().getPlayer().setCurrentStory(this.getStory().getId());
         RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
         SceneStartEvent startEvent = new SceneStartEvent(this);
         RenJava.callEvent(startEvent);
         RenJava.getInstance().setStage(stage, type);
+
+        // Add scene to view. Complicated mapping but it shooould work
+        RenJava.getInstance().getPlayer().getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, this.getId()), this);
     }
 }

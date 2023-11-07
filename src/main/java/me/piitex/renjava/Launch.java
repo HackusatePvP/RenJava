@@ -35,6 +35,8 @@ public class Launch extends Application {
         // Detect any classes that extend RenJava
         Class<?> renJavaClass = null;
         for (Class<?> c : reflections.getSubTypesOf(RenJava.class)) {
+
+            // Checks for default RenJava class: This was removed but could be re-added at a later date.
             if (c.getName().contains("Example")) {
                 renJavaClass = c;
             } else {

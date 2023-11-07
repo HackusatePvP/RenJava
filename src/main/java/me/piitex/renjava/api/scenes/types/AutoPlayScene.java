@@ -36,7 +36,16 @@ public class AutoPlayScene extends RenScene {
         setStage(stage, root, StageType.IMAGE_SCENE, false);
     }
 
+    /**
+     * Duration is in milliseconds.
+     * @return
+     */
     public int getDuration() {
         return duration;
+    }
+
+    @Override
+    public StageType getStageType() {
+        return StageType.IMAGE_SCENE;
     }
 }

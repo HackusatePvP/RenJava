@@ -6,5 +6,6 @@ package me.piitex.renjava.events;
 public enum Priority {
     HIGH,
     NORMAL,
-    LOW
+    LOW,
+    LOWEST
 }

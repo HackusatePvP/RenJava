@@ -5,17 +5,12 @@ import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.Event;
 
 public class KeyReleaseEvent extends Event {
-    private final RenScene scene;
     private final KeyCode code;
 
-    public KeyReleaseEvent(RenScene renScene, KeyCode code) {
-        this.scene = renScene;
+    public KeyReleaseEvent(KeyCode code) {
         this.code = code;
     }
 
-    public RenScene getScene() {
-        return scene;
-    }
 
     public KeyCode getCode() {
         return code;

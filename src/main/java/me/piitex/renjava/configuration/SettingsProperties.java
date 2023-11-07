@@ -1,12 +1,11 @@
 package me.piitex.renjava.configuration;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 public class SettingsProperties {
+    private final File file;
+
     private int volume = 50; // Don't want to ear blast people right off the start so half volume should work.
     private boolean fullscreen = false;
     private boolean skipTransitions = false;
@@ -16,7 +15,7 @@ public class SettingsProperties {
 
     public SettingsProperties() {
         File directory = new File(System.getProperty("user.dir") + "/renjava/");
-        File file = new File(directory, "settings.properties");
+        this.file = new File(directory, "settings.properties");
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -56,6 +55,7 @@ public class SettingsProperties {
 
     public void setVolume(int volume) {
         this.volume = volume;
+        write("volume", volume + "");
     }
 
     public boolean isFullscreen() {
@@ -64,6 +64,7 @@ public class SettingsProperties {
 
     public void setFullscreen(boolean fullscreen) {
         this.fullscreen = fullscreen;
+        write("fullscreen", fullscreen + "");
     }
 
     public boolean isSkipTransitions() {
@@ -72,6 +73,7 @@ public class SettingsProperties {
 
     public void setSkipTransitions(boolean skipTransitions) {
         this.skipTransitions = skipTransitions;
+        write("skip-unseen-tex", skipTransitions + "");
     }
 
     public boolean isSkipUnseenText() {
@@ -80,5 +82,18 @@ public class SettingsProperties {
 
     public void setSkipUnseenText(boolean skipUnseenText) {
         this.skipUnseenText = skipUnseenText;
+    }
+
+    private void write(String key, String value) {
+        try {
+            OutputStream outputStream = new FileOutputStream(file);
+            properties.setProperty(key, value);
+            properties.store(outputStream, null);
+            outputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

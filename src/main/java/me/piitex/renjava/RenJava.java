@@ -1,10 +1,11 @@
 package me.piitex.renjava;
 
 import javafx.stage.Stage;
+import me.piitex.renjava.api.APIChange;
+import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
-import me.piitex.renjava.api.stories.StoryManager;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
@@ -68,10 +69,10 @@ public abstract class RenJava {
     private CustomTitleScreen customTitleScreen;
 
     private RenJavaConfiguration configuration;
-    private FontLoader defaultFont;
 
-    // Story manager
-    private StoryManager storyManager;
+    @Deprecated
+    @APIChange(description = "Field has been moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
+    private FontLoader defaultFont;
 
     // User settings
      private SettingsProperties settings;
@@ -114,14 +115,15 @@ public abstract class RenJava {
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
         this.registerData(player);
+        this.registerData(tracks);
         new RenLoader(this);
     }
 
-    public String getName() {
-        return name;
-    }
+     public String getName() {
+         return name;
+     }
 
-    public String getAuthor() {
+     public String getAuthor() {
         return author;
     }
 
@@ -142,7 +144,7 @@ public abstract class RenJava {
     }
 
     public String getBuildVersion() {
-        return "0.0.289";
+        return "0.0.311";
     }
 
     public Stage getStage() {
@@ -182,21 +184,16 @@ public abstract class RenJava {
         this.configuration = configuration;
     }
 
+    @Deprecated
+    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
     public FontLoader getDefaultFont() {
-        return defaultFont;
-    }
-
-    public void setDefaultFont(FontLoader defaultFont) {
-        this.defaultFont = defaultFont;
+        return configuration.getDefaultFont();
     }
 
     @Deprecated
-    public StoryManager getStoryManager() {
-        return storyManager;
-    }
-
-    public void setStoryManager(StoryManager storyManager) {
-        this.storyManager = storyManager;
+    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
+    public void setDefaultFont(FontLoader defaultFont) {
+        configuration.setDefaultFont(defaultFont);
     }
 
      public SettingsProperties getSettings() {
@@ -466,6 +463,7 @@ public abstract class RenJava {
      * @param event Event to be executed.
      */
     public static void callEvent(Event event) {
+        Collection<Method> lowestMethods = new HashSet<>();
         Collection<Method> lowMethods = new HashSet<>();
         Collection<Method> normalMethods = new HashSet<>();
         Collection<Method> highMethods = new HashSet<>();
@@ -487,6 +485,7 @@ public abstract class RenJava {
                             case HIGH -> highMethods.add(method);
                             case NORMAL -> normalMethods.add(method);
                             case LOW -> lowMethods.add(method);
+                            case LOWEST -> lowestMethods.add(method);
                         }
                     }
                 }
@@ -501,6 +500,9 @@ public abstract class RenJava {
         }
         for (Method method : lowMethods) {
            invokeMethod(method, event);
+        }
+        for (Method method : lowestMethods) {
+            invokeMethod(method, event);
         }
     }
 
