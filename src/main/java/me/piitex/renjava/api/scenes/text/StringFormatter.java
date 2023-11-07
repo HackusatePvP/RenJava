@@ -1,8 +1,11 @@
 package me.piitex.renjava.api.scenes.text;
 
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 
 import java.util.LinkedList;
@@ -23,7 +26,7 @@ public class StringFormatter {
                 formatBeginChar = i + 1;
                 italic = true;
             } else if (c == '{' && dialogue.charAt(i + 1) == 'b') {
-                formatBeginChar = i + 3;
+                formatBeginChar = i + 1;
                 bold = true;
             } else if (c == '{' && italic) {
                 String italicText = dialogue.substring(formatBeginChar, i);
@@ -46,12 +49,11 @@ public class StringFormatter {
         parts.add(beforeText);
 
         LinkedList<Text> texts = new LinkedList<>();
-        String text = "";
 
         RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
         Font currentFont = configuration.getDefaultFont().getFont();
-        Font italicFont = configuration.getItalicFont().getFont();
-        Font boldFont = configuration.getBoldFont().getFont();
+        Font italicFont = Font.font(currentFont.getFamily(), FontWeight.NORMAL, FontPosture.ITALIC, currentFont.getSize());
+        Font boldFont = Font.font(currentFont.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, currentFont.getSize());
 
         for (String s : parts) {
             if (s.startsWith("bbbb: ")) {
@@ -69,14 +71,13 @@ public class StringFormatter {
                 text1.setFont(currentFont);
                 texts.add(text1);
             }
-            text += s;
         }
         return texts;
     }
 
     // Testing function. Should be removed later
     public static void main(String[] args) {
-        String data = "I can’t tell you {i}who{/i} made it...and I sure as hell can’t tell you why {i}you{/i} were special enough to be given something like this.";
+        String data = "{i}Heey{/i} I've been waiting for you. You were {b}SUPPOSED{/b} to be here by now.";
 
         boolean italic = false;
         boolean bold = false;
@@ -91,7 +92,7 @@ public class StringFormatter {
                 formatBeginChar = i + 1;
                 italic = true;
             } else if (c == '{' && data.charAt(i + 1) == 'b') {
-                formatBeginChar = i + 3;
+                formatBeginChar = i + 1;
                 bold = true;
             } else if (c == '{' && italic) {
                 String italicText = data.substring(formatBeginChar, i);
@@ -105,7 +106,7 @@ public class StringFormatter {
                 System.out.println("Bold Text: " + boldText);
                 System.out.println("Before Text: " + beforeText);
                 parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", ""));
-                parts.add(boldText);
+                parts.add(boldText.replace("b}", ""));
                 beforeText = "";
                 bold = false;
             } else {

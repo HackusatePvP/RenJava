@@ -15,8 +15,6 @@ public class RenJavaConfiguration {
     private final ImageLoader gameIcon;
 
     private FontLoader defaultFont;
-    private FontLoader italicFont;
-    private FontLoader boldFont;
     private Paint dialogueColor = Color.BLACK;
 
     private int dialogueBoxWidth = 1000;
@@ -85,22 +83,6 @@ public class RenJavaConfiguration {
 
     public void setDefaultFont(FontLoader defaultFont) {
         this.defaultFont = defaultFont;
-    }
-
-    public FontLoader getBoldFont() {
-        return boldFont;
-    }
-
-    public void setBoldFont(FontLoader boldFont) {
-        this.boldFont = boldFont;
-    }
-
-    public FontLoader getItalicFont() {
-        return italicFont;
-    }
-
-    public void setItalicFont(FontLoader italicFont) {
-        this.italicFont = italicFont;
     }
 
     public Paint getDialogueColor() {
@@ -288,7 +270,6 @@ public class RenJavaConfiguration {
         return Map.entry(getCurrentWidth(), 5);
     }
 
-    // TODO: 9/26/2023 set a scale from 1920 1080 being 1
     public double getHeightScale() {
         return height / 1080d;
     }

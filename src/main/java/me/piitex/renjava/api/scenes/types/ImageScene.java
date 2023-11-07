@@ -164,7 +164,7 @@ public class ImageScene extends RenScene {
                 LinkedList<Text> texts = StringFormatter.formatText(dialogue);
                 if (texts.isEmpty()) {
                     Text text = new Text(dialogue);
-                    text.setFont(RenJava.getInstance().getDefaultFont().getFont());
+                    text.setFont(RenJava.getInstance().getConfiguration().getDefaultFont().getFont());
                     texFlow.getChildren().add(text);
                 } else {
                     for (Text text : StringFormatter.formatText(dialogue)) {

@@ -7,6 +7,8 @@ import javafx.scene.text.FontWeight;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FontLoader {
     private final String name;
@@ -14,6 +16,8 @@ public class FontLoader {
     private Font font;
     private FontWeight weight;
     private FontPosture posture;
+
+    private static final Map<String, Font> cachedFonts = new HashMap<>();
 
     public FontLoader(Font font, double size) {
         this.name = font.getName();
@@ -52,7 +56,9 @@ public class FontLoader {
         File file = new File(directory, name);
         this.name = name;
         try {
-            this.font = Font.loadFont(new FileInputStream(file), 24);
+            if (!cachedFonts.containsKey(name)) {
+                this.font = Font.loadFont(new FileInputStream(file), 24);
+            }
         } catch (FileNotFoundException e) {
             this.font = Font.font(name, size);
         }

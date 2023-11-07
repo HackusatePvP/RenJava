@@ -71,7 +71,7 @@ public abstract class RenJava {
     private RenJavaConfiguration configuration;
 
     @Deprecated
-    @APIChange(description = "Field has been moved to the RenJavaConfiguration.", changedVersion = "0.0.289")
+    @APIChange(description = "Field has been moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
     private FontLoader defaultFont;
 
     // User settings
@@ -144,7 +144,7 @@ public abstract class RenJava {
     }
 
     public String getBuildVersion() {
-        return "0.0.289";
+        return "0.0.311";
     }
 
     public Stage getStage() {
@@ -185,13 +185,13 @@ public abstract class RenJava {
     }
 
     @Deprecated
-    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.289")
+    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
     public FontLoader getDefaultFont() {
         return configuration.getDefaultFont();
     }
 
     @Deprecated
-    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.289")
+    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
     public void setDefaultFont(FontLoader defaultFont) {
         configuration.setDefaultFont(defaultFont);
     }
