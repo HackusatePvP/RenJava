@@ -5,15 +5,16 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.builders.FontLoader;
+
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 
 import java.util.LinkedList;
 
 public class StringFormatter {
 
-
     public static LinkedList<Text> formatText(String dialogue) {
+        // If anyone wants to take a crack at this and optimize it be my guest.
+
         boolean italic = false;
         boolean bold = false;
         int formatBeginChar = 0;

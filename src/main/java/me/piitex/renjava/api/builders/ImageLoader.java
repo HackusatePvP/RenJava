@@ -42,8 +42,7 @@ public class ImageLoader {
         }
     }
 
-    @APINote(description = "If loading a file using the regular build function does not display an image trying using this function instead" +
-            "Keep in mind this has limited support for file formats.")
+    @APINote(description = "If loading a file using the regular build function does not display an image trying using this function instead. Keep in mind this has limited support for file formats.")
     public Image buildRaw() throws ImageNotFoundException {
         try {
             return new Image(new FileInputStream(file));

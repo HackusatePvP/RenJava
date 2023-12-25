@@ -9,7 +9,8 @@ module RenJava {
     requires java.desktop;
     requires org.apache.commons.io;
     requires org.jetbrains.annotations;
-    opens me.piitex.renjava to javafx.graphics;
+    requires com.goxr3plus.streamplayer;
+    opens me.piitex.renjava;
     exports me.piitex.renjava;
     exports me.piitex.renjava.configuration;
     exports me.piitex.renjava.gui;
@@ -18,6 +19,8 @@ module RenJava {
     exports me.piitex.renjava.gui.title;
     exports me.piitex.renjava.api.builders;
     exports me.piitex.renjava.gui.overlay;
+    exports me.piitex.renjava.gui.layouts;
+    exports me.piitex.renjava.gui.layouts.impl;
     exports me.piitex.renjava.events;
     exports me.piitex.renjava.events.exceptions;
     exports me.piitex.renjava.events.types;
@@ -33,4 +36,5 @@ module RenJava {
     exports me.piitex.renjava.gui.splashscreen;
     exports me.piitex.renjava.api.scenes.types.input;
     exports me.piitex.renjava.api.saves.data;
+    exports me.piitex.renjava.addons;
 }

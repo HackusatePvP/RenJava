@@ -57,7 +57,6 @@ import java.util.logging.Logger;
  * @see ChoiceScene
  * @see InputScene
  */
-@APIChange(changedVersion = "0.0.261", description = "Reverted back abstraction.")
 public abstract class Story {
     private final String id;
 
@@ -119,6 +118,10 @@ public abstract class Story {
         RenJava.getInstance().getPlayer().setCurrentStory(this.getId());
     }
 
+    /**
+     * Clears the existing scenes and initializes the story again by calling the `init()` method.
+     * This method is useful when you want to reset and update variables.
+     */
     public void refresh() {
         scenes.clear();
         sceneIndexMap.clear();
@@ -126,13 +129,23 @@ public abstract class Story {
     }
 
     /**
+     * Refreshes a specific scene in the story by replacing it with a new instance of the scene.
+     * This method is useful when you want to update a scene dynamically during the story.
+     *
+     * @param sceneID The ID of the scene to refresh.
+     */
+    public void refresh(String sceneID) {
+        RenScene scene = getScene(sceneID);
+        scenes.replace(sceneID, scene, scene);
+    }
+
+    /**
      * Scenes are ordered the same way they are created. The first scene in a story is the first scene that was created.
      * @param scene Scene to add the story.
      */
-    @APIChange(changedVersion = "0.0.153", description = "The RenJava Player will now automatically track the stories when they start.")
     public void addScene(RenScene scene) {
         if (scenes.containsKey(scene.getId())) {
-            new DuplicateSceneIdException(scene.getId()).printStackTrace();
+            logger.severe(new DuplicateSceneIdException(scene.getId()).getMessage());
             return;
         }
         scenes.put(scene.getId(), scene);

@@ -109,24 +109,28 @@ public class ImageScene extends RenScene {
         Group root = new Group();
         Logger logger = RenJava.getInstance().getLogger();
         // Add background image
-        Image background;
+        Image background = null;
         try {
             background = loader.build();
         } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        ImageView imageView = new ImageView(background);
-        // play beginning transition for image
-        if (beginningTransition != null) {
-            //ImageView previousView = RenJava.getInstance().getPlayer().getLastDisplayedImage();
-            //root.getChildren().add(previousView);
-            if (beginningTransition instanceof FadingTransition fadingTransition) {
-                fadingTransition.play(imageView);
+            logger.severe(e.getMessage());
+        } finally {
+            if (background != null) {
+                ImageView imageView = new ImageView(background);
+                // play beginning transition for image
+                if (beginningTransition != null) {
+                    //ImageView previousView = RenJava.getInstance().getPlayer().getLastDisplayedImage();
+                    //root.getChildren().add(previousView);
+                    if (beginningTransition instanceof FadingTransition fadingTransition) {
+                        fadingTransition.play(imageView);
+                    }
+                }
+                root.getChildren().add(imageView);
+                RenJava.getInstance().getPlayer().setLastDisplayedImage(imageView);
             }
         }
-        root.getChildren().add(imageView);
-        RenJava.getInstance().getPlayer().setLastDisplayedImage(imageView);
 
+        ImageView imageView;
         if (ui) {
             Text characterDisplay = null;
             if (dialogue != null && !dialogue.isEmpty()) {
@@ -138,29 +142,31 @@ public class ImageScene extends RenScene {
                 }
                 characterDisplay.setFill(character.getColor());
             }
+            double setX = configuration.getDialogueBoxX();
+            double setY = configuration.getDialogueBoxY();
             if (dialogue != null && !dialogue.isEmpty()) {
                 // Create the text box
                 Image textbox = null;
                 try {
                     textbox = new ImageLoader("/gui/textbox.png").build();
                 } catch (ImageNotFoundException e) {
-                    e.printStackTrace();
+                    logger.severe(e.getMessage());
                 }
                 if (textbox != null) {
                     imageView = new ImageView(textbox);
-                    imageView.setY(configuration.getWidth() + configuration.getDialogueOffsetY());
+                    if (setX == 0) {
+                        setX = imageView.getX();
+                    }
+                    if (setY == 0) {
+                        setY = imageView.getY();
+                    }
+                    imageView.setX(setX + configuration.getDialogueOffsetX());
+                    imageView.setY(setY + configuration.getDialogueOffsetY());
                     root.getChildren().add(imageView);
                 }
 
-                double setX = configuration.getDialogueBoxX();
-                double setY = configuration.getDialogueBoxY();
-
-                logger.info("Text Box X: " + setX);
-                logger.info("Text Box Y: " + setY);
-
                 // Create a text flow pane for the text
                 TextFlow texFlow = new TextFlow();
-                System.out.println("Dialogue: " + dialogue);
                 LinkedList<Text> texts = StringFormatter.formatText(dialogue);
                 if (texts.isEmpty()) {
                     Text text = new Text(dialogue);
@@ -179,18 +185,14 @@ public class ImageScene extends RenScene {
                 texFlow.setTranslateY(configuration.getTextY() + configuration.getTextOffsetY());
                 root.getChildren().add(texFlow);
 
-                logger.info("Text X: " + (setX + configuration.getTextOffsetX()));
-                logger.info("Text Y: " + (setY + configuration.getTextOffsetY()));
 
-                characterDisplay.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
+                characterDisplay.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
+                characterDisplay.setFill(character.getColor());
                 characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
                 characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
                 root.getChildren().add(characterDisplay);
             }
-        } else {
-            RenJava.getInstance().getLogger().info("No user interface is displayed.");
         }
-
         hookOverlays(root);
         setStage(stage, root, StageType.IMAGE_SCENE, false);
     }

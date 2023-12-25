@@ -4,11 +4,10 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.gui.Container;
+import me.piitex.renjava.gui.layouts.Container;
 
 import me.piitex.renjava.api.scenes.types.AnimationScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
@@ -57,9 +56,6 @@ public abstract class RenScene extends Container {
     private int index;
     private SceneStartInterface startInterface;
     private SceneEndInterface endInterface;
-
-    // Extremely experimental. Setting a global scene achives the ctrl skip feature but could cause ALOT of other issues.
-    private final Stage stage = RenJava.getInstance().getStage();
 
     private final Collection<Overlay> additionalOverlays = new HashSet<>();
 
@@ -163,15 +159,10 @@ public abstract class RenScene extends Container {
             try {
                 stage.getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                logger.info(e.getMessage());
             }
         }
 
-        if (stage.isFullScreen()) {
-            logger.info("Stage is Fullscreen");
-        } else {
-            logger.info("Stage is Windowed.");
-        }
         SettingsProperties settingsProperties = RenJava.getInstance().getSettings();
         if (settingsProperties.isFullscreen()) {
             stage.setFullScreen(true);
@@ -183,7 +174,7 @@ public abstract class RenScene extends Container {
         RenJava.callEvent(startEvent);
         RenJava.getInstance().setStage(stage, type);
 
-        // Add scene to view. Complicated mapping but it shooould work
+        // Add scene to view. Complicated mapping, but it shooould work
         RenJava.getInstance().getPlayer().getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, this.getId()), this);
     }
 }

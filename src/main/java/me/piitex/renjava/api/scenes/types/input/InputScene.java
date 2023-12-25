@@ -12,8 +12,10 @@ import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 /**
  * The InputScene class represents a scene in the RenJava framework that allows the player to input text.
@@ -45,7 +47,7 @@ public class InputScene extends RenScene {
      * @param id     The ID of the InputScene.
      * @param loader The image loader used to load the background image.
      */
-    public InputScene(String id, String text, ImageLoader loader) {
+    public InputScene(String id, @Nullable String text, ImageLoader loader) {
         super(id, loader);
         this.text = text;
         this.loader = loader;
@@ -66,6 +68,7 @@ public class InputScene extends RenScene {
     @Override
     public void build(Stage stage, boolean ui) {
         Group root = new Group();
+        Logger logger = RenJava.getInstance().getLogger();
         // Add background image
         Image background;
         try {
@@ -80,7 +83,7 @@ public class InputScene extends RenScene {
         try {
             textbox = new ImageLoader("/gui/textbox.png").build();
         } catch (ImageNotFoundException e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         if (textbox != null) {
             imageView = new ImageView(textbox);
@@ -96,7 +99,7 @@ public class InputScene extends RenScene {
             Text beforeText = new Text(text);
             beforeText.setTranslateX(setX);
             beforeText.setTranslateY(setY);
-            beforeText.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), 24).getFont());
+            beforeText.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24).getFont());
             root.getChildren().add(beforeText);
             inputField.setTranslateY(beforeText.getTranslateY() - 30);
             inputField.setTranslateX(beforeText.getTranslateX() + 210);
@@ -104,7 +107,7 @@ public class InputScene extends RenScene {
             inputField.setTranslateX(setX);
             inputField.setTranslateY(setY);
         }
-        inputField.setFont(new FontLoader(RenJava.getInstance().getDefaultFont().getFont(), 18).getFont());
+        inputField.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24).getFont());
         inputField.setStyle("-fx-control-inner-background: transparent; -fx-background-color transparent;");
         root.getChildren().add(inputField);
         addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/inputfield.css"));

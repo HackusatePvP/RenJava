@@ -3,7 +3,6 @@ package me.piitex.renjava;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Arrays;
@@ -64,6 +63,6 @@ public class Launch extends Application {
     @Override
     public void start(Stage stage) {
         // When launched load the gui stuff.
-        new GuiLoader(stage, RenJava.getInstance());
+        new GuiLoader(stage, RenJava.getInstance(), getHostServices());
     }
 }

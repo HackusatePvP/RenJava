@@ -14,7 +14,6 @@ public class ButtonBuilder {
     private String text;
     private Font font;
     private Image image;
-
     private Color color;
 
     private double x = -1, y = -1;

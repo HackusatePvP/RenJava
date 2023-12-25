@@ -25,7 +25,7 @@ import me.piitex.renjava.gui.overlay.Overlay;
  * </p>
  *
  * <p>
- * When building the scene, RenJava automatically handles the scene building process. You do not need to manually call the {@link #build(Stage)} method.
+ * When building the scene, RenJava automatically handles the scene building process.
  * Instead, create a separate story for each InteractableScene and add the scene to the story using the {@link Story#addScene(RenScene)} method.
  * RenJava will handle the scene transitions and building based on the story progression.
  * </p>

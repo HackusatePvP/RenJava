@@ -6,7 +6,7 @@
 
     <groupId>me.piitex</groupId>
     <artifactId>RenJava</artifactId>
-    <version>0.0.311-SNAPSHOT</version>
+    <version>0.0.539-SNAPSHOT</version>
     <name>RenJava</name>
 
     <properties>
@@ -25,6 +25,10 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -77,7 +81,27 @@
             <artifactId>webp-imageio</artifactId>
             <version>0.1.6</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.googlecode.soundlibs</groupId>
+            <artifactId>tritonus-share</artifactId>
+            <version>0.3.7-2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.soundlibs</groupId>
+            <artifactId>mp3spi</artifactId>
+            <version>1.9.5-1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.soundlibs</groupId>
+            <artifactId>vorbisspi</artifactId>
+            <version>1.0.3-1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.goxr3plus</groupId>
+            <artifactId>java-stream-player</artifactId>
+            <version>9.0.4</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -124,6 +148,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

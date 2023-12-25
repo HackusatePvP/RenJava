@@ -25,7 +25,7 @@ import me.piitex.renjava.api.builders.ButtonBuilder;
 public class Choice {
     private ButtonBuilder builder;
     private final String id;
-    private String text; // This can be final but maybe someone wants to modify the text in some way? I don't know could be cool to see
+    private String text; // This can be final, but maybe someone wants to modify the text in some way? I don't know but that could be cool to see
 
     /**
      * Creates a Choice object with the specified identifier and text.

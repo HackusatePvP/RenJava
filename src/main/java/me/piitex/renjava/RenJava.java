@@ -1,8 +1,9 @@
 package me.piitex.renjava;
 
+import javafx.application.HostServices;
 import javafx.stage.Stage;
+import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.api.APIChange;
-import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -17,6 +18,7 @@ import me.piitex.renjava.events.defaults.GameFlowEventListener;
 import me.piitex.renjava.events.defaults.MenuClickEventListener;
 import me.piitex.renjava.events.defaults.ScenesEventListener;
 import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
+
 import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.FontLoader;
@@ -62,6 +64,8 @@ public abstract class RenJava {
     private final Player player;
     // Audio Tracking
     private final Tracks tracks;
+    private final AddonLoader addonLoader;
+
     private Stage stage; // Move this somewhere else.
     private StageType stageType;
 
@@ -70,12 +74,10 @@ public abstract class RenJava {
 
     private RenJavaConfiguration configuration;
 
-    @Deprecated
-    @APIChange(description = "Field has been moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
-    private FontLoader defaultFont;
-
     // User settings
-     private SettingsProperties settings;
+    private SettingsProperties settings;
+
+    private HostServices hostServices;
 
     private final Map<String, Character> registeredCharacters = new HashMap<>();
     private final Collection<EventListener> registeredListeners = new HashSet<>();
@@ -99,6 +101,7 @@ public abstract class RenJava {
         this.version = version;
         this.player = new Player();
         this.tracks = new Tracks();
+        this.addonLoader = new AddonLoader();
         // Load logger
         this.logger = Logger.getLogger(name);
         FileHandler fileHandler;
@@ -106,7 +109,7 @@ public abstract class RenJava {
             fileHandler = new FileHandler("log.txt");
             fileHandler.setFormatter(new RenLoggerFormat());
             logger.addHandler(fileHandler);
-            logger.info("Starting Ren-Java");
+            logger.info("Starting application...");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,7 +142,11 @@ public abstract class RenJava {
         return tracks;
     }
 
-    public Logger getLogger() {
+     public AddonLoader getAddonLoader() {
+         return addonLoader;
+     }
+
+     public Logger getLogger() {
         return logger;
     }
 
@@ -185,13 +192,13 @@ public abstract class RenJava {
     }
 
     @Deprecated
-    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
+    @APIChange(description = "Method is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
     public FontLoader getDefaultFont() {
         return configuration.getDefaultFont();
     }
 
     @Deprecated
-    @APIChange(description = "Field is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
+    @APIChange(description = "Method is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
     public void setDefaultFont(FontLoader defaultFont) {
         configuration.setDefaultFont(defaultFont);
     }
@@ -202,6 +209,14 @@ public abstract class RenJava {
 
      public void setSettings(SettingsProperties settings) {
          this.settings = settings;
+     }
+
+     public HostServices getHost() {
+         return hostServices;
+     }
+
+     public void setHost(HostServices services) {
+         this.hostServices = services;
      }
 
      /**
@@ -467,6 +482,7 @@ public abstract class RenJava {
         Collection<Method> lowMethods = new HashSet<>();
         Collection<Method> normalMethods = new HashSet<>();
         Collection<Method> highMethods = new HashSet<>();
+        Collection<Method> highestMethods = new HashSet<>();
 
         for (EventListener listener : RenJava.getInstance().getRegisteredListeners()) {
             for (Method method : listener.getClass().getMethods()) {
@@ -482,6 +498,7 @@ public abstract class RenJava {
                     if (scan) {
                         Listener listener1 = method.getAnnotation(Listener.class);
                         switch (listener1.priority()) {
+                            case HIGHEST -> highestMethods.add(method);
                             case HIGH -> highMethods.add(method);
                             case NORMAL -> normalMethods.add(method);
                             case LOW -> lowMethods.add(method);
@@ -492,6 +509,9 @@ public abstract class RenJava {
             }
         }
         // There has got to be a way to make this better.
+        for (Method method : highestMethods) {
+            invokeMethod(method, event);
+        }
         for (Method method : highMethods) {
             invokeMethod(method, event);
         }

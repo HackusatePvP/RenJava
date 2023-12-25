@@ -1,9 +1,7 @@
-package me.piitex.renjava.api.gui.layouts.impl;
+package me.piitex.renjava.gui.layouts.impl;
 
-import me.piitex.renjava.api.gui.layouts.Layout;
+import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlay.Overlay;
-
-import java.util.LinkedHashSet;
 
 /**
  * Groups overlays and elements horizontally.

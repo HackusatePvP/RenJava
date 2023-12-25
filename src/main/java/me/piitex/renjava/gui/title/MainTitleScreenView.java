@@ -62,7 +62,6 @@ public class MainTitleScreenView extends ScreenView {
         }
         stage.setTitle(titleDisplay);
         stage.setOnHiding(windowEvent -> {
-            // FIXME: 10/10/2023 Shutdown all threads
             Platform.exit();
             System.exit(0);
         });
@@ -196,7 +195,6 @@ public class MainTitleScreenView extends ScreenView {
     }
 
     private void setInputControls(Scene scene) {
-        // FIXME: 10/29/2023 This seems to cause issue #1
         scene.setOnMouseClicked(event -> {
             MouseClickEvent event1 = new MouseClickEvent(event);
             RenJava.callEvent(event1);
