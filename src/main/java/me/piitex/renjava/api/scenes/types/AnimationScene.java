@@ -67,7 +67,7 @@ public class AnimationScene extends RenScene {
                     characterDisplay = new Text(character.getDisplayName());
                 }
                 characterDisplay.setFill(character.getColor());
-                text.setFont(RenJava.getInstance().getDefaultFont().getFont()); // TODO: 8/1/2023 Set a default font/make font param or something
+                text.setFont(RenJava.getInstance().getConfiguration().getDefaultFont().getFont()); // TODO: 8/1/2023 Set a default font/make font param or something
             }
 
             if (text != null) {

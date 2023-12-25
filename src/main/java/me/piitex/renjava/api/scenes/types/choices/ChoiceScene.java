@@ -18,6 +18,7 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 import java.io.File;
 import java.util.LinkedHashSet;
+import java.util.logging.Logger;
 
 /**
  * The ChoiceScene class represents a scene in the RenJava framework that presents the player with multiple choices.
@@ -136,13 +137,14 @@ public class ChoiceScene extends RenScene {
     @Override
     public void build(Stage stage, boolean ui) {
         Group root = new Group();
+        Logger logger = RenJava.getInstance().getLogger();
 
         // Add background image
         Image background = null;
         try {
             background = backgroundImage.build();
         } catch (ImageNotFoundException e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         } finally {
             if (background != null) {
                 ImageView imageView = new ImageView(background);
@@ -165,7 +167,7 @@ public class ChoiceScene extends RenScene {
         try {
             image = imageLoader.build();
         } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
+            logger.info(e.getMessage());
         }
         for (Choice choice : choices) {
             if (i >= limit) {
@@ -173,29 +175,34 @@ public class ChoiceScene extends RenScene {
                 return;
             }
             i++;
-            ButtonBuilder builder = new ButtonBuilder(choice.getId(), choice.getText(), RenJava.getInstance().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
-            Button button = builder.build();
-
-            ImageView imageView = new ImageView(image);
-            imageView.setPreserveRatio(true);
-
-            button.setId(choice.getId());
-            button.setGraphic(imageView);
-            button.setContentDisplay(ContentDisplay.CENTER);
-            button.setMinWidth(image.getWidth());
-            button.setMaxWidth(image.getWidth());
-            button.setMinHeight(image.getHeight());
-            button.setMaxHeight(image.getHeight());
-
-            button.setOnAction(actionEvent -> {
-                ButtonClickEvent event = new ButtonClickEvent(this, button);
-                RenJava.callEvent(event);
-            });
+            Button button = getChoiceButton(choice, image);
             vBox.getChildren().add(button);
         }
         root.getChildren().add(vBox);
         hookOverlays(root);
         addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/button.css"));
         setStage(stage, root, StageType.CHOICE_SCENE, false);
+    }
+
+    private Button getChoiceButton(Choice choice, Image image) {
+        ButtonBuilder builder = new ButtonBuilder(choice.getId(), choice.getText(), RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
+        Button button = builder.build();
+
+        ImageView imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+
+        button.setId(choice.getId());
+        button.setGraphic(imageView);
+        button.setContentDisplay(ContentDisplay.CENTER);
+        button.setMinWidth(image.getWidth());
+        button.setMaxWidth(image.getWidth());
+        button.setMinHeight(image.getHeight());
+        button.setMaxHeight(image.getHeight());
+
+        button.setOnAction(actionEvent -> {
+            ButtonClickEvent event = new ButtonClickEvent(this, button);
+            RenJava.callEvent(event);
+        });
+        return button;
     }
 }
