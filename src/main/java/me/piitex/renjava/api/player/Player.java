@@ -1,8 +1,7 @@
 package me.piitex.renjava.api.player;
 
 import javafx.scene.image.ImageView;
-import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
+
 import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -72,7 +71,6 @@ public class Player implements PersistentData {
         return storyIdMap.get(id);
     }
 
-    @APIChange(changedVersion = "0.0.153", description = "Added functionality to get the previous story the player has viewed.")
     @APINote(description = "There is no method to get the next Story as story routes and dictated by the choices the player makes. Meaning it's impossible to predict with accuracy where the player will go.")
     public Story getPreviousStory() {
         return viewedStoriesIndex.get(viewedStoriesIndex.size()); // Get last story
