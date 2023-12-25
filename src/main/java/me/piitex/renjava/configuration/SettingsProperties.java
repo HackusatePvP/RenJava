@@ -49,7 +49,7 @@ public class SettingsProperties {
         }
     }
 
-    public int getVolume() {
+    public double getVolume() {
         return volume;
     }
 
@@ -90,8 +90,6 @@ public class SettingsProperties {
             properties.setProperty(key, value);
             properties.store(outputStream, null);
             outputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
