@@ -5,16 +5,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.gui.ScreenView;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.title.DefaultMainTitleScreenView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class AboutScreenView extends ScreenView {
     private final ImageLoader backgroundImage;
@@ -32,7 +37,15 @@ public class AboutScreenView extends ScreenView {
         } catch (ImageNotFoundException e) {
             e.printStackTrace();
         }
-        new DefaultMainTitleScreenView(this);
+
+        VBox vBox = getButtonVbox();
+        List<ButtonBuilder> list = new ArrayList<>(RenJava.getInstance().getCustomTitleScreen().getTitleScreenView().getButtons());
+        Collections.reverse(list);
+        for (ButtonBuilder builder : list) {
+            vBox.getChildren().add(builder.build());
+        }
+        root.getChildren().add(vBox);
+
         Text gameTitle = new Text(RenJava.getInstance().getName());
         gameTitle.setX(400);
         gameTitle.setY(200);
@@ -42,8 +55,10 @@ public class AboutScreenView extends ScreenView {
         version.setY(gameTitle.getY() + 15);
         Hyperlink hyperlink = new Hyperlink("RenJava");
         hyperlink.setTooltip(new Tooltip("https://github.com/HackusatePvP/RenJava"));
+        hyperlink.setOnAction(event -> RenJava.getInstance().getHost().showDocument(hyperlink.getText()));
         Hyperlink renpy = new Hyperlink("RenPy");
         renpy.setTooltip(new Tooltip("https://www.renpy.org/"));
+        renpy.setOnAction(event -> RenJava.getInstance().getHost().showDocument(renpy.getText()));
         TextFlow textFlow = new TextFlow(
                 new Text("Made with "),
                 hyperlink,

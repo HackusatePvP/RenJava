@@ -35,7 +35,7 @@ public class PreferenceScreenView extends ScreenView {
     public void build(Stage stage, boolean ui) {
         Group root = new Group();
         RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
-        FontLoader defaultFont = RenJava.getInstance().getDefaultFont();
+        FontLoader defaultFont = RenJava.getInstance().getConfiguration().getDefaultFont();
         FontLoader menuFont = new FontLoader("Arial");
         menuFont.setSize(48);
 
@@ -50,7 +50,15 @@ public class PreferenceScreenView extends ScreenView {
 
         // TODO: 8/1/2023 Call custom layout if it exists
         // I can just call the default view.
-        new DefaultMainTitleScreenView(this);
+        //new DefaultMainTitleScreenView(this);
+
+        VBox vBox = getButtonVbox();
+        List<ButtonBuilder> list = new ArrayList<>(RenJava.getInstance().getCustomTitleScreen().getTitleScreenView().getButtons());
+        Collections.reverse(list);
+        for (ButtonBuilder builder : list) {
+            vBox.getChildren().add(builder.build());
+        }
+        root.getChildren().add(vBox);
 
         // Display preferences in big font top right
         Text preferences = new Text("Preferences");
@@ -115,6 +123,8 @@ public class PreferenceScreenView extends ScreenView {
         textSpeed.setMax(100);
         textSpeed.setMin(0);
         textSpeed.setValue(100);
+        textSpeed.setTranslateY(textSpeedText.getTranslateY() + 50);
+        textSpeed.setTranslateX(textSpeedText.getTranslateX());
         textSpeed.setPrefSize(500, 10);
 
         textSpeed.setTranslateX(textSpeedText.getX());
@@ -134,22 +144,13 @@ public class PreferenceScreenView extends ScreenView {
         autoForwardTime.setMin(0);
         autoForwardTime.setValue(50);
         autoForwardTime.setTranslateX(autoForwardTimeText.getTranslateX());
-        autoForwardTime.setTranslateX(autoForwardTimeText.getY() + 50);
+        autoForwardTime.setTranslateY(autoForwardTimeText.getY() + 50);
         root.getChildren().add(autoForwardTime);
-
-        VBox vBox = getButtonVbox();
-        List<ButtonBuilder> list = new ArrayList<>(getButtons());
-        Collections.reverse(list);
-        for (ButtonBuilder builder : list) {
-            vBox.getChildren().add(builder.build());
-        }
-        root.getChildren().add(vBox);
-
 
         Scene scene = new Scene(root);
         try {
             scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/button.css").toURI().toURL().toExternalForm());
-            scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/slider.css").toURI().toURL().toExternalForm());
+            //scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/slider.css").toURI().toURL().toExternalForm());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
