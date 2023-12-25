@@ -1,6 +1,5 @@
 package me.piitex.renjava.configuration;
 
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import me.piitex.renjava.api.builders.FontLoader;
@@ -21,7 +20,7 @@ public class RenJavaConfiguration {
     private int dialogueBoxHeight = 600;
 
     private int dialogueBoxX = 0;
-    private int dialogueBoxY = 870;
+    private int dialogueBoxY = 800;
     private int dialogueOffsetX = 0;
     private int dialogueOffsetY = 0;
 
@@ -29,12 +28,12 @@ public class RenJavaConfiguration {
     private int characterTextSize = 36;
 
     private int textX = 400;
-    private int textY = 920;
+    private int textY = 900;
     private int textOffsetX = 0;
     private int textOffsetY = 0;
 
-    private int characterTextX = 600;
-    private int characterTextY = 170;
+    private int characterTextX = 700;
+    private int characterTextY = 850;
     private int characterTextOffsetX = 0;
     private int characterTextOffsetY = 0;
 
