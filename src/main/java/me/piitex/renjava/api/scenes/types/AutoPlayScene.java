@@ -4,10 +4,13 @@ import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+
+import java.util.logging.Logger;
 
 public class AutoPlayScene extends RenScene {
     private final ImageLoader loader;
@@ -22,16 +25,20 @@ public class AutoPlayScene extends RenScene {
 
     @Override
     public void build(Stage stage, boolean ui) {
+        Logger logger = RenJava.getInstance().getLogger();
         Group root = new Group();
 
-        Image background;
+        Image background = null;
         try {
             background = loader.build();
         } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
+            logger.severe(e.getMessage());
+        } finally {
+            if (background != null) {
+                ImageView imageView = new ImageView(background);
+                root.getChildren().add(imageView);
+            }
         }
-        ImageView imageView = new ImageView(background);
-        root.getChildren().add(imageView);
         hookOverlays(root);
         setStage(stage, root, StageType.IMAGE_SCENE, false);
     }
