@@ -10,7 +10,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
@@ -82,12 +81,10 @@ public class SplashScreenView {
     }
 
 
-    @APIChange(changedVersion = "0.0.153", description = "Duration for splash-screens is now configurable.")
     public int getDuration() {
         return duration;
     }
 
-    @APIChange(changedVersion = "0.0.153", description = "Duration for splash-screens is now configurable.")
     public void setDuration(int duration) {
         this.duration = duration;
     }
