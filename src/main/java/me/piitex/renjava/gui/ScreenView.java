@@ -1,7 +1,7 @@
 package me.piitex.renjava.gui;
 
 import javafx.scene.layout.VBox;
-import me.piitex.renjava.api.gui.Container;
+import me.piitex.renjava.gui.layouts.Container;
 import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.gui.overlay.Overlay;
 
