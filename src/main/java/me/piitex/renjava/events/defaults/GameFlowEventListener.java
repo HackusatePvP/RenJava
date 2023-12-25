@@ -77,8 +77,7 @@ public class GameFlowEventListener implements EventListener {
     public void onKeyPress(KeyPressEvent event) {
         // Handle actions when a player presses a key.
         KeyCode code = event.getCode();
-        Stage stage = null;
-        boolean setFullScreen = false;
+        Stage stage;
         if (code == KeyCode.F11) {
             SettingsProperties properties = RenJava.getInstance().getSettings();
             if (properties.isFullscreen()) {
@@ -86,7 +85,6 @@ public class GameFlowEventListener implements EventListener {
                 stage = RenJava.getInstance().getStage();
                 stage.setFullScreen(false);
             } else {
-                setFullScreen = true;
                 properties.setFullscreen(true);
                 stage = RenJava.getInstance().getStage();
                 stage.setFullScreen(true);
@@ -171,9 +169,8 @@ public class GameFlowEventListener implements EventListener {
                 return;
             }
             // Go to the next scene map
-            // Play next scene in the story or call the scene end event. StoryHandlerEvent controls stories just call the end event (I think)
 
-            // Some scenes you don't want to end with a click or space.
+            // Some scenes can't end with a click or space.
             if (scene instanceof InteractableScene || scene instanceof ChoiceScene) {
                 return;
             }
@@ -198,6 +195,7 @@ public class GameFlowEventListener implements EventListener {
             }
 
             if (endEvent.isAutoPlayNextScene()) {
+                logger.info("Calling next scene...");
                 // Call next if the story did not end.
                 RenScene nextScene = story.getNextScene(scene.getId());
                 if (nextScene != null) {
