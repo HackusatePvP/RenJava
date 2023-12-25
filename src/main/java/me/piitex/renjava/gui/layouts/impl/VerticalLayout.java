@@ -1,6 +1,6 @@
-package me.piitex.renjava.api.gui.layouts.impl;
+package me.piitex.renjava.gui.layouts.impl;
 
-import me.piitex.renjava.api.gui.layouts.Layout;
+import me.piitex.renjava.gui.layouts.Layout;
 
 public class VerticalLayout extends Layout {
     public double spacing;

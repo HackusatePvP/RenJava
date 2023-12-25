@@ -1,7 +1,7 @@
-package me.piitex.renjava.api.gui;
+package me.piitex.renjava.gui.layouts;
 
 import javafx.stage.Stage;
-import me.piitex.renjava.api.gui.layouts.Layout;
+import me.piitex.renjava.gui.layouts.Layout;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -20,4 +20,5 @@ public abstract class Container {
     }
 
     public abstract void build(Stage stage, boolean ui);
+
 }

@@ -1,4 +1,4 @@
-package me.piitex.renjava.api.gui.layouts;
+package me.piitex.renjava.gui.layouts;
 
 import me.piitex.renjava.gui.overlay.Overlay;
 
