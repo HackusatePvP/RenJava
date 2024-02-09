@@ -1,7 +1,10 @@
 package me.piitex.renjava.gui.layouts;
 
 import javafx.stage.Stage;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.layouts.Layout;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -9,7 +12,10 @@ import java.util.HashSet;
  * Main default layout for guis and scenes.
  */
 public abstract class Container {
-   private final Collection<Layout> layouts = new HashSet<>();
+    private Stage stage;
+    private boolean ui;
+
+    private final Collection<Layout> layouts = new HashSet<>();
 
     public void addLayout(Layout layout) {
         layouts.add(layout);
@@ -19,6 +25,11 @@ public abstract class Container {
         return layouts;
     }
 
-    public abstract void build(Stage stage, boolean ui);
+    public abstract Menu build(Stage stage, boolean ui);
 
+    public abstract void render(Menu menu);
+
+    public Stage getStage() {
+        return stage;
+    }
 }

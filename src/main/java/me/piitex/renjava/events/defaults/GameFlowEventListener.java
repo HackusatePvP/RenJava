@@ -14,8 +14,8 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.title.MainTitleScreenView;
 import me.piitex.renjava.tasks.KeyHeldTask;
 
 import java.util.AbstractMap;
@@ -27,17 +27,19 @@ public class GameFlowEventListener implements EventListener {
     private KeyHeldTask heldTask;
 
     private final Timer timer = new Timer();
+    
+    private static final RenJava renJava = RenJava.getInstance();
 
 
-    @Listener
+    @Listener(priority = Priority.HIGHEST)
     public void onMouseClick(MouseClickEvent event) {
         // RenJa keeps track of current Stages and other stuff
-        Stage stage = RenJava.getInstance().getStage();
-        StageType stageType = RenJava.getInstance().getStageType();
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
-        Player player = RenJava.getInstance().getPlayer();
+        Stage stage = renJava.getStage();
+        StageType stageType = renJava.getStageType();
+        RenScene scene = renJava.getPlayer().getCurrentScene();
+        Player player = renJava.getPlayer();
         MouseButton button = event.getEvent().getButton();
-        Logger logger = RenJava.getInstance().getLogger();
+        Logger logger = renJava.getLogger();
 
         // Only do this if it's not the title screen or any other menu screen
 
@@ -47,7 +49,7 @@ public class GameFlowEventListener implements EventListener {
             case MIDDLE -> {
                 if (gameMenu) {
                     // Hide ui elements from scene
-                    RenJava.getInstance().getLogger().info("Toggling UI!");
+                    renJava.getLogger().info("Toggling UI!");
                     player.setUiToggled(!player.isUiToggled());
                     scene.build(stage, player.isUiToggled());
                 }
@@ -56,17 +58,29 @@ public class GameFlowEventListener implements EventListener {
                 playNextScene();
             }
             case SECONDARY -> {
+                logger.info("Player right clicked!");
                 // Open Main Menu
                 if (!player.isRightClickMenu()) {
                     logger.info("Player is not in menu, opening menu...");
-                    MainTitleScreenView screenView = RenJava.getInstance().getMainTitleScreenView();
-                    screenView.build(stage, true);
+                    Menu menu = renJava.buildTitleScreen();
+                    menu.addMenu(renJava.buildSideMenu());
+
+                    MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
+                    RenJava.callEvent(buildEvent);
+
+                    menu.render(null, null);
                     player.setRightClickMenu(true);
+
+                    MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu);
+                    RenJava.callEvent(renderEvent);
 
                 } else {
                     // Return to previous screen
                     RenScene renScene = player.getCurrentScene();
-                    renScene.build(stage, true);
+                    Menu menu = renScene.build(stage, true);
+                    SceneBuildEvent sceneBuildEvent = new SceneBuildEvent(renScene, menu);
+                    RenJava.callEvent(sceneBuildEvent);
+                    menu.render(null, renScene);
                     player.setRightClickMenu(false);
                 }
             }
@@ -79,14 +93,14 @@ public class GameFlowEventListener implements EventListener {
         KeyCode code = event.getCode();
         Stage stage;
         if (code == KeyCode.F11) {
-            SettingsProperties properties = RenJava.getInstance().getSettings();
+            SettingsProperties properties = renJava.getSettings();
             if (properties.isFullscreen()) {
                 properties.setFullscreen(false);
-                stage = RenJava.getInstance().getStage();
+                stage = renJava.getStage();
                 stage.setFullScreen(false);
             } else {
                 properties.setFullscreen(true);
-                stage = RenJava.getInstance().getStage();
+                stage = renJava.getStage();
                 stage.setFullScreen(true);
             }
         }
@@ -102,10 +116,11 @@ public class GameFlowEventListener implements EventListener {
 
     @Listener
     public void onScrollInput(ScrollInputEvent event) {
-        RenJava.getInstance().getLogger().info("Scroll Y: " + event.getScrollEvent().getDeltaY());
+        renJava.getLogger().info("Scroll Y: " + event.getScrollEvent().getDeltaY());
 
         // If the scroll y is less than 0 they are scrolling down.
         double y = event.getScrollEvent().getDeltaY();
+
         if (y > 0) {
             ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
             RenJava.callEvent(scrollUpEvent);
@@ -118,17 +133,18 @@ public class GameFlowEventListener implements EventListener {
 
     @Listener(priority = Priority.LOWEST)
     public void onScrollUp(ScrollUpEvent event) {
-        Logger logger = RenJava.getInstance().getLogger();
+        Logger logger = renJava.getLogger();
         logger.info("Scroll up called!");
-        if (RenJava.getInstance().getPlayer().getCurrentScene() != null) {
+        if (event.isCancelled()) return; // If the event is canceled, do not roll back.
+        if (renJava.getPlayer().getCurrentScene() != null) {
             if (event.isDisplayPreviousScene()) {
-                Story story = RenJava.getInstance().getPlayer().getCurrentStory();
+                Story story = renJava.getPlayer().getCurrentStory();
                 RenScene renScene = story.getPreviousSceneFromCurrent();
                 if (renScene == null) {
                     // log for testing
                     logger.info("Previous scene not found.");
                 } else {
-                    renScene.build(RenJava.getInstance().getStage(), true);
+                    renScene.build(renJava.getStage(), true);
                 }
             } else {
                 logger.info("Cannot display next scene...");
@@ -141,24 +157,24 @@ public class GameFlowEventListener implements EventListener {
     @Listener
     public void onScrollDown(ScrollDownEvent event) {
         // If they scroll down it acts like skipping.
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        if (event.isCancelled()) return;
+        RenScene scene = renJava.getPlayer().getCurrentScene();
         if (scene != null) {
-
             // This is off by one scene... Test the next scene?
             Story story = scene.getStory();
             RenScene nextScene = story.getNextSceneFromCurrent();
-            if (nextScene != null && RenJava.getInstance().getPlayer().hasSeenScene(story, nextScene.getId())) {
-                nextScene.build(RenJava.getInstance().getStage(), true);
+            if (nextScene != null && renJava.getPlayer().hasSeenScene(story, nextScene.getId())) {
+                nextScene.build(renJava.getStage(), true);
             }
         }
     }
 
     private void playNextScene() {
-        Stage stage = RenJava.getInstance().getStage();
-        StageType stageType = RenJava.getInstance().getStageType();
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
-        Player player = RenJava.getInstance().getPlayer();
-        Logger logger = RenJava.getInstance().getLogger();
+        Stage stage = renJava.getStage();
+        StageType stageType = renJava.getStageType();
+        RenScene scene = renJava.getPlayer().getCurrentScene();
+        Player player = renJava.getPlayer();
+        Logger logger = renJava.getLogger();
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
@@ -197,9 +213,11 @@ public class GameFlowEventListener implements EventListener {
             if (endEvent.isAutoPlayNextScene()) {
                 logger.info("Calling next scene...");
                 // Call next if the story did not end.
-                RenScene nextScene = story.getNextScene(scene.getId());
+                RenScene nextScene = story.getNextSceneFromCurrent();
+                logger.info("Expected: " + nextScene.getId() + " Current: " + story.getCurrentScene().getId());
                 if (nextScene != null) {
-                    nextScene.build(stage, true);
+                    nextScene.render(nextScene.build(null, true));
+                    player.updateScene(nextScene);
                 }
             }
         }

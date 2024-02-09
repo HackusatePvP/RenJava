@@ -12,11 +12,13 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.builders.VideoLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import org.jetbrains.annotations.Nullable;
 
 public class AnimationScene extends RenScene {
     private Character character;
@@ -46,7 +48,7 @@ public class AnimationScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage, boolean ui) {
+    public Menu build(Stage stage, boolean ui) {
         Group root = new Group();
         MediaPlayer player = loader.getPlayer();
         MediaView mediaView = new MediaView(player);
@@ -112,7 +114,11 @@ public class AnimationScene extends RenScene {
 
         hookOverlays(root);
 
-        setStage(stage, root, StageType.ANIMATION_SCENE, false);
+        return null;
+    }
+
+    @Override
+    public void render(Menu menu) {
 
     }
 

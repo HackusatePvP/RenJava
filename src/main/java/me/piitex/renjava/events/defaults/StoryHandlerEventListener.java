@@ -14,7 +14,7 @@ import me.piitex.renjava.events.types.*;
  */
 public class StoryHandlerEventListener implements EventListener {
 
-    @Listener(priority = Priority.HIGH)
+    @Listener(priority = Priority.HIGHEST)
     public void onSceneStartEvent(SceneStartEvent event) {
         RenScene scene = event.getScene();
         Story story = event.getScene().getStory();
@@ -33,8 +33,7 @@ public class StoryHandlerEventListener implements EventListener {
         }
     }
 
-
-    @Listener(priority = Priority.HIGH)
+    @Listener(priority = Priority.HIGHEST)
     public void onStoryStart(StoryStartEvent event) {
         Story story = event.getStory();
         if (story.getStartInterface() != null) {
@@ -42,7 +41,7 @@ public class StoryHandlerEventListener implements EventListener {
         }
     }
 
-    @Listener(priority = Priority.HIGH)
+    @Listener(priority = Priority.HIGHEST)
     public void onStoryEndEvent(StoryEndEvent event) {
         Story story = event.getStory();
         if (story.getEndInterface() != null) {

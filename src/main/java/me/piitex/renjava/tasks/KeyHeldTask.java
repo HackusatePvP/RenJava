@@ -13,7 +13,7 @@ import java.util.TimerTask;
 public class KeyHeldTask extends TimerTask {
     private final RenScene scene;
 
-    private boolean cancel = false;
+    private final boolean cancel = false;
 
     public KeyHeldTask(RenScene scene) {
         this.scene = scene;

@@ -73,7 +73,7 @@ public class FontLoader {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize(double size) {
         this.size = size;
         this.font = Font.font(name, size);
     }

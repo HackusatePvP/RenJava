@@ -1,16 +1,21 @@
 package me.piitex.renjava.gui.overlay;
 
 import javafx.scene.control.Button;
+import me.piitex.renjava.api.builders.ButtonBuilder;
 
-public record ButtonOverlay(Button button) implements Overlay {
+public record ButtonOverlay(ButtonBuilder button) implements Overlay {
 
     @Override
-    public int x() {
-        return (int) button.getTranslateX();
+    public double x() {
+        return button.getX();
     }
 
     @Override
-    public int y() {
-        return (int) button.getTranslateY();
+    public double y() {
+        return button.getY();
+    }
+
+    public Button build() {
+        return button.build();
     }
 }

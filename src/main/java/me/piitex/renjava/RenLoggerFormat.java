@@ -7,21 +7,19 @@ public class RenLoggerFormat extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(record.getLevel());
-        buffer.append(": ");
-        buffer.append(record.getMessage());
-        buffer.append("\n");
-        return buffer.toString();
+        String buffer = record.getLevel() +
+                ": " +
+                record.getMessage() +
+                "\n";
+        return buffer;
     }
 
     @Override
     public String formatMessage(LogRecord record) {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(record.getLevel());
-        buffer.append(": ");
-        buffer.append(record.getMessage());
-        buffer.append("\n");
-        return buffer.toString();
+        String buffer = record.getLevel() +
+                ": " +
+                record.getMessage() +
+                "\n";
+        return buffer;
     }
 }

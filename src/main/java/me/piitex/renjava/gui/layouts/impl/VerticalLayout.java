@@ -5,9 +5,9 @@ import me.piitex.renjava.gui.layouts.Layout;
 public class VerticalLayout extends Layout {
     public double spacing;
 
-    public VerticalLayout(int height, int width) {
-        setHeight(height);
+    public VerticalLayout(int width, int height) {
         setWidth(width);
+        setHeight(height);
     }
 
     public double getSpacing() {

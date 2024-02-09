@@ -1,46 +1,41 @@
 package me.piitex.renjava.api.scenes.types;
 
-import javafx.scene.Group;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.configuration.RenJavaConfiguration;
+import me.piitex.renjava.events.types.SceneBuildEvent;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-
-import java.util.logging.Logger;
 
 public class AutoPlayScene extends RenScene {
-    private final ImageLoader loader;
+    private final ImageLoader backgroundImage;
 
     private final int duration;
 
+    private static final RenJava renJava = RenJava.getInstance();
+
     public AutoPlayScene(String id, ImageLoader backgroundImage, int duration) {
         super(id, backgroundImage);
-        this.loader = backgroundImage;
+        this.backgroundImage = backgroundImage;
         this.duration = duration;
     }
 
     @Override
-    public void build(Stage stage, boolean ui) {
-        Logger logger = RenJava.getInstance().getLogger();
-        Group root = new Group();
+    public Menu build(Stage stage, boolean ui) {
+        Menu menu = new Menu(backgroundImage, renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight());
 
-        Image background = null;
-        try {
-            background = loader.build();
-        } catch (ImageNotFoundException e) {
-            logger.severe(e.getMessage());
-        } finally {
-            if (background != null) {
-                ImageView imageView = new ImageView(background);
-                root.getChildren().add(imageView);
-            }
-        }
-        hookOverlays(root);
-        setStage(stage, root, StageType.IMAGE_SCENE, false);
+        SceneBuildEvent event = new SceneBuildEvent(this, menu);
+        RenJava.callEvent(event);
+
+        return menu;
+    }
+
+    @Override
+    public void render(Menu menu) {
+        menu.render(null, this);
+        renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
     }
 
     /**

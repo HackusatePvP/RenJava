@@ -8,6 +8,7 @@ import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -114,5 +115,11 @@ public class Player implements PersistentData {
 
     public void setSkipAutoScene(boolean skipAutoScene) {
         this.skipAutoScene = skipAutoScene;
+    }
+
+    public void updateScene(RenScene renScene) {
+        setCurrentScene(renScene.getId()); // Update the scene.
+        getViewedScenes().put(new AbstractMap.SimpleEntry<>(renScene.getStory(), renScene.getId()), renScene);
+        setCurrentStory(renScene.getStory());
     }
 }

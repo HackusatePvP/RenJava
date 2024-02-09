@@ -17,18 +17,16 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 
+import java.util.AbstractMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ScenesEventListener implements EventListener {
 
-    @Listener(priority = Priority.HIGH)
+    @Listener(priority = Priority.HIGHEST)
     public void onSceneStart(SceneStartEvent event) {
         RenScene scene = event.getScene();
-        Player player = RenJava.getInstance().getPlayer();
-        player.setCurrentScene(scene.getId());
-
         if (scene instanceof AutoPlayScene autoPlayScene) {
             // Play the next scene after duration.
             int duration = autoPlayScene.getDuration();
@@ -51,7 +49,7 @@ public class ScenesEventListener implements EventListener {
         }
     }
 
-    @Listener(priority = Priority.HIGH)
+    @Listener(priority = Priority.HIGHEST)
     public void onSceneEnd(SceneEndEvent event) {
         if (event.getScene() instanceof InputScene scene) {
             TextField field = scene.getInputField();
@@ -62,14 +60,10 @@ public class ScenesEventListener implements EventListener {
             InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
             RenJava.callEvent(endEvent);
         }
-        if (event.getScene() instanceof ImageScene imageScene) {
-            if (imageScene.getBeginningTransition() != null) {
-                imageScene.getBeginningTransition().stop();
-            }
-        }
+
     }
 
-    @Listener(priority = Priority.HIGH)
+    @Listener(priority = Priority.HIGHEST)
     public void onChoiceButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
         RenScene scene = event.getScene();
@@ -85,11 +79,19 @@ public class ScenesEventListener implements EventListener {
         }
     }
 
-    @Listener(priority = Priority.HIGH)
+    @Listener(priority = Priority.HIGHEST)
     public void onInputEndEvent(InputSceneEndEvent event) {
         InputScene scene = event.getScene();
         if (scene.getSetInterface() != null) {
             scene.getSetInterface().onInput(event);
+        }
+    }
+
+    @Listener(priority = Priority.HIGHEST)
+    public void onSceneBuild(SceneBuildEvent event) {
+        RenScene scene = event.getScene();
+        if (scene.getBuildInterface() != null) {
+            scene.getBuildInterface().onBuild(event);
         }
     }
 }
