@@ -1,9 +1,13 @@
 package me.piitex.renjava;
 
 import javafx.application.HostServices;
+import javafx.application.Platform;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
-import me.piitex.renjava.api.APIChange;
+import me.piitex.renjava.api.builders.ButtonBuilder;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -19,11 +23,12 @@ import me.piitex.renjava.events.defaults.MenuClickEventListener;
 import me.piitex.renjava.events.defaults.ScenesEventListener;
 import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 
+import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
+import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.gui.title.CustomTitleScreen;
-import me.piitex.renjava.gui.title.MainTitleScreenView;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -69,9 +74,6 @@ public abstract class RenJava {
     private Stage stage; // Move this somewhere else.
     private StageType stageType;
 
-    private MainTitleScreenView mainTitleScreenView;
-    private CustomTitleScreen customTitleScreen;
-
     private RenJavaConfiguration configuration;
 
     // User settings
@@ -101,7 +103,6 @@ public abstract class RenJava {
         this.version = version;
         this.player = new Player();
         this.tracks = new Tracks();
-        this.addonLoader = new AddonLoader();
         // Load logger
         this.logger = Logger.getLogger(name);
         FileHandler fileHandler;
@@ -120,6 +121,7 @@ public abstract class RenJava {
         this.registerData(player);
         this.registerData(tracks);
         new RenLoader(this);
+        this.addonLoader = new AddonLoader(logger);
     }
 
      public String getName() {
@@ -167,40 +169,12 @@ public abstract class RenJava {
         return stageType;
     }
 
-     public MainTitleScreenView getMainTitleScreenView() {
-         return mainTitleScreenView;
-     }
-
-     public void setMainTitleScreenView(MainTitleScreenView mainTitleScreenView) {
-         this.mainTitleScreenView = mainTitleScreenView;
-     }
-
-     public CustomTitleScreen getCustomTitleScreen() {
-         return customTitleScreen;
-     }
-
-     public void setCustomTitleScreen(CustomTitleScreen customTitleScreen) {
-         this.customTitleScreen = customTitleScreen;
-     }
-
      public RenJavaConfiguration getConfiguration() {
         return configuration;
     }
 
     public void setConfiguration(RenJavaConfiguration configuration) {
         this.configuration = configuration;
-    }
-
-    @Deprecated
-    @APIChange(description = "Method is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
-    public FontLoader getDefaultFont() {
-        return configuration.getDefaultFont();
-    }
-
-    @Deprecated
-    @APIChange(description = "Method is being moved to the RenJavaConfiguration.", changedVersion = "0.0.311")
-    public void setDefaultFont(FontLoader defaultFont) {
-        configuration.setDefaultFont(defaultFont);
     }
 
      public SettingsProperties getSettings() {
@@ -308,6 +282,32 @@ public abstract class RenJava {
         return registeredListeners;
     }
 
+    public void buildStage(Stage stage) {
+        ImageLoader windowIcon = getConfiguration().getGameIcon();
+        if (windowIcon != null) {
+            try {
+                stage.getIcons().add(windowIcon.buildRaw());
+            } catch (ImageNotFoundException e) {
+                logger.severe(e.getMessage());
+            }
+        } else {
+            logger.warning("No window icon set. Please set a window icon for a better user experience.");
+        }
+
+        if (getSettings().isFullscreen()) {
+            stage.setFullScreen(true);
+        }
+        stage.setTitle(getName());
+
+        stage.setOnHiding(windowEvent -> {
+            getAddonLoader().disable();
+            Platform.exit();
+            System.exit(0);
+        });
+
+        this.stage = stage;
+    }
+
     /**
      * This method is called before the game's title screen is shown. It is recommended to implement this method to perform any necessary setup or initialization tasks before the game starts.
      * <p>
@@ -384,7 +384,50 @@ public abstract class RenJava {
      * Called to create the main menu. (This is NOT optional)
      * @return A MainTitleScreenView object which is parsed to a stage
      */
-    public abstract MainTitleScreenView buildTitleScreen();
+    public abstract Menu buildTitleScreen();
+
+    public Menu buildSideMenu() {
+        // Don't build background image
+        Menu menu = new Menu(new ImageLoader("gui/overlay/main_menu.png"), 350, 500);
+
+        ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", Color.BLACK, 1, 1));
+        ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", Color.BLACK, 1, 1));
+        ButtonOverlay optionsButton = new ButtonOverlay(new ButtonBuilder("menu-preference-button", "Preferences", Color.BLACK, 1, 1));
+        ButtonOverlay aboutButton = new ButtonOverlay(new ButtonBuilder("menu-about-button", "About", Color.BLACK, 1, 1));
+
+        // Create vbox for the buttons. You can also do an HBox
+        VerticalLayout layout = new VerticalLayout(200, 500);
+        layout.setXPosition(50);
+        layout.setYPosition(250);
+        layout.setSpacing(20);
+        layout.addOverlays(startButton, loadButton, optionsButton, aboutButton);
+
+        // You don't have to add the button overlays just add the layout which already contains the overlays.
+        menu.addLayout(layout);
+
+        return menu;
+    }
+
+    public Menu buildLoadMenu() {
+        Menu menu = new Menu(new ImageLoader("gui/main_menu.png"), 1920, 1080);
+
+        return menu;
+    }
+
+    public Menu buildLoadingScreen() {
+
+        return null;
+    }
+
+    public Menu buildSettingsScreen() {
+
+        return null;
+    }
+
+    public Menu buildAboutScreen() {
+
+        return null;
+    }
 
     /**
      * Function used to create your story methods.
@@ -484,7 +527,12 @@ public abstract class RenJava {
         Collection<Method> highMethods = new HashSet<>();
         Collection<Method> highestMethods = new HashSet<>();
 
-        for (EventListener listener : RenJava.getInstance().getRegisteredListeners()) {
+        Collection<EventListener> eventListeners = new HashSet<>(getInstance().getRegisteredListeners());
+        for (Addon addon : getInstance().getAddonLoader().getAddons()) {
+            eventListeners.addAll(addon.getRegisteredListeners());
+        }
+
+        for (EventListener listener : eventListeners) {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.isAnnotationPresent(Listener.class)) {
                     Class<?>[] params = method.getParameterTypes();
@@ -508,6 +556,7 @@ public abstract class RenJava {
                 }
             }
         }
+
         // There has got to be a way to make this better.
         for (Method method : highestMethods) {
             invokeMethod(method, event);

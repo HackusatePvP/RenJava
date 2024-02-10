@@ -16,7 +16,7 @@ public class ButtonBuilder {
     private Image image;
     private Color color;
 
-    private double x = -1, y = -1;
+    private double x = 1, y = 1;
     private final double xScale, yScale;
 
     public ButtonBuilder(String id, String text, Color color, double xScale, double yScale) {
@@ -204,12 +204,18 @@ public class ButtonBuilder {
         if (color != null) {
             button.setTextFill(color);
         }
-        if (x != -1 && y != -1) {
+        if (x != 0 && y != 0) {
             button.setTranslateX(x);
             button.setTranslateY(y);
         }
         button.setScaleX(xScale);
         button.setScaleY(yScale);
+
+        FontLoader defaultFont = RenJava.getInstance().getConfiguration().getDefaultFont();
+        double size = defaultFont.getSize() * xScale;
+        defaultFont.setSize(size);
+        button.setFont(defaultFont.getFont());
+
         button.setOnAction(actionEvent -> {
             ButtonClickEvent event = new ButtonClickEvent(RenJava.getInstance().getPlayer().getCurrentScene(), button);
             RenJava.callEvent(event);

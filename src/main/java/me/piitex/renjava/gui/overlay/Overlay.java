@@ -2,7 +2,7 @@ package me.piitex.renjava.gui.overlay;
 
 public interface Overlay {
 
-    int x();
+    double x();
 
-    int y();
+    double y();
 }

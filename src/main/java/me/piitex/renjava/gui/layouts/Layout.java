@@ -4,16 +4,14 @@ import me.piitex.renjava.gui.overlay.Overlay;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public abstract class Layout {
-    private final Collection<Overlay> overlays = new HashSet<>();
+    private final LinkedHashSet<Overlay> overlays = new LinkedHashSet<>();
     private double xPosition;
     private double yPosition;
     private int width, height;
-
-    public Collection<Overlay> getOverlays() {
-        return overlays;
-    }
 
     public double getXPosition() {
         return xPosition;
@@ -45,5 +43,13 @@ public abstract class Layout {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public Collection<Overlay> getOverlays() {
+        return overlays;
+    }
+
+    public void addOverlays(Overlay... overlays) {
+        this.overlays.addAll(List.of(overlays));
     }
 }

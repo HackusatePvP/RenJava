@@ -114,12 +114,12 @@ public class SplashScreenView {
                 imageView1.setY(imageView1.getY());
                 group.getChildren().add(imageView1);
             } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text = new Text(textOverlay.text());
+                Text text = textOverlay.text();
                 text.setX(textOverlay.x());
                 text.setY(textOverlay.y());
                 group.getChildren().add(text);
             } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                Button button = buttonOverlay.button();
+                Button button = buttonOverlay.button().build();
                 button.setTranslateX(buttonOverlay.x());
                 button.setTranslateY(buttonOverlay.y());
                 group.getChildren().add(button);

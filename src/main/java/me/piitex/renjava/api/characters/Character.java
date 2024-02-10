@@ -12,7 +12,7 @@ import me.piitex.renjava.api.saves.data.PersistentData;
  * The character's name is used for display purposes and can be changed using the `setName()` method. The display name, which is used for coloring the character's name, can be set using the `setDisplayName()` method.
  * The character's color, specified using the `javafx.scene.paint.Color` class, is used to color the display name.
  * <p>
- * The `Character` class automatically registers itself with the RenJava framework upon instantiation using the `RenJava.getInstance().registerCharacter(this)` method.
+ * The `Character` class automatically registers itself with the RenJava framework upon instantiation using the `renJava.registerCharacter(this)` method.
  * This allows the character to be accessed and managed by other parts of the framework.
  * <p>
  * This class is abstract and serves as a base class for creating specific character implementations by extending it and providing additional functionality.
@@ -38,7 +38,7 @@ public abstract class Character {
      * <p>
      * The character's color, specified using the `javafx.scene.paint.Color` class, is used to color the display name.
      * <p>
-     * Upon instantiation, the Character object automatically registers itself with the RenJava framework using the `RenJava.getInstance().registerCharacter(this)` method.
+     * Upon instantiation, the Character object automatically registers itself with the RenJava framework using the `renJava.registerCharacter(this)` method.
      * This allows the character to be accessed and managed by other parts of the framework.
      * <p>
      * This class is abstract and serves as a base class for creating specific character implementations by extending it and providing additional functionality.

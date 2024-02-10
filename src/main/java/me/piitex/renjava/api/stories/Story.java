@@ -1,7 +1,7 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
+import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AnimationScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
@@ -11,7 +11,9 @@ import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
+import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneEndEvent;
+import me.piitex.renjava.gui.Menu;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -68,6 +70,8 @@ public abstract class Story {
 
     private final Logger logger = RenJava.getInstance().getLogger();
 
+    private final RenJava renJava;
+
     /**
      * Creates a base story line. This can also be referred to character events or even chapters.
      * @param id Used to get the scene later.
@@ -75,7 +79,7 @@ public abstract class Story {
     public Story(String id) {
         this.id = id;
         // Global var
-        RenJava renJava = RenJava.getInstance();
+        renJava = RenJava.getInstance();
         renJava.getPlayer().addStory(this); // Registers the story.
     }
 
@@ -112,10 +116,19 @@ public abstract class Story {
 
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
-        renScene.build(RenJava.getInstance().getStage(), true);
+
+        // TODO: 12/29/2023 Save stage info in class. Can also build the scene before render.
+        Menu menu = renScene.build(renJava.getStage(), true);
+
+        renJava.getPlayer().updateScene(renScene); // Set to current scene.
+
+        SceneBuildEvent buildEvent = new SceneBuildEvent(renScene, menu);
+        RenJava.callEvent(buildEvent);
+
+        renScene.render(menu);
 
         // Update RenJava Player
-        RenJava.getInstance().getPlayer().setCurrentStory(this.getId());
+        renJava.getPlayer().setCurrentStory(this.getId());
     }
 
     /**
@@ -220,7 +233,11 @@ public abstract class Story {
     }
 
     public RenScene getNextSceneFromCurrent() {
-        return getNextScene(RenJava.getInstance().getPlayer().getCurrentScene().getId());
+        return getNextScene(renJava.getPlayer().getCurrentScene().getId());
+    }
+
+    public RenScene getCurrentScene() {
+        return renJava.getPlayer().getCurrentScene();
     }
 
     /**
@@ -236,12 +253,12 @@ public abstract class Story {
     }
 
     public RenScene getPreviousSceneFromCurrent() {
-        return getPreviousScene(RenJava.getInstance().getPlayer().getCurrentScene().getId());
+        return getPreviousScene(renJava.getPlayer().getCurrentScene().getId());
     }
 
     public void displayScene(int index) {
         RenScene scene = getScene(index);
-        scene.build(RenJava.getInstance().getStage(), true);
+        scene.build(renJava.getStage(), true);
     }
 
     public void displayScene(String id) {
@@ -254,13 +271,15 @@ public abstract class Story {
             SceneEndEvent event = new SceneEndEvent(getPreviousScene(scene.getId()));
             RenJava.callEvent(event);
         }
-        scene.build(RenJava.getInstance().getStage(), true);
+        Menu menu = scene.build(renJava.getStage(), true);
+        menu.render(null, scene);
     }
 
     public void displayNextScene() {
         SceneEndEvent event = new SceneEndEvent(getPreviousSceneFromCurrent());
         RenJava.callEvent(event);
-        getNextSceneFromCurrent().build(RenJava.getInstance().getStage(), true);
+        Menu menu = getNextSceneFromCurrent().build(renJava.getStage(), true);
+        menu.render(null, getNextSceneFromCurrent());
     }
 
     public LinkedHashMap<String, RenScene> getScenes() {

@@ -1,14 +1,12 @@
 package me.piitex.renjava.events.types;
 
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import me.piitex.renjava.events.Event;
 import me.piitex.renjava.gui.Menu;
 
-public class MainMenDispatchEvent extends Event {
+public class MainMenuRenderEvent extends Event {
     private final Menu menu;
 
-    public MainMenDispatchEvent(Menu menu) {
+    public MainMenuRenderEvent(Menu menu) {
         this.menu = menu;
     }
 

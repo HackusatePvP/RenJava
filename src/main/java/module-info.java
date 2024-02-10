@@ -16,7 +16,6 @@ module RenJava {
     exports me.piitex.renjava.gui;
     exports me.piitex.renjava.utils;
     exports me.piitex.renjava.api.characters;
-    exports me.piitex.renjava.gui.title;
     exports me.piitex.renjava.api.builders;
     exports me.piitex.renjava.gui.overlay;
     exports me.piitex.renjava.gui.layouts;
@@ -36,5 +35,6 @@ module RenJava {
     exports me.piitex.renjava.gui.splashscreen;
     exports me.piitex.renjava.api.scenes.types.input;
     exports me.piitex.renjava.api.saves.data;
+    exports me.piitex.renjava.api.scenes.animation;
     exports me.piitex.renjava.addons;
 }

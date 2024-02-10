@@ -14,17 +14,19 @@ public class RenJavaConfiguration {
     private final ImageLoader gameIcon;
 
     private FontLoader defaultFont;
+    private FontLoader dialogueFont;
+    private FontLoader uiFont;
     private Paint dialogueColor = Color.BLACK;
 
     private int dialogueBoxWidth = 1000;
     private int dialogueBoxHeight = 600;
 
-    private int dialogueBoxX = 0;
+    private int dialogueBoxX = 10;
     private int dialogueBoxY = 800;
     private int dialogueOffsetX = 0;
     private int dialogueOffsetY = 0;
 
-    private int textSize = 24;
+    private final int textSize = 24;
     private int characterTextSize = 36;
 
     private int textX = 400;
@@ -32,7 +34,7 @@ public class RenJavaConfiguration {
     private int textOffsetX = 0;
     private int textOffsetY = 0;
 
-    private int characterTextX = 700;
+    private int characterTextX = 500;
     private int characterTextY = 850;
     private int characterTextOffsetX = 0;
     private int characterTextOffsetY = 0;
@@ -76,12 +78,31 @@ public class RenJavaConfiguration {
         return gameIcon;
     }
 
+    public FontLoader getDialogueFont() {
+        if (dialogueFont != null) {
+            return dialogueFont;
+        }
+        return defaultFont;
+    }
+
+    public void setDialogueFont(FontLoader dialogueFont) {
+        this.dialogueFont = dialogueFont;
+    }
+
     public FontLoader getDefaultFont() {
         return defaultFont;
     }
 
     public void setDefaultFont(FontLoader defaultFont) {
         this.defaultFont = defaultFont;
+    }
+
+    public FontLoader getUiFont() {
+        return uiFont;
+    }
+
+    public void setUiFont(FontLoader uiFont) {
+        this.uiFont = uiFont;
     }
 
     public Paint getDialogueColor() {
@@ -109,7 +130,7 @@ public class RenJavaConfiguration {
     }
 
     public int getDialogueBoxX() {
-        return dialogueBoxX;
+        return dialogueBoxX ;
     }
 
     public void setDialogueBoxX(int dialogueBoxX) {
@@ -140,21 +161,6 @@ public class RenJavaConfiguration {
         this.dialogueOffsetY = dialogueOffsetY;
     }
 
-    /**
-     *
-     * @return
-     */
-    public int getTextSize() {
-        return textSize;
-    }
-
-    /**
-     * Sets the dialogue font's text size.
-     * @param textSize
-     */
-    public void setTextSize(int textSize) {
-        this.textSize = textSize;
-    }
 
     public int getCharacterTextSize() {
         return characterTextSize;

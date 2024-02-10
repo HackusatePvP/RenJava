@@ -52,7 +52,7 @@ public class StringFormatter {
         LinkedList<Text> texts = new LinkedList<>();
 
         RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
-        Font currentFont = configuration.getDefaultFont().getFont();
+        Font currentFont = configuration.getDialogueFont().getFont();
         Font italicFont = Font.font(currentFont.getFamily(), FontWeight.NORMAL, FontPosture.ITALIC, currentFont.getSize());
         Font boldFont = Font.font(currentFont.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, currentFont.getSize());
 

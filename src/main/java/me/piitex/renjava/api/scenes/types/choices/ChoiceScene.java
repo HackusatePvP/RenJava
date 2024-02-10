@@ -11,10 +11,12 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ButtonClickEvent;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.LinkedHashSet;
@@ -135,7 +137,7 @@ public class ChoiceScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage, boolean ui) {
+    public Menu build(Stage stage, boolean ui) {
         Group root = new Group();
         Logger logger = RenJava.getInstance().getLogger();
 
@@ -172,7 +174,7 @@ public class ChoiceScene extends RenScene {
         for (Choice choice : choices) {
             if (i >= limit) {
                 // TODO: 9/24/2023 Throw error in console
-                return;
+                break;
             }
             i++;
             Button button = getChoiceButton(choice, image);
@@ -181,7 +183,13 @@ public class ChoiceScene extends RenScene {
         root.getChildren().add(vBox);
         hookOverlays(root);
         addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/button.css"));
-        setStage(stage, root, StageType.CHOICE_SCENE, false);
+
+        return null;
+    }
+
+    @Override
+    public void render(Menu menu) {
+
     }
 
     private Button getChoiceButton(Choice choice, Image image) {

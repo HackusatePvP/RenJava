@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
@@ -66,7 +67,7 @@ public class InputScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage, boolean ui) {
+    public Menu build(Stage stage, boolean ui) {
         Group root = new Group();
         Logger logger = RenJava.getInstance().getLogger();
         // Add background image
@@ -112,7 +113,14 @@ public class InputScene extends RenScene {
         root.getChildren().add(inputField);
         addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/inputfield.css"));
         hookOverlays(root);
-        setStage(stage, root, StageType.INPUT_SCENE, !ui);
+
+
+        return null;
+    }
+
+    @Override
+    public void render(Menu menu) {
+
     }
 
     @Override

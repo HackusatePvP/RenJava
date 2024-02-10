@@ -141,6 +141,8 @@ public class Load {
                         }
                     });
                 }
+
+                keyValues.remove(sectionKeyValue); // this might error
             }
         }
         Story loadedStory = RenJava.getInstance().getPlayer().getStory(story);

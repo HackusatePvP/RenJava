@@ -58,8 +58,8 @@ public class RenLoader {
         savesDirectory.mkdir();
         File fontsDirectory = new File(directory, "/fonts/");
         fontsDirectory.mkdir();
-        renJava.getLogger().info("Loading fonts...");
 
+        renJava.getLogger().info("Loading fonts...");
         int fonts = 0;
         for (File file : fontsDirectory.listFiles()) {
             if (file.getName().endsWith(".ttf")) {
@@ -81,6 +81,10 @@ public class RenLoader {
         File directory = new File(System.getProperty("user.dir") + "/renjava/");
         directory.mkdir();
         renJava.setSettings(new SettingsProperties());
+
+        // After this method jump to GuiLoader. Loading is a little confusing if you want an idea of how the loader works, check out the Launch class.
+        // Essentially, the RenJava constructor is declared first which runs this (RenLoader). After the declaration of the RenJava class the GuiLoader is called in the start() function within
+        // the Launch class. That was a mouth-full, but hopefully you figure it out!
     }
 
     private void loadRPAFiles() {

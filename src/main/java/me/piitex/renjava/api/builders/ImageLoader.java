@@ -38,7 +38,7 @@ public class ImageLoader {
         } catch (FileNotFoundException ignored) {
             throw new ImageNotFoundException(this);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return buildRaw();
         }
     }
 

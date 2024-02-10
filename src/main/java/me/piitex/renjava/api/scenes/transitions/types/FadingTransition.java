@@ -7,7 +7,6 @@ import me.piitex.renjava.api.scenes.transitions.TransitionType;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 
 public class FadingTransition extends Transitions {
-    private final TransitionType transitionType;
     private final double fromValue;
     private final double toValue;
     private final int cycleCount;
@@ -15,17 +14,12 @@ public class FadingTransition extends Transitions {
 
     private FadeTransition fadeTransition;
 
-    public FadingTransition(TransitionType transitionType, double fromValue, double toValue, int cycleCount, boolean autoReverse, int duration) {
-        super(duration);
-        this.transitionType = transitionType;
+    public FadingTransition(TransitionType transitionType, double fromValue, double toValue, int cycleCount, boolean autoReverse, double duration) {
+        super(transitionType, duration);
         this.fromValue = fromValue;
         this.toValue = toValue;
         this.cycleCount = cycleCount;
         this.autoReverse = autoReverse;
-    }
-
-    public TransitionType getTransitionType() {
-        return transitionType;
     }
 
     public double getFromValue() {
@@ -52,6 +46,7 @@ public class FadingTransition extends Transitions {
         fadeTransition.setCycleCount(getCycleCount());
         fadeTransition.setAutoReverse(isAutoReverse());
         fadeTransition.setNode(node);
+        fadeTransition.setDuration(Duration.seconds(getDuration()));
         fadeTransition.play();
     }
 

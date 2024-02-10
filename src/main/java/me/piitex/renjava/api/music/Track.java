@@ -25,7 +25,6 @@ public class Track {
         return id;
     }
 
-    @APIChange(description = "Switched to using MediaPlayer instead of Clip. Most audio files should be supported with this change.", changedVersion = "0.0.289")
     protected void play(boolean loop) {
         this.loop = loop;
         player = new MediaPlayer(new Media(file.toURI().toString()));

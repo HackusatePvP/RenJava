@@ -1,14 +1,14 @@
 package me.piitex.renjava.api.scenes.types;
 
-import javafx.scene.Group;
-import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
+import me.piitex.renjava.events.types.SceneBuildEvent;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.Overlay;
 
 /**
@@ -59,6 +59,8 @@ public class InteractableScene extends RenScene {
 
     private final ImageLoader backgroundImage;
 
+    private static final RenJava renJava = RenJava.getInstance();
+
     @Override
     public StageType getStageType() {
         return StageType.INTERACTABLE_SCENE;
@@ -98,17 +100,19 @@ public class InteractableScene extends RenScene {
     }
 
     @Override
-    public void build(Stage stage, boolean ui) {
-        Group root = new Group();
+    public Menu build(Stage stage, boolean ui) {
 
-        ImageView backgroundView = null;
-        try {
-            backgroundView = new ImageView(backgroundImage.build());
-        } catch (ImageNotFoundException e) {
-            e.printStackTrace();
-        }
-        root.getChildren().add(backgroundView);
-        hookOverlays(root);
-        setStage(stage, root, StageType.INTERACTABLE_SCENE, false);
+        Menu menu = new Menu(backgroundImage, renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight());
+
+        SceneBuildEvent event = new SceneBuildEvent(this, menu);
+        RenJava.callEvent(event);
+
+        return menu;
+    }
+
+    @Override
+    public void render(Menu menu) {
+        menu.render(null, this);
+        renJava.setStage(renJava.getStage(), StageType.INTERACTABLE_SCENE);
     }
 }

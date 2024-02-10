@@ -1,12 +1,13 @@
 package me.piitex.renjava.api.scenes;
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.api.scenes.types.SceneBuildInterface;
 import me.piitex.renjava.gui.layouts.Container;
 
 import me.piitex.renjava.api.scenes.types.AnimationScene;
@@ -15,9 +16,7 @@ import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
-import me.piitex.renjava.configuration.SettingsProperties;
 
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
@@ -27,11 +26,8 @@ import me.piitex.renjava.gui.overlay.TextOverlay;
 
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.logging.Logger;
 
 
 /**
@@ -54,28 +50,66 @@ public abstract class RenScene extends Container {
     private final ImageLoader backgroundImage;
     private Story story;
     private int index;
-    private SceneStartInterface startInterface;
-    private SceneEndInterface endInterface;
+    private SceneInterface startInterface;
+    private SceneInterface endInterface;
+    private SceneBuildInterface buildInterface;
+    private AnimationBuilder startAnimation;
+
+    private Transitions startTransition;
+    private Transitions endTransition;
+
+    private StageType stageType;
 
     private final Collection<Overlay> additionalOverlays = new HashSet<>();
 
     private final Collection<File> styleSheets = new HashSet<>();
 
-    public abstract StageType getStageType();
 
     public RenScene(String id, ImageLoader backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
     }
 
-    public RenScene onStart(SceneStartInterface sceneInterface) {
+    public RenScene onStart(SceneInterface sceneInterface) {
         this.startInterface = sceneInterface;
         return this;
     }
 
-    public RenScene onEnd(SceneEndInterface endInterface) {
+    public RenScene onEnd(SceneInterface endInterface) {
         this.endInterface = endInterface;
         return this;
+    }
+
+    public RenScene onBuild(SceneBuildInterface buildInterface) {
+        this.buildInterface = buildInterface;
+        return this;
+    }
+
+    public RenScene setBeginningAnimation(AnimationBuilder animation) {
+        this.startAnimation = animation;
+        return this;
+    }
+
+    public RenScene setBeginningTransition(Transitions transition) {
+        this.startTransition = transition;
+        return this;
+    }
+
+    public RenScene setEndTransition(Transitions transition) {
+        this.startTransition = transition;
+        return this;
+    }
+
+    public AnimationBuilder getStartAnimation() {
+        return startAnimation;
+    }
+
+    public Transitions getStartTransition() {
+        return startTransition;
+    }
+
+    public Transitions getEndTransition() {
+        return endTransition;
     }
 
     public String getId() {
@@ -86,12 +120,16 @@ public abstract class RenScene extends Container {
         return backgroundImage;
     }
 
-    public SceneStartInterface getStartInterface() {
+    public SceneInterface getStartInterface() {
         return startInterface;
     }
 
-    public SceneEndInterface getEndInterface() {
+    public SceneInterface getEndInterface() {
         return endInterface;
+    }
+
+    public SceneBuildInterface getBuildInterface() {
+        return buildInterface;
     }
 
     public void addOverlay(Overlay overlay) {
@@ -127,7 +165,7 @@ public abstract class RenScene extends Container {
                 imageView1.setY(imageOverlay.y());
                 root.getChildren().add(imageView1);
             } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text1 = new Text(textOverlay.text());
+                Text text1 = textOverlay.text();
                 text1.setX(textOverlay.x());
                 text1.setY(textOverlay.y());
                 text1.setScaleX(textOverlay.xScale());
@@ -135,7 +173,7 @@ public abstract class RenScene extends Container {
                 root.getChildren().add(text1);
             } else if (overlay instanceof ButtonOverlay buttonOverlay) {
                 RenJava.getInstance().getLogger().info("Adding button...");
-                Button button = buttonOverlay.button();
+                Button button = buttonOverlay.button().build();
                 button.setTranslateX(buttonOverlay.x());
                 button.setTranslateY(buttonOverlay.y());
                 root.getChildren().add(button);
@@ -143,38 +181,13 @@ public abstract class RenScene extends Container {
         }
     }
 
+    public abstract StageType getStageType();
+
     public void addStyleSheets(File file) {
         styleSheets.add(file);
     }
 
-    public void setStage(Stage stage, Group root, StageType type, boolean resetScene) {
-        Logger logger = RenJava.getInstance().getLogger();
-        if (resetScene) {
-            logger.info("Resetting scene...");
-            stage.setScene(new Scene(root));
-        } else {
-            stage.getScene().setRoot(root);
-        }
-        for (File file : styleSheets) {
-            try {
-                stage.getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
-            } catch (MalformedURLException e) {
-                logger.info(e.getMessage());
-            }
-        }
-
-        SettingsProperties settingsProperties = RenJava.getInstance().getSettings();
-        if (settingsProperties.isFullscreen()) {
-            stage.setFullScreen(true);
-        }
-        stage.show();
-        RenJava.getInstance().getPlayer().setCurrentStory(this.getStory().getId());
-        RenJava.getInstance().getPlayer().setCurrentScene(this.getId());
-        SceneStartEvent startEvent = new SceneStartEvent(this);
-        RenJava.callEvent(startEvent);
-        RenJava.getInstance().setStage(stage, type);
-
-        // Add scene to view. Complicated mapping, but it shooould work
-        RenJava.getInstance().getPlayer().getViewedScenes().put(new AbstractMap.SimpleEntry<>(story, this.getId()), this);
+    public Collection<File> getStyleSheets() {
+        return styleSheets;
     }
 }
