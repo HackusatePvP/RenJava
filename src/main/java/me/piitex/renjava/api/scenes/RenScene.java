@@ -50,8 +50,8 @@ public abstract class RenScene extends Container {
     private final ImageLoader backgroundImage;
     private Story story;
     private int index;
-    private SceneInterface startInterface;
-    private SceneInterface endInterface;
+    private SceneStartInterface startInterface;
+    private SceneEndInterface endInterface;
     private SceneBuildInterface buildInterface;
     private AnimationBuilder startAnimation;
 
@@ -70,12 +70,12 @@ public abstract class RenScene extends Container {
         this.backgroundImage = backgroundImage;
     }
 
-    public RenScene onStart(SceneInterface sceneInterface) {
+    public RenScene onStart(SceneStartInterface sceneInterface) {
         this.startInterface = sceneInterface;
         return this;
     }
 
-    public RenScene onEnd(SceneInterface endInterface) {
+    public RenScene onEnd(SceneEndInterface endInterface) {
         this.endInterface = endInterface;
         return this;
     }
@@ -120,11 +120,11 @@ public abstract class RenScene extends Container {
         return backgroundImage;
     }
 
-    public SceneInterface getStartInterface() {
+    public SceneStartInterface getStartInterface() {
         return startInterface;
     }
 
-    public SceneInterface getEndInterface() {
+    public SceneEndInterface getEndInterface() {
         return endInterface;
     }
 
