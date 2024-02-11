@@ -245,7 +245,7 @@ public class Menu {
                         hBox.getChildren().add(textOverlay.text());
                     } else if (overlay instanceof ButtonOverlay buttonOverlay) {
                         logger.info("Adding button overlay...");
-                        hBox.getChildren().add(buttonOverlay.button().build());
+                        hBox.getChildren().add(buttonOverlay.build());
                     }  else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
                         logger.info("Adding text flow overlay...");
                         hBox.getChildren().add(textFlowOverlay.textFlowBuilder().build());
@@ -276,8 +276,8 @@ public class Menu {
                         vBox.getChildren().add(textOverlay.text());
                     } else if (overlay instanceof ButtonOverlay buttonOverlay) {
                         logger.info("Adding button overlay...");
-                        logger.info("Button Rotate: " + buttonOverlay.button().build().getRotate());
-                        vBox.getChildren().add(buttonOverlay.button().build());
+                        logger.info("Button Rotate: " + buttonOverlay.build().getRotate());
+                        vBox.getChildren().add(buttonOverlay.build());
                         vBox.layout();
                     } else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
                         logger.info("Adding text flow overlay...");
@@ -313,7 +313,7 @@ public class Menu {
                 Button button = buttonOverlay.build();
                 button.setTranslateX(buttonOverlay.x());
                 button.setTranslateY(buttonOverlay.y());
-                root.getChildren().add(buttonOverlay.button().build());
+                root.getChildren().add(buttonOverlay.build());
             } else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
                 logger.info("Adding text flow overlay...");
                 TextFlow textFlow = textFlowOverlay.textFlowBuilder().build();

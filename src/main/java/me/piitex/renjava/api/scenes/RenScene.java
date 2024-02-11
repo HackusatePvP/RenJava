@@ -173,7 +173,7 @@ public abstract class RenScene extends Container {
                 root.getChildren().add(text1);
             } else if (overlay instanceof ButtonOverlay buttonOverlay) {
                 RenJava.getInstance().getLogger().info("Adding button...");
-                Button button = buttonOverlay.button().build();
+                Button button = buttonOverlay.build();
                 button.setTranslateX(buttonOverlay.x());
                 button.setTranslateY(buttonOverlay.y());
                 root.getChildren().add(button);

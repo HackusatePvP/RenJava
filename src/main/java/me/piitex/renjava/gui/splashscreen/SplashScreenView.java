@@ -119,7 +119,7 @@ public class SplashScreenView {
                 text.setY(textOverlay.y());
                 group.getChildren().add(text);
             } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                Button button = buttonOverlay.button().build();
+                Button button = buttonOverlay.build();
                 button.setTranslateX(buttonOverlay.x());
                 button.setTranslateY(buttonOverlay.y());
                 group.getChildren().add(button);
