@@ -137,7 +137,7 @@ public class ChoiceScene extends RenScene {
     }
 
     @Override
-    public Menu build(Stage stage, boolean ui) {
+    public Menu build(boolean ui) {
         Group root = new Group();
         Logger logger = RenJava.getInstance().getLogger();
 

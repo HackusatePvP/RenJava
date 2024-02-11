@@ -2,7 +2,6 @@ package me.piitex.renjava.api.builders;
 
 import javafx.scene.control.TextField;
 
-import java.io.File;
 
 public class InputFieldBuilder {
     private final double x;

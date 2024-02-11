@@ -51,7 +51,7 @@ public class GameFlowEventListener implements EventListener {
                     // Hide ui elements from scene
                     renJava.getLogger().info("Toggling UI!");
                     player.setUiToggled(!player.isUiToggled());
-                    scene.build(stage, player.isUiToggled());
+                    scene.build(player.isUiToggled());
                 }
             } case PRIMARY -> {
                 // Go Forward
@@ -77,7 +77,7 @@ public class GameFlowEventListener implements EventListener {
                 } else {
                     // Return to previous screen
                     RenScene renScene = player.getCurrentScene();
-                    Menu menu = renScene.build(stage, true);
+                    Menu menu = renScene.build(true);
                     SceneBuildEvent sceneBuildEvent = new SceneBuildEvent(renScene, menu);
                     RenJava.callEvent(sceneBuildEvent);
                     menu.render(null, renScene);
@@ -144,7 +144,7 @@ public class GameFlowEventListener implements EventListener {
                     // log for testing
                     logger.info("Previous scene not found.");
                 } else {
-                    renScene.build(renJava.getStage(), true);
+                    renScene.build(true);
                 }
             } else {
                 logger.info("Cannot display next scene...");
@@ -164,7 +164,7 @@ public class GameFlowEventListener implements EventListener {
             Story story = scene.getStory();
             RenScene nextScene = story.getNextSceneFromCurrent();
             if (nextScene != null && renJava.getPlayer().hasSeenScene(story, nextScene.getId())) {
-                nextScene.build(renJava.getStage(), true);
+                nextScene.build(true);
             }
         }
     }
@@ -216,7 +216,7 @@ public class GameFlowEventListener implements EventListener {
                 RenScene nextScene = story.getNextSceneFromCurrent();
                 logger.info("Expected: " + nextScene.getId() + " Current: " + story.getCurrentScene().getId());
                 if (nextScene != null) {
-                    nextScene.render(nextScene.build(null, true));
+                    nextScene.render(nextScene.build(true));
                     player.updateScene(nextScene);
                 }
             }

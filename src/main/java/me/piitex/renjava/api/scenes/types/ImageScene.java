@@ -104,7 +104,7 @@ public class ImageScene extends RenScene {
     }
 
     @Override
-    public Menu build(Stage stage, boolean ui) {
+    public Menu build(boolean ui) {
         Menu rootMenu = new Menu(backgroundImage, configuration.getWidth(), configuration.getHeight());
 
         Text characterDisplay = null;
@@ -160,7 +160,7 @@ public class ImageScene extends RenScene {
         }
         for (File file : getStyleSheets()) {
             try {
-                stage.getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
+                RenJava.getInstance().getStage().getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

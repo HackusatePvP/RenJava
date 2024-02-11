@@ -25,7 +25,7 @@ public abstract class Container {
         return layouts;
     }
 
-    public abstract Menu build(Stage stage, boolean ui);
+    public abstract Menu build(boolean ui);
 
     public abstract void render(Menu menu);
 

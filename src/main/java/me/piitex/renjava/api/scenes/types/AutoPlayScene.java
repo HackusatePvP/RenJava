@@ -51,74 +51,8 @@ public class AutoPlayScene extends RenScene {
     }
 
     @Override
-    public Menu build(Stage stage, boolean ui) {
-        Menu menu = new Menu(backgroundImage, renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight());
-
-        Text characterDisplayText;
-        if (character != null) {
-            if (characterDisplayName != null) {
-                characterDisplayText = new Text(characterDisplayName);
-            } else {
-                characterDisplayText = new Text(character.getDisplayName());
-            }
-            characterDisplayText.setFill(character.getColor());
-        } else {
-            characterDisplayText = new Text("");
-        }
-
-        if (dialogue != null && !dialogue.isEmpty()) {
-            Image textbox = null;
-            try {
-                textbox = new ImageLoader("gui/textbox.png").build();
-            } catch (ImageNotFoundException e) {
-                renJava.getLogger().severe(e.getMessage());
-            } finally {
-                if (textbox != null) {
-                    Menu textBoxMenu = new Menu(renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight() - textbox.getHeight());
-                    try {
-                        ImageOverlay textBoxImage = new ImageOverlay(new ImageLoader("gui/textbox.png").build(), renJava.getConfiguration().getDialogueBoxX() + renJava.getConfiguration().getDialogueOffsetX(),
-                                renJava.getConfiguration().getDialogueBoxY() + renJava.getConfiguration().getDialogueOffsetY());
-                        textBoxMenu.addOverlay(textBoxImage);
-                    } catch (ImageNotFoundException e) {
-                        renJava.getLogger().severe(e.getMessage());
-                    }
-
-                    LinkedList<Text> texts = StringFormatter.formatText(dialogue);
-                    if (texts.isEmpty()) {
-                        Text text = new Text(dialogue);
-                        text.setFont(renJava.getConfiguration().getDialogueFont().getFont());
-                        TextFlowBuilder textFlowBuilder = new TextFlowBuilder(text, renJava.getConfiguration().getDialogueBoxWidth(), renJava.getConfiguration().getDialogueBoxHeight());
-                        textBoxMenu.addOverlay(new TextFlowOverlay(textFlowBuilder, renJava.getConfiguration().getTextX() + renJava.getConfiguration().getTextOffsetX(),
-                                renJava.getConfiguration().getTextY() + renJava.getConfiguration().getTextOffsetY()));
-                    } else {
-                        TextFlowBuilder textFlowBuilder = new TextFlowBuilder(texts, renJava.getConfiguration().getDialogueBoxWidth(), renJava.getConfiguration().getDialogueBoxHeight());
-                        textBoxMenu.addOverlay(new TextFlowOverlay(textFlowBuilder, renJava.getConfiguration().getTextX() + renJava.getConfiguration().getTextOffsetX(),
-                                renJava.getConfiguration().getTextY() + renJava.getConfiguration().getTextOffsetY()));
-                    }
-
-                    characterDisplayText.setFont(new FontLoader(renJava.getConfiguration().getDefaultFont().getFont(), renJava.getConfiguration().getCharacterTextSize()).getFont());
-                    characterDisplayText.setFill(character.getColor());
-                    characterDisplayText.setX(renJava.getConfiguration().getCharacterTextX() + renJava.getConfiguration().getCharacterTextOffsetX());
-                    characterDisplayText.setY(renJava.getConfiguration().getCharacterTextY() + renJava.getConfiguration().getCharacterTextOffsetY());
-
-                    textBoxMenu.addOverlay(new TextOverlay(characterDisplayText, characterDisplayText.getX(), characterDisplayText.getY(), 1, 1));
-                    menu.addMenu(textBoxMenu);
-                }
-            }
-        }
-
-        for (File file : getStyleSheets()) {
-            try {
-                stage.getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        SceneBuildEvent event = new SceneBuildEvent(this, menu);
-        RenJava.callEvent(event);
-
-        return menu;
+    public Menu build(boolean ui) {
+        return new ImageScene(null, character, dialogue, backgroundImage).build(ui);
     }
 
     @Override

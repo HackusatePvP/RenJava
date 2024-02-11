@@ -67,53 +67,7 @@ public class InputScene extends RenScene {
     }
 
     @Override
-    public Menu build(Stage stage, boolean ui) {
-        Group root = new Group();
-        Logger logger = RenJava.getInstance().getLogger();
-        // Add background image
-        Image background;
-        try {
-            background = loader.build();
-        } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        ImageView imageView = new ImageView(background);
-        root.getChildren().add(imageView);
-
-        Image textbox = null;
-        try {
-            textbox = new ImageLoader("/gui/textbox.png").build();
-        } catch (ImageNotFoundException e) {
-            logger.info(e.getMessage());
-        }
-        if (textbox != null) {
-            imageView = new ImageView(textbox);
-            imageView.setY(1080 - textbox.getHeight()); // Set the text box to the bottom
-            root.getChildren().add(imageView);
-        }
-        double setX = imageView.getX();
-        double setY = imageView.getY();
-        setX += 250;
-        setY += 100;
-        inputField = new TextField();
-        if (text != null && !text.isEmpty()) {
-            Text beforeText = new Text(text);
-            beforeText.setTranslateX(setX);
-            beforeText.setTranslateY(setY);
-            beforeText.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24).getFont());
-            root.getChildren().add(beforeText);
-            inputField.setTranslateY(beforeText.getTranslateY() - 30);
-            inputField.setTranslateX(beforeText.getTranslateX() + 210);
-        } else {
-            inputField.setTranslateX(setX);
-            inputField.setTranslateY(setY);
-        }
-        inputField.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24).getFont());
-        inputField.setStyle("-fx-control-inner-background: transparent; -fx-background-color transparent;");
-        root.getChildren().add(inputField);
-        addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/inputfield.css"));
-        hookOverlays(root);
-
+    public Menu build(boolean ui) {
 
         return null;
     }
