@@ -162,7 +162,6 @@ public class AddonLoader {
                 if (clazzString.endsWith(".class")) {
                     String clazzName = clazzString.replace('/', '.').substring(0, clazzString.length() - 6); // removes the .class at the end
 
-                    // FIXME: 12/24/2023 This has some serious security concerns. This executes code from any jar inside of addons and offers no real detection for malicious code.
                     // Authors should warn users about using pirated versions or getting addons from unknown sources.
                     Class<?> clazz = cl.loadClass(clazzName);
                     if (Addon.class.isAssignableFrom(clazz)) {

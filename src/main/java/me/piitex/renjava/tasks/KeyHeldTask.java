@@ -24,7 +24,6 @@ public class KeyHeldTask extends TimerTask {
         RenJava.getInstance().getLogger().info("Skipping scene...");
         Player player = RenJava.getInstance().getPlayer();
         AbstractMap.SimpleEntry<Story, String> entry = new AbstractMap.SimpleEntry<>(scene.getStory(), scene.getId());
-        // TODO: 9/26/2023 Check if the player has played the scene or if they have skip unseen text enabled
         if (player.getViewedScenes().get(entry) != null) {
             // Player has seen scene
             Platform.runLater(() -> {

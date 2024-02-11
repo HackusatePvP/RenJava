@@ -221,11 +221,6 @@ public class Menu {
                 ImageView view = new ImageView(backgroundImage);
                 root.getChildren().add(view);
             }
-
-
-            // TODO: 2/7/2024 Handle animations here
-        } else {
-            // TODO: 12/28/2023 Create a black background
         }
 
 
