@@ -67,17 +67,18 @@ public class InputScene extends RenScene {
     @Override
     public Menu build(boolean ui) {
         Menu menu = new Menu(1920.0, 1080.0);
-        Menu imageMenu = (new ImageScene(null, null, this.text, this.loader)).build(true);
-        TextFlowOverlay textFlowOverlay;
-        for (Menu otherMenu : menu.getChildren()) {
-            textFlowOverlay = (TextFlowOverlay) otherMenu.getOverlays().stream().filter(overlay -> overlay instanceof TextFlowOverlay).findFirst().orElse(null);
-            if (textFlowOverlay != null) {
-                Text beforeText = textFlowOverlay.textFlowBuilder().getTexts().getLast();
-                InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(new InputFieldBuilder(beforeText.getTranslateY() - 30.0, beforeText.getY() + 210.0, new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24.0)));
-                otherMenu.addOverlay(inputFieldOverlay);
+        Menu imageMenu = (new ImageScene(null, null, this.text, this.loader)).build(ui);
+        if (ui) {
+            TextFlowOverlay textFlowOverlay;
+            for (Menu otherMenu : menu.getChildren()) {
+                textFlowOverlay = (TextFlowOverlay) otherMenu.getOverlays().stream().filter(overlay -> overlay instanceof TextFlowOverlay).findFirst().orElse(null);
+                if (textFlowOverlay != null) {
+                    Text beforeText = textFlowOverlay.textFlowBuilder().getTexts().getLast();
+                    InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(new InputFieldBuilder(beforeText.getTranslateY() - 30.0, beforeText.getY() + 210.0, new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24.0)));
+                    otherMenu.addOverlay(inputFieldOverlay);
+                }
             }
         }
-
         menu.addMenu(imageMenu);
         return menu;
     }

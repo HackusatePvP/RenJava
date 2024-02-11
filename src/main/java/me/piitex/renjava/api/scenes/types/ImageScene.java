@@ -107,54 +107,54 @@ public class ImageScene extends RenScene {
     public Menu build(boolean ui) {
         Menu rootMenu = new Menu(configuration.getWidth(), configuration.getHeight(), backgroundImage);
 
-        Text characterDisplay = null;
-        if (dialogue != null && !dialogue.isEmpty()) {
-            if (getCharacterNameDisplay() != null) {
-                // Set character display
-                characterDisplay = new Text(getCharacterNameDisplay());
-            } else {
-                characterDisplay = new Text(character.getDisplayName());
+        if (ui) {
+            Text characterDisplay = null;
+            if (dialogue != null && !dialogue.isEmpty()) {
+                if (getCharacterNameDisplay() != null) {
+                    // Set character display
+                    characterDisplay = new Text(getCharacterNameDisplay());
+                } else {
+                    characterDisplay = new Text(character.getDisplayName());
+                }
+                characterDisplay.setFill(character.getColor());
             }
-            characterDisplay.setFill(character.getColor());
-        }
 
-        if (dialogue != null && !dialogue.isEmpty()) {
-            Image textbox = null;
-            try {
-                textbox = new ImageLoader("gui/textbox.png").build();
-            } catch (ImageNotFoundException e) {
-                renJava.getLogger().severe(e.getMessage());
-            } finally {
-                if (textbox != null) {
-                    Menu textboxMenu = new Menu(configuration.getWidth(), configuration.getHeight() - textbox.getHeight());
+            if (dialogue != null && !dialogue.isEmpty()) {
+                Image textbox = null;
+                try {
+                    textbox = new ImageLoader("gui/textbox.png").build();
+                } catch (ImageNotFoundException e) {
+                    renJava.getLogger().severe(e.getMessage());
+                } finally {
+                    if (textbox != null) {
+                        Menu textboxMenu = new Menu(configuration.getWidth(), configuration.getHeight() - textbox.getHeight());
 
-                    try {
-                        ImageOverlay textBoxImage = new ImageOverlay(new ImageLoader("gui/textbox.png").build(), configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-                        textboxMenu.addOverlay(textBoxImage);
-                    } catch (ImageNotFoundException e) {
-                        renJava.getLogger().severe(e.getMessage());
-                    }
+                        try {
+                            ImageOverlay textBoxImage = new ImageOverlay(new ImageLoader("gui/textbox.png").build(), configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
+                            textboxMenu.addOverlay(textBoxImage);
+                        } catch (ImageNotFoundException e) {
+                            renJava.getLogger().severe(e.getMessage());
+                        }
 
-                    LinkedList<Text> texts = StringFormatter.formatText(dialogue);
-
-                    if (texts.isEmpty()) {
-                        Text text = new Text(dialogue);
-                        text.setFont(renJava.getConfiguration().getDialogueFont().getFont());
-                        TextFlowBuilder textFlowBuilder = new TextFlowBuilder(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                        LinkedList<Text> texts = StringFormatter.formatText(dialogue);
+                        TextFlowBuilder textFlowBuilder;
+                        if (texts.isEmpty()) {
+                            Text text = new Text(dialogue);
+                            text.setFont(renJava.getConfiguration().getDialogueFont().getFont());
+                            textFlowBuilder = new TextFlowBuilder(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                        } else {
+                            textFlowBuilder = new TextFlowBuilder(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                        }
                         textboxMenu.addOverlay(new TextFlowOverlay(textFlowBuilder, configuration.getTextX() + configuration.getTextOffsetX(), configuration.getTextY() + configuration.getTextOffsetY()));
-                    } else {
-                        // FIXME: 12/29/2023 Duplicate code
-                        TextFlowBuilder textFlowBuilder = new TextFlowBuilder(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                        textboxMenu.addOverlay(new TextFlowOverlay(textFlowBuilder, configuration.getTextX() + configuration.getTextOffsetX(), configuration.getTextY() + configuration.getTextOffsetY()));
+
+                        characterDisplay.setFont(new FontLoader(renJava.getConfiguration().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
+                        characterDisplay.setFill(character.getColor());
+                        characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
+                        characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
+
+                        textboxMenu.addOverlay(new TextOverlay(characterDisplay, characterDisplay.getX(), characterDisplay.getY(), 1, 1));
+                        rootMenu.addMenu(textboxMenu);
                     }
-
-                    characterDisplay.setFont(new FontLoader(renJava.getConfiguration().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
-                    characterDisplay.setFill(character.getColor());
-                    characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
-                    characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
-
-                    textboxMenu.addOverlay(new TextOverlay(characterDisplay, characterDisplay.getX(), characterDisplay.getY(), 1, 1));
-                    rootMenu.addMenu(textboxMenu);
                 }
             }
         }
@@ -176,7 +176,7 @@ public class ImageScene extends RenScene {
     @Override
     public void render(Menu menu) {
         renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
-        menu.render(null, this); // FIXME: 12/29/2023 Render depending on if ui is toggled
+        menu.render(null, this);
 
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);

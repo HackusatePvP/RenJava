@@ -137,29 +137,31 @@ public class ChoiceScene extends RenScene {
     public Menu build(boolean ui) {
         Menu menu = new Menu(1920.0, 1080.0, this.backgroundImage);
 
-        VerticalLayout layout = new VerticalLayout(500, 500);
-        layout.setXPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2 - 600));
-        layout.setYPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2 - 600));
-        layout.setSpacing(20.0);
-        ImageLoader choiceBoxImage = new ImageLoader("gui/button/choice_idle_background.png");
+        if (ui) {
+            VerticalLayout layout = new VerticalLayout(500, 500);
+            layout.setXPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2 - 600));
+            layout.setYPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2 - 600));
+            layout.setSpacing(20.0);
+            ImageLoader choiceBoxImage = new ImageLoader("gui/button/choice_idle_background.png");
 
-        for (Choice choice : choices) {
-            ButtonOverlay buttonOverlay;
-            try {
-                buttonOverlay = new ButtonOverlay(getChoiceButton(choice, choiceBoxImage.build()));
-                layout.addOverlays(buttonOverlay);
-            } catch (ImageNotFoundException e) {
-                throw new RuntimeException(e);
+            for (Choice choice : choices) {
+                ButtonOverlay buttonOverlay;
+                try {
+                    buttonOverlay = new ButtonOverlay(getChoiceButton(choice, choiceBoxImage.build()));
+                    layout.addOverlays(buttonOverlay);
+                } catch (ImageNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            menu.addLayout(layout);
         }
-        menu.addLayout(layout);
         return menu;
     }
 
     @Override
     public void render(Menu menu) {
         RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.CHOICE_SCENE);
-        menu.render(null, this); // FIXME: 12/29/2023 Render depending on if ui is toggled
+        menu.render(null, this);
 
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);
