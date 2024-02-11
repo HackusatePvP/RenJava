@@ -61,7 +61,7 @@ public class Menu {
         this.stage = renJava.getStage();
     }
 
-    public Menu(ImageLoader imageLoader, double width, double height) {
+    public Menu(double width, double height, ImageLoader imageLoader) {
         try {
             this.backgroundImage = imageLoader.build();
         } catch (ImageNotFoundException e) {

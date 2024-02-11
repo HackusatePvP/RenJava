@@ -102,7 +102,7 @@ public class InteractableScene extends RenScene {
     @Override
     public Menu build(boolean ui) {
 
-        Menu menu = new Menu(backgroundImage, renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight());
+        Menu menu = new Menu(renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight(), backgroundImage);
 
         SceneBuildEvent event = new SceneBuildEvent(this, menu);
         RenJava.callEvent(event);

@@ -388,7 +388,7 @@ public abstract class RenJava {
 
     public Menu buildSideMenu() {
         // Don't build background image
-        Menu menu = new Menu(new ImageLoader("gui/overlay/main_menu.png"), 350, 500);
+        Menu menu = new Menu(350, 500, new ImageLoader("gui/overlay/main_menu.png"));
 
         ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", Color.BLACK, 1, 1));
         ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", Color.BLACK, 1, 1));
@@ -409,7 +409,7 @@ public abstract class RenJava {
     }
 
     public Menu buildLoadMenu() {
-        Menu menu = new Menu(new ImageLoader("gui/main_menu.png"), 1920, 1080);
+        Menu menu = new Menu(1920, 1080, new ImageLoader("gui/main_menu.png"));
 
         return menu;
     }

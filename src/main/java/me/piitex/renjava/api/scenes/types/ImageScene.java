@@ -105,7 +105,7 @@ public class ImageScene extends RenScene {
 
     @Override
     public Menu build(boolean ui) {
-        Menu rootMenu = new Menu(backgroundImage, configuration.getWidth(), configuration.getHeight());
+        Menu rootMenu = new Menu(configuration.getWidth(), configuration.getHeight(), backgroundImage);
 
         Text characterDisplay = null;
         if (dialogue != null && !dialogue.isEmpty()) {
