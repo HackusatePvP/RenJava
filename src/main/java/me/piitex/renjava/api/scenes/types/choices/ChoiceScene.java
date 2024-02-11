@@ -1,26 +1,23 @@
 package me.piitex.renjava.api.scenes.types.choices;
 
-import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ButtonClickEvent;
+import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import org.jetbrains.annotations.Nullable;
+import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
+import me.piitex.renjava.gui.overlay.ButtonOverlay;
 
-import java.io.File;
 import java.util.LinkedHashSet;
-import java.util.logging.Logger;
 
 /**
  * The ChoiceScene class represents a scene in the RenJava framework that presents the player with multiple choices.
@@ -138,58 +135,34 @@ public class ChoiceScene extends RenScene {
 
     @Override
     public Menu build(boolean ui) {
-        Group root = new Group();
-        Logger logger = RenJava.getInstance().getLogger();
+        Menu menu = new Menu(1920.0, 1080.0, this.backgroundImage);
 
-        // Add background image
-        Image background = null;
-        try {
-            background = backgroundImage.build();
-        } catch (ImageNotFoundException e) {
-            logger.info(e.getMessage());
-        } finally {
-            if (background != null) {
-                ImageView imageView = new ImageView(background);
-                root.getChildren().add(imageView);
-            }
-        }
+        VerticalLayout layout = new VerticalLayout(500, 500);
+        layout.setXPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2 - 600));
+        layout.setYPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2 - 600));
+        layout.setSpacing(20.0);
+        ImageLoader choiceBoxImage = new ImageLoader("gui/button/choice_idle_background.png");
 
-        // FIXME: 10/26/2023 Remove limit create scroll pane
-        int limit = 5; // Max of 5 choices per scene.
-        int i = 0; // Counter
-        VBox vBox = new VBox(); // Choices will be stacked so we will make a vbox for this
-        vBox.setPrefWidth(200);
-        vBox.setPrefHeight(300);
-        vBox.setLayoutX(((RenJava.getInstance().getConfiguration().getWidth() - vBox.getWidth()) / 2) - 600);
-        vBox.setLayoutY(((RenJava.getInstance().getConfiguration().getHeight() - vBox.getHeight()) / 2) - 200);
-        vBox.setSpacing(20);
-        // For performace preload image
-        ImageLoader imageLoader = new ImageLoader("gui/button/choice_idle_background.png");
-        Image image = null;
-        try {
-            image = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            logger.info(e.getMessage());
-        }
         for (Choice choice : choices) {
-            if (i >= limit) {
-                // TODO: 9/24/2023 Throw error in console
-                break;
+            ButtonOverlay buttonOverlay;
+            try {
+                buttonOverlay = new ButtonOverlay(getChoiceButton(choice, choiceBoxImage.build()));
+                layout.addOverlays(buttonOverlay);
+            } catch (ImageNotFoundException e) {
+                throw new RuntimeException(e);
             }
-            i++;
-            Button button = getChoiceButton(choice, image);
-            vBox.getChildren().add(button);
         }
-        root.getChildren().add(vBox);
-        hookOverlays(root);
-        addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/button.css"));
-
-        return null;
+        menu.addLayout(layout);
+        return menu;
     }
 
     @Override
     public void render(Menu menu) {
+        RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.CHOICE_SCENE);
+        menu.render(null, this); // FIXME: 12/29/2023 Render depending on if ui is toggled
 
+        SceneStartEvent event = new SceneStartEvent(this);
+        RenJava.callEvent(event);
     }
 
     private Button getChoiceButton(Choice choice, Image image) {

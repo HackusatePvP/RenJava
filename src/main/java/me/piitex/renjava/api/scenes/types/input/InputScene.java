@@ -1,22 +1,20 @@
 package me.piitex.renjava.api.scenes.types.input;
 
-import javafx.scene.Group;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.builders.InputFieldBuilder;
+import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.types.ImageScene;
+import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.gui.overlay.InputFieldOverlay;
+import me.piitex.renjava.gui.overlay.TextFlowOverlay;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * The InputScene class represents a scene in the RenJava framework that allows the player to input text.
@@ -68,13 +66,29 @@ public class InputScene extends RenScene {
 
     @Override
     public Menu build(boolean ui) {
+        Menu menu = new Menu(1920.0, 1080.0);
+        Menu imageMenu = (new ImageScene(null, null, this.text, this.loader)).build(true);
+        TextFlowOverlay textFlowOverlay;
+        for (Menu otherMenu : menu.getChildren()) {
+            textFlowOverlay = (TextFlowOverlay) otherMenu.getOverlays().stream().filter(overlay -> overlay instanceof TextFlowOverlay).findFirst().orElse(null);
+            if (textFlowOverlay != null) {
+                Text beforeText = textFlowOverlay.textFlowBuilder().getTexts().getLast();
+                InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(new InputFieldBuilder(beforeText.getTranslateY() - 30.0, beforeText.getY() + 210.0, new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24.0)));
+                otherMenu.addOverlay(inputFieldOverlay);
+            }
+        }
 
-        return null;
+        menu.addMenu(imageMenu);
+        return menu;
     }
 
     @Override
     public void render(Menu menu) {
+        RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.INPUT_SCENE);
+        menu.render(null, this); // FIXME: 12/29/2023 Render depending on if ui is toggled
 
+        SceneStartEvent event = new SceneStartEvent(this);
+        RenJava.callEvent(event);
     }
 
     @Override
