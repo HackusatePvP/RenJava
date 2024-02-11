@@ -263,7 +263,7 @@ public abstract class RenJava {
     /**
      * Registers an {@link EventListener} to handle game events.
      * <p>
-     * The {@code registerListener} method is used to register an {@link EventListener} that handles game events.
+     * This method is used to register an {@link EventListener} that handles game events.
      * Event listeners can listen for specific events and perform actions in response to those events.
      * <p>
      * To register an event listener, pass an instance of the event listener class that implements the {@link EventListener} interface
