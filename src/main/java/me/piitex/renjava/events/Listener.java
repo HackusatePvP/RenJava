@@ -14,10 +14,19 @@ import java.lang.annotation.Target;
  * <p>
  * Example:
  * <pre>{@code
+ * public class MyListenerClass implements EventListener {
+ *
  *     @Listener
  *     public void onButtonClick(ButtonClickEvent event) {
- *         // Code to handle the button click event
+ *       // Code to handle the button click event
  *     }
+ *
+ * }
+ * }</pre>
+ * <p>
+ * You will have to register the listener class with the framework when it's initialized.
+ * <pre>{@code
+ * RenJava.getInstance().registerListener(new MyListenerClass());
  * }</pre>
  *
  * @see Event
