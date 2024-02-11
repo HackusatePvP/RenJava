@@ -23,6 +23,9 @@ public class AddonLoader {
 
     public void load() {
         File directory = new File(System.getProperty("user.dir") + "/addons/");
+        if (directory.mkdir()) {
+            logger.warning("Created directory '" + "addons" + "'.");
+        }
         logger.info("Initializing Addon Loader...");
         int size = directory.listFiles().length;
         if (size == 0) {
