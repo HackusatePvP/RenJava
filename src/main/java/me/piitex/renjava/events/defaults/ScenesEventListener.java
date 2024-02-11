@@ -37,12 +37,9 @@ public class ScenesEventListener implements EventListener {
                 public void run() {
                     RenScene renScene = story.getNextSceneFromCurrent();
                     if (renScene != null) {
-                        if (RenJava.getInstance().getPlayer().getCurrentScene() == scene) {
+                        if (RenJava.getInstance().getPlayer().getCurrentScene().getId().equals(scene.getId())) {
                             System.out.println("Autoplaying next scene...");
                             Platform.runLater(story::displayNextScene);
-                        } else {
-                            System.out.println("Current Scene: " + RenJava.getInstance().getPlayer().getCurrentScene().getId());
-                            System.out.println("Expected Scene: " + renScene.getId());
                         }
                     } else {
                         Platform.runLater(() -> {
