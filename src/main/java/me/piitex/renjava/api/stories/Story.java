@@ -277,8 +277,10 @@ public abstract class Story {
     public void displayNextScene() {
         SceneEndEvent event = new SceneEndEvent(getPreviousSceneFromCurrent());
         RenJava.callEvent(event);
-        Menu menu = getNextSceneFromCurrent().build(true);
-        menu.render(null, getNextSceneFromCurrent());
+        RenScene renScene = getNextSceneFromCurrent();
+        RenJava.getInstance().getPlayer().updateScene(renScene);
+        Menu menu = renScene.build(true);
+        menu.render(null, renScene);
     }
 
     public LinkedHashMap<String, RenScene> getScenes() {
