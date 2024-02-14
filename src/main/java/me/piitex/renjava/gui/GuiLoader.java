@@ -67,7 +67,8 @@ public class GuiLoader {
         // If there is no default font set one
         if (renJava.getConfiguration().getDefaultFont() == null) {
             renJava.getLogger().severe("No default font set.");
-            renJava.getConfiguration().setDefaultFont(new FontLoader("JandaManateeSolid.ttf", 24));
+            renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
+            renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
         }
 
         renJava.buildStage(stage); // Builds the stage parameters (Game Window)

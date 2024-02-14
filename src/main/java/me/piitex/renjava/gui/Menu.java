@@ -162,6 +162,8 @@ public class Menu {
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
     public void render(@Nullable Pane root, @Nullable RenScene renScene) {
+        // TODO: 2/13/2024 Make an element class which can render every overlay instead of this spaghettiti code.
+
         Logger logger = renJava.getLogger();
 
         if (root == null) {
@@ -174,148 +176,42 @@ public class Menu {
         BackgroundFill backgroundFill = new BackgroundFill(Color.BLACK, new CornerRadii(1), new Insets(0,0,0,0));
         root.setBackground(new Background(backgroundFill));
 
-        if (backgroundImage != null) {
-            if (renScene != null) {
-                renJava.getLogger().info("Post render for " + renScene.getId());
-                // First call animation
-                if (renScene.getStartAnimation() != null) {
-                    renJava.getLogger().info("Animation found...");
-                    try {
-                        Timeline timeline = renScene.getStartAnimation().build();
+        Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
 
-                        SceneAnimationStartEvent animationStartEvent = new SceneAnimationStartEvent(renScene);
-                        renJava.getLogger().info("Calling animation start event...");
-                        RenJava.callEvent(animationStartEvent);
-                        renJava.getLogger().info("Playing TimeLine...");
-
-                        // This is not working correctly...
-                        timeline.setCycleCount(Animation.INDEFINITE);
-                        timeline.play();
-                    } catch (ImageNotFoundException e) {
-                        renJava.getLogger().severe(e.getMessage());
-                        return;
-
-                    }
-                } else if (renScene.getStartTransition() != null) {
-                    logger.info("Starting transition...");
-                    if (renScene.getStartTransition().getTransitionType() == TransitionType.BACKGROUND_IMAGE) {
-                        ImageView view = new ImageView(backgroundImage);
-                        root.getChildren().add(view); // Add to view
-                        Transitions transitions = renScene.getStartTransition();
-                        if (transitions instanceof FadingTransition fadingTransition) {
-                            fadingTransition.play(view);
-                        }
-                    } else if (renScene.getStartTransition().getTransitionType() == TransitionType.SCENE) {
-                        Transitions transitions = renScene.getStartTransition();
-                        if (transitions instanceof FadingTransition fadingTransition) {
-                            fadingTransition.play(root);
-                        }
-                    }
-                } else {
-                    logger.info("No animation or transition present...");
-                    ImageView view = new ImageView(backgroundImage);
-                    root.getChildren().add(view);
-                }
-            } else {
-                logger.info("");
-                ImageView view = new ImageView(backgroundImage);
-                root.getChildren().add(view);
+        // Sets transitions and animations
+        if (renScene != null) {
+            if (renScene.getStartTransition() != null) {
+                Transitions transitions = renScene.getStartTransition();
+                backgroundImgElement.setTransition(transitions);
             }
         }
+
+        // renders to pane.
+        backgroundImgElement.render(root);
 
 
         // FIXME: 12/28/2023 Can optimize.
         logger.info("Rendering layouts...");
         for (Layout layout : layouts) {
-            if (layout instanceof HorizontalLayout horizontalLayout) {
-                logger.info("Rendering horizontal layout...");
-                HBox hBox = new HBox();
-                logger.info("Checking layout overlays...");
-                for (Overlay overlay : horizontalLayout.getOverlays()) {
-                    if (overlay instanceof ImageOverlay imageOverlay) {
-                        logger.info("Adding image overlay...");
-                        hBox.getChildren().add(new ImageView(imageOverlay.image()));
-                    } else if (overlay instanceof TextOverlay textOverlay) {
-                        logger.info("Adding text overlay...");
-                        hBox.getChildren().add(textOverlay.text());
-                    } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                        logger.info("Adding button overlay...");
-                        hBox.getChildren().add(buttonOverlay.build());
-                    }  else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
-                        logger.info("Adding text flow overlay...");
-                        hBox.getChildren().add(textFlowOverlay.textFlowBuilder().build());
-                    }
-                }
-
-                hBox.setSpacing(horizontalLayout.getSpacing());
-                hBox.setTranslateX(horizontalLayout.getXPosition());
-                hBox.setTranslateY(horizontalLayout.getYPosition());
-                hBox.setPrefWidth(horizontalLayout.getWidth());
-                hBox.setPrefHeight(horizontalLayout.getHeight());
-                hBox.setAlignment(Pos.CENTER);
-                HBox.setHgrow(hBox, Priority.ALWAYS);
-
-                root.getChildren().add(hBox);
-            } else {
-                logger.info("Rendering vertical layout...");
-                VerticalLayout verticalLayout = (VerticalLayout) layout;
-                VBox vBox = new VBox();
-
-                logger.info("Checking layout overlays...");
-                for (Overlay overlay : verticalLayout.getOverlays()) {
-                    if (overlay instanceof ImageOverlay imageOverlay) {
-                        logger.info("Adding image overlay...");
-                        vBox.getChildren().add(new ImageView(imageOverlay.image()));
-                    } else if (overlay instanceof TextOverlay textOverlay) {
-                        logger.info("Adding text overlay...");
-                        vBox.getChildren().add(textOverlay.text());
-                    } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                        logger.info("Adding button overlay...");
-                        logger.info("Button Rotate: " + buttonOverlay.build().getRotate());
-                        vBox.getChildren().add(buttonOverlay.build());
-                        vBox.layout();
-                    } else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
-                        logger.info("Adding text flow overlay...");
-                        vBox.getChildren().add(textFlowOverlay.textFlowBuilder().build());
-                    }
-                }
-
-                vBox.setSpacing(verticalLayout.getSpacing());
-                vBox.setTranslateX(verticalLayout.getXPosition());
-                vBox.setTranslateY(verticalLayout.getYPosition());
-                vBox.setPrefWidth(verticalLayout.getWidth());
-                vBox.setPrefHeight(verticalLayout.getHeight());
-                vBox.setAlignment(Pos.CENTER);
-                VBox.setVgrow(vBox, Priority.ALWAYS);
-
-                root.getChildren().add(vBox);
+            for (Overlay overlay : layout.getOverlays()) {
+                new Element(overlay).render(layout.getPane());
             }
+
+            Pane box = layout.getPane();
+            box.setTranslateX(layout.getXPosition());
+            box.setTranslateY(layout.getYPosition());
+            box.setPrefSize(layout.getWidth(), layout.getWidth());
+            if (box instanceof HBox hBox) {
+                hBox.setSpacing(layout.getSpacing());
+            } else if (box instanceof VBox vBox) {
+                vBox.setSpacing(layout.getSpacing());
+            }
+
+            root.getChildren().add(box);
         }
 
         for (Overlay overlay : overlays) {
-            if (overlay instanceof ImageOverlay imageOverlay) {
-                Image image = imageOverlay.image();
-                ImageView imageView = new ImageView(image);
-                imageView.setTranslateX(imageOverlay.x());
-                imageView.setTranslateY(imageOverlay.y());
-                root.getChildren().add(imageView);
-            } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text = textOverlay.text();
-                text.setTranslateX(textOverlay.x());
-                text.setTranslateY(textOverlay.y());
-                root.getChildren().add(textOverlay.text());
-            } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                Button button = buttonOverlay.build();
-                button.setTranslateX(buttonOverlay.x());
-                button.setTranslateY(buttonOverlay.y());
-                root.getChildren().add(buttonOverlay.build());
-            } else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
-                logger.info("Adding text flow overlay...");
-                TextFlow textFlow = textFlowOverlay.textFlowBuilder().build();
-                textFlow.setTranslateX(textFlowOverlay.x());
-                textFlow.setTranslateY(textFlowOverlay.y());
-                root.getChildren().add(textFlow);
-            }
+           new Element(overlay).render(root);
         }
 
         for (Menu menu : children) {
