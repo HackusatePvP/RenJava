@@ -14,22 +14,16 @@ public class AutoPlayScene extends RenScene {
 
     private final Character character;
     private final String dialogue;
-    private String characterDisplayName;
-
 
     private final int duration;
 
     private static final RenJava renJava = RenJava.getInstance();
-
 
     public AutoPlayScene(String id, @Nullable Character character, @Nullable String dialogue, ImageLoader backgroundImage, int duration) {
         super(id, backgroundImage);
         this.character = character;
         this.dialogue = dialogue;
         this.backgroundImage = backgroundImage;
-        if (character != null) {
-            this.characterDisplayName = character.getDisplayName();
-        }
         this.duration = duration;
     }
 
@@ -40,6 +34,7 @@ public class AutoPlayScene extends RenScene {
 
     @Override
     public void render(Menu menu) {
+        System.out.println("Rendering: " + getId());
         menu.render(null, this);
         renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
 
