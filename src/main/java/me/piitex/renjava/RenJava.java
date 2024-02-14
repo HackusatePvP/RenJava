@@ -3,6 +3,7 @@ package me.piitex.renjava;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
@@ -296,6 +297,8 @@ public abstract class RenJava {
 
         if (getSettings().isFullscreen()) {
             stage.setFullScreen(true);
+        } else {
+            stage.setMaximized(true);
         }
         stage.setTitle(getName());
 
@@ -390,10 +393,12 @@ public abstract class RenJava {
         // Don't build background image
         Menu menu = new Menu(350, 500, new ImageLoader("gui/overlay/main_menu.png"));
 
-        ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", Color.BLACK, 1, 1));
-        ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", Color.BLACK, 1, 1));
-        ButtonOverlay optionsButton = new ButtonOverlay(new ButtonBuilder("menu-preference-button", "Preferences", Color.BLACK, 1, 1));
-        ButtonOverlay aboutButton = new ButtonOverlay(new ButtonBuilder("menu-about-button", "About", Color.BLACK, 1, 1));
+        Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
+
+        ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay optionsButton = new ButtonOverlay(new ButtonBuilder("menu-preference-button", "Preferences", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay aboutButton = new ButtonOverlay(new ButtonBuilder("menu-about-button", "About", uiFont, Color.BLACK, 1, 1));
 
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(200, 500);
