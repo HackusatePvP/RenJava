@@ -220,10 +220,8 @@ public class ButtonBuilder {
         if (font != null) {
             button.setFont(font);
         } else {
-            FontLoader defaultFont = RenJava.getInstance().getConfiguration().getDefaultFont();
-            double size = defaultFont.getSize() * xScale;
-            defaultFont.setSize(size);
-            button.setFont(defaultFont.getFont());
+            // Set default font
+            button.setFont(RenJava.getInstance().getConfiguration().getUiFont().getFont());
         }
         if (color != null) {
             button.setTextFill(color);
