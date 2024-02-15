@@ -3,8 +3,11 @@ package me.piitex.renjava.api.scenes.transitions.types;
 import javafx.animation.FadeTransition;
 import javafx.scene.Node;
 import javafx.util.Duration;
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.TransitionType;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
+
+import java.util.logging.Logger;
 
 public class FadingTransition extends Transitions {
     private final double fromValue;
@@ -13,6 +16,9 @@ public class FadingTransition extends Transitions {
     private final boolean autoReverse;
 
     private FadeTransition fadeTransition;
+
+    // Cheap hack
+    private static FadingTransition previousTranition = null;
 
     public FadingTransition(TransitionType transitionType, double fromValue, double toValue, int cycleCount, boolean autoReverse, double duration) {
         super(transitionType, duration);
@@ -40,6 +46,10 @@ public class FadingTransition extends Transitions {
 
     @Override
     public void play(Node node) {
+        // Remove logger
+        Logger logger = RenJava.getInstance().getLogger();
+        logger.info("Playing fading transition...");
+
         fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));
         fadeTransition.setFromValue(getFromValue());
         fadeTransition.setToValue(getToValue());
@@ -47,7 +57,17 @@ public class FadingTransition extends Transitions {
         fadeTransition.setAutoReverse(isAutoReverse());
         fadeTransition.setNode(node);
         fadeTransition.setDuration(Duration.seconds(getDuration()));
+        fadeTransition.setOnFinished(actionEvent -> {
+            logger.info("Fading transition finished. Calling onEnd event.");
+            if (getOnFinish() != null) {
+                getOnFinish().onEnd(actionEvent);
+            }
+        });
+        if (previousTranition != null) {
+            previousTranition.stop(); // Stop previous animation
+        }
         fadeTransition.play();
+        previousTranition = this;
     }
 
     @Override
