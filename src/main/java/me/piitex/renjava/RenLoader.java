@@ -83,8 +83,6 @@ public class RenLoader {
         renJava.preEnabled();
 
         // Build setting file
-        File directory = new File(System.getProperty("user.dir") + "/renjava/");
-        directory.mkdir();
         renJava.setSettings(new SettingsProperties());
 
         // After this method jump to GuiLoader. Loading is a little confusing if you want an idea of how the loader works, check out the Launch class.
