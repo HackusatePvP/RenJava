@@ -17,8 +17,4 @@ public class HorizontalLayout extends Layout {
         setHeight(height);
     }
 
-    public void addOverlay(Overlay overlay) {
-        getOverlays().add(overlay);
-    }
-
 }

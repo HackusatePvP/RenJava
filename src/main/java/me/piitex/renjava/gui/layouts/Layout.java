@@ -13,7 +13,6 @@ public abstract class Layout {
     private double xPosition;
     private double yPosition;
     private int width, height;
-
     private double spacing;
 
     protected Layout(Pane pane) {

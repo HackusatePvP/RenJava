@@ -1,32 +1,20 @@
 package me.piitex.renjava.gui;
 
-import javafx.animation.Animation;
-import javafx.animation.Timeline;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.api.scenes.transitions.TransitionType;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.Layout;
-import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
-import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +23,13 @@ import java.net.MalformedURLException;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
+import static javafx.scene.paint.Color.BLACK;
+
 public class Menu {
     private final Stage stage;
+    private Pane pane;
+
+    private static Menu rootMenu;
     private final double width, height;
 
     private int x, y;
@@ -74,6 +67,10 @@ public class Menu {
 
     public Stage getStage() {
         return stage;
+    }
+
+    public Pane getPane() {
+        return pane;
     }
 
     public double getHeight() {
@@ -161,7 +158,7 @@ public class Menu {
      * @param root The root Group to which the menu will be added. If null, a new Group will be created.
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
-    public void render(@Nullable Pane root, @Nullable RenScene renScene) {
+    public Pane render(@Nullable Pane root, @Nullable RenScene renScene) {
         // TODO: 2/13/2024 Make an element class which can render every overlay instead of this spaghettiti code.
 
         Logger logger = renJava.getLogger();
@@ -173,18 +170,15 @@ public class Menu {
         root.setTranslateX(x);
         root.setTranslateY(y);
 
-        BackgroundFill backgroundFill = new BackgroundFill(Color.BLACK, new CornerRadii(1), new Insets(0,0,0,0));
-        root.setBackground(new Background(backgroundFill));
-
         Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
 
         // Sets transitions and animations
-        if (renScene != null) {
+        /*if (renScene != null) {
             if (renScene.getStartTransition() != null) {
                 Transitions transitions = renScene.getStartTransition();
                 backgroundImgElement.setTransition(transitions);
             }
-        }
+        }*/
 
         // renders to pane.
         backgroundImgElement.render(root);
@@ -218,6 +212,12 @@ public class Menu {
             menu.render(root, renScene); // Renders menu on top of this menu.
         }
 
+        this.rootMenu = this;
+
+        // Background fill is used for fade ins.
+        BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));
+        root.setBackground(new Background(backgroundFill));
+
         Scene scene;
         if (stage.getScene() != null) {
             scene = stage.getScene();
@@ -235,7 +235,23 @@ public class Menu {
 
         setInputControls(scene);
 
+        this.pane = root;
+
+        scene.setFill(BLACK); // Scene fill is used for fade outs.
+
+        // Apply transition to root
+        if (renScene != null && renScene.getStartTransition() != null) {
+            Transitions transitions = renScene.getStartTransition();
+            transitions.play(root);
+        }
+
         stage.show();
+
+        return root;
+    }
+
+    public static Menu getRootMenu() {
+        return rootMenu;
     }
 
     private void setInputControls(Scene scene) {
