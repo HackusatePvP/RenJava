@@ -110,7 +110,7 @@ public class AnimationScene extends RenScene {
         // TODO: 9/26/2023 loop until player ends scene -optional maybe add param or something
         loader.play(true);
 
-        hookOverlays(root);
+        //hookOverlays(root);
 
         return null;
     }

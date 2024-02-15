@@ -156,31 +156,6 @@ public abstract class RenScene extends Container {
         this.story = story;
     }
 
-    public void hookOverlays(Group root) {
-        for (Overlay overlay : getAdditionalOverlays()) {
-            // Add the additional overlays to the scene
-            if (overlay instanceof ImageOverlay imageOverlay) {
-                ImageView imageView1 = new ImageView(imageOverlay.image());
-                imageView1.setX(imageOverlay.x());
-                imageView1.setY(imageOverlay.y());
-                root.getChildren().add(imageView1);
-            } else if (overlay instanceof TextOverlay textOverlay) {
-                Text text1 = textOverlay.text();
-                text1.setX(textOverlay.x());
-                text1.setY(textOverlay.y());
-                text1.setScaleX(textOverlay.xScale());
-                text1.setScaleY(textOverlay.yScale());
-                root.getChildren().add(text1);
-            } else if (overlay instanceof ButtonOverlay buttonOverlay) {
-                RenJava.getInstance().getLogger().info("Adding button...");
-                Button button = buttonOverlay.build();
-                button.setTranslateX(buttonOverlay.x());
-                button.setTranslateY(buttonOverlay.y());
-                root.getChildren().add(button);
-            }
-        }
-    }
-
     public abstract StageType getStageType();
 
     public void addStyleSheets(File file) {

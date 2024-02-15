@@ -152,7 +152,7 @@ public class ImageScene extends RenScene {
                         characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
                         characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
 
-                        textboxMenu.addOverlay(new TextOverlay(characterDisplay, characterDisplay.getX(), characterDisplay.getY(), 1, 1));
+                        textboxMenu.addOverlay(new TextOverlay(characterDisplay, characterDisplay.getX(), characterDisplay.getY()));
                         rootMenu.addMenu(textboxMenu);
                     }
                 }

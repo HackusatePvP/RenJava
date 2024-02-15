@@ -73,7 +73,7 @@ public class InputScene extends RenScene {
             for (Menu otherMenu : menu.getChildren()) {
                 textFlowOverlay = (TextFlowOverlay) otherMenu.getOverlays().stream().filter(overlay -> overlay instanceof TextFlowOverlay).findFirst().orElse(null);
                 if (textFlowOverlay != null) {
-                    Text beforeText = textFlowOverlay.textFlowBuilder().getTexts().getLast();
+                    Text beforeText = textFlowOverlay.getTextFlowBuilder().getTexts().getLast();
                     InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(new InputFieldBuilder(beforeText.getTranslateY() - 30.0, beforeText.getY() + 210.0, new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24.0)));
                     otherMenu.addOverlay(inputFieldOverlay);
                 }
