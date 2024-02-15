@@ -96,7 +96,7 @@ public abstract class RenScene extends Container {
     }
 
     public RenScene setEndTransition(Transitions transition) {
-        this.startTransition = transition;
+        this.endTransition = transition;
         return this;
     }
 
