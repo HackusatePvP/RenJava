@@ -39,6 +39,11 @@ public class RenLoader {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        for (File file : new File(System.getProperty("user.dir")).listFiles()) {
+            if (file.getName().endsWith(".txt.lck")) {
+                file.delete();
+            }
+        }
     }
 
     private void setupGame() {
