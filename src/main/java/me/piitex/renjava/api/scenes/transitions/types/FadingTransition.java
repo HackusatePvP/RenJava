@@ -4,7 +4,6 @@ import javafx.animation.FadeTransition;
 import javafx.scene.Node;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.scenes.transitions.TransitionType;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 
 import java.util.logging.Logger;
@@ -20,8 +19,8 @@ public class FadingTransition extends Transitions {
     // Cheap hack
     private static FadingTransition previousTranition = null;
 
-    public FadingTransition(TransitionType transitionType, double fromValue, double toValue, int cycleCount, boolean autoReverse, double duration) {
-        super(transitionType, duration);
+    public FadingTransition(double fromValue, double toValue, int cycleCount, boolean autoReverse, double duration) {
+        super(duration);
         this.fromValue = fromValue;
         this.toValue = toValue;
         this.cycleCount = cycleCount;

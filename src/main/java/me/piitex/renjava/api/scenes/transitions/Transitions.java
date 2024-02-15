@@ -3,13 +3,10 @@ package me.piitex.renjava.api.scenes.transitions;
 import javafx.scene.Node;
 
 public abstract class Transitions {
-    private final TransitionType transitionType;
-
     private TransitionFinishInterface finishInterface;
     private double duration;
 
-    public Transitions(TransitionType transitionType, double duration) {
-        this.transitionType = transitionType;
+    public Transitions(double duration) {
         this.duration = duration;
     }
 
@@ -28,10 +25,6 @@ public abstract class Transitions {
 
     public double getDuration() {
         return duration;
-    }
-
-    public TransitionType getTransitionType() {
-        return transitionType;
     }
 
     public abstract void play(Node node);
