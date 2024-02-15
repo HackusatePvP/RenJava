@@ -2,6 +2,9 @@ package me.piitex.renjava.events.defaults;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.player.Player;
@@ -18,16 +21,19 @@ import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.tasks.KeyHeldTask;
 
+import java.lang.reflect.Field;
 import java.util.AbstractMap;
 import java.util.Timer;
 import java.util.logging.Logger;
+
+import static javafx.scene.paint.Color.BLACK;
 
 public class GameFlowEventListener implements EventListener {
     // Also experimental, task that runs while the ctrl key is held. Maybe I can change this to a do while or something... I'm not sure.
     private KeyHeldTask heldTask;
 
     private final Timer timer = new Timer();
-    
+
     private static final RenJava renJava = RenJava.getInstance();
 
 
@@ -53,7 +59,8 @@ public class GameFlowEventListener implements EventListener {
                     player.setUiToggled(!player.isUiToggled());
                     scene.build(player.isUiToggled());
                 }
-            } case PRIMARY -> {
+            }
+            case PRIMARY -> {
                 // Go Forward
                 playNextScene();
             }
@@ -170,7 +177,6 @@ public class GameFlowEventListener implements EventListener {
     }
 
     private void playNextScene() {
-        Stage stage = renJava.getStage();
         StageType stageType = renJava.getStageType();
         RenScene scene = renJava.getPlayer().getCurrentScene();
         Player player = renJava.getPlayer();
@@ -215,9 +221,17 @@ public class GameFlowEventListener implements EventListener {
                 // Call next if the story did not end.
                 RenScene nextScene = story.getNextSceneFromCurrent();
                 logger.info("Expected: " + nextScene.getId() + " Current: " + story.getCurrentScene().getId());
-                if (nextScene != null) {
+
+                Menu previousMenu = Menu.getRootMenu();
+                logger.info("Transitioned Played: " + player.isTransitionPlaying());
+                if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
+                    player.setTransitionPlaying(true);
+                    Pane pane = previousMenu.getPane();
+                    scene.getEndTransition().play(pane); // Starts transition.
+                } else {
                     nextScene.render(nextScene.build(true));
                     player.updateScene(nextScene);
+                    player.setTransitionPlaying(false);
                 }
             }
         }

@@ -22,6 +22,8 @@ public class Player implements PersistentData {
     @Data private String currentStory;
     private ImageView lastDisplayedImage;
 
+
+    private boolean transitionPlaying = false;
     private boolean uiToggled = true;
 
     private boolean skipAutoScene = false;
@@ -115,6 +117,14 @@ public class Player implements PersistentData {
 
     public void setSkipAutoScene(boolean skipAutoScene) {
         this.skipAutoScene = skipAutoScene;
+    }
+
+    public boolean isTransitionPlaying() {
+        return transitionPlaying;
+    }
+
+    public void setTransitionPlaying(boolean transitionPlaying) {
+        this.transitionPlaying = transitionPlaying;
     }
 
     public void updateScene(RenScene renScene) {
