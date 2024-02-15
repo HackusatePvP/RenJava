@@ -172,19 +172,8 @@ public class Menu {
 
         Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
 
-        // Sets transitions and animations
-        /*if (renScene != null) {
-            if (renScene.getStartTransition() != null) {
-                Transitions transitions = renScene.getStartTransition();
-                backgroundImgElement.setTransition(transitions);
-            }
-        }*/
-
-        // renders to pane.
         backgroundImgElement.render(root);
 
-
-        // FIXME: 12/28/2023 Can optimize.
         logger.info("Rendering layouts...");
         for (Layout layout : layouts) {
             for (Overlay overlay : layout.getOverlays()) {

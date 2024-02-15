@@ -19,13 +19,13 @@ public class Element {
     public Element(Overlay overlay) {
         this.overlay = overlay;
         if (overlay instanceof ImageOverlay imageOverlay) {
-            Image image = imageOverlay.image();
+            Image image = imageOverlay.getImage();
             ImageView imageView = new ImageView(image);
             imageView.setTranslateX(imageOverlay.x());
             imageView.setTranslateY(imageOverlay.y());
             this.node = imageView;
         } else if (overlay instanceof TextOverlay textOverlay) {
-            Text text = textOverlay.text();
+            Text text = textOverlay.getText();
             text.setTranslateX(textOverlay.x());
             text.setTranslateY(textOverlay.y());
             this.node = text;
@@ -35,10 +35,15 @@ public class Element {
             button.setTranslateY(buttonOverlay.y());
             this.node = button;
         } else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
-            TextFlow textFlow = textFlowOverlay.textFlowBuilder().build();
+            TextFlow textFlow = textFlowOverlay.getTextFlowBuilder().build();
             textFlow.setTranslateX(textFlowOverlay.x());
             textFlow.setTranslateY(textFlowOverlay.y());
             this.node = textFlow;
+        }
+
+        // Render transition for specific overlay.
+        if (overlay.getTransition() != null) {
+            setTransition(overlay.getTransition());
         }
     }
 
