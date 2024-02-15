@@ -158,7 +158,8 @@ public abstract class Story {
      */
     public void addScene(RenScene scene) {
         if (scenes.containsKey(scene.getId())) {
-            logger.severe(new DuplicateSceneIdException(scene.getId()).getMessage());
+            logger.warning(new DuplicateSceneIdException(scene.getId()).getMessage());
+            scenes.replace(scene.getId(), scenes.get(id), scene);
             return;
         }
         scenes.put(scene.getId(), scene);
