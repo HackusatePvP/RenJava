@@ -4,11 +4,22 @@ import javafx.scene.Node;
 
 public abstract class Transitions {
     private final TransitionType transitionType;
+
+    private TransitionFinishInterface finishInterface;
     private double duration;
 
     public Transitions(TransitionType transitionType, double duration) {
         this.transitionType = transitionType;
         this.duration = duration;
+    }
+
+    public Transitions onFinish(TransitionFinishInterface finishInterface) {
+        this.finishInterface = finishInterface;
+        return this;
+    }
+
+    public TransitionFinishInterface getOnFinish() {
+        return finishInterface;
     }
 
     public void setDuration(double duration) {
