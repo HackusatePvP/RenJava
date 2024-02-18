@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import me.piitex.renjava.api.builders.FontLoader;
@@ -20,6 +21,7 @@ public class RenLoader {
     public RenLoader(RenJava renJava) {
         this.renJava = renJava;
         renJava.getLogger().info("Starting processes...");
+        renJava.buildVersion = getVersion();
         setupMain();
         setupGame();
         startPreProcess();
@@ -93,4 +95,39 @@ public class RenLoader {
     private void loadRPAFiles() {
         // load rpa files
     }
+
+    public synchronized String getVersion() {
+        String version = null;
+
+        // try to load from maven properties first
+        try {
+            Properties p = new Properties();
+            InputStream is = getClass().getResourceAsStream("/META-INF/maven/me.piitex/RenJava/pom.properties");
+            if (is != null) {
+                p.load(is);
+                version = p.getProperty("version", "");
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+
+        // fallback to using Java API
+        if (version == null) {
+            Package aPackage = getClass().getPackage();
+            if (aPackage != null) {
+                version = aPackage.getImplementationVersion();
+                if (version == null) {
+                    version = aPackage.getSpecificationVersion();
+                }
+            }
+        }
+
+        if (version == null) {
+            // we could not compute the version so use a blank
+            version = "";
+        }
+
+        return version.replace("-SNAPSHOT", "");
+    }
+
 }

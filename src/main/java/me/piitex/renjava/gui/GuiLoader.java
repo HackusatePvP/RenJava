@@ -4,13 +4,13 @@ import javafx.animation.PauseTransition;
 
 import javafx.application.HostServices;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 
 import java.util.logging.Logger;
 
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * Loader class for loading the GUI. Starts with the splash screen first.
  */
 public class GuiLoader {
-    private final Stage stage;
+    private Stage stage;
     private final RenJava renJava;
 
     public GuiLoader(Stage stage, RenJava renJava, HostServices services) {
@@ -32,20 +32,22 @@ public class GuiLoader {
 
     private void buildSplashScreen() {
         renJava.getLogger().info("Creating Splash screen...");
-        SplashScreenView splashScreenView = renJava.buildSplashScreen();
-        if (splashScreenView == null) {
+        stage.initStyle(StageStyle.UNDECORATED);
+        // Update Stage
+        renJava.setStage(stage, StageType.MAIN_MENU);
+
+        Menu menu = renJava.buildSplashScreen();
+        if (menu == null) {
             renJava.getLogger().warning("Splash screen not found.");
             renJavaFrameworkBuild();
             return; // Don't create a splash screen if one wasn't set.
         }
 
-        splashScreenView.build(stage);
-
-        int seconds = splashScreenView.getDuration(); // Defaults to 3 seconds.
-        PauseTransition wait = new PauseTransition(Duration.seconds(seconds));
+        menu.render(null, null);
+        PauseTransition wait = new PauseTransition(Duration.seconds(3)); // TODO: 2/17/2024 Make this configurable.
         wait.setOnFinished(actionEvent -> {
-            renJavaFrameworkBuild();
             stage.close(); // Closes stage for the splash screen (required)
+            renJavaFrameworkBuild();
         });
 
         wait.play();
@@ -70,6 +72,7 @@ public class GuiLoader {
             renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
             renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
         }
+        stage = new Stage();
 
         renJava.buildStage(stage); // Builds the stage parameters (Game Window)
 

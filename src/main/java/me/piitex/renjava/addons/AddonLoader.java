@@ -95,8 +95,6 @@ public class AddonLoader {
 
         while (!validations.isEmpty()) {
             lateLoaders.forEach((file, string) -> {
-                logger.info("Last Validation: " + lastValidated);
-                logger.info("Validating: " + file.getName());
                 if (lastValidated.get().equalsIgnoreCase(file.getName())) {
                     logger.severe("Could not initialize " + file.getName() + ": May be the result of a missing dependency.");
                     validations.remove(file);

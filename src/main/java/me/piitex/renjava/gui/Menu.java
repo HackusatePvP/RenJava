@@ -28,7 +28,6 @@ import static javafx.scene.paint.Color.BLACK;
 public class Menu {
     private final Stage stage;
     private Pane pane;
-
     private static Menu rootMenu;
     private final double width, height;
 
@@ -201,7 +200,7 @@ public class Menu {
             menu.render(root, renScene); // Renders menu on top of this menu.
         }
 
-        this.rootMenu = this;
+        rootMenu = this;
 
         // Background fill is used for fade ins.
         BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));

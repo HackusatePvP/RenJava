@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.api.builders.ButtonBuilder;
@@ -28,7 +29,6 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
 
 import java.io.IOException;
@@ -85,6 +85,8 @@ public abstract class RenJava {
     private final Map<String, Character> registeredCharacters = new HashMap<>();
     private final Collection<EventListener> registeredListeners = new HashSet<>();
     private final Collection<PersistentData> registeredData = new HashSet<>();
+
+    protected String buildVersion;
 
     private static RenJava instance;
 
@@ -154,7 +156,7 @@ public abstract class RenJava {
     }
 
     public String getBuildVersion() {
-        return "0.0.311";
+        return buildVersion;
     }
 
     public Stage getStage() {
@@ -295,6 +297,8 @@ public abstract class RenJava {
             logger.warning("No window icon set. Please set a window icon for a better user experience.");
         }
 
+        stage.initStyle(StageStyle.DECORATED);
+
         if (getSettings().isFullscreen()) {
             stage.setFullScreen(true);
         } else {
@@ -381,7 +385,7 @@ public abstract class RenJava {
      *
      * @return A `SplashScreenView` object representing the splash screen view to be displayed.
      */
-    public abstract SplashScreenView buildSplashScreen();
+    public abstract Menu buildSplashScreen();
 
     /**
      * Called to create the main menu. (This is NOT optional)
