@@ -171,9 +171,17 @@ public class Menu {
         root.setTranslateX(x);
         root.setTranslateY(y);
 
+        // Background fill is used for fade ins.
+        BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));
+        root.setBackground(new Background(backgroundFill));
+
         if (backgroundImage != null) {
             Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
             backgroundImgElement.render(root);
+        }
+
+        for (Overlay overlay : overlays) {
+            new Element(overlay).render(root);
         }
 
         logger.info("Rendering layouts...");
@@ -195,19 +203,11 @@ public class Menu {
             root.getChildren().add(box);
         }
 
-        for (Overlay overlay : overlays) {
-           new Element(overlay).render(root);
-        }
-
         for (Menu menu : children) {
             menu.render(root, renScene); // Renders menu on top of this menu.
         }
 
         rootMenu = this;
-
-        // Background fill is used for fade ins.
-        BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));
-        root.setBackground(new Background(backgroundFill));
 
         Scene scene;
         if (stage.getScene() != null) {

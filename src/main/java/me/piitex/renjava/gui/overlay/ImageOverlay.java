@@ -10,6 +10,7 @@ public class ImageOverlay implements Overlay {
     private final Image image;
     private double x;
     private double y;
+    private final String fileName;
 
     private Transitions transitions;
 
@@ -17,11 +18,13 @@ public class ImageOverlay implements Overlay {
         this.image = image;
         this.x = x;
         this.y = y;
+        this.fileName = "Unknown";
     }
 
     public ImageOverlay(ImageLoader imageLoader, double x, double y) {
         try {
             this.image = imageLoader.build();
+            this.fileName = imageLoader.getFile().getName();
         } catch (ImageNotFoundException e) {
             RenJava.getInstance().getLogger().severe(e.getMessage());
             throw new RuntimeException();
@@ -32,6 +35,10 @@ public class ImageOverlay implements Overlay {
 
     public Image getImage() {
         return image;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     @Override

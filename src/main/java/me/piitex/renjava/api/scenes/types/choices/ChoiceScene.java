@@ -62,7 +62,7 @@ import java.util.LinkedHashSet;
  * @see ChoiceSelectInterface
  */
 public class ChoiceScene extends RenScene {
-    private final ImageLoader backgroundImage;
+    private ImageLoader backgroundImage;
 
     private ChoiceSelectInterface selectInterface;
 
@@ -82,6 +82,17 @@ public class ChoiceScene extends RenScene {
     public ChoiceScene(String id, ImageLoader backgroundImage) {
         super(id, backgroundImage);
         this.backgroundImage = backgroundImage;
+    }
+
+    /**
+     * Creates a ChoiceScene object with the specified identifier.
+     *
+     * @param id               The unique identifier for the scene.
+     */
+    public ChoiceScene(String id) {
+        super(id, null);
+        this.backgroundImage = RenJava.getInstance().getPlayer().getLastDisplayedImage().getValue();
+        setBackgroundImage(backgroundImage);
     }
 
     public ChoiceScene addChoice(Choice choice) {

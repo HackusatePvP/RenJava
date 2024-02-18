@@ -47,7 +47,7 @@ import java.util.HashSet;
  */
 public abstract class RenScene extends Container {
     private final String id;
-    private final ImageLoader backgroundImage;
+    private ImageLoader backgroundImage;
     private Story story;
     private int index;
     private SceneStartInterface startInterface;
@@ -119,6 +119,10 @@ public abstract class RenScene extends Container {
 
     public ImageLoader getBackgroundImage() {
         return backgroundImage;
+    }
+
+    public void setBackgroundImage(ImageLoader backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 
     public SceneStartInterface getStartInterface() {
