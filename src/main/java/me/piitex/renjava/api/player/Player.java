@@ -1,8 +1,7 @@
 package me.piitex.renjava.api.player;
 
-import javafx.scene.image.ImageView;
-
 import me.piitex.renjava.api.APINote;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -20,8 +19,7 @@ public class Player implements PersistentData {
     private boolean rightClickMenu;
     @Data private String currentScene;
     @Data private String currentStory;
-    private ImageView lastDisplayedImage;
-
+    private ImageLoader lastDisplayedImage;
 
     private boolean transitionPlaying = false;
     private boolean uiToggled = true;
@@ -95,11 +93,11 @@ public class Player implements PersistentData {
         this.rightClickMenu = rightClickMenu;
     }
 
-    public ImageView getLastDisplayedImage() {
+    public ImageLoader getLastDisplayedImage() {
         return lastDisplayedImage;
     }
 
-    public void setLastDisplayedImage(ImageView lastDisplayedImage) {
+    public void setLastDisplayedImage(ImageLoader lastDisplayedImage) {
         this.lastDisplayedImage = lastDisplayedImage;
     }
 

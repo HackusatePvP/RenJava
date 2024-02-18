@@ -76,11 +76,16 @@ public class ImageScene extends RenScene {
      * @param dialogue  The dialogue of the character. Pass null or an empty string if no one is talking.
      * @param loader    The background image loader for the scene.
      */
-    public ImageScene(String id, @Nullable Character character, String dialogue, ImageLoader loader) {
+    public ImageScene(String id, @Nullable Character character, String dialogue, @Nullable ImageLoader loader) {
         super(id, loader);
         this.character = character;
         this.dialogue = dialogue;
-        this.backgroundImage = loader;
+        if (loader == null) {
+            backgroundImage = renJava.getPlayer().getLastDisplayedImage();
+        } else {
+            this.backgroundImage = loader;
+            renJava.getPlayer().setLastDisplayedImage(backgroundImage);
+        }
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();
         }
