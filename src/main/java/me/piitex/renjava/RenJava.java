@@ -8,7 +8,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
-import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;
@@ -399,10 +398,10 @@ public abstract class RenJava {
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
-        ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", uiFont, Color.BLACK, 1, 1));
-        ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", uiFont, Color.BLACK, 1, 1));
-        ButtonOverlay optionsButton = new ButtonOverlay(new ButtonBuilder("menu-preference-button", "Preferences", uiFont, Color.BLACK, 1, 1));
-        ButtonOverlay aboutButton = new ButtonOverlay(new ButtonBuilder("menu-about-button", "About", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, 1, 1);
+        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, 1, 1);
+        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, 1, 1);
+        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, 1, 1);
 
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(200, 500);

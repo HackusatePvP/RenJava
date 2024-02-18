@@ -11,7 +11,6 @@ import me.piitex.renjava.events.types.ButtonClickEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
@@ -179,8 +178,8 @@ public class ChoiceScene extends RenScene {
     }
 
     private Button getChoiceButton(Choice choice, Image image) {
-        ButtonBuilder builder = new ButtonBuilder(choice.getId(), choice.getText(), RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
-        Button button = builder.build();
+        ButtonOverlay buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
+        Button button = buttonOverlay.build();
 
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);

@@ -1,6 +1,6 @@
 package me.piitex.renjava.api.scenes.types.choices;
 
-import me.piitex.renjava.api.builders.ButtonBuilder;
+import me.piitex.renjava.gui.overlay.ButtonOverlay;
 
 /**
  * The Choice class represents a choice in a ChoiceScene within the RenJava framework.
@@ -23,7 +23,7 @@ import me.piitex.renjava.api.builders.ButtonBuilder;
  * @see ChoiceScene
  */
 public class Choice {
-    private ButtonBuilder builder;
+    private ButtonOverlay buttonOverlay;
     private final String id;
     private String text; // This can be final, but maybe someone wants to modify the text in some way? I don't know but that could be cool to see
 
@@ -38,8 +38,8 @@ public class Choice {
         this.text = text;
     }
 
-    public ButtonBuilder getBuilder() {
-        return builder;
+    public ButtonOverlay getBuilder() {
+        return buttonOverlay;
     }
 
     public String getId() {
