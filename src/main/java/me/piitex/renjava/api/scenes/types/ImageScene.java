@@ -1,26 +1,17 @@
 package me.piitex.renjava.api.scenes.types;
 
-import javafx.animation.Animation;
-import javafx.animation.Timeline;
-import javafx.scene.image.Image;
 import javafx.scene.text.*;
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.builders.TextFlowBuilder;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
 import me.piitex.renjava.api.scenes.text.StringFormatter;
-import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
-import me.piitex.renjava.events.types.SceneAnimationStartEvent;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 import me.piitex.renjava.gui.overlay.*;
 import org.jetbrains.annotations.Nullable;
@@ -141,15 +132,17 @@ public class ImageScene extends RenScene {
                 textboxMenu.addOverlay(textBoxImage);
 
                 LinkedList<Text> texts = StringFormatter.formatText(dialogue);
-                TextFlowBuilder textFlowBuilder;
+                TextFlowOverlay textFlowOverlay;
                 if (texts.isEmpty()) {
                     Text text = new Text(dialogue);
                     text.setFont(renJava.getConfiguration().getDialogueFont().getFont());
-                    textFlowBuilder = new TextFlowBuilder(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                    textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                 } else {
-                    textFlowBuilder = new TextFlowBuilder(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                    textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                 }
-                textboxMenu.addOverlay(new TextFlowOverlay(textFlowBuilder, configuration.getTextX() + configuration.getTextOffsetX(), configuration.getTextY() + configuration.getTextOffsetY()));
+                textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
+                textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
+                textboxMenu.addOverlay(textFlowOverlay);
 
                 characterDisplay.setFont(new FontLoader(renJava.getConfiguration().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
                 characterDisplay.setFill(character.getColor());

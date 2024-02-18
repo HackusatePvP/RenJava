@@ -4,8 +4,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.api.builders.InputFieldBuilder;
-import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.events.types.SceneStartEvent;
@@ -73,8 +71,8 @@ public class InputScene extends RenScene {
             for (Menu otherMenu : menu.getChildren()) {
                 textFlowOverlay = (TextFlowOverlay) otherMenu.getOverlays().stream().filter(overlay -> overlay instanceof TextFlowOverlay).findFirst().orElse(null);
                 if (textFlowOverlay != null) {
-                    Text beforeText = textFlowOverlay.getTextFlowBuilder().getTexts().getLast();
-                    InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(new InputFieldBuilder(beforeText.getTranslateY() - 30.0, beforeText.getY() + 210.0, new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24.0)));
+                    Text beforeText = textFlowOverlay.getTexts().getLast();
+                    InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(beforeText.getTranslateY() - 30.0, beforeText.getY() + 210.0, new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24.0));
                     otherMenu.addOverlay(inputFieldOverlay);
                 }
             }

@@ -36,7 +36,7 @@ public class Element {
             button.setTranslateY(buttonOverlay.y());
             this.node = button;
         } else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
-            TextFlow textFlow = textFlowOverlay.getTextFlowBuilder().build();
+            TextFlow textFlow = textFlowOverlay.build();
             textFlow.setTranslateX(textFlowOverlay.x());
             textFlow.setTranslateY(textFlowOverlay.y());
             this.node = textFlow;
