@@ -29,19 +29,25 @@ public class ScenesEventListener implements EventListener {
         RenScene scene = event.getScene();
         if (scene instanceof AutoPlayScene autoPlayScene) {
             // Play the next scene after duration.
+
             int duration = autoPlayScene.getDuration();
             Story story = autoPlayScene.getStory();
             Timer timer = new Timer();
+            RenScene renScene = story.getNextSceneFromCurrent();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    RenScene renScene = story.getNextSceneFromCurrent();
                     if (renScene != null) {
-                        Platform.runLater(story::displayNextScene);
+                        if (RenJava.getInstance().getPlayer().getCurrentScene().getId().equalsIgnoreCase(scene.getId())) {
+                            System.out.println("Autoplaying next scene...");
+                            Platform.runLater(story::displayNextScene);
+                        }
                     } else {
                         Platform.runLater(() -> {
-                            // Call story end
-                            RenJava.callEvent(new StoryEndEvent(story));
+                            if (RenJava.getInstance().getPlayer().getCurrentStory().getId().equalsIgnoreCase(story.getId())) {
+                                // Call story end
+                                RenJava.callEvent(new StoryEndEvent(story));
+                            }
                         });
                     }
                 }

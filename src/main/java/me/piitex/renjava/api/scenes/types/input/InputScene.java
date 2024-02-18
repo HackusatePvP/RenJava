@@ -1,22 +1,20 @@
 package me.piitex.renjava.api.scenes.types.input;
 
-import javafx.scene.Group;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.builders.InputFieldBuilder;
+import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.types.ImageScene;
+import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.gui.overlay.InputFieldOverlay;
+import me.piitex.renjava.gui.overlay.TextFlowOverlay;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * The InputScene class represents a scene in the RenJava framework that allows the player to input text.
@@ -67,60 +65,31 @@ public class InputScene extends RenScene {
     }
 
     @Override
-    public Menu build(Stage stage, boolean ui) {
-        Group root = new Group();
-        Logger logger = RenJava.getInstance().getLogger();
-        // Add background image
-        Image background;
-        try {
-            background = loader.build();
-        } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
+    public Menu build(boolean ui) {
+        Menu menu = new Menu(1920.0, 1080.0);
+        Menu imageMenu = (new ImageScene(null, null, this.text, this.loader)).build(ui);
+        if (ui) {
+            TextFlowOverlay textFlowOverlay;
+            for (Menu otherMenu : menu.getChildren()) {
+                textFlowOverlay = (TextFlowOverlay) otherMenu.getOverlays().stream().filter(overlay -> overlay instanceof TextFlowOverlay).findFirst().orElse(null);
+                if (textFlowOverlay != null) {
+                    Text beforeText = textFlowOverlay.getTextFlowBuilder().getTexts().getLast();
+                    InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(new InputFieldBuilder(beforeText.getTranslateY() - 30.0, beforeText.getY() + 210.0, new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24.0)));
+                    otherMenu.addOverlay(inputFieldOverlay);
+                }
+            }
         }
-        ImageView imageView = new ImageView(background);
-        root.getChildren().add(imageView);
-
-        Image textbox = null;
-        try {
-            textbox = new ImageLoader("/gui/textbox.png").build();
-        } catch (ImageNotFoundException e) {
-            logger.info(e.getMessage());
-        }
-        if (textbox != null) {
-            imageView = new ImageView(textbox);
-            imageView.setY(1080 - textbox.getHeight()); // Set the text box to the bottom
-            root.getChildren().add(imageView);
-        }
-        double setX = imageView.getX();
-        double setY = imageView.getY();
-        setX += 250;
-        setY += 100;
-        inputField = new TextField();
-        if (text != null && !text.isEmpty()) {
-            Text beforeText = new Text(text);
-            beforeText.setTranslateX(setX);
-            beforeText.setTranslateY(setY);
-            beforeText.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24).getFont());
-            root.getChildren().add(beforeText);
-            inputField.setTranslateY(beforeText.getTranslateY() - 30);
-            inputField.setTranslateX(beforeText.getTranslateX() + 210);
-        } else {
-            inputField.setTranslateX(setX);
-            inputField.setTranslateY(setY);
-        }
-        inputField.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), 24).getFont());
-        inputField.setStyle("-fx-control-inner-background: transparent; -fx-background-color transparent;");
-        root.getChildren().add(inputField);
-        addStyleSheets(new File(System.getProperty("user.dir") + "/game/css/inputfield.css"));
-        hookOverlays(root);
-
-
-        return null;
+        menu.addMenu(imageMenu);
+        return menu;
     }
 
     @Override
     public void render(Menu menu) {
+        RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.INPUT_SCENE);
+        menu.render(null, this); // FIXME: 12/29/2023 Render depending on if ui is toggled
 
+        SceneStartEvent event = new SceneStartEvent(this);
+        RenJava.callEvent(event);
     }
 
     @Override

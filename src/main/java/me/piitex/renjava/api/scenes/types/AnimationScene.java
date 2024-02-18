@@ -8,7 +8,6 @@ import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -18,7 +17,6 @@ import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.builders.VideoLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import org.jetbrains.annotations.Nullable;
 
 public class AnimationScene extends RenScene {
     private Character character;
@@ -48,7 +46,7 @@ public class AnimationScene extends RenScene {
     }
 
     @Override
-    public Menu build(Stage stage, boolean ui) {
+    public Menu build(boolean ui) {
         Group root = new Group();
         MediaPlayer player = loader.getPlayer();
         MediaView mediaView = new MediaView(player);
@@ -112,7 +110,7 @@ public class AnimationScene extends RenScene {
         // TODO: 9/26/2023 loop until player ends scene -optional maybe add param or something
         loader.play(true);
 
-        hookOverlays(root);
+        //hookOverlays(root);
 
         return null;
     }

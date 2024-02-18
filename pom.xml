@@ -6,7 +6,7 @@
 
     <groupId>me.piitex</groupId>
     <artifactId>RenJava</artifactId>
-    <version>0.0.733-SNAPSHOT</version>
+    <version>0.0.757-SNAPSHOT</version>
     <name>RenJava</name>
 
     <properties>
@@ -36,17 +36,17 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>19.0.2.1</version>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>19.0.2.1</version>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>19.0.2.1</version>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

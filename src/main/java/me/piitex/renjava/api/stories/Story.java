@@ -112,13 +112,12 @@ public abstract class Story {
      */
 
     public void start() {
-        refresh();
+        init(); // Initialize when starting
 
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
 
-        // TODO: 12/29/2023 Save stage info in class. Can also build the scene before render.
-        Menu menu = renScene.build(renJava.getStage(), true);
+        Menu menu = renScene.build(true);
 
         renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
@@ -134,6 +133,7 @@ public abstract class Story {
     /**
      * Clears the existing scenes and initializes the story again by calling the `init()` method.
      * This method is useful when you want to reset and update variables.
+     * Every time a story starts, it is refreshed.
      */
     public void refresh() {
         scenes.clear();
@@ -158,7 +158,8 @@ public abstract class Story {
      */
     public void addScene(RenScene scene) {
         if (scenes.containsKey(scene.getId())) {
-            logger.severe(new DuplicateSceneIdException(scene.getId()).getMessage());
+            logger.warning(new DuplicateSceneIdException(scene.getId()).getMessage());
+            scenes.replace(scene.getId(), scenes.get(id), scene);
             return;
         }
         scenes.put(scene.getId(), scene);
@@ -258,7 +259,7 @@ public abstract class Story {
 
     public void displayScene(int index) {
         RenScene scene = getScene(index);
-        scene.build(renJava.getStage(), true);
+        displayScene(scene);
     }
 
     public void displayScene(String id) {
@@ -267,19 +268,18 @@ public abstract class Story {
     }
 
     public void displayScene(RenScene scene) {
-        if (getPreviousScene(scene.getId()) != null) {
-            SceneEndEvent event = new SceneEndEvent(getPreviousScene(scene.getId()));
-            RenJava.callEvent(event);
-        }
-        Menu menu = scene.build(renJava.getStage(), true);
-        menu.render(null, scene);
+        SceneEndEvent event = new SceneEndEvent(getCurrentScene());
+        RenJava.callEvent(event);
+        RenJava.getInstance().getPlayer().updateScene(scene);
+        scene.render(scene.build(true));
     }
 
     public void displayNextScene() {
         SceneEndEvent event = new SceneEndEvent(getPreviousSceneFromCurrent());
         RenJava.callEvent(event);
-        Menu menu = getNextSceneFromCurrent().build(renJava.getStage(), true);
-        menu.render(null, getNextSceneFromCurrent());
+        RenScene renScene = getNextSceneFromCurrent();
+        RenJava.getInstance().getPlayer().updateScene(renScene);
+        renScene.render(renScene.build(true));
     }
 
     public LinkedHashMap<String, RenScene> getScenes() {

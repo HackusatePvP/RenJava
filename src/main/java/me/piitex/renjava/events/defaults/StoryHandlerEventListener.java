@@ -27,7 +27,7 @@ public class StoryHandlerEventListener implements EventListener {
         // Check to see if this scene is the first scene in the story.
         if (story.getSceneIndex(scene) == 0) { // 0 means the first entry.
             // Update the story tracker
-            RenJava.getInstance().getPlayer().setCurrentStory(story);
+            //RenJava.getInstance().getPlayer().setCurrentStory(story);
             StoryStartEvent startEvent = new StoryStartEvent(story);
             RenJava.callEvent(startEvent);
         }
@@ -36,6 +36,7 @@ public class StoryHandlerEventListener implements EventListener {
     @Listener(priority = Priority.HIGHEST)
     public void onStoryStart(StoryStartEvent event) {
         Story story = event.getStory();
+        story.refresh(); // Called first to update story before it starts.
         if (story.getStartInterface() != null) {
             story.getStartInterface().onStoryStart(event);
         }
@@ -47,6 +48,6 @@ public class StoryHandlerEventListener implements EventListener {
         if (story.getEndInterface() != null) {
             story.getEndInterface().onStoryEnd(event);
         }
-        story.refresh();
+        story.refresh(); // Called last to update story after it ends.
     }
 }

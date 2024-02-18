@@ -3,7 +3,9 @@ package me.piitex.renjava;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.api.builders.ButtonBuilder;
@@ -27,7 +29,6 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.splashscreen.SplashScreenView;
 import me.piitex.renjava.gui.StageType;
 
 import java.io.IOException;
@@ -84,6 +85,8 @@ public abstract class RenJava {
     private final Map<String, Character> registeredCharacters = new HashMap<>();
     private final Collection<EventListener> registeredListeners = new HashSet<>();
     private final Collection<PersistentData> registeredData = new HashSet<>();
+
+    protected String buildVersion;
 
     private static RenJava instance;
 
@@ -153,7 +156,7 @@ public abstract class RenJava {
     }
 
     public String getBuildVersion() {
-        return "0.0.311";
+        return buildVersion;
     }
 
     public Stage getStage() {
@@ -263,7 +266,7 @@ public abstract class RenJava {
     /**
      * Registers an {@link EventListener} to handle game events.
      * <p>
-     * The {@code registerListener} method is used to register an {@link EventListener} that handles game events.
+     * This method is used to register an {@link EventListener} that handles game events.
      * Event listeners can listen for specific events and perform actions in response to those events.
      * <p>
      * To register an event listener, pass an instance of the event listener class that implements the {@link EventListener} interface
@@ -294,8 +297,12 @@ public abstract class RenJava {
             logger.warning("No window icon set. Please set a window icon for a better user experience.");
         }
 
+        stage.initStyle(StageStyle.DECORATED);
+
         if (getSettings().isFullscreen()) {
             stage.setFullScreen(true);
+        } else {
+            stage.setMaximized(true);
         }
         stage.setTitle(getName());
 
@@ -378,7 +385,7 @@ public abstract class RenJava {
      *
      * @return A `SplashScreenView` object representing the splash screen view to be displayed.
      */
-    public abstract SplashScreenView buildSplashScreen();
+    public abstract Menu buildSplashScreen();
 
     /**
      * Called to create the main menu. (This is NOT optional)
@@ -388,12 +395,14 @@ public abstract class RenJava {
 
     public Menu buildSideMenu() {
         // Don't build background image
-        Menu menu = new Menu(new ImageLoader("gui/overlay/main_menu.png"), 350, 500);
+        Menu menu = new Menu(350, 500, new ImageLoader("gui/overlay/main_menu.png"));
 
-        ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", Color.BLACK, 1, 1));
-        ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", Color.BLACK, 1, 1));
-        ButtonOverlay optionsButton = new ButtonOverlay(new ButtonBuilder("menu-preference-button", "Preferences", Color.BLACK, 1, 1));
-        ButtonOverlay aboutButton = new ButtonOverlay(new ButtonBuilder("menu-about-button", "About", Color.BLACK, 1, 1));
+        Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
+
+        ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay optionsButton = new ButtonOverlay(new ButtonBuilder("menu-preference-button", "Preferences", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay aboutButton = new ButtonOverlay(new ButtonBuilder("menu-about-button", "About", uiFont, Color.BLACK, 1, 1));
 
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(200, 500);
@@ -409,7 +418,7 @@ public abstract class RenJava {
     }
 
     public Menu buildLoadMenu() {
-        Menu menu = new Menu(new ImageLoader("gui/main_menu.png"), 1920, 1080);
+        Menu menu = new Menu(1920, 1080, new ImageLoader("gui/main_menu.png"));
 
         return menu;
     }

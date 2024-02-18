@@ -81,6 +81,25 @@ public class ButtonBuilder {
     }
 
     /**
+     * Create a button with only text with a specific font.
+     *
+     * @param id     Identifier for the button.
+     * @param text   Text that will be displayed inside the button.
+     * @param font   Font to be used for the text.
+     * @param color  Color of the text.
+     * @param xScale X-Axis scale of the button.
+     * @param yScale Y-Axis scale of the button.
+     */
+    public ButtonBuilder(String id, String text, Font font, Color color, double xScale, double yScale) {
+        this.id = id;
+        this.text = text;
+        this.font = font;
+        this.color = color;
+        this.xScale = xScale;
+        this.yScale = yScale;
+    }
+
+    /**
      * Create a button with only an image.
      *
      * @param id          Identifier for the button.
@@ -200,6 +219,9 @@ public class ButtonBuilder {
         }
         if (font != null) {
             button.setFont(font);
+        } else {
+            // Set default font
+            button.setFont(RenJava.getInstance().getConfiguration().getUiFont().getFont());
         }
         if (color != null) {
             button.setTextFill(color);
@@ -210,11 +232,6 @@ public class ButtonBuilder {
         }
         button.setScaleX(xScale);
         button.setScaleY(yScale);
-
-        FontLoader defaultFont = RenJava.getInstance().getConfiguration().getDefaultFont();
-        double size = defaultFont.getSize() * xScale;
-        defaultFont.setSize(size);
-        button.setFont(defaultFont.getFont());
 
         button.setOnAction(actionEvent -> {
             ButtonClickEvent event = new ButtonClickEvent(RenJava.getInstance().getPlayer().getCurrentScene(), button);

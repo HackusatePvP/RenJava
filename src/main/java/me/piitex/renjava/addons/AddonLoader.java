@@ -23,6 +23,9 @@ public class AddonLoader {
 
     public void load() {
         File directory = new File(System.getProperty("user.dir") + "/addons/");
+        if (directory.mkdir()) {
+            logger.warning("Created directory '" + "addons" + "'.");
+        }
         logger.info("Initializing Addon Loader...");
         int size = directory.listFiles().length;
         if (size == 0) {
@@ -92,8 +95,6 @@ public class AddonLoader {
 
         while (!validations.isEmpty()) {
             lateLoaders.forEach((file, string) -> {
-                logger.info("Last Validation: " + lastValidated);
-                logger.info("Validating: " + file.getName());
                 if (lastValidated.get().equalsIgnoreCase(file.getName())) {
                     logger.severe("Could not initialize " + file.getName() + ": May be the result of a missing dependency.");
                     validations.remove(file);
@@ -159,7 +160,6 @@ public class AddonLoader {
                 if (clazzString.endsWith(".class")) {
                     String clazzName = clazzString.replace('/', '.').substring(0, clazzString.length() - 6); // removes the .class at the end
 
-                    // FIXME: 12/24/2023 This has some serious security concerns. This executes code from any jar inside of addons and offers no real detection for malicious code.
                     // Authors should warn users about using pirated versions or getting addons from unknown sources.
                     Class<?> clazz = cl.loadClass(clazzName);
                     if (Addon.class.isAssignableFrom(clazz)) {
