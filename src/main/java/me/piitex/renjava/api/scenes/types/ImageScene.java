@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.AbstractMap;
 import java.util.LinkedList;
 
 
@@ -58,7 +59,7 @@ import java.util.LinkedList;
 public class ImageScene extends RenScene {
     private Character character;
     private String dialogue;
-    private final ImageLoader backgroundImage;
+    private ImageLoader backgroundImage;
 
     private String characterDisplayName;
 
@@ -81,10 +82,14 @@ public class ImageScene extends RenScene {
         this.character = character;
         this.dialogue = dialogue;
         if (loader == null) {
-            backgroundImage = renJava.getPlayer().getLastDisplayedImage();
+            // Only use last if the story is the same as the last story
+            if (renJava.getPlayer().getLastDisplayedImage().getKey().equalsIgnoreCase(getStory().getId())) {
+                backgroundImage = renJava.getPlayer().getLastDisplayedImage().getValue();
+            }
         } else {
             this.backgroundImage = loader;
-            renJava.getPlayer().setLastDisplayedImage(backgroundImage);
+            renJava.getLogger().info("Story: " + getStory().getId());
+            renJava.getPlayer().setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), loader));
         }
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();

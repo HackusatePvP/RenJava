@@ -54,10 +54,12 @@ public class Menu {
     }
 
     public Menu(double width, double height, ImageLoader imageLoader) {
-        try {
-            this.backgroundImage = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            e.printStackTrace();
+        if (imageLoader != null) {
+            try {
+                this.backgroundImage = imageLoader.build();
+            } catch (ImageNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         this.width = width;
         this.height = height;
@@ -169,9 +171,10 @@ public class Menu {
         root.setTranslateX(x);
         root.setTranslateY(y);
 
-        Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
-
-        backgroundImgElement.render(root);
+        if (backgroundImage != null) {
+            Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
+            backgroundImgElement.render(root);
+        }
 
         logger.info("Rendering layouts...");
         for (Layout layout : layouts) {

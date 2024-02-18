@@ -19,7 +19,9 @@ public class Player implements PersistentData {
     private boolean rightClickMenu;
     @Data private String currentScene;
     @Data private String currentStory;
-    private ImageLoader lastDisplayedImage;
+
+    // Entry to map the story for the image
+    private Map.Entry<String, ImageLoader> lastDisplayedImage;
 
     private boolean transitionPlaying = false;
     private boolean uiToggled = true;
@@ -93,11 +95,11 @@ public class Player implements PersistentData {
         this.rightClickMenu = rightClickMenu;
     }
 
-    public ImageLoader getLastDisplayedImage() {
+    public Map.Entry<String, ImageLoader> getLastDisplayedImage() {
         return lastDisplayedImage;
     }
 
-    public void setLastDisplayedImage(ImageLoader lastDisplayedImage) {
+    public void setLastDisplayedImage(Map.Entry<String, ImageLoader> lastDisplayedImage) {
         this.lastDisplayedImage = lastDisplayedImage;
     }
 

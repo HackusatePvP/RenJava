@@ -112,6 +112,9 @@ public abstract class Story {
      */
 
     public void start() {
+        // Update RenJava Player BEFORE the scenes are added
+        renJava.getPlayer().setCurrentStory(this.getId());
+
         init(); // Initialize when starting
 
         logger.info("Building scene...");
@@ -125,9 +128,6 @@ public abstract class Story {
         RenJava.callEvent(buildEvent);
 
         renScene.render(menu);
-
-        // Update RenJava Player
-        renJava.getPlayer().setCurrentStory(this.getId());
     }
 
     /**
@@ -166,7 +166,6 @@ public abstract class Story {
         int index = sceneIndexMap.size();
         sceneIndexMap.put(index, scene);
         scene.setIndex(index);
-        scene.setStory(this); // Updates the scene data.
     }
 
     /**
@@ -179,7 +178,6 @@ public abstract class Story {
             int index = sceneIndexMap.size();
             sceneIndexMap.put(index, renScene);
             renScene.setIndex(index);
-            renScene.setStory(this);
         }
     }
 

@@ -68,6 +68,7 @@ public abstract class RenScene extends Container {
     public RenScene(String id, ImageLoader backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
+        setStory(RenJava.getInstance().getPlayer().getCurrentStory()); // Update the current story.
     }
 
     public RenScene onStart(SceneStartInterface sceneInterface) {
