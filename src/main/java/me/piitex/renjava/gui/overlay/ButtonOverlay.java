@@ -11,36 +11,42 @@ import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class ButtonOverlay implements Overlay {
-    private final Button button;
+    private Button button;
     private Transitions transitions;
 
     private final String id;
     private String text;
     private Font font;
     private Image image;
-    private Color color;
+    private Color textFill;
+    private Color backgroundColor;
+    private Color borderColor;
+    private Color hoverColor;
+    private boolean hover;
+    private int borderWidth = 0;
+    private int backgroundRadius = 0;
 
     private double x = 1, y = 1;
     private final double xScale, yScale;
 
-    public ButtonOverlay(String id, String text, Color color, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, double xScale, double yScale) {
         this.id = id;
         this.text = text;
-        this.color = color;
+        this.textFill = textFill;
         this.xScale = x;
         this.yScale = y;
-        this.button = build();
     }
 
-    public ButtonOverlay(String id, String text, Color color, Font font, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, Font font, double xScale, double yScale) {
         this.id = id;
         this.text = text;
-        this.color = color;
+        this.textFill = textFill;
         this.font = font;
         this.xScale = x;
         this.yScale = y;
-        this.button = build();
     }
 
     /**
@@ -48,21 +54,20 @@ public class ButtonOverlay implements Overlay {
      *
      * @param id     Identifier for the button.
      * @param text   Text that will be displayed inside the button.
-     * @param color  Color of the text.
+     * @param textFill  Color of the text.
      * @param x      X-Axis position of the button.
      * @param y      Y-Axis position of the button.
      * @param xScale X-Axis scale of the button.
      * @param yScale Y-Axis scale of the button.
      */
-    public ButtonOverlay(String id, String text, Color color, double x, double y, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, double x, double y, double xScale, double yScale) {
         this.id = id;
         this.text = text;
-        this.color = color;
+        this.textFill = textFill;
         this.x = x;
         this.y = y;
         this.xScale = xScale;
         this.yScale = yScale;
-        this.button = build();
     }
 
     /**
@@ -71,22 +76,21 @@ public class ButtonOverlay implements Overlay {
      * @param id     Identifier for the button.
      * @param text   Text that will be displayed inside the button.
      * @param font   Font to be used for the text.
-     * @param color  Color of the text.
+     * @param textFill  Color of the text.
      * @param x      X-Axis position of the button.
      * @param y      Y-Axis position of the button.
      * @param xScale X-Axis scale of the button.
      * @param yScale Y-Axis scale of the button.
      */
-    public ButtonOverlay(String id, String text, Font font, Color color, double x, double y, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Font font, Color textFill, double x, double y, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
-        this.color = color;
+        this.textFill = textFill;
         this.x = x;
         this.y = y;
         this.xScale = xScale;
         this.yScale = yScale;
-        this.button = build();
     }
 
     /**
@@ -95,18 +99,40 @@ public class ButtonOverlay implements Overlay {
      * @param id     Identifier for the button.
      * @param text   Text that will be displayed inside the button.
      * @param font   Font to be used for the text.
-     * @param color  Color of the text.
+     * @param textFill  Color of the text.
      * @param xScale X-Axis scale of the button.
      * @param yScale Y-Axis scale of the button.
      */
-    public ButtonOverlay(String id, String text, Font font, Color color, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Font font, Color textFill, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
-        this.color = color;
+        this.textFill = textFill;
         this.xScale = xScale;
         this.yScale = yScale;
-        this.button = build();
+    }
+
+    public ButtonOverlay(String id, String text, Font font, Color textFill, Color backgroundColor, Color borderColor, double xScale, double yScale) {
+        this.id = id;
+        this.text = text;
+        this.font = font;
+        this.textFill = textFill;
+        this.xScale = xScale;
+        this.yScale = yScale;
+        this.backgroundColor = backgroundColor;
+        this.borderColor = borderColor;
+    }
+
+    public ButtonOverlay(String id, String text, Font font, Color textFill, Color backgroundColor, Color borderColor, boolean hover, double xScale, double yScale) {
+        this.id = id;
+        this.text = text;
+        this.font = font;
+        this.textFill = textFill;
+        this.xScale = xScale;
+        this.yScale = yScale;
+        this.backgroundColor = backgroundColor;
+        this.borderColor = borderColor;
+        this.hover = hover;
     }
 
     /**
@@ -130,7 +156,6 @@ public class ButtonOverlay implements Overlay {
         this.y = y;
         this.xScale = xScale;
         this.yScale = yScale;
-        this.button = build();
     }
 
     /**
@@ -194,22 +219,78 @@ public class ButtonOverlay implements Overlay {
         this.image = image;
     }
 
-    public Color getColor() {
-        return color;
+    public Color getTextFill() {
+        return textFill;
     }
 
-    public void setColor(Color color) {
-        this.color = color;
+    public void setTextFill(Color color) {
+        this.textFill = color;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public Color getBorderColor() {
+        return borderColor;
+    }
+
+    public void setBorderColor(Color borderColor) {
+        this.borderColor = borderColor;
+    }
+
+    public Color getHoverColor() {
+        return hoverColor;
+    }
+
+    public void setHoverColor(Color hoverColor) {
+        this.hoverColor = hoverColor;
+    }
+
+    public boolean isHover() {
+        return hover;
+    }
+
+    public void setHover(boolean hover) {
+        this.hover = hover;
+    }
+
+    public int getBorderWidth() {
+        return borderWidth;
+    }
+
+    public void setBorderWidth(int borderWidth) {
+        this.borderWidth = borderWidth;
+    }
+
+    public int getBackgroundRadius() {
+        return backgroundRadius;
+    }
+
+    public void setBackgroundRadius(int backgroundRadius) {
+        this.backgroundRadius = backgroundRadius;
     }
 
     @Override
     public double x() {
-        return button.getTranslateX();
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
     }
 
     @Override
     public double y() {
-        return button.getTranslateY();
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
     }
 
     @Override
@@ -219,13 +300,6 @@ public class ButtonOverlay implements Overlay {
 
     public void setTransitions(Transitions transitions) {
         this.transitions = transitions;
-    }
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     public double getXScale() {
@@ -237,6 +311,9 @@ public class ButtonOverlay implements Overlay {
     }
 
     public Button build() {
+        if (button != null) {
+            return button;
+        }
         Button button = new Button();
         button.setId(id);
         if (image != null) {
@@ -252,9 +329,34 @@ public class ButtonOverlay implements Overlay {
             // Set default font
             button.setFont(RenJava.getInstance().getConfiguration().getUiFont().getFont());
         }
-        if (color != null) {
-            button.setTextFill(color);
+        if (textFill != null) {
+            button.setTextFill(textFill);
         }
+        String inLine = "";
+        if (backgroundColor != null) {
+            inLine += "-fx-background-color: " + cssColor(backgroundColor) + "; ";
+        }
+        if (borderColor != null) {
+            inLine += "-fx-border-color: " + cssColor(borderColor) + "; ";
+        }
+        inLine += "-fx-border-width: " + borderWidth + "; ";
+        inLine += "-fx-background-radius: " + backgroundRadius + ";";
+
+        // https://stackoverflow.com/questions/30680570/javafx-button-border-and-hover
+        if (hover) {
+            AtomicReference<String> attomicInLine = new AtomicReference<>(inLine);
+            button.setOnMouseEntered(mouseEvent -> {
+                button.setTextFill(hoverColor);
+                button.setStyle(attomicInLine.get());
+            });
+            button.setOnMouseExited(mouseEvent -> {
+                button.setTextFill(textFill);
+                button.setStyle(attomicInLine.get());
+            });
+        }
+
+        button.setStyle(inLine);
+
         if (x != 0 && y != 0) {
             button.setTranslateX(x);
             button.setTranslateY(y);
@@ -269,8 +371,18 @@ public class ButtonOverlay implements Overlay {
         return button;
     }
 
+    // Helper css function
+    public String cssColor(Color color) {
+        String webFormat = String.format("rgba(%d, %d, %d, %f)",
+                (int) (255 * color.getRed()),
+                (int) (255 * color.getGreen()),
+                (int) (255 * color.getBlue()),
+                color.getOpacity());
+        return webFormat;
+    }
+
     public static ButtonOverlay copyOf(String id, ButtonOverlay builder) {
-        ButtonOverlay toReturn = new ButtonOverlay(id, builder.getText(), builder.getFont(), builder.getColor(), builder.x(), builder.y(), builder.getXScale(), builder.getYScale());
+        ButtonOverlay toReturn = new ButtonOverlay(id, builder.getText(), builder.getFont(), builder.getTextFill(), builder.x(), builder.y(), builder.getXScale(), builder.getYScale());
         toReturn.setImage(builder.getImage());
         return toReturn;
     }

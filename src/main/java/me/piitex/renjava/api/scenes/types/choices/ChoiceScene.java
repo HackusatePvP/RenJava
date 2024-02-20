@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ButtonClickEvent;
+import me.piitex.renjava.events.types.ChoiceButtonBuildEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
@@ -179,7 +180,15 @@ public class ChoiceScene extends RenScene {
 
     private Button getChoiceButton(Choice choice, Image image) {
         ButtonOverlay buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
-        Button button = buttonOverlay.build();
+        buttonOverlay.setBorderColor(Color.TRANSPARENT);
+        buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
+        buttonOverlay.setHover(true);
+        buttonOverlay.setTextFill(Color.WHITE);
+        buttonOverlay.setHoverColor(Color.BLUE);
+
+
+        ChoiceButtonBuildEvent choiceButtonBuildEvent = new ChoiceButtonBuildEvent(buttonOverlay);
+        Button button = choiceButtonBuildEvent.getButtonOverlay().build();
 
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
