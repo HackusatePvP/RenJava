@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import me.piitex.renjava.RenJava;
@@ -27,6 +28,10 @@ public class Element {
             this.node = imageView;
         } else if (overlay instanceof TextOverlay textOverlay) {
             Text text = textOverlay.getText();
+            if (textOverlay.getFontLoader() != null) {
+                Font font = textOverlay.getFontLoader().getFont();
+                text.setFont(font);
+            }
             text.setTranslateX(textOverlay.x());
             text.setTranslateY(textOverlay.y());
             this.node = text;

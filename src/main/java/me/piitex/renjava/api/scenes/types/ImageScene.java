@@ -144,12 +144,16 @@ public class ImageScene extends RenScene {
                 textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
                 textboxMenu.addOverlay(textFlowOverlay);
 
-                characterDisplay.setFont(new FontLoader(renJava.getConfiguration().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
                 characterDisplay.setFill(character.getColor());
+                TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getDefaultFont().getFont(), configuration.getCharacterTextSize()),
+                        configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
+                        configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
+
                 characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
                 characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
 
-                textboxMenu.addOverlay(new TextOverlay(characterDisplay, characterDisplay.getX(), characterDisplay.getY()));
+                textboxMenu.addOverlay(characterText);
+
                 rootMenu.addMenu(textboxMenu);
             }
         }

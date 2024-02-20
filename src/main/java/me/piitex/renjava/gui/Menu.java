@@ -180,10 +180,6 @@ public class Menu {
             backgroundImgElement.render(root);
         }
 
-        for (Overlay overlay : overlays) {
-            new Element(overlay).render(root);
-        }
-
         logger.info("Rendering layouts...");
         for (Layout layout : layouts) {
             for (Overlay overlay : layout.getOverlays()) {
@@ -203,6 +199,11 @@ public class Menu {
             root.getChildren().add(box);
         }
 
+        for (Overlay overlay : overlays) {
+            new Element(overlay).render(root);
+        }
+
+
         for (Menu menu : children) {
             menu.render(root, renScene); // Renders menu on top of this menu.
         }
@@ -216,12 +217,6 @@ public class Menu {
         } else {
             stage.setScene(new Scene(root));
             scene = stage.getScene();
-        }
-
-        try {
-            scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/button.css").toURI().toURL().toExternalForm());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         }
 
         setInputControls(scene);
@@ -264,5 +259,4 @@ public class Menu {
             RenJava.callEvent(event);
         });
     }
-
 }
