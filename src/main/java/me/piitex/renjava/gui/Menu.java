@@ -171,6 +171,8 @@ public class Menu {
         root.setTranslateX(x);
         root.setTranslateY(y);
 
+        root.setPrefSize(width, height);
+
         // Background fill is used for fade ins.
         BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));
         root.setBackground(new Background(backgroundFill));
@@ -189,7 +191,7 @@ public class Menu {
             Pane box = layout.getPane();
             box.setTranslateX(layout.getXPosition());
             box.setTranslateY(layout.getYPosition());
-            box.setPrefSize(layout.getWidth(), layout.getWidth());
+            box.setPrefSize(layout.getWidth(), layout.getHeight());
             if (box instanceof HBox hBox) {
                 hBox.setSpacing(layout.getSpacing());
             } else if (box instanceof VBox vBox) {

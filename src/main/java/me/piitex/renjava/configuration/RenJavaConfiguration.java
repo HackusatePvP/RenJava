@@ -34,8 +34,8 @@ public class RenJavaConfiguration {
     private int textOffsetX = 0;
     private int textOffsetY = 0;
 
-    private int characterTextX = 500;
-    private int characterTextY = 500;
+    private int characterTextX = 100;
+    private int characterTextY = 440;
     private int characterTextOffsetX = 0;
     private int characterTextOffsetY = 0;
 
