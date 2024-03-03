@@ -160,7 +160,6 @@ public class Menu {
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
     public Pane render(@Nullable Pane root, @Nullable RenScene renScene) {
-        // TODO: 2/13/2024 Make an element class which can render every overlay instead of this spaghettiti code.
 
         Logger logger = renJava.getLogger();
 
@@ -189,8 +188,8 @@ public class Menu {
             }
 
             Pane box = layout.getPane();
-            box.setTranslateX(layout.getXPosition());
-            box.setTranslateY(layout.getYPosition());
+            box.setTranslateX(layout.getX());
+            box.setTranslateY(layout.getY());
             box.setPrefSize(layout.getWidth(), layout.getHeight());
             if (box instanceof HBox hBox) {
                 hBox.setSpacing(layout.getSpacing());
@@ -207,7 +206,9 @@ public class Menu {
 
 
         for (Menu menu : children) {
-            menu.render(root, renScene); // Renders menu on top of this menu.
+            if (menu != null) {
+                menu.render(root, renScene); // Renders menu on top of this menu.
+            }
         }
 
         rootMenu = this;
