@@ -393,20 +393,19 @@ public abstract class RenJava {
     public abstract Menu buildTitleScreen();
 
     public Menu buildSideMenu() {
-        // Don't build background image
         Menu menu = new Menu(350, 500, new ImageLoader("gui/overlay/main_menu.png"));
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, 1, 1);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, 1, 1);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, 1, 1);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, 1, 1);
+        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
+        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
+        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
+        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
 
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(200, 500);
-        layout.setXPosition(50);
-        layout.setYPosition(250);
+        layout.setX(50);
+        layout.setY(250);
         layout.setSpacing(20);
         layout.addOverlays(startButton, loadButton, optionsButton, aboutButton);
 
