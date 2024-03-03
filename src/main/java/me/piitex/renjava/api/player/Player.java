@@ -7,10 +7,7 @@ import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class that stores player data such as game progress and what scenes they have viewed. Some of the information stored is only useful to the framework but feel free to explore.
@@ -28,15 +25,17 @@ public class Player implements PersistentData {
 
     private boolean skipAutoScene = false;
 
-    private final LinkedHashMap<String, Story> viewedStories = new LinkedHashMap<>(); // Ordered map of what stories the player has viewed.
+    //StoryID
+    @Data private LinkedHashSet<String> viewedStories = new LinkedHashSet<>(); // Ordered map of what stories the player has viewed.
     private final Map<Integer, Story> viewedStoriesIndex = new HashMap<>(); // Indexing of the viewedStories
 
-    private final Map<Map.Entry<Story, String>, RenScene> viewedScenes = new HashMap<>();
+    // StoryID, SceneID
+    @Data private Map<String, String> viewedScenes = new HashMap<>();
 
     private final Map<String, Story> storyIdMap = new HashMap<>();
 
     public boolean hasSeenScene(Story story, String sceneID) {
-        return viewedScenes.containsValue(story.getScene(sceneID));
+        return viewedScenes.containsKey(story.getId()) && viewedScenes.containsValue(sceneID);
     }
 
     public RenScene getCurrentScene() {
@@ -44,6 +43,14 @@ public class Player implements PersistentData {
             return getCurrentStory().getScene(currentScene);
         }
         return null; // No story set has the game started?
+    }
+
+    public String getCurrentSceneID() {
+        return currentScene;
+    }
+
+    public String getCurrentStoryID() {
+        return currentStory;
     }
 
     public void setCurrentScene(String currentSceneID) {
@@ -57,7 +64,7 @@ public class Player implements PersistentData {
     public void setCurrentStory(String currentStoryID) {
         this.currentStory = currentStoryID;
         Story story = getStory(currentStoryID);
-        viewedStories.put(currentStoryID, story); // When setting story update the viewedStory for rollback.
+        viewedStories.add(currentStoryID); // When setting story update the viewedStory for rollback.
         int index = viewedStoriesIndex.size();
         viewedStoriesIndex.put(index, story);
     }
@@ -79,12 +86,16 @@ public class Player implements PersistentData {
         return viewedStoriesIndex.get(viewedStoriesIndex.size()); // Get last story
     }
 
-    public LinkedHashMap<String, Story> getViewedStories() {
+    public LinkedHashSet<String> getViewedStories() {
         return viewedStories;
     }
 
-    public Map<Map.Entry<Story, String>, RenScene> getViewedScenes() {
+    public Map<String, String> getViewedScenes() {
         return viewedScenes;
+    }
+
+    public Map<String, Story> getStoryIdMap() {
+        return storyIdMap;
     }
 
     public boolean isRightClickMenu() {
@@ -129,7 +140,7 @@ public class Player implements PersistentData {
 
     public void updateScene(RenScene renScene) {
         setCurrentScene(renScene.getId()); // Update the scene.
-        getViewedScenes().put(new AbstractMap.SimpleEntry<>(renScene.getStory(), renScene.getId()), renScene);
+        getViewedScenes().put(renScene.getStory().getId(), renScene.getId());
         setCurrentStory(renScene.getStory());
     }
 }
