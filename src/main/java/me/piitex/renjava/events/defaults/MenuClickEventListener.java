@@ -4,9 +4,9 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import me.piitex.renjava.RenJava;
 
-import me.piitex.renjava.api.saves.Load;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.api.saves.exceptions.SaveFileNotFound;
+import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.ButtonClickEvent;
@@ -20,15 +20,28 @@ public class MenuClickEventListener implements EventListener {
         Button button = event.getButton();
         if (button.getId().equalsIgnoreCase("menu-start-button")) {
             renJava.getLogger().info("Creating new game...");
+            renJava.createBaseData();
+            renJava.createStory();
             renJava.start();
         }
         if (button.getId().equalsIgnoreCase("menu-load-button")) {
             // NOTE: 10/20/2023  new LoadScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
-            try {
-                new Load(1);
-            } catch (SaveFileNotFound e) {
-                throw new RuntimeException(e);
-            }
+            new Save(1).load();
+
+
+            // After loading play the current scene and story
+            String storyID = renJava.getPlayer().getCurrentStoryID();
+            System.out.println("Story: " + renJava.getPlayer().getCurrentStoryID());
+
+            renJava.createStory();
+
+            // Force update fields
+            renJava.getPlayer().setCurrentStory(storyID);
+            renJava.getPlayer().getCurrentStory().init(); // Re-initialize story
+
+            renJava.getPlayer().setCurrentScene(renJava.getPlayer().getCurrentSceneID());
+
+            renJava.getPlayer().getCurrentStory().displayScene(renJava.getPlayer().getCurrentSceneID());
         }
         if (button.getId().equalsIgnoreCase("menu-preference-button")) {
             //new PreferenceScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
@@ -44,7 +57,8 @@ public class MenuClickEventListener implements EventListener {
             about.render(null, null);
         }
         if (button.getId().equalsIgnoreCase("menu-save-button")) {
-            new Save(1, renJava.getPlayer().getCurrentStory().getId(), renJava.getPlayer().getCurrentScene().getId());
+            //new Save(1, renJava.getPlayer().getCurrentStory().getId(), renJava.getPlayer().getCurrentScene().getId());
+            new Save(1).write(); // Writes the save.
         }
         if (button.getId().equalsIgnoreCase("menu-quit-button")) {
             renJava.getAddonLoader().disable();
