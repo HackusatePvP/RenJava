@@ -150,8 +150,8 @@ public class ChoiceScene extends RenScene {
 
         if (ui) {
             VerticalLayout layout = new VerticalLayout(500, 500);
-            layout.setXPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2) - 600);
-            layout.setYPosition(((RenJava.getInstance().getConfiguration().getHeight() - layout.getHeight()) / 2) - 200);
+            layout.setX(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2) - 600);
+            layout.setY(((RenJava.getInstance().getConfiguration().getHeight() - layout.getHeight()) / 2) - 200);
             layout.setSpacing(20.0);
             ImageLoader choiceBoxImage = new ImageLoader("gui/button/choice_idle_background.png");
 

@@ -49,7 +49,7 @@ public class Tracks implements PersistentData {
     }
 
     public void play(Track track, boolean loop) {
-        if (currentTrack != null) {
+        if (getCurrentTrack() != null) {
             getCurrentTrack().stop();
         }
         setPlaying(true);

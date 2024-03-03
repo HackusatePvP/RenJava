@@ -19,6 +19,12 @@ public class FontLoader {
 
     private static final Map<String, Font> cachedFonts = new HashMap<>();
 
+    public FontLoader(FontLoader font, double size) {
+        this.name = font.getName();
+        this.size = size;
+        this.font = Font.font(font.getFont().getFamily(), size);
+    }
+
     public FontLoader(Font font, double size) {
         this.name = font.getName();
         this.size = size;
@@ -39,7 +45,7 @@ public class FontLoader {
         this.font = Font.font(font.getFamily(), posture, size);
     }
 
-    public FontLoader(String name, int size) {
+    public FontLoader(String name, double size) {
         this.name = name;
         File directory = new File(System.getProperty("user.dir") + "/game/fonts/");
         File file = new File(directory, name);

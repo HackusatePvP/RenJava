@@ -1,9 +1,5 @@
 package me.piitex.renjava.api.scenes;
 
-import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -19,11 +15,7 @@ import me.piitex.renjava.api.stories.Story;
 
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
-import me.piitex.renjava.gui.overlay.TextOverlay;
-
 
 import java.io.File;
 import java.util.Collection;
