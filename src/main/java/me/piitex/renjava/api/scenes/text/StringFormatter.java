@@ -17,6 +17,7 @@ public class StringFormatter {
 
         boolean italic = false;
         boolean bold = false;
+        boolean strikeOut = false;
         int formatBeginChar = 0;
 
         LinkedList<String> parts = new LinkedList<>();
@@ -29,24 +30,33 @@ public class StringFormatter {
             } else if (c == '{' && dialogue.charAt(i + 1) == 'b') {
                 formatBeginChar = i + 1;
                 bold = true;
+            } else if (c == '{' && dialogue.charAt(i + 1) == 's') {
+                formatBeginChar = i + 1;
+                strikeOut = true;
             } else if (c == '{' && italic) {
                 String italicText = dialogue.substring(formatBeginChar, i);
-                parts.add(beforeText.replace(italicText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add(beforeText.replace(italicText, "").replace("/i}", "").replace("/b}", "").replace("/s}", ""));
                 parts.add("iiii: " + italicText.replace("i}", ""));
                 beforeText = "";
                 italic = false;
             } else if (c == '{' && bold) {
                 String boldText = dialogue.substring(formatBeginChar, i);
-                parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", "").replace("/s}", ""));
                 parts.add("bbbb: " + boldText.replace("b}", ""));
                 beforeText = "";
                 bold = false;
+            } else if (c == '{' && strikeOut) {
+                String strikeOutText = dialogue.substring(formatBeginChar, i);
+                parts.add(beforeText.replace(strikeOutText, "").replace("/s}", "").replace("/b}", "").replace("/i}", ""));
+                parts.add("ssss: " + strikeOutText.replace("s}", ""));
+                beforeText = "";
+                strikeOut = false;
             } else {
                 // Process text that is not formatted.
                 beforeText += c;
             }
         }
-        beforeText = beforeText.replace("/i}", "").replace("/b}", "");
+        beforeText = beforeText.replace("/i}", "").replace("/b}", "").replace("/s}", "");
         parts.add(beforeText);
 
         LinkedList<Text> texts = new LinkedList<>();
@@ -67,6 +77,12 @@ public class StringFormatter {
                 Text text1 = new Text(s);
                 text1.setFont(italicFont);
                 texts.add(text1);
+            } else if (s.startsWith("ssss: ")) {
+                s = s.replace("ssss: ", "");
+                Text text1 = new Text(s);
+                text1.setFont(currentFont);
+                text1.setStrikethrough(true);
+                texts.add(text1);
             } else {
                 Text text1 = new Text(s);
                 text1.setFont(currentFont);
@@ -78,10 +94,11 @@ public class StringFormatter {
 
     // Testing function. Should be removed later
     public static void main(String[] args) {
-        String data = "{i}Heey{/i} I've been waiting for you. You were {b}SUPPOSED{/b} to be here by now.";
+        String data = "{i}Heey...{/i} {s}I've been waiting for you.{/s} You were {b}SUPPOSED{/b} to be here by now.";
 
         boolean italic = false;
         boolean bold = false;
+        boolean strikeOut = false;
 
         int formatBeginChar = 0;
 
@@ -95,10 +112,13 @@ public class StringFormatter {
             } else if (c == '{' && data.charAt(i + 1) == 'b') {
                 formatBeginChar = i + 1;
                 bold = true;
+            } else if (c == '{' && data.charAt(i + 1) == 's') {
+                formatBeginChar = i + 1;
+                strikeOut = true;
             } else if (c == '{' && italic) {
                 String italicText = data.substring(formatBeginChar, i);
                 System.out.println("Italic Text: " + italicText);
-                parts.add(beforeText.replace(italicText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add(beforeText.replace(italicText, "").replace("/i}", "").replace("/b}", "").replace("/s}", ""));
                 parts.add(italicText.replace("i}", ""));
                 beforeText = "";
                 italic = false;
@@ -106,10 +126,18 @@ public class StringFormatter {
                 String boldText = data.substring(formatBeginChar, i);
                 System.out.println("Bold Text: " + boldText);
                 System.out.println("Before Text: " + beforeText);
-                parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", ""));
+                parts.add(beforeText.replace(boldText, "").replace("/i}", "").replace("/b}", "").replace("/s}", ""));
                 parts.add(boldText.replace("b}", ""));
                 beforeText = "";
                 bold = false;
+            } else if (c == '{' && strikeOut) {
+                String strikeOutText = data.substring(formatBeginChar, i);
+                System.out.println("StrikeOut Text: " + strikeOutText);
+                System.out.println("Before Text: " + beforeText);
+                parts.add(beforeText.replace(strikeOutText, "").replace("/s}", "").replace("/b}", "").replace("/i}", ""));
+                parts.add(strikeOutText.replace("s}", ""));
+                beforeText = "";
+                strikeOut = false;
             } else {
                 // Process text that is not formatted.
                 beforeText += c;
