@@ -135,6 +135,19 @@ public class ButtonOverlay implements Overlay {
         this.hover = hover;
     }
 
+    public ButtonOverlay(String id, String text, Font font, Color textFill, Color backgroundColor, Color borderColor, Color hoverColor, double xScale, double yScale) {
+        this.id = id;
+        this.text = text;
+        this.font = font;
+        this.textFill = textFill;
+        this.xScale = xScale;
+        this.yScale = yScale;
+        this.backgroundColor = backgroundColor;
+        this.borderColor = borderColor;
+        this.hover = true;
+        this.hoverColor = hoverColor;
+    }
+
     /**
      * Create a button with only an image.
      *
