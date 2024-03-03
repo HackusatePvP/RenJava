@@ -51,7 +51,7 @@ public class ImageScene extends RenScene {
     private Character character;
     private String dialogue;
     private ImageLoader backgroundImage;
-
+    private Font font;
     private String characterDisplayName;
 
     private final RenJavaConfiguration configuration;
@@ -81,6 +81,7 @@ public class ImageScene extends RenScene {
             this.characterDisplayName = character.getDisplayName();
         }
         configuration = renJava.getConfiguration();
+        font = configuration.getDialogueFont().getFont();
     }
 
     public ImageScene(String id, @Nullable Character character, String dialogue) {
@@ -90,6 +91,7 @@ public class ImageScene extends RenScene {
         backgroundImage = renJava.getPlayer().getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
         configuration = renJava.getConfiguration();
+        font = configuration.getDialogueFont().getFont();
     }
 
     public Character getCharacter() {
@@ -106,6 +108,14 @@ public class ImageScene extends RenScene {
 
     public void setDialogue(String dialogue) {
         this.dialogue = dialogue;
+    }
+
+    public Font getDialogueFont() {
+        return font;
+    }
+
+    public void setDialogueFont(Font font) {
+        this.font = font;
     }
 
     @Override
@@ -142,6 +152,7 @@ public class ImageScene extends RenScene {
                 }
                 textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
                 textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
+                textFlowOverlay.setFont(font);
                 textboxMenu.addOverlay(textFlowOverlay);
 
                 characterDisplay.setFill(character.getColor());
