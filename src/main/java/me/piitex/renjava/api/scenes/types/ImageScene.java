@@ -124,7 +124,7 @@ public class ImageScene extends RenScene {
 
         if (ui) {
             Text characterDisplay = null;
-            if (dialogue != null && !dialogue.isEmpty()) {
+            if (character != null) {
                 if (getCharacterNameDisplay() != null) {
                     // Set character display
                     characterDisplay = new Text(getCharacterNameDisplay());
