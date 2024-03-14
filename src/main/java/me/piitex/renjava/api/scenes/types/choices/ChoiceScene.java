@@ -18,6 +18,7 @@ import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * The ChoiceScene class represents a scene in the RenJava framework that presents the player with multiple choices.
@@ -150,8 +151,13 @@ public class ChoiceScene extends RenScene {
 
         if (ui) {
             VerticalLayout layout = new VerticalLayout(500, 500);
-            layout.setX(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2) - 600);
-            layout.setY(((RenJava.getInstance().getConfiguration().getHeight() - layout.getHeight()) / 2) - 200);
+            //layout.setX(((double) (RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2) - 600);
+            //layout.setY(((double) (RenJava.getInstance().getConfiguration().getHeight() - layout.getHeight()) / 2) - 200);
+            Map.Entry<Integer, Integer> midPoint = RenJava.getInstance().getConfiguration().getMidPoint();
+            System.out.println("Set X: " + midPoint.getKey());
+            System.out.println("Set Y: " + midPoint.getValue());
+            layout.setX(midPoint.getKey() - 600);
+            layout.setY(midPoint.getValue() - 200);
             layout.setSpacing(20.0);
             ImageLoader choiceBoxImage = new ImageLoader("gui/button/choice_idle_background.png");
 
@@ -161,7 +167,7 @@ public class ChoiceScene extends RenScene {
                     buttonOverlay = new ButtonOverlay(getChoiceButton(choice, choiceBoxImage.build()));
                     layout.addOverlays(buttonOverlay);
                 } catch (ImageNotFoundException e) {
-                    throw new RuntimeException(e);
+                    RenJava.getInstance().getLogger().severe(e.getMessage());
                 }
             }
             menu.addLayout(layout);

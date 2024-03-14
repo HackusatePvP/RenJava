@@ -16,7 +16,8 @@ public class RenJavaConfiguration {
     private FontLoader defaultFont;
     private FontLoader dialogueFont;
     private FontLoader uiFont;
-    private Paint dialogueColor = Color.BLACK;
+    private FontLoader characterDisplayFont;
+    private Color dialogueColor = Color.BLACK;
 
     private int dialogueBoxWidth = 1000;
     private int dialogueBoxHeight = 600;
@@ -105,11 +106,19 @@ public class RenJavaConfiguration {
         this.uiFont = uiFont;
     }
 
-    public Paint getDialogueColor() {
+    public FontLoader getCharacterDisplayFont() {
+        return characterDisplayFont;
+    }
+
+    public void setCharacterDisplayFont(FontLoader characterDisplayFont) {
+        this.characterDisplayFont = characterDisplayFont;
+    }
+
+    public Color getDialogueColor() {
         return dialogueColor;
     }
 
-    public void setDialogueColor(Paint dialogueColor) {
+    public void setDialogueColor(Color dialogueColor) {
         this.dialogueColor = dialogueColor;
     }
 
@@ -257,7 +266,7 @@ public class RenJavaConfiguration {
 
     // bottom left is 0 on the x and max on the y
     public Map.Entry<Integer, Integer> getBottomLeft() {
-        return Map.entry(5, getCurrentHeight());
+        return Map.entry(0, getCurrentHeight());
     }
 
     // Bottom right is max on both
@@ -268,11 +277,22 @@ public class RenJavaConfiguration {
 
     // Top Left is 0,0
     public Map.Entry<Integer, Integer> getTopLeft() {
-        return Map.entry(5, 15);
+        return Map.entry(0, 0);
     }
 
+    // Top right is max width
     public Map.Entry<Integer, Integer> getTopRight() {
-        return Map.entry(getCurrentWidth(), 5);
+        return Map.entry(getCurrentWidth(), 0);
+    }
+
+    // Middle point of the screen.
+    public Map.Entry<Integer, Integer> getMidPoint() {
+        Map.Entry<Integer, Integer> bottomRight = getBottomRight();
+        Map.Entry<Integer, Integer> topLeft = getTopLeft();
+        int centerX = (bottomRight.getKey() + topLeft.getKey()) / 2;
+        int centerY = (bottomRight.getValue() + topLeft.getValue()) / 2;
+
+        return Map.entry(centerX, centerY);
     }
 
     public double getHeightScale() {
