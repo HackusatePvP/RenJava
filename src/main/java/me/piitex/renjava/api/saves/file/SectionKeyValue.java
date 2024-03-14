@@ -5,9 +5,9 @@ import java.util.*;
 public class SectionKeyValue {
     private final String section;
     private final Map<Object, Object> keyValueMap = new HashMap<>();
-    private Collection<SectionKeyValue> subSection = new HashSet<>();
+    private final Collection<SectionKeyValue> subSection = new HashSet<>();
 
-    private Map<String, ArrayList<?>> arrayMap = new HashMap<>();
+    private final Map<String, ArrayList<?>> arrayMap = new HashMap<>();
 
     public SectionKeyValue(String section) {
         this.section = section;
@@ -17,7 +17,7 @@ public class SectionKeyValue {
         return section;
     }
 
-    public void addKeyValue(String key, String value) {
+    public void addKeyValue(String key, Object value) {
         keyValueMap.put(key, value);
     }
 
@@ -25,7 +25,7 @@ public class SectionKeyValue {
         subSection.add(sectionKeyValue);
     }
 
-    public void addArray(String field, String... values) {
+    public void addArray(String field, Object... values) {
         ArrayList<?> array = new ArrayList<>(List.of(values));
         arrayMap.put(field, array);
     }
@@ -44,6 +44,10 @@ public class SectionKeyValue {
 
     public Map<Object, Object> getKeyValueMap() {
         return keyValueMap;
+    }
+
+    public Object get(String key) {
+        return keyValueMap.get(key);
     }
 
     public String toString() {
