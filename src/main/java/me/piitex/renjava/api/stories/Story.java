@@ -115,14 +115,14 @@ public abstract class Story {
         // Update RenJava Player BEFORE the scenes are added
         renJava.getPlayer().setCurrentStory(this.getId());
 
+        clear(); // Clear previous mappings
         init(); // Initialize when starting
 
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
+        renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
         Menu menu = renScene.build(true);
-
-        renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
         SceneBuildEvent buildEvent = new SceneBuildEvent(renScene, menu);
         RenJava.callEvent(buildEvent);
@@ -150,6 +150,11 @@ public abstract class Story {
     public void refresh(String sceneID) {
         RenScene scene = getScene(sceneID);
         scenes.replace(sceneID, scene, scene);
+    }
+
+    public void clear() {
+        scenes.clear();
+        sceneIndexMap.clear();
     }
 
     /**
@@ -273,11 +278,8 @@ public abstract class Story {
     }
 
     public void displayNextScene() {
-        SceneEndEvent event = new SceneEndEvent(getPreviousSceneFromCurrent());
-        RenJava.callEvent(event);
         RenScene renScene = getNextSceneFromCurrent();
-        RenJava.getInstance().getPlayer().updateScene(renScene);
-        renScene.render(renScene.build(true));
+        displayScene(renScene);
     }
 
     public LinkedHashMap<String, RenScene> getScenes() {
