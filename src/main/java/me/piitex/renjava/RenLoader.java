@@ -1,45 +1,50 @@
 package me.piitex.renjava;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Properties;
-import java.util.stream.Stream;
 
+import javafx.application.Platform;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
 
 public class RenLoader {
     private final RenJava renJava;
-
+    boolean shutdown = false;
     public RenLoader(RenJava renJava) {
         this.renJava = renJava;
         renJava.getLogger().info("Starting processes...");
         renJava.buildVersion = getVersion();
         setupMain();
         setupGame();
+        if (shutdown) {
+            // Shutdown application.
+            renJava.getLogger().severe("Game assets do not exist. Please download default assets and place them inside the 'game' folder.");
+            Platform.exit();
+            System.exit(0);
+            return;
+        }
         startPreProcess();
     }
 
     private void setupMain() {
         renJava.getLogger().info("Checking game environment...");
+
+
         File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
         if (gameDirectory.mkdir()) {
             renJava.getLogger().severe("Game directory does not exist. The game will not work properly, please move all assets into the newly created game directory.");
+            shutdown = true;
         }
         File renJavaDirectory = new File(System.getProperty("user.dir") + "/renjava/");
-        renJavaDirectory.mkdir();
+        if (renJavaDirectory.mkdir()) {
+            renJava.getLogger().warning("RenJava folder does not exist. User settings will be reset to defaults.");
+        }
         File logFile = new File(System.getProperty("user.dir"), "log.txt");
         try {
             logFile.createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            renJava.getLogger().warning("Could not create log file. Ensure the application has read and write permissions.");
         }
         for (File file : new File(System.getProperty("user.dir")).listFiles()) {
             if (file.getName().endsWith(".txt.lck")) {
@@ -60,11 +65,17 @@ public class RenLoader {
         }
         renJava.getLogger().info("Loaded " + audioLoaded + " audio file(s)");
         File imageDirectory = new File(directory, "/images/");
-        imageDirectory.mkdir();
+        if (imageDirectory.mkdir()) {
+            renJava.getLogger().warning("Images folder does not exist, creating...");
+        }
         File savesDirectory = new File(directory, "/saves/");
-        savesDirectory.mkdir();
+        if (savesDirectory.mkdir()) {
+            renJava.getLogger().warning("Saves folder does not exist, creating...");
+        }
         File fontsDirectory = new File(directory, "/fonts/");
-        fontsDirectory.mkdir();
+        if (fontsDirectory.mkdir()) {
+            renJava.getLogger().warning("Fonts folder does not exist, creating...");
+        }
 
         renJava.getLogger().info("Loading fonts...");
         int fonts = 0;
