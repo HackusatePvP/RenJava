@@ -1,7 +1,9 @@
 package me.piitex.renjava.api.player;
 
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.exceptions.InvalidStoryException;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -96,6 +98,16 @@ public class Player implements PersistentData {
 
     public Map<String, Story> getStoryIdMap() {
         return storyIdMap;
+    }
+
+    public void startStory(String id) {
+        if (!storyIdMap.containsKey(id)) {
+            RenJava.getInstance().getLogger().severe(new InvalidStoryException(id).getMessage());
+            return;
+        }
+        RenJava.getInstance().getLogger().info("Starting story '" + id + "'");
+        RenJava.getInstance().getPlayer().setCurrentStory(id);
+        getStory(id).start();
     }
 
     public boolean isRightClickMenu() {
