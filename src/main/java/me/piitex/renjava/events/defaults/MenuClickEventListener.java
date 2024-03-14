@@ -10,6 +10,7 @@ import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.ButtonClickEvent;
+import me.piitex.renjava.events.types.GameStartEvent;
 import me.piitex.renjava.gui.Menu;
 
 public class MenuClickEventListener implements EventListener {
@@ -22,15 +23,25 @@ public class MenuClickEventListener implements EventListener {
             renJava.getLogger().info("Creating new game...");
             renJava.createBaseData();
             renJava.createStory();
+
+            // Call GameStartEvent
+            GameStartEvent event1 = new GameStartEvent(renJava);
+            RenJava.callEvent(event1);
+
             renJava.start();
         }
         if (button.getId().equalsIgnoreCase("menu-load-button")) {
             // NOTE: 10/20/2023  new LoadScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
-            new Save(1).load();
+            new Save(1).load(true);
 
 
             // After loading play the current scene and story
             String storyID = renJava.getPlayer().getCurrentStoryID();
+            if (storyID == null) {
+                renJava.getLogger().severe("Save file could not be loaded. The data is either not formatted or corrupted.");
+                return;
+            }
+
             System.out.println("Story: " + renJava.getPlayer().getCurrentStoryID());
 
             renJava.createStory();
