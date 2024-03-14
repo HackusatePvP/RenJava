@@ -1,10 +1,17 @@
 package me.piitex.renjava.api.saves;
 
 
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.stories.Story;
+import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +25,10 @@ import java.util.*;
 public class Save {
     private final File file;
     private int slot;
+
+    // Some ghetto code
+    // Map the scene when the load function is called. Easier way to get preview.
+    private SectionKeyValue sceneSection;
 
     public Save(File file) {
         this.file = file;
@@ -60,7 +71,12 @@ public class Save {
                     }
                     // Handle fields
                     try {
+                        System.out.println("Processing field: " + field.getName());
                         Object object = field.get(data);
+                        if (object == null) {
+                            RenJava.getInstance().getLogger().warning("Value for '" + field.getName() + "' is null. Will not process data.");
+                            continue;
+                        }
                         rootSection.addKeyValue(field.getName(), object.toString());
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
@@ -104,22 +120,6 @@ public class Save {
     }
 
     private void reconstructMap(SectionKeyValue sectionKeyValue, PersistentData data, Field field) throws IllegalAccessException {
-        // I don't think I need to actually re-create the map. Just in case, I will keep the Mapper class for now.
-        //String typeName = field.getGenericType().getTypeName();
-        //typeName = typeName.replace("java.util.Map<", "");
-
-        //<java.lang.String, java.lang.Integer>
-
-        //String[] typeSplit = typeName.replace("<", "").replace(">", "").split(",");
-        //java.lang.String
-        //java.lang.Integer
-
-        // Conversion is required as the map needs to be set to the actual type in order to save it.
-        //String key = typeSplit[0];
-        //String value = typeSplit[1];
-
-
-
         Map<Object, Object> map = (Map<Object, Object>) field.get(data);
         map.entrySet().forEach(objectObjectEntry -> {
             System.out.println("Reconstructing entry...");
@@ -129,7 +129,7 @@ public class Save {
 
 
     // Loads save file
-    public void load() {
+    public void load(boolean process) {
         // Collect and set string data to class data.
         // First loop the registered data and find the string data which corresponds with the data.
 
@@ -196,7 +196,14 @@ public class Save {
                     rootSection.addKeyValue(key.trim(), value.trim());
                 }
             }
-            processSection(persistentData, rootSection);
+            if (process) {
+                processSection(persistentData, rootSection);
+            } else {
+                if (rootSection.getSection().contains("me.piitex.renjava.api.player.Player")) {
+                    System.out.println("Mapping scene...");
+                    sceneSection = rootSection;
+                }
+            }
         }
     }
 
@@ -282,12 +289,13 @@ public class Save {
             objectMap = new HashMap<>();
         }
 
+
+        // TODO: 3/3/2024 Convert generic map type to actual type using the Mapper class
         Map<Object, Object> finalObjectMap = objectMap;
         subSection.getKeyValueMap().forEach((key, value) -> {
             System.out.println("Setting map...");
             System.out.println(key + ": " + value);
             finalObjectMap.put(key, value);
-
         });
     }
 
@@ -311,5 +319,42 @@ public class Save {
         } else if (type.getTypeName().toLowerCase().contains("byte")) {
             field.set(data, Byte.parseByte(string2));
         }
+    }
+
+    // Builds the preview for saving and loading
+    public Pane buildPreview() {
+        Pane pane = new Pane();
+        // Get the current scene the save is on.
+        // Build the scene.
+        // Scale it to a small box.
+        if (sceneSection == null) {
+            // Default image
+            ImageLoader saveImage = new ImageLoader("gui/button/slot_idle_background.png");
+            try {
+                pane.getChildren().add(new ImageView(saveImage.build()));
+            } catch (ImageNotFoundException e) {
+                RenJava.getInstance().getLogger().severe(e.getMessage());
+            }
+        } else {
+            Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
+            RenScene currentScene = story.getScene((String) sceneSection.get("currentScene"));
+            Menu menu = currentScene.build(true);
+            pane = menu.getPane();
+        }
+
+        // Scale the pane to fit a small box.
+
+        // 414 x 309
+        // 1920 1080
+        // 0.2, 0.28
+        pane.setMaxWidth(414);
+        pane.setMaxHeight(309);
+
+
+        return pane;
+    }
+
+    public File getFile() {
+        return file;
     }
 }
