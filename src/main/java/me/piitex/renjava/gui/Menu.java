@@ -5,7 +5,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 
@@ -18,8 +17,6 @@ import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlay.*;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
@@ -39,7 +36,7 @@ public class Menu {
     private Image backgroundImage;
 
     private final LinkedHashSet<Node> nodes = new LinkedHashSet<>();
-
+    private final LinkedHashSet<LayoutMenu> parents = new LinkedHashSet<>();
     private final LinkedHashSet<Layout> layouts = new LinkedHashSet<>();
     private final LinkedHashSet<Overlay> overlays = new LinkedHashSet<>();
     private final LinkedHashSet<Menu> children = new LinkedHashSet<>();
@@ -137,6 +134,14 @@ public class Menu {
         return this;
     }
 
+    public LinkedHashSet<LayoutMenu> getParents() {
+        return parents;
+    }
+
+    public void addParent(LayoutMenu layoutMenu) {
+        parents.add(layoutMenu);
+    }
+
     public LinkedHashSet<Menu> getChildren() {
         return children;
     }
@@ -160,7 +165,6 @@ public class Menu {
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
     public Pane render(@Nullable Pane root, @Nullable RenScene renScene) {
-
         Logger logger = renJava.getLogger();
 
         if (root == null) {
@@ -169,7 +173,6 @@ public class Menu {
 
         root.setTranslateX(x);
         root.setTranslateY(y);
-
         root.setPrefSize(width, height);
 
         // Background fill is used for fade ins.
@@ -186,7 +189,23 @@ public class Menu {
             for (Overlay overlay : layout.getOverlays()) {
                 new Element(overlay).render(layout.getPane());
             }
+            for (Layout child : layout.getChildLayouts()) {
+                // A child layout should be added to a main layout.
+                for (Overlay overlay : child.getOverlays()) {
+                    new Element(overlay).render(child.getPane());
+                }
 
+                Pane childPane = layout.getPane();
+                childPane.setTranslateX(child.getX());
+                childPane.setTranslateY(child.getY());
+                childPane.setPrefSize(child.getWidth(), child.getHeight());
+                if (childPane instanceof HBox hBox) {
+                    hBox.setSpacing(layout.getSpacing());
+                } else if (childPane instanceof VBox vBox) {
+                    vBox.setSpacing(layout.getSpacing());
+                }
+                layout.getPane().getChildren().add(childPane); // Adds the child layout to the main layout.
+            }
             Pane box = layout.getPane();
             box.setTranslateX(layout.getX());
             box.setTranslateY(layout.getY());

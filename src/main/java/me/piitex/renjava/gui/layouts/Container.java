@@ -2,8 +2,6 @@ package me.piitex.renjava.gui.layouts;
 
 import javafx.stage.Stage;
 import me.piitex.renjava.gui.Menu;
-import me.piitex.renjava.gui.layouts.Layout;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;

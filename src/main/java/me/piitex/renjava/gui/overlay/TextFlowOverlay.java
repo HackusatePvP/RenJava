@@ -1,5 +1,7 @@
 package me.piitex.renjava.gui.overlay;
 
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -12,6 +14,7 @@ public class TextFlowOverlay implements Overlay {
     private double y;
     private Transitions transitions;
     private Font font;
+    private Color textColor;
 
     private LinkedList<Text> texts = new LinkedList<>();
 
@@ -61,6 +64,14 @@ public class TextFlowOverlay implements Overlay {
         this.font = font;
     }
 
+    public Color getTextColor() {
+        return textColor;
+    }
+
+    public void setTextColor(Color textColor) {
+        this.textColor = textColor;
+    }
+
     @Override
     public Transitions getTransition() {
         return transitions;
@@ -88,6 +99,7 @@ public class TextFlowOverlay implements Overlay {
             if (font != null) {
                 text.setFont(font);
             }
+            text.setFill(textColor);
             textFlow.getChildren().add(text);
         }
 

@@ -2,7 +2,6 @@ package me.piitex.renjava.gui.layouts.impl;
 
 import javafx.scene.layout.HBox;
 import me.piitex.renjava.gui.layouts.Layout;
-import me.piitex.renjava.gui.overlay.Overlay;
 
 /**
  * Groups overlays and elements horizontally.
