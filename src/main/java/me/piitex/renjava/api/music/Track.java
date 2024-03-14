@@ -47,7 +47,7 @@ public class Track {
         return loop;
     }
 
-    public void stop() {
+    protected void stop() {
         if (player != null) {
             player.stop();
         }

@@ -15,49 +15,50 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 public class Launch extends Application {
 
     public static void main(String[] args) {
         // Scans for all classes in all packages. (We need to do all packages because this allows the author the freedom to do their own package scheme.)
-        Collection<URL> allPackagePrefixes = Arrays.stream(Package.getPackages()).map(Package::getName)
-                .map(s -> s.split("\\.")[0]).distinct().map(ClasspathHelper::forPackage).reduce((c1, c2) -> {
-                    Collection<URL> c3 = new HashSet<>();
-                    c3.addAll(c1);
-                    c3.addAll(c2);
-                    return c3;
-                }).get();
+        Collection<URL> allPackagePrefixes = Arrays.stream(Package.getPackages())
+                .map(Package::getName)
+                .map(s -> s.split("\\.")[0])
+                .distinct()
+                .map(ClasspathHelper::forPackage)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
         ConfigurationBuilder config = new ConfigurationBuilder().addUrls(allPackagePrefixes)
                 .addScanners(Scanners.SubTypes);
         Reflections reflections = new Reflections(config);
 
         // Detect any classes that extend RenJava
-        Class<?> renJavaClass = null;
         for (Class<?> c : reflections.getSubTypesOf(RenJava.class)) {
-
-            // Checks for default RenJava class: This was removed but could be re-added at a later date.
-            if (c.getName().contains("Example")) {
-                renJavaClass = c;
-            } else {
-                try {
-                    c.getDeclaredConstructor().newInstance();
-                    launch(args);
-                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
-                         InvocationTargetException e) {
-                    e.printStackTrace();
+            try {
+                Object o = c.getDeclaredConstructor().newInstance();
+                RenJava renJava = (RenJava) o;
+                if (c.getDeclaredConstructor().isAnnotationPresent(Game.class)) {
+                    Game game = c.getDeclaredConstructor().getAnnotation(Game.class);
+                    renJava.name = game.name();
+                    renJava.author = game.author();
+                    renJava.version = game.version();
+                } else {
+                    System.err.println("Please annotate your main constructor with Game.\n\t\t@Game\n\t\tpublic void " + c.getDeclaredConstructor().getName() + "() { }");
+                    renJava.name = "Error";
+                    renJava.author = "Error";
+                    renJava.version = "Error";
                 }
-                return;
+                renJava.init(); // Initialize game
+                launch(args);
+                //c.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
+                e.printStackTrace();
             }
+            return;
         }
 
-        try {
-            if (renJavaClass != null) {
-                renJavaClass.getDeclaredConstructor().newInstance();
-                launch(args);
-            }
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        System.err.println("Could not initialize RenJava. Please make a class which extends 'RenJava'.");
     }
 
     @Override

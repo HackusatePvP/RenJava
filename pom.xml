@@ -6,7 +6,7 @@
 
     <groupId>me.piitex</groupId>
     <artifactId>RenJava</artifactId>
-    <version>0.0.757-SNAPSHOT</version>
+    <version>0.0.802-SNAPSHOT</version>
     <name>RenJava</name>
 
     <properties>
@@ -100,12 +100,6 @@
             <groupId>com.github.goxr3plus</groupId>
             <artifactId>java-stream-player</artifactId>
             <version>9.0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

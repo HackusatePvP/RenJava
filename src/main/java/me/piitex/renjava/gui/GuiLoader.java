@@ -25,8 +25,6 @@ public class GuiLoader {
         this.stage = stage;
         this.renJava = renJava;
         renJava.setHost(services);
-        GameStartEvent event = new GameStartEvent(renJava);
-        RenJava.callEvent(event);
         buildSplashScreen();
     }
 
@@ -38,7 +36,7 @@ public class GuiLoader {
 
         Menu menu = renJava.buildSplashScreen();
         if (menu == null) {
-            renJava.getLogger().warning("Splash screen not found.");
+            renJava.getLogger().warning("No splash screen was rendered..");
             renJavaFrameworkBuild();
             return; // Don't create a splash screen if one wasn't set.
         }
@@ -71,6 +69,7 @@ public class GuiLoader {
             renJava.getLogger().severe("No default font set.");
             renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
             renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
+            renJava.getConfiguration().setCharacterDisplayFont(new FontLoader("Arial", 26));
         }
         stage = new Stage();
 
@@ -88,10 +87,8 @@ public class GuiLoader {
             try {
                 menu.setBackgroundImage(new ImageLoader("gui/main_menu.png").build());
             } catch (ImageNotFoundException e) {
-                throw new RuntimeException(e);
+                logger.severe(e.getMessage());
             }
-        } else {
-            logger.info("Rendering main menu...");
         }
 
         Menu sideMenu = renJava.buildSideMenu();

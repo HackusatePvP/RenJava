@@ -170,7 +170,8 @@ public class AddonLoader {
                             addon.getDependencies().addAll(dependencies);
                         }
                         addons.add(addon);
-                        clazz.getMethod("onLoad").invoke(object, null);
+                        //clazz.getMethod("onLoad").invoke(object, null);
+                        addon.onLoad(); // Loads addon
                         logger.info("Loaded: " + addon.getName());
                     }
                 }

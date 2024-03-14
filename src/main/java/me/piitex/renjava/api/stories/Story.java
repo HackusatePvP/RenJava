@@ -112,22 +112,22 @@ public abstract class Story {
      */
 
     public void start() {
+        // Update RenJava Player BEFORE the scenes are added
+        renJava.getPlayer().setCurrentStory(this.getId());
+
+        clear(); // Clear previous mappings
         init(); // Initialize when starting
 
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
+        renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
         Menu menu = renScene.build(true);
-
-        renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
         SceneBuildEvent buildEvent = new SceneBuildEvent(renScene, menu);
         RenJava.callEvent(buildEvent);
 
         renScene.render(menu);
-
-        // Update RenJava Player
-        renJava.getPlayer().setCurrentStory(this.getId());
     }
 
     /**
@@ -152,6 +152,11 @@ public abstract class Story {
         scenes.replace(sceneID, scene, scene);
     }
 
+    public void clear() {
+        scenes.clear();
+        sceneIndexMap.clear();
+    }
+
     /**
      * Scenes are ordered the same way they are created. The first scene in a story is the first scene that was created.
      * @param scene Scene to add the story.
@@ -166,7 +171,6 @@ public abstract class Story {
         int index = sceneIndexMap.size();
         sceneIndexMap.put(index, scene);
         scene.setIndex(index);
-        scene.setStory(this); // Updates the scene data.
     }
 
     /**
@@ -179,7 +183,6 @@ public abstract class Story {
             int index = sceneIndexMap.size();
             sceneIndexMap.put(index, renScene);
             renScene.setIndex(index);
-            renScene.setStory(this);
         }
     }
 
@@ -275,11 +278,8 @@ public abstract class Story {
     }
 
     public void displayNextScene() {
-        SceneEndEvent event = new SceneEndEvent(getPreviousSceneFromCurrent());
-        RenJava.callEvent(event);
         RenScene renScene = getNextSceneFromCurrent();
-        RenJava.getInstance().getPlayer().updateScene(renScene);
-        renScene.render(renScene.build(true));
+        displayScene(renScene);
     }
 
     public LinkedHashMap<String, RenScene> getScenes() {

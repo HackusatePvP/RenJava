@@ -1,32 +1,24 @@
 package me.piitex.renjava.api.scenes.types;
 
-import javafx.animation.Animation;
-import javafx.animation.Timeline;
-import javafx.scene.image.Image;
 import javafx.scene.text.*;
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.builders.TextFlowBuilder;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
 import me.piitex.renjava.api.scenes.text.StringFormatter;
-import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
-import me.piitex.renjava.events.types.SceneAnimationStartEvent;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 import me.piitex.renjava.gui.overlay.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.AbstractMap;
 import java.util.LinkedList;
 
 
@@ -58,8 +50,8 @@ import java.util.LinkedList;
 public class ImageScene extends RenScene {
     private Character character;
     private String dialogue;
-    private final ImageLoader backgroundImage;
-
+    private ImageLoader backgroundImage;
+    private Font font;
     private String characterDisplayName;
 
     private final RenJavaConfiguration configuration;
@@ -80,16 +72,26 @@ public class ImageScene extends RenScene {
         super(id, loader);
         this.character = character;
         this.dialogue = dialogue;
-        if (loader == null) {
-            backgroundImage = renJava.getPlayer().getLastDisplayedImage();
-        } else {
+        if (loader != null) {
             this.backgroundImage = loader;
-            renJava.getPlayer().setLastDisplayedImage(backgroundImage);
+            renJava.getLogger().info("Story: " + getStory().getId());
+            renJava.getPlayer().setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), loader));
         }
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();
         }
         configuration = renJava.getConfiguration();
+        font = configuration.getDialogueFont().getFont();
+    }
+
+    public ImageScene(String id, @Nullable Character character, String dialogue) {
+        super(id, null);
+        this.character = character;
+        this.dialogue = dialogue;
+        backgroundImage = renJava.getPlayer().getLastDisplayedImage().getValue();
+        setBackgroundImage(backgroundImage);
+        configuration = renJava.getConfiguration();
+        font = configuration.getDialogueFont().getFont();
     }
 
     public Character getCharacter() {
@@ -108,13 +110,21 @@ public class ImageScene extends RenScene {
         this.dialogue = dialogue;
     }
 
+    public Font getDialogueFont() {
+        return font;
+    }
+
+    public void setDialogueFont(Font font) {
+        this.font = font;
+    }
+
     @Override
     public Menu build(boolean ui) {
         Menu rootMenu = new Menu(configuration.getWidth(), configuration.getHeight(), backgroundImage);
 
         if (ui) {
-            Text characterDisplay = null;
-            if (dialogue != null && !dialogue.isEmpty()) {
+            Text characterDisplay;
+            if (character != null) {
                 if (getCharacterNameDisplay() != null) {
                     // Set character display
                     characterDisplay = new Text(getCharacterNameDisplay());
@@ -122,47 +132,45 @@ public class ImageScene extends RenScene {
                     characterDisplay = new Text(character.getDisplayName());
                 }
                 characterDisplay.setFill(character.getColor());
-            }
 
-            if (dialogue != null && !dialogue.isEmpty()) {
-                Image textbox = null;
-                try {
-                    textbox = new ImageLoader("gui/textbox.png").build();
-                } catch (ImageNotFoundException e) {
-                    renJava.getLogger().severe(e.getMessage());
-                } finally {
-                    if (textbox != null) {
-                        Menu textboxMenu = new Menu(configuration.getWidth(), configuration.getHeight() - textbox.getHeight());
+                if (dialogue != null && !dialogue.isEmpty()) {
+                    ImageLoader textbox = new ImageLoader("gui/textbox.png");
+                    Menu textboxMenu = new Menu(configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
 
-                        try {
-                            ImageOverlay textBoxImage = new ImageOverlay(new ImageLoader("gui/textbox.png").build(), configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-                            textboxMenu.addOverlay(textBoxImage);
-                        } catch (ImageNotFoundException e) {
-                            renJava.getLogger().severe(e.getMessage());
-                        }
+                    ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
+                    textboxMenu.addOverlay(textBoxImage);
 
-                        LinkedList<Text> texts = StringFormatter.formatText(dialogue);
-                        TextFlowBuilder textFlowBuilder;
-                        if (texts.isEmpty()) {
-                            Text text = new Text(dialogue);
-                            text.setFont(renJava.getConfiguration().getDialogueFont().getFont());
-                            textFlowBuilder = new TextFlowBuilder(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                        } else {
-                            textFlowBuilder = new TextFlowBuilder(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                        }
-                        textboxMenu.addOverlay(new TextFlowOverlay(textFlowBuilder, configuration.getTextX() + configuration.getTextOffsetX(), configuration.getTextY() + configuration.getTextOffsetY()));
-
-                        characterDisplay.setFont(new FontLoader(renJava.getConfiguration().getDefaultFont().getFont(), configuration.getCharacterTextSize()).getFont());
-                        characterDisplay.setFill(character.getColor());
-                        characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
-                        characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
-
-                        textboxMenu.addOverlay(new TextOverlay(characterDisplay, characterDisplay.getX(), characterDisplay.getY()));
-                        rootMenu.addMenu(textboxMenu);
+                    LinkedList<Text> texts = StringFormatter.formatText(dialogue);
+                    TextFlowOverlay textFlowOverlay;
+                    if (texts.isEmpty()) {
+                        Text text = new Text(dialogue);
+                        text.setFont(renJava.getConfiguration().getDialogueFont().getFont());
+                        textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                    } else {
+                        textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                     }
+                    textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
+                    textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
+                    textFlowOverlay.setTextColor(configuration.getDialogueColor());
+                    textFlowOverlay.setFont(font);
+                    textboxMenu.addOverlay(textFlowOverlay);
+
+                    characterDisplay.setFill(character.getColor());
+                    TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getDefaultFont().getFont(), configuration.getCharacterTextSize()),
+                            configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
+                            configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
+
+                    characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
+                    characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
+
+                    textboxMenu.addOverlay(characterText);
+
+                    rootMenu.addMenu(textboxMenu);
                 }
             }
         }
+
+
         for (File file : getStyleSheets()) {
             try {
                 RenJava.getInstance().getStage().getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
@@ -185,7 +193,6 @@ public class ImageScene extends RenScene {
 
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);
-
     }
 
     @Override

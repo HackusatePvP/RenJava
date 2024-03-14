@@ -5,7 +5,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 
@@ -18,8 +17,6 @@ import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlay.*;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
@@ -39,7 +36,7 @@ public class Menu {
     private Image backgroundImage;
 
     private final LinkedHashSet<Node> nodes = new LinkedHashSet<>();
-
+    private final LinkedHashSet<LayoutMenu> parents = new LinkedHashSet<>();
     private final LinkedHashSet<Layout> layouts = new LinkedHashSet<>();
     private final LinkedHashSet<Overlay> overlays = new LinkedHashSet<>();
     private final LinkedHashSet<Menu> children = new LinkedHashSet<>();
@@ -54,10 +51,12 @@ public class Menu {
     }
 
     public Menu(double width, double height, ImageLoader imageLoader) {
-        try {
-            this.backgroundImage = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            e.printStackTrace();
+        if (imageLoader != null) {
+            try {
+                this.backgroundImage = imageLoader.build();
+            } catch (ImageNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         this.width = width;
         this.height = height;
@@ -135,6 +134,14 @@ public class Menu {
         return this;
     }
 
+    public LinkedHashSet<LayoutMenu> getParents() {
+        return parents;
+    }
+
+    public void addParent(LayoutMenu layoutMenu) {
+        parents.add(layoutMenu);
+    }
+
     public LinkedHashSet<Menu> getChildren() {
         return children;
     }
@@ -158,8 +165,6 @@ public class Menu {
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
     public Pane render(@Nullable Pane root, @Nullable RenScene renScene) {
-        // TODO: 2/13/2024 Make an element class which can render every overlay instead of this spaghettiti code.
-
         Logger logger = renJava.getLogger();
 
         if (root == null) {
@@ -168,21 +173,43 @@ public class Menu {
 
         root.setTranslateX(x);
         root.setTranslateY(y);
+        root.setPrefSize(width, height);
 
-        Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
+        // Background fill is used for fade ins.
+        BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));
+        root.setBackground(new Background(backgroundFill));
 
-        backgroundImgElement.render(root);
+        if (backgroundImage != null) {
+            Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
+            backgroundImgElement.render(root);
+        }
 
         logger.info("Rendering layouts...");
         for (Layout layout : layouts) {
             for (Overlay overlay : layout.getOverlays()) {
                 new Element(overlay).render(layout.getPane());
             }
+            for (Layout child : layout.getChildLayouts()) {
+                // A child layout should be added to a main layout.
+                for (Overlay overlay : child.getOverlays()) {
+                    new Element(overlay).render(child.getPane());
+                }
 
+                Pane childPane = layout.getPane();
+                childPane.setTranslateX(child.getX());
+                childPane.setTranslateY(child.getY());
+                childPane.setPrefSize(child.getWidth(), child.getHeight());
+                if (childPane instanceof HBox hBox) {
+                    hBox.setSpacing(layout.getSpacing());
+                } else if (childPane instanceof VBox vBox) {
+                    vBox.setSpacing(layout.getSpacing());
+                }
+                layout.getPane().getChildren().add(childPane); // Adds the child layout to the main layout.
+            }
             Pane box = layout.getPane();
-            box.setTranslateX(layout.getXPosition());
-            box.setTranslateY(layout.getYPosition());
-            box.setPrefSize(layout.getWidth(), layout.getWidth());
+            box.setTranslateX(layout.getX());
+            box.setTranslateY(layout.getY());
+            box.setPrefSize(layout.getWidth(), layout.getHeight());
             if (box instanceof HBox hBox) {
                 hBox.setSpacing(layout.getSpacing());
             } else if (box instanceof VBox vBox) {
@@ -193,18 +220,17 @@ public class Menu {
         }
 
         for (Overlay overlay : overlays) {
-           new Element(overlay).render(root);
+            new Element(overlay).render(root);
         }
 
+
         for (Menu menu : children) {
-            menu.render(root, renScene); // Renders menu on top of this menu.
+            if (menu != null) {
+                menu.render(root, renScene); // Renders menu on top of this menu.
+            }
         }
 
         rootMenu = this;
-
-        // Background fill is used for fade ins.
-        BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));
-        root.setBackground(new Background(backgroundFill));
 
         Scene scene;
         if (stage.getScene() != null) {
@@ -213,12 +239,6 @@ public class Menu {
         } else {
             stage.setScene(new Scene(root));
             scene = stage.getScene();
-        }
-
-        try {
-            scene.getStylesheets().add(new File(System.getProperty("user.dir") + "/game/css/button.css").toURI().toURL().toExternalForm());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         }
 
         setInputControls(scene);
@@ -261,5 +281,4 @@ public class Menu {
             RenJava.callEvent(event);
         });
     }
-
 }

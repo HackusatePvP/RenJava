@@ -23,7 +23,7 @@ public class StoryHandlerEventListener implements EventListener {
             scene.getStartInterface().onStart(event);
         }
         if (story == null) return;
-        player.getViewedStories().put(story.getId(), story);
+        player.getViewedStories().add(story.getId());
         // Check to see if this scene is the first scene in the story.
         if (story.getSceneIndex(scene) == 0) { // 0 means the first entry.
             // Update the story tracker

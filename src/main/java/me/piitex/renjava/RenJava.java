@@ -8,9 +8,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
-import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.exceptions.InvalidCharacterException;
 import me.piitex.renjava.api.music.Tracks;
+import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.characters.Character;
@@ -27,6 +28,8 @@ import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.layouts.Layout;
+import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.StageType;
@@ -63,14 +66,14 @@ import java.util.logging.*;
  * Note: Do not call the `RenJava` constructor directly. The framework creates a new instance of your class automatically using reflections.
  */
 public abstract class RenJava {
-    private final String name;
-    private final String author;
-    private final String version;
-    private final Logger logger;
-    private final Player player;
+    protected String name;
+     protected String author;
+     protected String version;
+    private Logger logger;
+    private Player player;
     // Audio Tracking
-    private final Tracks tracks;
-    private final AddonLoader addonLoader;
+    private Tracks tracks;
+    private AddonLoader addonLoader;
 
     private Stage stage; // Move this somewhere else.
     private StageType stageType;
@@ -94,16 +97,28 @@ public abstract class RenJava {
      * Entry point for the RenJava framework. This class is designed to be extended by your own class, which will serve as the entry point for your game.
      * <p>
      * Note: Do not call this constructor directly. The RenJava framework creates a new instance of your class automatically using reflection.
+     * <p>
+     * Make sure to use {@link Game} to specify the information of the game.
+     * <pre>{@code
+     * public class YourGame extends RenJava {
      *
-     * @param name    The name of the game, used for displaying the game in the window and other various places.
-     * @param author  The author of the game.
-     * @param version The current version of the game, used to display specific information about the game.
+     *     @Game(name = "Your Game", author = "You", version = "1.0")
+     *     public YourGame() {
+     *
+     *     }
+     * }
+     * }</pre>
+     * If you do not specify the game information it will assume default values.
+     *
+     * @see Game
      */
-    public RenJava(String name, String author, String version) {
+    public RenJava() {
+        // Super is ran first than the superior method is ran.
         instance = this;
-        this.name = name;
-        this.author = author;
-        this.version = version;
+    }
+
+    protected void init() {
+        // Run after super
         this.player = new Player();
         this.tracks = new Tracks();
         // Load logger
@@ -228,6 +243,10 @@ public abstract class RenJava {
      * @see RenJava#registerCharacter(Character)
      */
     public Character getCharacter(String id) {
+        if (!registeredCharacters.containsKey(id)) {
+            getLogger().severe(new InvalidCharacterException(id).getMessage());
+            return null;
+        }
         return registeredCharacters.get(id.toLowerCase());
     }
 
@@ -304,7 +323,7 @@ public abstract class RenJava {
         } else {
             stage.setMaximized(true);
         }
-        stage.setTitle(getName());
+        stage.setTitle(getConfiguration().getGameTitle());
 
         stage.setOnHiding(windowEvent -> {
             getAddonLoader().disable();
@@ -394,20 +413,19 @@ public abstract class RenJava {
     public abstract Menu buildTitleScreen();
 
     public Menu buildSideMenu() {
-        // Don't build background image
         Menu menu = new Menu(350, 500, new ImageLoader("gui/overlay/main_menu.png"));
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
-        ButtonOverlay startButton = new ButtonOverlay(new ButtonBuilder("menu-start-button", "Start", uiFont, Color.BLACK, 1, 1));
-        ButtonOverlay loadButton = new ButtonOverlay(new ButtonBuilder("menu-load-button", "Load", uiFont, Color.BLACK, 1, 1));
-        ButtonOverlay optionsButton = new ButtonOverlay(new ButtonBuilder("menu-preference-button", "Preferences", uiFont, Color.BLACK, 1, 1));
-        ButtonOverlay aboutButton = new ButtonOverlay(new ButtonBuilder("menu-about-button", "About", uiFont, Color.BLACK, 1, 1));
+        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
+        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
+        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
+        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
 
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(200, 500);
-        layout.setXPosition(50);
-        layout.setYPosition(250);
+        layout.setX(50);
+        layout.setY(250);
         layout.setSpacing(20);
         layout.addOverlays(startButton, loadButton, optionsButton, aboutButton);
 
@@ -417,8 +435,40 @@ public abstract class RenJava {
         return menu;
     }
 
-    public Menu buildLoadMenu() {
+    public Menu buildLoadMenu(int page) {
         Menu menu = new Menu(1920, 1080, new ImageLoader("gui/main_menu.png"));
+        // Setup pagination.
+        // 6 save slots per page
+        //   2 Rows
+        //   3 Columns
+        // Make this customizable
+
+        int maxSavesPerPage = 6;
+
+        int index = 1;
+        VerticalLayout rootLayout = new VerticalLayout(1000, 400); // The root is a vertical which stacks the two horizontal layouts.
+        HorizontalLayout topLayout = new HorizontalLayout(1000, 200);
+        HorizontalLayout bottomLayout = new HorizontalLayout(1000, 200);
+        while (index <=  maxSavesPerPage) {
+            // Create a button overlay of the scene that the save file would have been on.,
+            // This will be a little challenging, it should be possible given the api of the Save object.
+            Save save = new Save(index);
+            if (save.getFile() != null) {
+                if (index <= 3) {
+                    // Top layout
+
+                } else {
+                    // Bottom layout
+                }
+            } else {
+                // Process empty slot
+            }
+            index++;
+        }
+
+        rootLayout.addChildLayout(topLayout);
+        rootLayout.addChildLayout(bottomLayout);
+
 
         return menu;
     }
@@ -489,7 +539,7 @@ public abstract class RenJava {
      * Example usage:
      * <pre>{@code
      *     // Get the current story from the StoryManager
-     *     Story myStory = this.getStoryManager().getStory("my-story");
+     *     Story myStory = this.getPlayer().getStory("my-story");
      *     // Start the story
      *     myStory.start();
      * }</pre>

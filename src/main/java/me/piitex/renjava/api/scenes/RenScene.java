@@ -1,9 +1,5 @@
 package me.piitex.renjava.api.scenes;
 
-import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -19,11 +15,7 @@ import me.piitex.renjava.api.stories.Story;
 
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
-import me.piitex.renjava.gui.overlay.TextOverlay;
-
 
 import java.io.File;
 import java.util.Collection;
@@ -47,7 +39,7 @@ import java.util.HashSet;
  */
 public abstract class RenScene extends Container {
     private final String id;
-    private final ImageLoader backgroundImage;
+    private ImageLoader backgroundImage;
     private Story story;
     private int index;
     private SceneStartInterface startInterface;
@@ -68,6 +60,7 @@ public abstract class RenScene extends Container {
     public RenScene(String id, ImageLoader backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
+        setStory(RenJava.getInstance().getPlayer().getCurrentStory()); // Update the current story.
     }
 
     public RenScene onStart(SceneStartInterface sceneInterface) {
@@ -118,6 +111,10 @@ public abstract class RenScene extends Container {
 
     public ImageLoader getBackgroundImage() {
         return backgroundImage;
+    }
+
+    public void setBackgroundImage(ImageLoader backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 
     public SceneStartInterface getStartInterface() {

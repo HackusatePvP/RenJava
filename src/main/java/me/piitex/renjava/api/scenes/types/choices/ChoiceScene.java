@@ -8,16 +8,17 @@ import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ButtonClickEvent;
+import me.piitex.renjava.events.types.ChoiceButtonBuildEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.ButtonBuilder;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * The ChoiceScene class represents a scene in the RenJava framework that presents the player with multiple choices.
@@ -62,7 +63,7 @@ import java.util.LinkedHashSet;
  * @see ChoiceSelectInterface
  */
 public class ChoiceScene extends RenScene {
-    private final ImageLoader backgroundImage;
+    private ImageLoader backgroundImage;
 
     private ChoiceSelectInterface selectInterface;
 
@@ -82,6 +83,17 @@ public class ChoiceScene extends RenScene {
     public ChoiceScene(String id, ImageLoader backgroundImage) {
         super(id, backgroundImage);
         this.backgroundImage = backgroundImage;
+    }
+
+    /**
+     * Creates a ChoiceScene object with the specified identifier.
+     *
+     * @param id               The unique identifier for the scene.
+     */
+    public ChoiceScene(String id) {
+        super(id, null);
+        this.backgroundImage = RenJava.getInstance().getPlayer().getLastDisplayedImage().getValue();
+        setBackgroundImage(backgroundImage);
     }
 
     public ChoiceScene addChoice(Choice choice) {
@@ -139,8 +151,13 @@ public class ChoiceScene extends RenScene {
 
         if (ui) {
             VerticalLayout layout = new VerticalLayout(500, 500);
-            layout.setXPosition(((RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2) - 600);
-            layout.setYPosition(((RenJava.getInstance().getConfiguration().getHeight() - layout.getHeight()) / 2) - 200);
+            //layout.setX(((double) (RenJava.getInstance().getConfiguration().getWidth() - layout.getWidth()) / 2) - 600);
+            //layout.setY(((double) (RenJava.getInstance().getConfiguration().getHeight() - layout.getHeight()) / 2) - 200);
+            Map.Entry<Integer, Integer> midPoint = RenJava.getInstance().getConfiguration().getMidPoint();
+            System.out.println("Set X: " + midPoint.getKey());
+            System.out.println("Set Y: " + midPoint.getValue());
+            layout.setX(midPoint.getKey() - 600);
+            layout.setY(midPoint.getValue() - 200);
             layout.setSpacing(20.0);
             ImageLoader choiceBoxImage = new ImageLoader("gui/button/choice_idle_background.png");
 
@@ -150,7 +167,7 @@ public class ChoiceScene extends RenScene {
                     buttonOverlay = new ButtonOverlay(getChoiceButton(choice, choiceBoxImage.build()));
                     layout.addOverlays(buttonOverlay);
                 } catch (ImageNotFoundException e) {
-                    throw new RuntimeException(e);
+                    RenJava.getInstance().getLogger().severe(e.getMessage());
                 }
             }
             menu.addLayout(layout);
@@ -168,8 +185,16 @@ public class ChoiceScene extends RenScene {
     }
 
     private Button getChoiceButton(Choice choice, Image image) {
-        ButtonBuilder builder = new ButtonBuilder(choice.getId(), choice.getText(), RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
-        Button button = builder.build();
+        ButtonOverlay buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), RenJava.getInstance().getConfiguration().getDefaultFont().getFont(), Color.BLACK, 0, 0, 1, 1);
+        buttonOverlay.setBorderColor(Color.TRANSPARENT);
+        buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
+        buttonOverlay.setHover(true);
+        buttonOverlay.setTextFill(Color.WHITE);
+        buttonOverlay.setHoverColor(Color.BLUE);
+
+
+        ChoiceButtonBuildEvent choiceButtonBuildEvent = new ChoiceButtonBuildEvent(buttonOverlay);
+        Button button = choiceButtonBuildEvent.getButtonOverlay().build();
 
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
