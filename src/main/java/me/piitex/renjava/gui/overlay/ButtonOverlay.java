@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -25,11 +26,13 @@ public class ButtonOverlay implements Overlay {
     private Color backgroundColor;
     private Color borderColor;
     private Color hoverColor;
+    private ImageLoader hoverImage;
     private boolean hover;
     private int borderWidth = 0;
     private int backgroundRadius = 0;
 
     private double x = 1, y = 1;
+    private int maxHeight = 0, maxWidth = 0;
     private final double xScale, yScale;
 
     public ButtonOverlay(String id, String text, Color textFill, double xScale, double yScale) {
@@ -262,6 +265,16 @@ public class ButtonOverlay implements Overlay {
 
     public void setHoverColor(Color hoverColor) {
         this.hoverColor = hoverColor;
+        this.hover = true;
+    }
+
+    public ImageLoader getHoverImage() {
+        return hoverImage;
+    }
+
+    public void setHoverImage(ImageLoader hoverImage) {
+        this.hoverImage = hoverImage;
+        this.hover = true;
     }
 
     public boolean isHover() {
@@ -306,6 +319,22 @@ public class ButtonOverlay implements Overlay {
         this.y = y;
     }
 
+    public int getMaxHeight() {
+        return maxHeight;
+    }
+
+    public void setMaxHeight(int maxHeight) {
+        this.maxHeight = maxHeight;
+    }
+
+    public int getMaxWidth() {
+        return maxWidth;
+    }
+
+    public void setMaxWidth(int maxWidth) {
+        this.maxWidth = maxWidth;
+    }
+
     @Override
     public Transitions getTransition() {
         return transitions;
@@ -345,6 +374,12 @@ public class ButtonOverlay implements Overlay {
         if (textFill != null) {
             button.setTextFill(textFill);
         }
+        if (maxHeight > 0) {
+            button.setMaxHeight(maxHeight);
+        }
+        if (maxWidth > 0) {
+            button.setMaxWidth(maxWidth);
+        }
         String inLine = "";
         if (backgroundColor != null) {
             inLine += "-fx-background-color: " + cssColor(backgroundColor) + "; ";
@@ -359,12 +394,24 @@ public class ButtonOverlay implements Overlay {
         if (hover) {
             AtomicReference<String> attomicInLine = new AtomicReference<>(inLine);
             button.setOnMouseEntered(mouseEvent -> {
-                button.setTextFill(hoverColor);
-                button.setStyle(attomicInLine.get());
+                if (hoverColor != null) {
+                    button.setTextFill(hoverColor);
+                    button.setStyle(attomicInLine.get());
+                }
+                if (hoverImage != null) {
+                    try {
+                        button.setGraphic(new ImageView(hoverImage.build()));
+                    } catch (ImageNotFoundException e) {
+                        RenJava.getInstance().getLogger().severe(e.getMessage());
+                    }
+                }
             });
             button.setOnMouseExited(mouseEvent -> {
                 button.setTextFill(textFill);
                 button.setStyle(attomicInLine.get());
+                if (image != null) {
+                    button.setGraphic(new ImageView(image));
+                }
             });
         }
 
@@ -385,13 +432,12 @@ public class ButtonOverlay implements Overlay {
     }
 
     // Helper css function
-    public String cssColor(Color color) {
-        String webFormat = String.format("rgba(%d, %d, %d, %f)",
+    private String cssColor(Color color) {
+        return String.format("rgba(%d, %d, %d, %f)",
                 (int) (255 * color.getRed()),
                 (int) (255 * color.getGreen()),
                 (int) (255 * color.getBlue()),
                 color.getOpacity());
-        return webFormat;
     }
 
     public static ButtonOverlay copyOf(String id, ButtonOverlay builder) {
