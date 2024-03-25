@@ -613,11 +613,6 @@ public abstract class RenJava {
      * @param event Event to be executed.
      */
     public static void callEvent(Event event) {
-//        Collection<Method> lowestMethods = new HashSet<>();
-//        Collection<Method> lowMethods = new HashSet<>();
-//        Collection<Method> normalMethods = new HashSet<>();
-//        Collection<Method> highMethods = new HashSet<>();
-//        Collection<Method> highestMethods = new HashSet<>();
         Map<EventListener, Method> lowestMethods = new HashMap<>();
         Map<EventListener, Method> lowMethods = new HashMap<>();
         Map<EventListener, Method> normalMethods = new HashMap<>();
@@ -654,22 +649,8 @@ public abstract class RenJava {
             }
         }
 
-        // There has got to be a way to make this better.
-//        for (Method method : highestMethods) {
-//            invokeMethod(method, event);
-//        }
-//        for (Method method : highMethods) {
-//            invokeMethod(method, event);
-//        }
-//        for (Method method : normalMethods) {
-//            invokeMethod(method, event);
-//        }
-//        for (Method method : lowMethods) {
-//           invokeMethod(method, event);
-//        }
-//        for (Method method : lowestMethods) {
-//            invokeMethod(method, event);
-//        }
+        //FIXME: I'm pretty sure ths is in the wrong order. Low method should be called first, high method called last. Needs some testing and debating before
+        //       Determining the final order.
         highestMethods.forEach((listener, method) -> {
             invokeMethod(listener, method, event);
         });

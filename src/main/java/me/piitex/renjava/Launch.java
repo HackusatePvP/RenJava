@@ -8,6 +8,9 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 
+import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.configuration.Configuration;
+import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
@@ -37,23 +40,35 @@ public class Launch extends Application {
             try {
                 Object o = c.getDeclaredConstructor().newInstance();
                 RenJava renJava = (RenJava) o;
-                if (c.getDeclaredConstructor().isAnnotationPresent(Game.class)) {
-                    Game game = c.getDeclaredConstructor().getAnnotation(Game.class);
+                if (renJava.getClass().isAnnotationPresent(Game.class)) {
+                    Game game = renJava.getClass().getAnnotation(Game.class);
                     renJava.name = game.name();
                     renJava.author = game.author();
                     renJava.version = game.version();
                 } else {
-                    System.err.println("Please annotate your main constructor with Game.\n\t\t@Game\n\t\tpublic void " + c.getDeclaredConstructor().getName() + "() { }");
+                    System.err.println("ERROR: Please annotate your main class with 'Game'.");
                     renJava.name = "Error";
                     renJava.author = "Error";
                     renJava.version = "Error";
                 }
+
+                // Build configuration
+                if (renJava.getClass().isAnnotationPresent(Configuration.class)) {
+                    Configuration conf = renJava.getClass().getAnnotation(Configuration.class);
+                    RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name), conf.width(), conf.height(), new ImageLoader(conf.windowIconPath()));
+                    renJava.setConfiguration(configuration);
+                } else {
+                    System.err.println("ERROR: Configuration annotation not found. Please annotate your main class with 'Configuration'");
+                    RenJavaConfiguration configuration = new RenJavaConfiguration("Error", 1920, 1080, new ImageLoader("gui/window_icon.png"));
+                    renJava.setConfiguration(configuration);
+                }
+
                 renJava.init(); // Initialize game
                 launch(args);
                 //c.getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
                      InvocationTargetException e) {
-                e.printStackTrace();
+                System.err.println("ERROR: Could initialize the RenJava framework: " + e.getMessage());
             }
             return;
         }
