@@ -39,6 +39,10 @@ public class Save {
         this.file = new File(System.getProperty("user.dir") + "/game/saves/save-" + slot + ".dat");
     }
 
+    public boolean exists() {
+        return file.exists();
+    }
+
     // Writes save file
     public void write() {
         // First get all PersistentData to write.
@@ -64,7 +68,7 @@ public class Save {
                     if (mapSection != null) {
                         System.out.println("Map Section: ");
 
-                        System.out.println(mapSection.toString());
+                        System.out.println(mapSection);
                         rootSection.addSubSection(mapSection);
 
                         continue;
@@ -331,7 +335,10 @@ public class Save {
             // Default image
             ImageLoader saveImage = new ImageLoader("gui/button/slot_idle_background.png");
             try {
-                pane.getChildren().add(new ImageView(saveImage.build()));
+                ImageView view = new ImageView(saveImage.build());
+                view.setFitHeight(419);
+                view.setFitWidth(309);
+                pane.getChildren().add(view);
             } catch (ImageNotFoundException e) {
                 RenJava.getInstance().getLogger().severe(e.getMessage());
             }
