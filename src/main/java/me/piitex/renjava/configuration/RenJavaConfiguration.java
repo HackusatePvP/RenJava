@@ -17,8 +17,10 @@ public class RenJavaConfiguration {
     private FontLoader dialogueFont;
     private FontLoader uiFont;
     private FontLoader characterDisplayFont;
+    private FontLoader choiceButtonFont;
     private Color dialogueColor = Color.BLACK;
-
+    private Color choiceButtonColor = Color.BLACK;
+    private Color hoverColor = Color.BLUE;
     private int dialogueBoxWidth = 1000;
     private int dialogueBoxHeight = 600;
 
@@ -110,6 +112,14 @@ public class RenJavaConfiguration {
         return characterDisplayFont;
     }
 
+    public FontLoader getChoiceButtonFont() {
+        return choiceButtonFont;
+    }
+
+    public void setChoiceButtonFont(FontLoader choiceButtonFont) {
+        this.choiceButtonFont = choiceButtonFont;
+    }
+
     public void setCharacterDisplayFont(FontLoader characterDisplayFont) {
         this.characterDisplayFont = characterDisplayFont;
     }
@@ -120,6 +130,22 @@ public class RenJavaConfiguration {
 
     public void setDialogueColor(Color dialogueColor) {
         this.dialogueColor = dialogueColor;
+    }
+
+    public Color getChoiceButtonColor() {
+        return choiceButtonColor;
+    }
+
+    public void setChoiceButtonColor(Color choiceButtonColor) {
+        this.choiceButtonColor = choiceButtonColor;
+    }
+
+    public Color getHoverColor() {
+        return hoverColor;
+    }
+
+    public void setHoverColor(Color hoverColor) {
+        this.hoverColor = hoverColor;
     }
 
     public int getDialogueBoxWidth() {
