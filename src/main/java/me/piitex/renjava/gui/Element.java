@@ -38,6 +38,7 @@ public class Element {
             Button button = buttonOverlay.build();
             button.setTranslateX(buttonOverlay.x());
             button.setTranslateY(buttonOverlay.y());
+            System.out.println("Rendering button: " + buttonOverlay.getId());
             this.node = button;
         } else if (overlay instanceof TextFlowOverlay textFlowOverlay) {
             TextFlow textFlow = textFlowOverlay.build();

@@ -35,7 +35,7 @@ public class AutoPlayScene extends RenScene {
     @Override
     public void render(Menu menu) {
         System.out.println("Rendering: " + getId());
-        menu.render(null, this);
+        menu.render();
         renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
 
         SceneStartEvent event = new SceneStartEvent(this);

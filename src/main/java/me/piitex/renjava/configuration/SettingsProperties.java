@@ -1,5 +1,7 @@
 package me.piitex.renjava.configuration;
 
+import me.piitex.renjava.RenJava;
+
 import java.io.*;
 import java.util.Properties;
 
@@ -91,7 +93,7 @@ public class SettingsProperties {
             properties.store(outputStream, null);
             outputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            RenJava.getInstance().getLogger().severe("Could not write to settings file: " + e.getMessage());
         }
     }
 }

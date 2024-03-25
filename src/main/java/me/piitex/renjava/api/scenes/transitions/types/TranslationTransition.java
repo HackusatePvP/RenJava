@@ -6,9 +6,12 @@ import javafx.util.Duration;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 
 public class TranslationTransition extends Transitions {
-    private double byX, byY;
-    private double fromX, fromY;
-    private double toX, toY;
+    private final double byX;
+    private final double byY;
+    private final double fromX;
+    private final double fromY;
+    private final double toX;
+    private final double toY;
 
     private TranslationTransition transition;
 

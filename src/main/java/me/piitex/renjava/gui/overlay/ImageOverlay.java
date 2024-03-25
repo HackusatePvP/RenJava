@@ -8,8 +8,8 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 public class ImageOverlay implements Overlay {
     private final Image image;
-    private double x;
-    private double y;
+    private final double x;
+    private final double y;
     private final String fileName;
 
     private Transitions transitions;
