@@ -36,10 +36,10 @@ public class Menu {
     private Image backgroundImage;
 
     private final LinkedHashSet<Node> nodes = new LinkedHashSet<>();
-    private final LinkedHashSet<LayoutMenu> parents = new LinkedHashSet<>();
     private final LinkedHashSet<Layout> layouts = new LinkedHashSet<>();
     private final LinkedHashSet<Overlay> overlays = new LinkedHashSet<>();
     private final LinkedHashSet<Menu> children = new LinkedHashSet<>();
+    private final LinkedHashSet<Pane> subPanes = new LinkedHashSet<>();
 
     // Constants
     private static final RenJava renJava = RenJava.getInstance();
@@ -55,7 +55,7 @@ public class Menu {
             try {
                 this.backgroundImage = imageLoader.build();
             } catch (ImageNotFoundException e) {
-                e.printStackTrace();
+                renJava.getLogger().severe(e.getMessage());
             }
         }
         this.width = width;
@@ -134,16 +134,17 @@ public class Menu {
         return this;
     }
 
-    public LinkedHashSet<LayoutMenu> getParents() {
-        return parents;
-    }
-
-    public void addParent(LayoutMenu layoutMenu) {
-        parents.add(layoutMenu);
-    }
-
     public LinkedHashSet<Menu> getChildren() {
         return children;
+    }
+
+    public LinkedHashSet<Pane> getSubPanes() {
+        return subPanes;
+    }
+
+    public Menu addSubPane(Pane pane) {
+        subPanes.add(pane);
+        return this;
     }
 
     /* Rendering functions */
@@ -156,6 +157,10 @@ public class Menu {
     public Menu addMenu(Menu menu) {
         this.children.add(menu);
         return this;
+    }
+
+    public Pane render() {
+        return render(null, null);
     }
 
     /**
@@ -186,43 +191,16 @@ public class Menu {
 
         logger.info("Rendering layouts...");
         for (Layout layout : layouts) {
-            for (Overlay overlay : layout.getOverlays()) {
-                new Element(overlay).render(layout.getPane());
-            }
-            for (Layout child : layout.getChildLayouts()) {
-                // A child layout should be added to a main layout.
-                for (Overlay overlay : child.getOverlays()) {
-                    new Element(overlay).render(child.getPane());
-                }
-
-                Pane childPane = layout.getPane();
-                childPane.setTranslateX(child.getX());
-                childPane.setTranslateY(child.getY());
-                childPane.setPrefSize(child.getWidth(), child.getHeight());
-                if (childPane instanceof HBox hBox) {
-                    hBox.setSpacing(layout.getSpacing());
-                } else if (childPane instanceof VBox vBox) {
-                    vBox.setSpacing(layout.getSpacing());
-                }
-                layout.getPane().getChildren().add(childPane); // Adds the child layout to the main layout.
-            }
-            Pane box = layout.getPane();
-            box.setTranslateX(layout.getX());
-            box.setTranslateY(layout.getY());
-            box.setPrefSize(layout.getWidth(), layout.getHeight());
-            if (box instanceof HBox hBox) {
-                hBox.setSpacing(layout.getSpacing());
-            } else if (box instanceof VBox vBox) {
-                vBox.setSpacing(layout.getSpacing());
-            }
-
-            root.getChildren().add(box);
+            layout.render(root);
         }
 
         for (Overlay overlay : overlays) {
             new Element(overlay).render(root);
         }
 
+        for (Pane sub : subPanes) {
+            root.getChildren().add(sub);
+        }
 
         for (Menu menu : children) {
             if (menu != null) {
