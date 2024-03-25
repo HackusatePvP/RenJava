@@ -31,6 +31,7 @@ import me.piitex.renjava.events.defaults.MenuClickEventListener;
 import me.piitex.renjava.events.defaults.ScenesEventListener;
 import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 
+import me.piitex.renjava.events.types.ShutdownEvent;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
@@ -321,6 +322,9 @@ public abstract class RenJava {
 
         stage.setOnHiding(windowEvent -> {
             getAddonLoader().disable();
+            ShutdownEvent shutdownEvent = new ShutdownEvent();
+            callEvent(shutdownEvent);
+
             Platform.exit();
             System.exit(0);
         });
