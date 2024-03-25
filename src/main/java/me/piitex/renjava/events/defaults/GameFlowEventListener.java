@@ -2,11 +2,10 @@ package me.piitex.renjava.events.defaults;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.InteractableScene;
@@ -20,13 +19,10 @@ import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.tasks.KeyHeldTask;
+import org.slf4j.Logger;;
 
-import java.lang.reflect.Field;
-import java.util.AbstractMap;
 import java.util.Timer;
-import java.util.logging.Logger;
 
-import static javafx.scene.paint.Color.BLACK;
 
 public class GameFlowEventListener implements EventListener {
     // Also experimental, task that runs while the ctrl key is held. Maybe I can change this to a do while or something... I'm not sure.
@@ -45,7 +41,7 @@ public class GameFlowEventListener implements EventListener {
         RenScene scene = renJava.getPlayer().getCurrentScene();
         Player player = renJava.getPlayer();
         MouseButton button = event.getEvent().getButton();
-        Logger logger = renJava.getLogger();
+        Logger logger = RenLogger.LOGGER;
 
         // Only do this if it's not the title screen or any other menu screen
 
@@ -55,7 +51,7 @@ public class GameFlowEventListener implements EventListener {
             case MIDDLE -> {
                 if (gameMenu) {
                     // Hide ui elements from scene
-                    renJava.getLogger().info("Toggling UI!");
+                    logger.info("Toggling UI!");
                     player.setUiToggled(!player.isUiToggled());
                     scene.build(player.isUiToggled());
                 }
@@ -123,7 +119,7 @@ public class GameFlowEventListener implements EventListener {
 
     @Listener
     public void onScrollInput(ScrollInputEvent event) {
-        renJava.getLogger().info("Scroll Y: " + event.getScrollEvent().getDeltaY());
+        RenLogger.LOGGER.info("Scroll Y: " + event.getScrollEvent().getDeltaY());
 
         // If the scroll y is less than 0 they are scrolling down.
         double y = event.getScrollEvent().getDeltaY();
@@ -140,7 +136,7 @@ public class GameFlowEventListener implements EventListener {
 
     @Listener(priority = Priority.LOWEST)
     public void onScrollUp(ScrollUpEvent event) {
-        Logger logger = renJava.getLogger();
+        Logger logger = RenLogger.LOGGER;
         logger.info("Scroll up called!");
         if (event.isCancelled()) return; // If the event is canceled, do not roll back.
         if (renJava.getPlayer().getCurrentScene() != null) {
@@ -180,14 +176,14 @@ public class GameFlowEventListener implements EventListener {
         StageType stageType = renJava.getStageType();
         RenScene scene = renJava.getPlayer().getCurrentScene();
         Player player = renJava.getPlayer();
-        Logger logger = renJava.getLogger();
+        Logger logger = RenLogger.LOGGER;
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
 
         if (gameMenu) {
             if (scene == null) {
-                logger.severe("The scene is null.");
+                logger.error("The scene is null.");
                 return;
             }
             // Go to the next scene map

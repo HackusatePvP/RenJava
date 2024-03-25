@@ -33,21 +33,20 @@ import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
-import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.overlay.TextFlowOverlay;
 import me.piitex.renjava.gui.overlay.TextOverlay;
+import me.piitex.renjava.loggers.RenLogger;
+import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.logging.*;
 
- /**
+/**
  * The RenJava class serves as the entry point for the RenJava framework. It provides the core functionality and structure for creating visual novel games.
  * <p>
  * To use the RenJava framework, create a new class that extends the `RenJava` class and override its methods to define the behavior of your game.
@@ -73,10 +72,12 @@ public abstract class RenJava {
     protected String name;
     protected String author;
     protected String version;
-    private Logger logger;
     private Player player;
     // Audio Tracking
     private Tracks tracks;
+
+    private Logger logger;
+
     private AddonLoader addonLoader;
 
     private Stage stage; // Move this somewhere else.
@@ -107,16 +108,20 @@ public abstract class RenJava {
         this.player = new Player();
         this.tracks = new Tracks();
         // Load logger
-        this.logger = Logger.getLogger(name);
-        FileHandler fileHandler;
-        try {
-            fileHandler = new FileHandler("log.txt");
-            fileHandler.setFormatter(new RenLoggerFormat());
-            logger.addHandler(fileHandler);
-            logger.info("Starting application...");
-        } catch (IOException e) {
-            getLogger().severe("Could not initialize logger. " + e.getMessage());
-        }
+//        this.logger = Logger.getLogger(name);
+//        FileHandler fileHandler;
+//        try {
+//            fileHandler = new FileHandler("log.txt");
+//            fileHandler.setFormatter(new RenLoggerFormat());
+//            logger.addHandler(fileHandler);
+//            logger.info("Starting application...");
+//        } catch (IOException e) {
+//            getLogger().severe("Could not initialize logger. " + e.getMessage());
+//        }
+
+        // Initializes the Ren logger which is separated from the application logger.
+        RenLogger.init();
+
         this.registerListener(new MenuClickEventListener());
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
@@ -124,7 +129,7 @@ public abstract class RenJava {
         this.registerData(player);
         this.registerData(tracks);
         new RenLoader(this);
-        this.addonLoader = new AddonLoader(logger);
+        this.addonLoader = new AddonLoader();
     }
 
      public String getName() {
@@ -143,17 +148,21 @@ public abstract class RenJava {
         return player;
     }
 
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     public Tracks getTracks() {
         return tracks;
     }
 
-     public AddonLoader getAddonLoader() {
+    public AddonLoader getAddonLoader() {
          return addonLoader;
      }
-
-     public Logger getLogger() {
-        return logger;
-    }
 
     public String getBuildVersion() {
         return buildVersion;
@@ -229,7 +238,7 @@ public abstract class RenJava {
      */
     public Character getCharacter(String id) {
         if (!registeredCharacters.containsKey(id)) {
-            getLogger().severe(new InvalidCharacterException(id).getMessage());
+            RenLogger.LOGGER.error(new InvalidCharacterException(id).getMessage());
             return null;
         }
         return registeredCharacters.get(id.toLowerCase());
@@ -295,10 +304,10 @@ public abstract class RenJava {
             try {
                 stage.getIcons().add(windowIcon.buildRaw());
             } catch (ImageNotFoundException e) {
-                logger.severe(e.getMessage());
+                RenLogger.LOGGER.error(e.getMessage());
             }
         } else {
-            logger.warning("No window icon set. Please set a window icon for a better user experience.");
+            RenLogger.LOGGER.warn("No window icon set. Please set a window icon for a better user experience.");
         }
 
         stage.initStyle(StageStyle.DECORATED);

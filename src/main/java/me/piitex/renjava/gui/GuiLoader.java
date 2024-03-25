@@ -7,13 +7,13 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-
-import java.util.logging.Logger;
+;
 
 /**
  * Loader class for loading the GUI. Starts with the splash screen first.
@@ -30,14 +30,14 @@ public class GuiLoader {
     }
 
     private void buildSplashScreen() {
-        renJava.getLogger().info("Creating Splash screen...");
+        RenLogger.LOGGER.info("Creating Splash screen...");
         stage.initStyle(StageStyle.UNDECORATED);
         // Update Stage
         renJava.setStage(stage, StageType.MAIN_MENU);
 
         Menu menu = renJava.buildSplashScreen();
         if (menu == null) {
-            renJava.getLogger().warning("No splash screen was rendered..");
+            RenLogger.LOGGER.warn("No splash screen was rendered..");
             renJavaFrameworkBuild();
             return; // Don't create a splash screen if one wasn't set.
         }
@@ -53,21 +53,20 @@ public class GuiLoader {
     }
 
     private void renJavaFrameworkBuild() {
-        renJava.getLogger().info("Creating base data...");
+        RenLogger.LOGGER.info("Creating base data...");
         renJava.createBaseData();
-        renJava.getLogger().info("Creating story...");
+        RenLogger.LOGGER.info("Creating story...");
         renJava.createStory();
         postProcess();
         buildMainMenu();
     }
 
     private void buildMainMenu() {
-        Logger logger = renJava.getLogger();
 
         // Gonna put some default checks here.
         // If there is no default font set one
 //        if (renJava.getConfiguration().getDefaultFont() == null) {
-//            renJava.getLogger().severe("No default font set.");
+//            RenLogger.LOGGER.severe("No default font set.");
 //            renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
 //            renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
 //            renJava.getConfiguration().setCharacterDisplayFont(new FontLoader("Arial", 26));
@@ -75,23 +74,23 @@ public class GuiLoader {
 //        }
         RenJavaConfiguration configuration = renJava.getConfiguration();
         if (configuration.getDefaultFont() == null) {
-            renJava.getLogger().severe("Default font not set.");
+            RenLogger.LOGGER.error("Default font not set.");
             renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
         }
         if (configuration.getUiFont() == null) {
-            renJava.getLogger().severe("UI font not set.");
+            RenLogger.LOGGER.error("UI font not set.");
             renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
         }
         if (configuration.getCharacterDisplayFont() == null) {
-            renJava.getLogger().warning("Character display font not set.");
+            RenLogger.LOGGER.warn("Character display font not set.");
             renJava.getConfiguration().setCharacterDisplayFont(new FontLoader("Arial", 26));
         }
         if (configuration.getDialogueFont() == null) {
-            renJava.getLogger().warning("Dialogue font not set.");
+            RenLogger.LOGGER.warn("Dialogue font not set.");
             renJava.getConfiguration().setDialogueFont(new FontLoader("Arial", 26));
         }
         if (configuration.getChoiceButtonFont() == null) {
-            renJava.getLogger().warning("Choice button font not set.");
+            RenLogger.LOGGER.warn("Choice button font not set.");
             renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
         }
 
@@ -106,13 +105,13 @@ public class GuiLoader {
         RenJava.callEvent(event);
 
         if (menu == null) {
-            logger.severe("No title screen was built. Please customize your own title screen for better user experience.");
-            logger.warning("Building RenJava default title screen...");
+            RenLogger.LOGGER.error("No title screen was built. Please customize your own title screen for better user experience.");
+            RenLogger.LOGGER.warn("Building RenJava default title screen...");
             menu = new Menu(renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth()).setTitle(renJava.getName() + " v" + renJava.getVersion());
             try {
                 menu.setBackgroundImage(new ImageLoader("gui/main_menu.png").build());
             } catch (ImageNotFoundException e) {
-                logger.severe(e.getMessage());
+                RenLogger.LOGGER.error(e.getMessage());
             }
         }
 

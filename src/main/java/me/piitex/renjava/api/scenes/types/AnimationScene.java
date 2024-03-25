@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.gui.Menu;
@@ -60,10 +61,10 @@ public class AnimationScene extends RenScene {
                 text = new Text(dialogue);
                 if (getCharacterNameDisplay() != null && !getCharacterNameDisplay().isEmpty()) {
                     // Set character display
-                    RenJava.getInstance().getLogger().info("Character Display Name Validation: " + getCharacterNameDisplay());
+                    RenLogger.LOGGER.info("Character Display Name Validation: " + getCharacterNameDisplay());
                     characterDisplay = new Text(getCharacterNameDisplay());
                 } else {
-                    RenJava.getInstance().getLogger().info("Character Display Name Validation: " + character.getDisplayName());
+                    RenLogger.LOGGER.info("Character Display Name Validation: " + character.getDisplayName());
                     characterDisplay = new Text(character.getDisplayName());
                 }
                 characterDisplay.setFill(character.getColor());

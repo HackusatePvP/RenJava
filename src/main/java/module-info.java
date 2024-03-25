@@ -10,6 +10,10 @@ module RenJava {
     requires org.apache.commons.io;
     requires org.jetbrains.annotations;
     requires com.goxr3plus.streamplayer;
+    requires org.slf4j;
+    requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j.core;
+    requires org.apache.logging.log4j.slf4j2.impl;
     opens me.piitex.renjava;
     exports me.piitex.renjava;
     exports me.piitex.renjava.configuration;
@@ -36,4 +40,6 @@ module RenJava {
     exports me.piitex.renjava.api.saves.data;
     exports me.piitex.renjava.api.scenes.animation;
     exports me.piitex.renjava.addons;
+    exports me.piitex.renjava.loggers;
+    opens me.piitex.renjava.loggers;
 }

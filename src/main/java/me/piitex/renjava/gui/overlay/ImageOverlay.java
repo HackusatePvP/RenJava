@@ -1,7 +1,7 @@
 package me.piitex.renjava.gui.overlay;
 
 import javafx.scene.image.Image;
-import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
@@ -26,7 +26,7 @@ public class ImageOverlay implements Overlay {
             this.image = imageLoader.build();
             this.fileName = imageLoader.getFile().getName();
         } catch (ImageNotFoundException e) {
-            RenJava.getInstance().getLogger().severe(e.getMessage());
+            RenLogger.LOGGER.error(e.getMessage());
             throw new RuntimeException();
         }
         this.x = x;

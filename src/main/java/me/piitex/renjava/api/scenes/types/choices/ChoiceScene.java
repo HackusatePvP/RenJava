@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 import me.piitex.renjava.events.types.ChoiceButtonBuildEvent;
@@ -153,8 +154,7 @@ public class ChoiceScene extends RenScene {
         if (ui) {
             VerticalLayout layout = new VerticalLayout(500, 500);
             Map.Entry<Integer, Integer> midPoint = RenJava.getInstance().getConfiguration().getMidPoint();
-            System.out.println("Set X: " + midPoint.getKey());
-            System.out.println("Set Y: " + midPoint.getValue());
+
             layout.setX(midPoint.getKey() - 600);
             layout.setY(midPoint.getValue() - 200);
             layout.setSpacing(20.0);
@@ -170,7 +170,7 @@ public class ChoiceScene extends RenScene {
                     buttonOverlay = new ButtonOverlay(getChoiceButton(choice, choiceBoxImage.build()));
                     layout.addOverlays(buttonOverlay);
                 } catch (ImageNotFoundException e) {
-                    RenJava.getInstance().getLogger().severe(e.getMessage());
+                    RenLogger.LOGGER.error(e.getMessage());
                 }
 
             }

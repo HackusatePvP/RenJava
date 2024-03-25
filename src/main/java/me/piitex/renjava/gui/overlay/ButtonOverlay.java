@@ -5,8 +5,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.ButtonClickEvent;
@@ -402,7 +402,7 @@ public class ButtonOverlay implements Overlay {
                     try {
                         button.setGraphic(new ImageView(hoverImage.build()));
                     } catch (ImageNotFoundException e) {
-                        RenJava.getInstance().getLogger().severe(e.getMessage());
+                        RenLogger.LOGGER.error(e.getMessage());
                     }
                 }
             });

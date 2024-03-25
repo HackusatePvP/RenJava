@@ -4,9 +4,8 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import me.piitex.renjava.RenJava;
 
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.Save;
-import me.piitex.renjava.api.saves.exceptions.SaveFileNotFound;
-import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.ButtonClickEvent;
@@ -21,7 +20,7 @@ public class MenuClickEventListener implements EventListener {
     public void onButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
         if (button.getId().equalsIgnoreCase("menu-start-button")) {
-            renJava.getLogger().info("Creating new game...");
+            RenLogger.LOGGER.info("Creating new game...");
             renJava.createBaseData();
             renJava.createStory();
 
@@ -72,7 +71,7 @@ public class MenuClickEventListener implements EventListener {
                 int slot = Integer.parseInt(button.getId().replace("save-", ""));
                 Save save = new Save(slot);
                 if (!save.exists()) {
-                    renJava.getLogger().warning("Save file does not exist.");
+                    RenLogger.LOGGER.warn("Save file does not exist.");
                     return;
                 }
 
@@ -80,7 +79,7 @@ public class MenuClickEventListener implements EventListener {
 
                 String storyID = renJava.getPlayer().getCurrentStoryID();
                 if (storyID == null) {
-                    renJava.getLogger().severe("Save file could not be loaded. The data is either not formatted or corrupted.");
+                    RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
                     return;
                 }
 

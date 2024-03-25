@@ -1,6 +1,7 @@
 package me.piitex.renjava.api.player;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.exceptions.InvalidStoryException;
@@ -102,10 +103,10 @@ public class Player implements PersistentData {
 
     public void startStory(String id) {
         if (!storyIdMap.containsKey(id)) {
-            RenJava.getInstance().getLogger().severe(new InvalidStoryException(id).getMessage());
+            RenLogger.LOGGER.error(new InvalidStoryException(id).getMessage());
             return;
         }
-        RenJava.getInstance().getLogger().info("Starting story '" + id + "'");
+        RenLogger.LOGGER.info("Starting story '" + id + "'");
         RenJava.getInstance().getPlayer().setCurrentStory(id);
         getStory(id).start();
     }

@@ -74,7 +74,6 @@ public class ImageScene extends RenScene {
         this.dialogue = dialogue;
         if (loader != null) {
             this.backgroundImage = loader;
-            renJava.getLogger().info("Story: " + getStory().getId());
             renJava.getPlayer().setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), loader));
         }
         if (character != null) {

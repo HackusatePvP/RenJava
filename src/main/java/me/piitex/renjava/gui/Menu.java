@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -18,7 +19,6 @@ import me.piitex.renjava.gui.overlay.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
-import java.util.logging.Logger;
 
 import static javafx.scene.paint.Color.BLACK;
 
@@ -55,7 +55,7 @@ public class Menu {
             try {
                 this.backgroundImage = imageLoader.build();
             } catch (ImageNotFoundException e) {
-                renJava.getLogger().severe(e.getMessage());
+                RenLogger.LOGGER.error(e.getMessage());
             }
         }
         this.width = width;
@@ -170,8 +170,6 @@ public class Menu {
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
     public Pane render(@Nullable Pane root, @Nullable RenScene renScene) {
-        Logger logger = renJava.getLogger();
-
         if (root == null) {
             root = new Pane();
         }
@@ -189,7 +187,7 @@ public class Menu {
             backgroundImgElement.render(root);
         }
 
-        logger.info("Rendering layouts...");
+        RenLogger.LOGGER.info("Rendering layouts...");
         for (Layout layout : layouts) {
             layout.render(root);
         }

@@ -4,6 +4,7 @@ package me.piitex.renjava.api.saves;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -78,7 +79,7 @@ public class Save {
                         System.out.println("Processing field: " + field.getName());
                         Object object = field.get(data);
                         if (object == null) {
-                            RenJava.getInstance().getLogger().warning("Value for '" + field.getName() + "' is null. Will not process data.");
+                            RenLogger.LOGGER.warn("Value for '" + field.getName() + "' is null. Will not process data.");
                             continue;
                         }
                         rootSection.addKeyValue(field.getName(), object.toString());
@@ -144,7 +145,7 @@ public class Save {
             throw new RuntimeException(e);
         } finally {
             if (fullData == null) {
-                RenJava.getInstance().getLogger().severe("Save file does not exist.");
+                RenLogger.LOGGER.error("Save file does not exist.");
                 return;
             }
         }
@@ -340,7 +341,7 @@ public class Save {
                 view.setFitWidth(309);
                 pane.getChildren().add(view);
             } catch (ImageNotFoundException e) {
-                RenJava.getInstance().getLogger().severe(e.getMessage());
+                RenLogger.LOGGER.error(e.getMessage());
             }
         } else {
             Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));

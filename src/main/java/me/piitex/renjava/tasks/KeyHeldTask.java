@@ -2,6 +2,7 @@ package me.piitex.renjava.tasks;
 
 import javafx.application.Platform;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
@@ -21,7 +22,7 @@ public class KeyHeldTask extends TimerTask {
 
     @Override
     public void run() {
-        RenJava.getInstance().getLogger().info("Skipping scene...");
+        RenLogger.LOGGER.info("Skipping scene...");
         Player player = RenJava.getInstance().getPlayer();
         AbstractMap.SimpleEntry<Story, String> entry = new AbstractMap.SimpleEntry<>(scene.getStory(), scene.getId());
         if (player.getViewedScenes().get(entry) != null) {

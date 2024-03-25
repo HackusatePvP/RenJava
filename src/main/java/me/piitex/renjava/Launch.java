@@ -12,6 +12,7 @@ import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
+import me.piitex.renjava.loggers.ApplicationLogger;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
@@ -57,11 +58,18 @@ public class Launch extends Application {
                     Configuration conf = renJava.getClass().getAnnotation(Configuration.class);
                     RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name), conf.width(), conf.height(), new ImageLoader(conf.windowIconPath()));
                     renJava.setConfiguration(configuration);
+
                 } else {
                     System.err.println("ERROR: Configuration annotation not found. Please annotate your main class with 'Configuration'");
                     RenJavaConfiguration configuration = new RenJavaConfiguration("Error", 1920, 1080, new ImageLoader("gui/window_icon.png"));
                     renJava.setConfiguration(configuration);
                 }
+
+                // Initialize the application logger
+                ApplicationLogger applicationLogger = new ApplicationLogger(c);
+                renJava.setLogger(applicationLogger.LOGGER);
+
+                renJava.getLogger().info("Initialized logger...");
 
                 renJava.init(); // Initialize game
                 launch(args);

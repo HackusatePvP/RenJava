@@ -7,19 +7,22 @@ import javafx.application.Platform;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
+import me.piitex.renjava.loggers.RenLogger;
+;
 
 public class RenLoader {
     private final RenJava renJava;
     boolean shutdown = false;
+
     public RenLoader(RenJava renJava) {
         this.renJava = renJava;
-        renJava.getLogger().info("Starting processes...");
+        RenLogger.LOGGER.info("Starting processes...");
         renJava.buildVersion = getVersion();
         setupMain();
         setupGame();
         if (shutdown) {
             // Shutdown application.
-            renJava.getLogger().severe("Game assets do not exist. Please download default assets and place them inside the 'game' folder.");
+            RenLogger.LOGGER.error("Game assets do not exist. Please download default assets and place them inside the 'game' folder.");
             Platform.exit();
             System.exit(0);
             return;
@@ -28,23 +31,17 @@ public class RenLoader {
     }
 
     private void setupMain() {
-        renJava.getLogger().info("Checking game environment...");
+        RenLogger.LOGGER.info("Checking game environment...");
 
 
         File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
         if (gameDirectory.mkdir()) {
-            renJava.getLogger().severe("Game directory does not exist. The game will not work properly, please move all assets into the newly created game directory.");
+            RenLogger.LOGGER.error("Game directory does not exist. The game will not work properly, please move all assets into the newly created game directory.");
             shutdown = true;
         }
         File renJavaDirectory = new File(System.getProperty("user.dir") + "/renjava/");
         if (renJavaDirectory.mkdir()) {
-            renJava.getLogger().warning("RenJava folder does not exist. User settings will be reset to defaults.");
-        }
-        File logFile = new File(System.getProperty("user.dir"), "log.txt");
-        try {
-            logFile.createNewFile();
-        } catch (IOException e) {
-            renJava.getLogger().warning("Could not create log file. Ensure the application has read and write permissions.");
+            RenLogger.LOGGER.warn("RenJava folder does not exist. User settings will be reset to defaults.");
         }
         for (File file : new File(System.getProperty("user.dir")).listFiles()) {
             if (file.getName().endsWith(".txt.lck")) {
@@ -63,21 +60,21 @@ public class RenLoader {
             audioLoaded++;
             renJava.getTracks().addTrack(new Track(file));
         }
-        renJava.getLogger().info("Loaded " + audioLoaded + " audio file(s)");
+        RenLogger.LOGGER.info("Loaded " + audioLoaded + " audio file(s)");
         File imageDirectory = new File(directory, "/images/");
         if (imageDirectory.mkdir()) {
-            renJava.getLogger().warning("Images folder does not exist, creating...");
+            RenLogger.LOGGER.warn("Images folder does not exist, creating...");
         }
         File savesDirectory = new File(directory, "/saves/");
         if (savesDirectory.mkdir()) {
-            renJava.getLogger().warning("Saves folder does not exist, creating...");
+            RenLogger.LOGGER.warn("Saves folder does not exist, creating...");
         }
         File fontsDirectory = new File(directory, "/fonts/");
         if (fontsDirectory.mkdir()) {
-            renJava.getLogger().warning("Fonts folder does not exist, creating...");
+            RenLogger.LOGGER.warn("Fonts folder does not exist, creating...");
         }
 
-        renJava.getLogger().info("Loading fonts...");
+        RenLogger.LOGGER.info("Loading fonts...");
         int fonts = 0;
         for (File file : fontsDirectory.listFiles()) {
             if (file.getName().endsWith(".ttf")) {
@@ -85,13 +82,13 @@ public class RenLoader {
                 new FontLoader(file.getName());
             }
         }
-        renJava.getLogger().info("Loaded " + fonts + " font(s).");
+        RenLogger.LOGGER.info("Loaded " + fonts + " font(s).");
         File cssDirectory = new File(directory, "/css/");
         cssDirectory.mkdir();
     }
 
     private void startPreProcess() {
-        renJava.getLogger().info("Generating pre-load data...");
+        RenLogger.LOGGER.info("Generating pre-load data...");
         loadRPAFiles();
         renJava.preEnabled();
 
