@@ -9,6 +9,7 @@ import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.builders.FontLoader;
 import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
@@ -41,7 +42,7 @@ public class GuiLoader {
             return; // Don't create a splash screen if one wasn't set.
         }
 
-        menu.render(null, null);
+        menu.render();
         PauseTransition wait = new PauseTransition(Duration.seconds(3)); // TODO: 2/17/2024 Make this configurable.
         wait.setOnFinished(actionEvent -> {
             stage.close(); // Closes stage for the splash screen (required)
@@ -65,12 +66,36 @@ public class GuiLoader {
 
         // Gonna put some default checks here.
         // If there is no default font set one
-        if (renJava.getConfiguration().getDefaultFont() == null) {
-            renJava.getLogger().severe("No default font set.");
+//        if (renJava.getConfiguration().getDefaultFont() == null) {
+//            renJava.getLogger().severe("No default font set.");
+//            renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
+//            renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
+//            renJava.getConfiguration().setCharacterDisplayFont(new FontLoader("Arial", 26));
+//            renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
+//        }
+        RenJavaConfiguration configuration = renJava.getConfiguration();
+        if (configuration.getDefaultFont() == null) {
+            renJava.getLogger().severe("Default font not set.");
             renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
+        }
+        if (configuration.getUiFont() == null) {
+            renJava.getLogger().severe("UI font not set.");
             renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
+        }
+        if (configuration.getCharacterDisplayFont() == null) {
+            renJava.getLogger().warning("Character display font not set.");
             renJava.getConfiguration().setCharacterDisplayFont(new FontLoader("Arial", 26));
         }
+        if (configuration.getDialogueFont() == null) {
+            renJava.getLogger().warning("Dialogue font not set.");
+            renJava.getConfiguration().setDialogueFont(new FontLoader("Arial", 26));
+        }
+        if (configuration.getChoiceButtonFont() == null) {
+            renJava.getLogger().warning("Choice button font not set.");
+            renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
+        }
+
+
         stage = new Stage();
 
         renJava.buildStage(stage); // Builds the stage parameters (Game Window)
@@ -100,7 +125,7 @@ public class GuiLoader {
         MainMenDispatchEvent dispatchEvent = new MainMenDispatchEvent(menu);
         RenJava.callEvent(dispatchEvent);
 
-        menu.render(null, null);
+        menu.render();
         MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu);
         RenJava.callEvent(renderEvent);
 
