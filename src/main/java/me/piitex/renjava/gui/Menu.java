@@ -170,6 +170,7 @@ public class Menu {
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
     public Pane render(@Nullable Pane root, @Nullable RenScene renScene) {
+        RenLogger.LOGGER.info("Rendering menu...");
         if (root == null) {
             root = new Pane();
         }
@@ -192,10 +193,12 @@ public class Menu {
             layout.render(root);
         }
 
+        RenLogger.LOGGER.info("Rendering overlays...");
         for (Overlay overlay : overlays) {
             new Element(overlay).render(root);
         }
 
+        RenLogger.LOGGER.info("Rendering sub-panes...");
         for (Pane sub : subPanes) {
             root.getChildren().add(sub);
         }

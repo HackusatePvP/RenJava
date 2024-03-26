@@ -103,7 +103,7 @@ public class Player implements PersistentData {
 
     public void startStory(String id) {
         if (!storyIdMap.containsKey(id)) {
-            RenLogger.LOGGER.error(new InvalidStoryException(id).getMessage());
+            RenJava.getInstance().getLogger().error(new InvalidStoryException(id).getMessage());
             return;
         }
         RenLogger.LOGGER.info("Starting story '" + id + "'");
