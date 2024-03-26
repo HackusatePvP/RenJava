@@ -62,16 +62,8 @@ public class GuiLoader {
     }
 
     private void buildMainMenu() {
-
         // Gonna put some default checks here.
-        // If there is no default font set one
-//        if (renJava.getConfiguration().getDefaultFont() == null) {
-//            RenLogger.LOGGER.severe("No default font set.");
-//            renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
-//            renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
-//            renJava.getConfiguration().setCharacterDisplayFont(new FontLoader("Arial", 26));
-//            renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
-//        }
+
         RenJavaConfiguration configuration = renJava.getConfiguration();
         if (configuration.getDefaultFont() == null) {
             RenLogger.LOGGER.error("Default font not set.");
@@ -94,18 +86,15 @@ public class GuiLoader {
             renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
         }
 
-
         stage = new Stage();
-
         renJava.buildStage(stage); // Builds the stage parameters (Game Window)
 
         Menu menu = renJava.buildTitleScreen();
-
         MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
         RenJava.callEvent(event);
 
         if (menu == null) {
-            RenLogger.LOGGER.error("No title screen was built. Please customize your own title screen for better user experience.");
+            RenLogger.LOGGER.error("No title screen was found. Please customize your own title screen for better user experience.");
             RenLogger.LOGGER.warn("Building RenJava default title screen...");
             menu = new Menu(renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth()).setTitle(renJava.getName() + " v" + renJava.getVersion());
             try {

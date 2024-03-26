@@ -108,17 +108,6 @@ public abstract class RenJava {
         // Run after super
         this.player = new Player();
         this.tracks = new Tracks();
-        // Load logger
-//        this.logger = Logger.getLogger(name);
-//        FileHandler fileHandler;
-//        try {
-//            fileHandler = new FileHandler("log.txt");
-//            fileHandler.setFormatter(new RenLoggerFormat());
-//            logger.addHandler(fileHandler);
-//            logger.info("Starting application...");
-//        } catch (IOException e) {
-//            getLogger().severe("Could not initialize logger. " + e.getMessage());
-//        }
 
         // Initializes the Ren logger which is separated from the application logger.
         RenLogger.init();
@@ -239,7 +228,7 @@ public abstract class RenJava {
      */
     public Character getCharacter(String id) {
         if (!registeredCharacters.containsKey(id)) {
-            RenLogger.LOGGER.error(new InvalidCharacterException(id).getMessage());
+            RenJava.getInstance().getLogger().error(new InvalidCharacterException(id).getMessage());
             return null;
         }
         return registeredCharacters.get(id.toLowerCase());
@@ -374,40 +363,8 @@ public abstract class RenJava {
      */
     public abstract void createBaseData();
 
-    /**
-     * Called to create a splash screen that is displayed before the title screen is loaded.
-     * <p>
-     * The `buildSplashScreen()` method should return a `SplashScreenView` object, which represents the splash screen view to be displayed.
-     * You can customize the appearance and behavior of the splash screen by configuring the `SplashScreenView` object.
-     * <p>
-     * The `SplashScreenView` class provides methods for setting the splash screen image, duration, and any additional UI elements or animations.
-     * You can use these methods to create an engaging and visually appealing splash screen for your game.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *     public SplashScreenView buildSplashScreen() {
-     *         // Create a SplashScreenView object
-     *         SplashScreenView splashScreen = new SplashScreenView();
-     *
-     *         // Set the splash screen image
-     *         splashScreen.setImage("splash.png");
-     *
-     *         // Set the duration of the splash screen (in seconds)
-     *         splashScreen.setDuration(3);
-     *
-     *         // Return the SplashScreenView object
-     *         return splashScreen;
-     *     }
-     * }</pre>
-     *
-     * @return A `SplashScreenView` object representing the splash screen view to be displayed.
-     */
     public abstract Menu buildSplashScreen();
 
-    /**
-     * Called to create the main menu. (This is NOT optional)
-     * @return A MainTitleScreenView object which is parsed to a stage
-     */
     public abstract Menu buildTitleScreen();
 
     public Menu buildSideMenu() {
@@ -578,16 +535,16 @@ public abstract class RenJava {
      * <br>
      * <p>
      *     The start() method is used to initiate the story by displaying the first scene of the story.
-     *     It retrieves the current story from the StoryManager using the story ID and builds the scene on the stage.
-     *     This method should be called when the game starts.
+     *     Using the {@link Player} object, call the first story (aka event) of the game.
      * </p>
      *
      * Example usage:
      * <pre>{@code
-     *     // Get the current story from the StoryManager
-     *     Story myStory = this.getPlayer().getStory("my-story");
-     *     // Start the story
-     *     myStory.start();
+     *  @Override
+     *  public void start() {
+     *     this.getPlayer().startStory("my-story");
+     *  }
+     *
      * }</pre>
      */
     public abstract void start();
