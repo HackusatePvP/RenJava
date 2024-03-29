@@ -1,11 +1,9 @@
 package me.piitex.renjava.api.saves;
 
-
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
@@ -67,16 +65,16 @@ public class Save {
                 if (field.isAnnotationPresent(Data.class)) {
                     SectionKeyValue mapSection = handleMap(data, field);
                     if (mapSection != null) {
-                        System.out.println("Map Section: ");
+//                        System.out.println("Map Section: ");
 
-                        System.out.println(mapSection);
+//                        System.out.println(mapSection);
                         rootSection.addSubSection(mapSection);
 
                         continue;
                     }
                     // Handle fields
                     try {
-                        System.out.println("Processing field: " + field.getName());
+//                        System.out.println("Processing field: " + field.getName());
                         Object object = field.get(data);
                         if (object == null) {
                             RenLogger.LOGGER.warn("Value for '" + field.getName() + "' is null. Will not process data.");
@@ -113,7 +111,7 @@ public class Save {
     private SectionKeyValue handleMap(PersistentData data, Field field) {
         if (field.getGenericType().getTypeName().contains("Map<")) {
             try {
-                System.out.println("Map type: " + field.getGenericType().getTypeName());
+//                System.out.println("Map type: " + field.getGenericType().getTypeName());
                 SectionKeyValue sectionKeyValue = new SectionKeyValue(field.getName());
                 reconstructMap(sectionKeyValue, data, field);
                 return sectionKeyValue;
@@ -127,7 +125,7 @@ public class Save {
     private void reconstructMap(SectionKeyValue sectionKeyValue, PersistentData data, Field field) throws IllegalAccessException {
         Map<Object, Object> map = (Map<Object, Object>) field.get(data);
         map.entrySet().forEach(objectObjectEntry -> {
-            System.out.println("Reconstructing entry...");
+//            System.out.println("Reconstructing entry...");
             sectionKeyValue.addKeyValue(objectObjectEntry.getKey().toString(), objectObjectEntry.getValue().toString());
         });
     }
@@ -142,12 +140,18 @@ public class Save {
         try {
             fullData = new Scanner(file).useDelimiter("\\Z").next();
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (fullData == null) {
-                RenLogger.LOGGER.error("Save file does not exist.");
-                return;
+            // Only error if they are trying to process the loading function.
+            if (process) {
+                RenLogger.LOGGER.error(e.getMessage());
+            } else {
+                // If process is false then its being cached and doesn't need to throw an error.
+                RenLogger.LOGGER.info(e.getMessage());
             }
+        }
+
+        if (fullData == null) {
+            RenLogger.LOGGER.error("Save file does not exist.");
+            return;
         }
 
         for (PersistentData persistentData : RenJava.getInstance().getRegisteredData()) {
@@ -157,16 +161,16 @@ public class Save {
 
             String[] classSplit = fullData.split(clazzName + ":");
             String fields = classSplit[1];
-            System.out.println("Class Split: " + classSplit[1]);
+//            System.out.println("Class Split: " + classSplit[1]);
             String[] fieldSplit = fields.split("\n");
             for (String field : fieldSplit) {
-                System.out.println("Field: " + field);
+//                System.out.println("Field: " + field);
                 if (field.trim().isEmpty()) continue;
                 String[] keyValueSplit = field.split(":");
                 String key = keyValueSplit[0];
                 if (keyValueSplit.length == 1) {
                     if (key.startsWith("    ") || key.startsWith("\t")) {
-                        System.out.println("Mapping found: " + key.trim());
+//                        System.out.println("Mapping found: " + key.trim());
                         mapSection = new SectionKeyValue(key.trim());
                         rootSection.addSubSection(mapSection);
                         continue;
@@ -176,7 +180,7 @@ public class Save {
                 }
                 String value = keyValueSplit[1];
                 if ((key.startsWith("    ") || key.startsWith("\t")) && value.trim().isEmpty()) {
-                    System.out.println("Mapping found: " + key.trim());
+//                    System.out.println("Mapping found: " + key.trim());
                     mapSection = new SectionKeyValue(key.trim());
                     rootSection.addSubSection(mapSection);
                 } else if (value.trim().isEmpty()) {
@@ -185,12 +189,12 @@ public class Save {
                     if (mapSection != null) {
                         mapSection.addKeyValue(key.trim(), value.trim());
                     }
-                    System.out.println("Mapping entry found: " + key.trim() + "," + value.trim());
+//                    System.out.println("Mapping entry found: " + key.trim() + "," + value.trim());
                 } else if (key.startsWith("\t") || key.startsWith("    ")){
                     // Handle generic entry
 
                     // Check if entry is an array
-                    if (value.contains(",")) {
+                    if (value.contains(",") || value.contains("[")) {
                         if (value.contains("[")) {
                             value = value.replace("[", "").replace("]", "");
                         }
@@ -205,7 +209,7 @@ public class Save {
                 processSection(persistentData, rootSection);
             } else {
                 if (rootSection.getSection().contains("me.piitex.renjava.api.player.Player")) {
-                    System.out.println("Mapping scene...");
+//                    System.out.println("Mapping scene...");
                     sceneSection = rootSection;
                 }
             }
@@ -221,18 +225,18 @@ public class Save {
         //        key: value
         //
 
-        System.out.println("================================================");
-        System.out.println();
-        System.out.println(rootSection.toString());
-        System.out.println();
-        System.out.println("================================================");
+//        System.out.println("================================================");
+//        System.out.println();
+//        System.out.println(rootSection.toString());
+//        System.out.println();
+//        System.out.println("================================================");
 
         // Next set the mapping to the fields
         List<Field> fields = new ArrayList<>(List.of(persistentData.getClass().getDeclaredFields()));
         fields.addAll(List.of(persistentData.getClass().getFields()));
         for (Field field : fields) {
             if (field.isAnnotationPresent(Data.class)) {
-                System.out.println("Processing Field: " + field.getName());
+                //System.out.println("Processing Field: " + field.getName());
                 field.setAccessible(true);
                 if (field.getGenericType().getTypeName().contains("Map<")) {
                     // This is a map load. Scan for subsections if the field name matches. Add all data
@@ -243,11 +247,11 @@ public class Save {
                             // Set the current values to whatever the load file is
                             deconstructMap(subSection, persistentData, field);
 
-                            try {
-                                System.out.println("Map: " + field.get(persistentData).toString());
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException(e);
-                            }
+//                            try {
+//                                System.out.println("Map: " + field.get(persistentData).toString());
+//                            } catch (IllegalAccessException e) {
+//                                throw new RuntimeException(e);
+//                            }
 
                         }
                     }
@@ -255,27 +259,27 @@ public class Save {
 
                 String keyToSet = (String) rootSection.getKeyValueMap().keySet().stream().filter(key -> key.toString().equalsIgnoreCase(field.getName())).findAny().orElse(null);
                 if (keyToSet != null) {
-                    System.out.println("Key To Set: " + keyToSet);
+//                    System.out.println("Key To Set: " + keyToSet);
                     try {
 
                         // Casting string might not be a good idea.
                         String value = (String) rootSection.getKeyValueMap().get(keyToSet);
 
-                        System.out.println("Setting values for: " + field.getName());
+//                        System.out.println("Setting values for: " + field.getName());
                         setField(field, persistentData, value.strip());
 
                         // Testing checks
-                        if (field.getName().equalsIgnoreCase("currentStory")) {
-                            System.out.println("Current Story: " + field.get(persistentData));
-                        }
-                        if (field.getName().equalsIgnoreCase("currentScene")) {
-                            System.out.println("Current Scene: " + field.get(persistentData));
-                        }
+//                        if (field.getName().equalsIgnoreCase("currentStory")) {
+//                            System.out.println("Current Story: " + field.get(persistentData));
+//                        }
+//                        if (field.getName().equalsIgnoreCase("currentScene")) {
+//                            System.out.println("Current Scene: " + field.get(persistentData));
+//                        }
                     } catch (NoSuchFieldException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
+                        RenLogger.LOGGER.trace(e.getMessage());
                     }
                 } else {
-                    System.err.println("Could not set field: " + field.getName());
+                    RenLogger.LOGGER.error("Could not set key '" + field.getName() + "'");
                 }
             }
         }
@@ -290,7 +294,7 @@ public class Save {
         }
 
         if (objectMap == null) {
-            System.out.println("Map was null. Defaulting...");
+//            System.out.println("Map was null. Defaulting...");
             objectMap = new HashMap<>();
         }
 
@@ -298,8 +302,8 @@ public class Save {
         // TODO: 3/3/2024 Convert generic map type to actual type using the Mapper class
         Map<Object, Object> finalObjectMap = objectMap;
         subSection.getKeyValueMap().forEach((key, value) -> {
-            System.out.println("Setting map...");
-            System.out.println(key + ": " + value);
+//            System.out.println("Setting map...");
+//            System.out.println(key + ": " + value);
             finalObjectMap.put(key, value);
         });
     }
@@ -327,39 +331,41 @@ public class Save {
     }
 
     // Builds the preview for saving and loading
-    public Pane buildPreview() {
-        Pane pane = new Pane();
+    public Menu buildPreview() {
+        Menu menu = new Menu(1920, 1080);
         // Get the current scene the save is on.
         // Build the scene.
         // Scale it to a small box.
+
+        // Default image
+        ImageOverlay saveImage = new ImageOverlay("gui/button/slot_idle_background.png");
         if (sceneSection == null) {
+            RenLogger.LOGGER.info("Save slot '" + slot + "' scene does not exist.");
             // Default image
-            ImageLoader saveImage = new ImageLoader("gui/button/slot_idle_background.png");
-            try {
-                ImageView view = new ImageView(saveImage.build());
-                view.setFitHeight(419);
-                view.setFitWidth(309);
-                pane.getChildren().add(view);
-            } catch (ImageNotFoundException e) {
-                RenLogger.LOGGER.error(e.getMessage());
-            }
+            menu.setBackgroundImage(saveImage);
         } else {
             Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
+
+            //FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
+
+            // Set the player to the current story (which is off to a horrible start)
+            RenJava.getInstance().getPlayer().setCurrentStory(story.getId());
+
+            // Initialize the story to process the scenes. (Used to execute the `addScene` functions which maps the scenes to the story.)
+            story.init();
+
+            // Render the scene to the load button.
             RenScene currentScene = story.getScene((String) sceneSection.get("currentScene"));
-            Menu menu = currentScene.build(true);
-            pane = menu.getPane();
+            if (currentScene == null) {
+                RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or haas missing information. Unable to render save preview for the file. '" + sceneSection.get("currentScene") + "'");
+                menu.setBackgroundImage(saveImage);
+                return menu;
+            }
+            RenLogger.LOGGER.debug("Save preview found for slot '" + slot + "'. " + currentScene.getId());
+
+            return currentScene.build(true);
         }
-
-        // Scale the pane to fit a small box.
-
-        // 414 x 309
-        // 1920 1080
-        // 0.2, 0.28
-        pane.setMaxWidth(414);
-        pane.setMaxHeight(309);
-
-
-        return pane;
+        return menu;
     }
 
     public File getFile() {
