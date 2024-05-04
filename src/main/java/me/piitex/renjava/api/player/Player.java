@@ -1,9 +1,10 @@
 package me.piitex.renjava.api.player;
 
+import javafx.scene.Scene;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.APINote;
-import me.piitex.renjava.api.builders.ImageLoader;
 import me.piitex.renjava.api.exceptions.InvalidStoryException;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -21,7 +22,7 @@ public class Player implements PersistentData {
     @Data private String currentStory;
 
     // Entry to map the story for the image
-    private Map.Entry<String, ImageLoader> lastDisplayedImage;
+    private Map.Entry<String, ImageOverlay> lastDisplayedImage;
 
     private boolean transitionPlaying = false;
     private boolean uiToggled = true;
@@ -36,6 +37,9 @@ public class Player implements PersistentData {
     @Data private Map<String, String> viewedScenes = new HashMap<>();
 
     private final Map<String, Story> storyIdMap = new HashMap<>();
+
+    private Scene lastRenderedScene;
+    private RenScene lastRenderedRenScene;
 
     public boolean hasSeenScene(Story story, String sceneID) {
         return viewedScenes.containsKey(story.getId()) && viewedScenes.containsValue(sceneID);
@@ -119,11 +123,11 @@ public class Player implements PersistentData {
         this.rightClickMenu = rightClickMenu;
     }
 
-    public Map.Entry<String, ImageLoader> getLastDisplayedImage() {
+    public Map.Entry<String, ImageOverlay> getLastDisplayedImage() {
         return lastDisplayedImage;
     }
 
-    public void setLastDisplayedImage(Map.Entry<String, ImageLoader> lastDisplayedImage) {
+    public void setLastDisplayedImage(Map.Entry<String, ImageOverlay> lastDisplayedImage) {
         this.lastDisplayedImage = lastDisplayedImage;
     }
 
@@ -149,6 +153,22 @@ public class Player implements PersistentData {
 
     public void setTransitionPlaying(boolean transitionPlaying) {
         this.transitionPlaying = transitionPlaying;
+    }
+
+    public Scene getLastRenderedScene() {
+        return lastRenderedScene;
+    }
+
+    public void setLastRenderedScene(Scene lastRenderedScene) {
+        this.lastRenderedScene = lastRenderedScene;
+    }
+
+    public RenScene getLastRenderedRenScene() {
+        return lastRenderedRenScene;
+    }
+
+    public void setLastRenderedRenScene(RenScene lastRenderedRenScene) {
+        this.lastRenderedRenScene = lastRenderedRenScene;
     }
 
     public void updateScene(RenScene renScene) {
