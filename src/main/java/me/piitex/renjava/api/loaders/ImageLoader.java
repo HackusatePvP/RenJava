@@ -1,4 +1,4 @@
-package me.piitex.renjava.api.builders;
+package me.piitex.renjava.api.loaders;
 
 import javafx.scene.image.*;
 import me.piitex.renjava.api.APIChange;
@@ -28,6 +28,11 @@ public class ImageLoader {
     public ImageLoader(String name) {
         File directory = new File(System.getProperty("user.dir") + "/game/images/");
         this.file = new File(directory, name);
+    }
+
+    public ImageLoader(String directory, String name) {
+        File fileDirectory = new File(System.getProperty("user.dir") + "/" + directory + "/");
+        this.file = new File(fileDirectory, name);
     }
 
     @APIChange(description = "Now supports .webp images.", changedVersion = "0.0.289")

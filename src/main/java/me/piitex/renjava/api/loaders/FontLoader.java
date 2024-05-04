@@ -1,4 +1,4 @@
-package me.piitex.renjava.api.builders;
+package me.piitex.renjava.api.loaders;
 
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -16,7 +16,6 @@ public class FontLoader {
     private Font font;
     private FontWeight weight;
     private FontPosture posture;
-
     private static final Map<String, Font> cachedFonts = new HashMap<>();
 
     public FontLoader(FontLoader font, double size) {
@@ -64,6 +63,7 @@ public class FontLoader {
         try {
             if (!cachedFonts.containsKey(name)) {
                 this.font = Font.loadFont(new FileInputStream(file), 24);
+                cachedFonts.put(name, font);
             }
         } catch (FileNotFoundException e) {
             this.font = Font.font(name, size);
@@ -77,6 +77,14 @@ public class FontLoader {
 
     public double getSize() {
         return size;
+    }
+
+    public FontPosture getPosture() {
+        return posture;
+    }
+
+    public FontWeight getWeight() {
+        return weight;
     }
 
     public void setSize(double size) {

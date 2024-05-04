@@ -12,13 +12,14 @@ import java.util.LinkedList;
 public class TextFlowOverlay implements Overlay {
     private double x;
     private double y;
+    private double scaleX, scaleY;
     private Transitions transitions;
     private Font font;
     private Color textColor;
 
     private LinkedList<Text> texts = new LinkedList<>();
 
-    private final int width, height;
+    private double width, height;
 
     public TextFlowOverlay(String text, int width, int height) {
         this.width = width;
@@ -43,6 +44,7 @@ public class TextFlowOverlay implements Overlay {
         return x;
     }
 
+    @Override
     public void setX(double x) {
         this.x = x;
     }
@@ -50,6 +52,46 @@ public class TextFlowOverlay implements Overlay {
     @Override
     public double y() {
         return y;
+    }
+
+    @Override
+    public double scaleX() {
+        return scaleX;
+    }
+
+    @Override
+    public double scaleY() {
+        return scaleY;
+    }
+
+    @Override
+    public void setScaleX(double scaleX) {
+        this.scaleX = scaleX;
+    }
+
+    @Override
+    public void setScaleY(double scaleY) {
+        this.scaleY = scaleY;
+    }
+
+    @Override
+    public double width() {
+        return width;
+    }
+
+    @Override
+    public double height() {
+        return height;
+    }
+
+    @Override
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    @Override
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     public void setY(double y) {
@@ -81,13 +123,6 @@ public class TextFlowOverlay implements Overlay {
         this.transitions = transitions;
     }
 
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
 
     public LinkedList<Text> getTexts() {
         return texts;
