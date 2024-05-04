@@ -3,13 +3,13 @@ package me.piitex.renjava.api.scenes.types.input;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.InputFieldOverlay;
 import me.piitex.renjava.gui.overlay.TextFlowOverlay;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class InputScene extends RenScene {
     private final String text;
-    private final ImageLoader loader;
+    private final ImageOverlay loader;
     private TextField inputField;
     private InputSetInterface setInterface;
 
@@ -44,7 +44,7 @@ public class InputScene extends RenScene {
      * @param id     The ID of the InputScene.
      * @param loader The image loader used to load the background image.
      */
-    public InputScene(String id, @Nullable String text, ImageLoader loader) {
+    public InputScene(String id, @Nullable String text, ImageOverlay loader) {
         super(id, loader);
         this.text = text;
         this.loader = loader;
@@ -64,7 +64,7 @@ public class InputScene extends RenScene {
 
     @Override
     public Menu build(boolean ui) {
-        Menu menu = new Menu(1920.0, 1080.0);
+        Menu menu = new Menu(1920, 1080);
         Menu imageMenu = (new ImageScene(null, null, this.text, this.loader)).build(ui);
         if (ui) {
             TextFlowOverlay textFlowOverlay;
@@ -84,7 +84,7 @@ public class InputScene extends RenScene {
     @Override
     public void render(Menu menu) {
         RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.INPUT_SCENE);
-        menu.render(null, this); // FIXME: 12/29/2023 Render depending on if ui is toggled
+        menu.render(this); // FIXME: 12/29/2023 Render depending on if ui is toggled
 
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);

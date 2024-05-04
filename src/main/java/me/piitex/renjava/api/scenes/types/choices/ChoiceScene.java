@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ButtonClickEvent;
@@ -13,7 +14,7 @@ import me.piitex.renjava.events.types.ChoiceButtonBuildEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
@@ -65,7 +66,7 @@ import java.util.Map;
  * @see ChoiceSelectInterface
  */
 public class ChoiceScene extends RenScene {
-    private final ImageLoader backgroundImage;
+    private final ImageOverlay backgroundImage;
 
     private ChoiceSelectInterface selectInterface;
 
@@ -82,7 +83,7 @@ public class ChoiceScene extends RenScene {
      * @param id               The unique identifier for the scene.
      * @param backgroundImage  The background image for the scene.
      */
-    public ChoiceScene(String id, ImageLoader backgroundImage) {
+    public ChoiceScene(String id, ImageOverlay backgroundImage) {
         super(id, backgroundImage);
         this.backgroundImage = backgroundImage;
     }
@@ -182,7 +183,7 @@ public class ChoiceScene extends RenScene {
     @Override
     public void render(Menu menu) {
         RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.CHOICE_SCENE);
-        menu.render(null, this);
+        menu.render(this);
 
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);

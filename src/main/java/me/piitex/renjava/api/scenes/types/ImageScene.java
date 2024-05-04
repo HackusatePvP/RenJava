@@ -10,10 +10,11 @@ import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 
 import me.piitex.renjava.gui.overlay.*;
+import me.piitex.renjava.loggers.RenLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -50,7 +51,7 @@ import java.util.LinkedList;
 public class ImageScene extends RenScene {
     private Character character;
     private String dialogue;
-    private ImageLoader backgroundImage;
+    private ImageOverlay backgroundImage;
     private Font font;
     private String characterDisplayName;
 
@@ -66,15 +67,15 @@ public class ImageScene extends RenScene {
      * @param id        The ID used to identify the scene.
      * @param character The character who is talking. Pass null if no character is talking in the scene.
      * @param dialogue  The dialogue of the character. Pass null or an empty string if no one is talking.
-     * @param loader    The background image loader for the scene.
+     * @param backgroundImage    The background image loader for the scene.
      */
-    public ImageScene(String id, @Nullable Character character, String dialogue, @Nullable ImageLoader loader) {
-        super(id, loader);
+    public ImageScene(String id, @Nullable Character character, String dialogue, @Nullable ImageOverlay backgroundImage) {
+        super(id, backgroundImage);
         this.character = character;
         this.dialogue = dialogue;
-        if (loader != null) {
-            this.backgroundImage = loader;
-            renJava.getPlayer().setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), loader));
+        if (backgroundImage != null) {
+            this.backgroundImage = backgroundImage;
+            renJava.getPlayer().setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), backgroundImage));
         }
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();
@@ -133,6 +134,7 @@ public class ImageScene extends RenScene {
                 characterDisplay.setFill(character.getColor());
 
                 if (dialogue != null && !dialogue.isEmpty()) {
+                    RenLogger.LOGGER.debug("Rendering textbox");
                     ImageLoader textbox = new ImageLoader("gui/textbox.png");
                     Menu textboxMenu = new Menu(configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
 
@@ -155,7 +157,7 @@ public class ImageScene extends RenScene {
                     textboxMenu.addOverlay(textFlowOverlay);
 
                     characterDisplay.setFill(character.getColor());
-                    TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getDefaultFont().getFont(), configuration.getCharacterTextSize()),
+                    TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
                             configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
                             configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
 
@@ -164,7 +166,11 @@ public class ImageScene extends RenScene {
 
                     textboxMenu.addOverlay(characterText);
 
+                    RenLogger.LOGGER.debug("Textbox Menu Debug: " + textboxMenu.getOverlays().size());
+
                     rootMenu.addMenu(textboxMenu);
+
+                    RenLogger.LOGGER.debug("Root Menu Debug: " + rootMenu.getChildren().size());
                 }
             }
         }
@@ -174,7 +180,7 @@ public class ImageScene extends RenScene {
             try {
                 RenJava.getInstance().getStage().getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                renJava.getLogger().error(e.getMessage());
             }
         }
 
@@ -188,7 +194,7 @@ public class ImageScene extends RenScene {
     @Override
     public void render(Menu menu) {
         renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
-        menu.render(null, this);
+        menu.render(this);
 
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);

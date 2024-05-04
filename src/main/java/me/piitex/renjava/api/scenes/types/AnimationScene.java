@@ -14,9 +14,9 @@ import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.api.builders.ImageLoader;
-import me.piitex.renjava.api.builders.VideoLoader;
+import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.api.loaders.VideoLoader;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 public class AnimationScene extends RenScene {
@@ -61,10 +61,8 @@ public class AnimationScene extends RenScene {
                 text = new Text(dialogue);
                 if (getCharacterNameDisplay() != null && !getCharacterNameDisplay().isEmpty()) {
                     // Set character display
-                    RenLogger.LOGGER.info("Character Display Name Validation: " + getCharacterNameDisplay());
                     characterDisplay = new Text(getCharacterNameDisplay());
                 } else {
-                    RenLogger.LOGGER.info("Character Display Name Validation: " + character.getDisplayName());
                     characterDisplay = new Text(character.getDisplayName());
                 }
                 characterDisplay.setFill(character.getColor());
@@ -94,7 +92,7 @@ public class AnimationScene extends RenScene {
                 texFlow.getChildren().add(text); // Add the text to the textflow
                 root.getChildren().add(texFlow);
 
-                characterDisplay.setFont(new FontLoader("JandaManateeSolid.ttf", 36).getFont());
+                characterDisplay.setFont(new FontLoader(RenJava.getInstance().getConfiguration().getCharacterDisplayFont(), 36).getFont());
                 characterDisplay.setX(setX + 200);
                 characterDisplay.setY(setY + 70);
 

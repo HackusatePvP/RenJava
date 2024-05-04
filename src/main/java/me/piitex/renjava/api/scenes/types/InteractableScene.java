@@ -1,6 +1,5 @@
 package me.piitex.renjava.api.scenes.types;
 
-import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
@@ -8,7 +7,7 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 
 /**
@@ -57,7 +56,7 @@ import me.piitex.renjava.gui.overlay.Overlay;
  */
 public class InteractableScene extends RenScene {
 
-    private final ImageLoader backgroundImage;
+    private final ImageOverlay backgroundImage;
 
     private static final RenJava renJava = RenJava.getInstance();
 
@@ -94,7 +93,7 @@ public class InteractableScene extends RenScene {
      * @see Overlay
      * @see EventListener
      */
-    public InteractableScene(String id, ImageLoader backgroundImage) {
+    public InteractableScene(String id, ImageOverlay backgroundImage) {
         super(id, backgroundImage);
         this.backgroundImage = backgroundImage;
     }
@@ -112,7 +111,7 @@ public class InteractableScene extends RenScene {
 
     @Override
     public void render(Menu menu) {
-        menu.render(null, this);
+        menu.render(this);
         renJava.setStage(renJava.getStage(), StageType.INTERACTABLE_SCENE);
     }
 }
