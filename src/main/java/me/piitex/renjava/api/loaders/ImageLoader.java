@@ -62,7 +62,7 @@ public class ImageLoader {
 
 
     // Credit: https://stackoverflow.com/questions/30970005/bufferedimage-to-javafx-image
-    private Image getImage(BufferedImage img){
+    private Image getImage(BufferedImage img) {
         //converting to a good type, read about types here: https://openjfx.io/javadoc/13/javafx.graphics/javafx/scene/image/PixelBuffer.html
         BufferedImage newImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
         newImg.createGraphics().drawImage(img, 0, 0, img.getWidth(), img.getHeight(), null);

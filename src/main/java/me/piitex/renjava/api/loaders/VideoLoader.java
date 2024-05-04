@@ -1,4 +1,4 @@
-package me.piitex.renjava.api.builders;
+package me.piitex.renjava.api.loaders;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
