@@ -30,4 +30,8 @@ public abstract class Container {
     public Stage getStage() {
         return stage;
     }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
 }
