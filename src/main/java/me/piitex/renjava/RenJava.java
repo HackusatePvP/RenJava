@@ -2,18 +2,15 @@ package me.piitex.renjava;
 
 import javafx.application.HostServices;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
-import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.Game;
+import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.exceptions.InvalidCharacterException;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.Save;
@@ -21,6 +18,7 @@ import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.player.Player;
+import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.Event;
@@ -38,9 +36,10 @@ import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.TextFlowOverlay;
-import me.piitex.renjava.gui.overlay.TextOverlay;
 import me.piitex.renjava.loggers.RenLogger;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
@@ -68,6 +67,9 @@ import java.util.*;
  * }</pre>
  *
  * Note: Do not call the `RenJava` constructor directly. The framework creates a new instance of your class automatically using reflections.
+ *
+ * @see Game
+ * @see Configuration
  */
 public abstract class RenJava {
     protected String name;
@@ -99,8 +101,8 @@ public abstract class RenJava {
 
     private static RenJava instance;
 
-    public RenJava() {
-        // Super is ran first then the superior method is ran.
+    protected RenJava() {
+        // Super is executed first then the superior method is executed.
         instance = this;
     }
 
@@ -357,7 +359,9 @@ public abstract class RenJava {
      *         new Character("character1", "Character 1", Color.RED);
      *         new Character("character2", "Character 2", Color.BLUE);
      *
-     *         // Perform any other necessary setup tasks
+     *         // Registers data to be included in the save file.
+     *         MyDataClass dataClass = new MyDataClass();
+     *         registerData(dataClass);
      *     }
      * }</pre>
      */
@@ -368,7 +372,7 @@ public abstract class RenJava {
     public abstract Menu buildTitleScreen();
 
     public Menu buildSideMenu() {
-        Menu menu = new Menu(350, 500, new ImageLoader("gui/overlay/main_menu.png"));
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
@@ -381,7 +385,7 @@ public abstract class RenJava {
         ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
 
         // Create vbox for the buttons. You can also do an HBox
-        VerticalLayout layout = new VerticalLayout(200, 500);
+        VerticalLayout layout = new VerticalLayout(400, 500);
         layout.setX(50);
         layout.setY(250);
         layout.setSpacing(20);
@@ -394,7 +398,7 @@ public abstract class RenJava {
     }
 
     public Menu buildLoadMenu(int page) {
-        Menu menu = new Menu(1920, 1080, new ImageLoader("gui/main_menu.png"));
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
         // Setup pagination.
         // 6 save slots per page
         //   2 Rows
@@ -404,37 +408,20 @@ public abstract class RenJava {
         int maxSavesPerPage = 6;
 
         int index = ((maxSavesPerPage * page) - maxSavesPerPage) + 1;
-        VerticalLayout rootLayout = new VerticalLayout(1000, 400); // The root is a vertical which stacks the two horizontal layouts.
-        HorizontalLayout topLayout = new HorizontalLayout(1000, 200);
-        HorizontalLayout bottomLayout = new HorizontalLayout(1000, 200);
+        VerticalLayout rootLayout = new VerticalLayout(1000, 800); // The root is a vertical which stacks the two horizontal layouts.
+        rootLayout.setSpacing(10);
+        HorizontalLayout topLayout = new HorizontalLayout(1000, 350);
+        topLayout.setSpacing(20);
+        HorizontalLayout bottomLayout = new HorizontalLayout(1000, 350);
+        bottomLayout.setSpacing(20);
         while (index <=  maxSavesPerPage) {
-            System.out.println("Rendering save-" + index);
-            VerticalLayout buttonBox = new VerticalLayout(400, 300);
-            Save save = new Save(index);
-            TextOverlay slotText = new TextOverlay(new Text("Slot " + index), getConfiguration().getUiFont(), 1, 1);
-            buttonBox.addOverlays(slotText);
-            if (save.exists()) {
-                System.out.println("Save file exists...");
-                // Build the pane
-                Pane pane = save.buildPreview();
-                buttonBox.addSubPane(pane);
-            } else {
-                System.out.println("Empty save...");
-                ButtonOverlay loadButton = new ButtonOverlay("save-" + index, new ImageLoader("gui/button/slot_idle_background.png"), 1,1,0.8,0.8);
-                loadButton.setBackgroundColor(Color.TRANSPARENT);
-                loadButton.setBorderColor(Color.TRANSPARENT);
-                loadButton.setHoverImage(new ImageLoader("gui/button/slot_hover_background.png"));
-                loadButton.setMaxHeight(210);
-                buttonBox.addOverlays(loadButton);
-            }
-
-            VBox vBox = (VBox) buttonBox.getPane(); // Can cast because I know its a vertical box.
-            vBox.setAlignment(Pos.CENTER);
-            buttonBox.setSpacing(1);
+            ButtonOverlay loadButton = getButtonOverlay(page, index);
             if (index <= 3) {
-                topLayout.addChildLayout(buttonBox);
+                topLayout.addOverlays(loadButton);
+                //topLayout.addSubPane(saveMenu.render());
             } else {
-                bottomLayout.addChildLayout(buttonBox);
+                bottomLayout.addOverlays(loadButton);
+                //bottomLayout.addSubPane(saveMenu.render());
             }
             index++;
         }
@@ -442,7 +429,8 @@ public abstract class RenJava {
         rootLayout.addChildLayout(topLayout);
         rootLayout.addChildLayout(bottomLayout);
         rootLayout.setX(500);
-        rootLayout.setY(300);
+        rootLayout.setY(250);
+
 
         menu.addLayout(rootLayout);
 
@@ -456,10 +444,10 @@ public abstract class RenJava {
             ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", new FontLoader(getConfiguration().getUiFont(), 26).getFont(), Color.BLACK, 1, 1);
             pageButton.setBackgroundColor(Color.TRANSPARENT);
             pageButton.setBorderColor(Color.TRANSPARENT);
-            if (page == index) {
-                pageButton.setTextFill(Color.RED);
+            if (page == pageIndex) {
+                pageButton.setTextFill(Color.BLACK);
             }
-            pageButton.setHoverColor(Color.RED);
+            pageButton.setHoverColor(configuration.getHoverColor());
             pageLayout.addOverlays(pageButton);
         }
         pageLayout.setX(1000);
@@ -470,13 +458,28 @@ public abstract class RenJava {
         return menu;
     }
 
+    @NotNull
+    private static ButtonOverlay getButtonOverlay(int page, int index) {
+        Save save = new Save(index);
+        save.load(false);
+        ImageOverlay saveImage;
+        ButtonOverlay loadButton;
+        saveImage = save.buildPreview(page);
+
+        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309, 1, 1);
+
+        loadButton.setBackgroundColor(Color.TRANSPARENT);
+        loadButton.setBorderColor(Color.TRANSPARENT);
+        return loadButton;
+    }
+
     public Menu buildSettingsMenu() {
 
         return null;
     }
 
     public Menu buildAboutMenu() {
-        Menu menu = new Menu(1920, 1080, new ImageLoader("gui/overlay/main_menu.png"));
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
 
         Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 20).getFont();
 
@@ -619,8 +622,6 @@ public abstract class RenJava {
             }
         }
 
-        //FIXME: I'm pretty sure ths is in the wrong order. Low method should be called first, high method called last. Needs some testing and debating before
-        //       Determining the final order.
         highestMethods.forEach((listener, method) -> {
             invokeMethod(listener, method, event);
         });

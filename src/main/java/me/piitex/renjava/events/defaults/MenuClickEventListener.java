@@ -83,8 +83,6 @@ public class MenuClickEventListener implements EventListener {
                     return;
                 }
 
-                System.out.println("Story: " + renJava.getPlayer().getCurrentStoryID());
-
                 renJava.createStory();
 
                 // Force update fields
@@ -98,6 +96,8 @@ public class MenuClickEventListener implements EventListener {
         }
         if (renJava.getStageType() == StageType.SAVE_MENU) {
             // Save
+            System.out.println("Button id: " + button.getId());
+            if (!button.getId().startsWith("save-")) return;
             int slot = Integer.parseInt(button.getId().replace("save-", ""));
             Save save = new Save(slot);
             save.write();

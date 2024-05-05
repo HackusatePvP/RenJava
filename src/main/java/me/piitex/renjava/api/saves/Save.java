@@ -1,17 +1,20 @@
 package me.piitex.renjava.api.saves;
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.gui.Menu;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
+import javax.imageio.ImageIO;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -35,7 +38,8 @@ public class Save {
 
     public Save(int slot) {
         this.slot = slot;
-        this.file = new File(System.getProperty("user.dir") + "/game/saves/save-" + slot + ".dat");
+        File directory = new File(System.getProperty("user.dir") + "/game/saves/");
+        this.file = new File(directory,"save-" + slot + ".dat");
     }
 
     public boolean exists() {
@@ -92,6 +96,13 @@ public class Save {
         }
 
         FileWriter fileWriter = null;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                RenLogger.LOGGER.error("Could not create save file: {}", e.getMessage());
+            }
+        }
         try {
             fileWriter = new FileWriter(file);
             fileWriter.write(appendString.toString());
@@ -143,9 +154,6 @@ public class Save {
             // Only error if they are trying to process the loading function.
             if (process) {
                 RenLogger.LOGGER.error(e.getMessage());
-            } else {
-                // If process is false then its being cached and doesn't need to throw an error.
-                RenLogger.LOGGER.info(e.getMessage());
             }
         }
 
@@ -224,12 +232,6 @@ public class Save {
         //    map:
         //        key: value
         //
-
-//        System.out.println("================================================");
-//        System.out.println();
-//        System.out.println(rootSection.toString());
-//        System.out.println();
-//        System.out.println("================================================");
 
         // Next set the mapping to the fields
         List<Field> fields = new ArrayList<>(List.of(persistentData.getClass().getDeclaredFields()));
@@ -330,20 +332,10 @@ public class Save {
         }
     }
 
-    // Builds the preview for saving and loading
-    public Menu buildPreview() {
-        Menu menu = new Menu(1920, 1080);
-        // Get the current scene the save is on.
-        // Build the scene.
-        // Scale it to a small box.
-
-        // Default image
-        ImageOverlay saveImage = new ImageOverlay("gui/button/slot_idle_background.png");
-        if (sceneSection == null) {
-            RenLogger.LOGGER.info("Save slot '" + slot + "' scene does not exist.");
-            // Default image
-            menu.setBackgroundImage(saveImage);
-        } else {
+    public ImageOverlay buildPreview(int page) {
+        ImageOverlay saveImage;
+        if (file.exists()) {
+            System.out.println("Save file " + page + " exists.");
             Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
 
             //FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
@@ -358,14 +350,27 @@ public class Save {
             RenScene currentScene = story.getScene((String) sceneSection.get("currentScene"));
             if (currentScene == null) {
                 RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or haas missing information. Unable to render save preview for the file. '" + sceneSection.get("currentScene") + "'");
-                menu.setBackgroundImage(saveImage);
-                return menu;
+                return new ImageOverlay("gui/button/slot_idle_background.png");
             }
-            RenLogger.LOGGER.debug("Save preview found for slot '" + slot + "'. " + currentScene.getId());
 
-            return currentScene.build(true);
+            currentScene.render(currentScene.build(true));
+
+            WritableImage snapshot = currentScene.getStage().getScene().snapshot(null);
+            saveImage = new ImageOverlay(snapshot);
+
+            saveImage.setWidth(384);
+            saveImage.setHeight(216);
+
+            // Since the Renpy assets account for Text they made a transparency space.
+            // To circumvent this extra space we need to add the length of the space so everything is properly aligned.
+            saveImage.setX(15);
+            saveImage.setY(15);
+
+             // Get whatever page they are on
+            return saveImage;
         }
-        return menu;
+        saveImage = new ImageOverlay("gui/button/slot_idle_background.png");
+        return saveImage;
     }
 
     public File getFile() {
