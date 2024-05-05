@@ -9,7 +9,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.Game;
+import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
@@ -19,14 +20,13 @@ import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import java.util.HashSet;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Launch extends Application {
 
     public static void main(String[] args) {
-        File file = new File(System.getProperty("user.dir") + "/build.info");
+        File file = new File(System.getProperty("user.dir") + "/renjava/build.info");
         boolean failed = true;
 
         if (file.exists()) {
@@ -49,7 +49,7 @@ public class Launch extends Application {
         }
 
         if (failed) {
-            System.err.println("Build info not found. Scanning for RenJava class. This will have noticeable performance impact.");
+            System.err.println("Build info not found. Scanning for RenJava class. This will have noticeable performance impact on low end computers.");
             // Scans for all classes in all packages. (We need to do all packages because this allows the author the freedom to do their own package scheme.)
             Collection<URL> allPackagePrefixes = Arrays.stream(Package.getPackages())
                     .map(Package::getName)
@@ -71,18 +71,22 @@ public class Launch extends Application {
     }
 
     private static void loadClass(Class<?> clazz, String[] args) {
+        //FIXME: For performance save the path of the main class to reduce loading time
         try {
-            //FIXME: For performance save the path of the main class to reduce loading time
-            File file = new File(System.getProperty("user.dir") + "/build.info");
+            File file = new File(System.getProperty("user.dir") + "/renjava/build.info");
             if (!file.exists()) {
                 file.createNewFile();
-                FileWriter writer = new FileWriter(file);
-                writer.append("main=").append(clazz.getName());
-                writer.close();
             }
 
+            FileWriter writer = new FileWriter(file);
+            writer.append("main=").append(clazz.getName());
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Could not create the 'build.info' file. This might be a first time setup. Once the application opens please exit and relaunch.");
+        }
 
 
+        try {
             Object o = clazz.getDeclaredConstructor().newInstance();
             RenJava renJava = (RenJava) o;
             if (renJava.getClass().isAnnotationPresent(Game.class)) {
@@ -100,7 +104,7 @@ public class Launch extends Application {
             // Build configuration
             if (renJava.getClass().isAnnotationPresent(Configuration.class)) {
                 Configuration conf = renJava.getClass().getAnnotation(Configuration.class);
-                RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name), conf.width(), conf.height(), new ImageLoader(conf.windowIconPath()));
+                RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name).replace("{author}", renJava.author), conf.width(), conf.height(), new ImageLoader(conf.windowIconPath()));
                 renJava.setConfiguration(configuration);
 
             } else {
@@ -118,8 +122,7 @@ public class Launch extends Application {
             renJava.init(); // Initialize game
             launch(args);
             //c.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException |
-                 IOException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             System.err.println("ERROR: Could initialize the RenJava framework: " + e.getMessage());
         }
     }

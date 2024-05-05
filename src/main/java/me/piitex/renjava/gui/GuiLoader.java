@@ -7,12 +7,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.*;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 ;
 
 /**
@@ -97,11 +96,8 @@ public class GuiLoader {
             RenLogger.LOGGER.error("No title screen was found. Please customize your own title screen for better user experience.");
             RenLogger.LOGGER.warn("Building RenJava default title screen...");
             menu = new Menu(renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth()).setTitle(renJava.getName() + " v" + renJava.getVersion());
-            try {
-                menu.setBackgroundImage(new ImageLoader("gui/main_menu.png").build());
-            } catch (ImageNotFoundException e) {
-                RenLogger.LOGGER.error(e.getMessage());
-            }
+
+            menu.setBackgroundImage(new ImageOverlay("gui/main_menu.png"));
         }
 
         Menu sideMenu = renJava.buildSideMenu();
@@ -110,7 +106,7 @@ public class GuiLoader {
 
         menu.addMenu(sideMenu);
 
-        MainMenDispatchEvent dispatchEvent = new MainMenDispatchEvent(menu);
+        MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(menu);
         RenJava.callEvent(dispatchEvent);
 
         menu.render();

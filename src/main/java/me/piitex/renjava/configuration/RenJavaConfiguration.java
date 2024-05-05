@@ -1,9 +1,8 @@
 package me.piitex.renjava.configuration;
 
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 
 import java.util.Map;
 
@@ -272,7 +271,6 @@ public class RenJavaConfiguration {
 
     /**
      * Sets how far to the right the character display name will be displayed. This is already aligned to the corner of the image.
-     * @param characterTextOffsetX
      */
     public void setCharacterTextOffsetX(int characterTextOffsetX) {
         this.characterTextOffsetX = characterTextOffsetX;
@@ -284,7 +282,6 @@ public class RenJavaConfiguration {
 
     /**
      * Sets how far down the character display name will be displayed. This is already aligned to the corner of the image.
-     * @param characterTextOffsetY
      */
     public void setCharacterTextOffsetY(int characterTextOffsetY) {
         this.characterTextOffsetY = characterTextOffsetY;

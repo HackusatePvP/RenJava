@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.Properties;
 
 import javafx.application.Platform;
-import me.piitex.renjava.api.builders.FontLoader;
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.loggers.RenLogger;

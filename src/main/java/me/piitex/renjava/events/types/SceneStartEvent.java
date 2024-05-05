@@ -1,6 +1,5 @@
 package me.piitex.renjava.events.types;
 
-import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.Event;
 

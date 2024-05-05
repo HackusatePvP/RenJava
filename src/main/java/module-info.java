@@ -1,6 +1,7 @@
 module RenJava {
     requires javafx.graphics;
     requires javafx.fxml;
+    requires javafx.swing;
     requires javafx.controls;
     requires javafx.media;
     requires java.logging;
@@ -20,7 +21,7 @@ module RenJava {
     exports me.piitex.renjava.gui;
     exports me.piitex.renjava.utils;
     exports me.piitex.renjava.api.characters;
-    exports me.piitex.renjava.api.builders;
+    exports me.piitex.renjava.api.loaders;
     exports me.piitex.renjava.gui.overlay;
     exports me.piitex.renjava.gui.layouts;
     exports me.piitex.renjava.gui.layouts.impl;
@@ -42,4 +43,6 @@ module RenJava {
     exports me.piitex.renjava.addons;
     exports me.piitex.renjava.loggers;
     opens me.piitex.renjava.loggers;
+    exports me.piitex.renjava.api;
+    opens me.piitex.renjava.api;
 }

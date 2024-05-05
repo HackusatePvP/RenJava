@@ -1,4 +1,4 @@
-package me.piitex.renjava;
+package me.piitex.renjava.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation used to set default information about the game.
- * Use this annotation to tag the ReJava class constructor.
+ * Use this annotation to tag the ReJava class.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

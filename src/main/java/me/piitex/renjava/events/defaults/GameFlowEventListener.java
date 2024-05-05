@@ -83,7 +83,7 @@ public class GameFlowEventListener implements EventListener {
                     Menu menu = renScene.build(true);
                     SceneBuildEvent sceneBuildEvent = new SceneBuildEvent(renScene, menu);
                     RenJava.callEvent(sceneBuildEvent);
-                    menu.render(null, renScene);
+                    menu.render(renScene);
                     player.setRightClickMenu(false);
                 }
             }
