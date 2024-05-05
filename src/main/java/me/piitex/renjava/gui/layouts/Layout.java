@@ -38,7 +38,9 @@ public abstract class Layout {
             new Element(overlay).render(pane);
         }
         for (Pane sub : subPanes) {
-            pane.getChildren().add(sub);
+            if (sub != null) {
+                pane.getChildren().add(sub);
+            }
         }
         pane.setTranslateX(x);
         pane.setTranslateY(y);
