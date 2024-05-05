@@ -98,4 +98,13 @@ public class ScenesEventListener implements EventListener {
             scene.getBuildInterface().onBuild(event);
         }
     }
+
+    @Listener(priority = Priority.HIGHEST)
+    public void onSceneRender(SceneRenderEvent event) {
+        // Event used to save the preview for the save file.
+        RenLogger.LOGGER.info("Updating tracker for {}", event.getRenScene().getId());
+        RenJava.getInstance().getPlayer().setLastRenderedScene(event.getScene()); // Update the player/tracker information
+        RenJava.getInstance().getPlayer().setLastRenderedRenScene(event.getRenScene());
+
+    }
 }
