@@ -4,11 +4,9 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
+import me.piitex.renjava.loggers.RenLogger;
 
-import javax.sound.sampled.*;
 import java.io.File;
-import java.io.IOException;
 
 public class Track {
     private final String id;
@@ -38,7 +36,7 @@ public class Track {
                 RenJava.getInstance().getTracks().setPlaying(false);
             });
         }
-        RenJava.getInstance().getLogger().warning("Volume: " + RenJava.getInstance().getSettings().getVolume() / 500d);
+        RenLogger.LOGGER.warn("Volume: " + RenJava.getInstance().getSettings().getVolume() / 500d);
         player.setVolume(RenJava.getInstance().getSettings().getVolume() / 500d);
         player.play();
     }

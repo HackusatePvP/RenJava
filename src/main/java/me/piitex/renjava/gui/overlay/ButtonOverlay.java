@@ -1,12 +1,17 @@
 package me.piitex.renjava.gui.overlay;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
@@ -16,20 +21,23 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ButtonOverlay implements Overlay {
     private Button button;
     private Transitions transitions;
-
+    private Menu menu;
     private final String id;
     private String text;
+    private double scaleX, scaleY;
     private Font font;
-    private Image image;
+    private ImageOverlay image;
     private Color textFill;
     private Color backgroundColor;
     private Color borderColor;
     private Color hoverColor;
+    private ImageLoader hoverImage;
     private boolean hover;
     private int borderWidth = 0;
     private int backgroundRadius = 0;
 
     private double x = 1, y = 1;
+    private double maxHeight, maxWidth;
     private final double xScale, yScale;
 
     public ButtonOverlay(String id, String text, Color textFill, double xScale, double yScale) {
@@ -158,17 +166,24 @@ public class ButtonOverlay implements Overlay {
      * @param xScale      X-Axis scale of the button.
      * @param yScale      Y-Axis scale of the button.
      */
-    public ButtonOverlay(String id, ImageLoader imageLoader, double x, double y, double xScale, double yScale) {
+    public ButtonOverlay(String id, ImageOverlay imageLoader, double x, double y, double xScale, double yScale) {
         this.id = id;
-        try {
-            this.image = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        this.image = imageLoader;
         this.x = x;
         this.y = y;
         this.xScale = xScale;
         this.yScale = yScale;
+    }
+
+    public ButtonOverlay(String id, ImageOverlay imageLoader, double x, double y, int maxWidth, int maxHeight, double xScale, double yScale) {
+        this.id = id;
+        this.image = imageLoader;
+        this.x = x;
+        this.y = y;
+        this.xScale = xScale;
+        this.yScale = yScale;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
     }
 
     /**
@@ -182,18 +197,36 @@ public class ButtonOverlay implements Overlay {
      * @param xScale      X-Axis scale of the button.
      * @param yScale      Y-Axis scale of the button.
      */
-    public ButtonOverlay(String id, ImageLoader imageLoader, String text, double x, double y, double xScale, double yScale) {
+    public ButtonOverlay(String id, ImageOverlay imageLoader, String text, double x, double y, double xScale, double yScale) {
         this.id = id;
-        try {
-            this.image = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        this.image = imageLoader;
         this.text = text;
         this.x = x;
         this.y = y;
         this.xScale = xScale;
         this.yScale = yScale;
+        this.button = build();
+    }
+
+    public ButtonOverlay(String id, Menu menu, double x, double y, double xScale, double yScale) {
+        this.id = id;
+        this.menu = menu;
+        this.x = x;
+        this.y = y;
+        this.xScale = xScale;
+        this.yScale = yScale;
+        this.button = build();
+    }
+
+    public ButtonOverlay(String id, Menu menu, double x, double y, int maxWidth, int maxHeight) {
+        this.id = id;
+        this.menu = menu;
+        this.x = x;
+        this.y = y;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        this.xScale = 1;
+        this.yScale = 1;
         this.button = build();
     }
 
@@ -224,11 +257,11 @@ public class ButtonOverlay implements Overlay {
         this.font = font;
     }
 
-    public Image getImage() {
+    public ImageOverlay getImage() {
         return image;
     }
 
-    public void setImage(Image image) {
+    public void setImage(ImageOverlay image) {
         this.image = image;
     }
 
@@ -262,6 +295,16 @@ public class ButtonOverlay implements Overlay {
 
     public void setHoverColor(Color hoverColor) {
         this.hoverColor = hoverColor;
+        this.hover = true;
+    }
+
+    public ImageLoader getHoverImage() {
+        return hoverImage;
+    }
+
+    public void setHoverImage(ImageLoader hoverImage) {
+        this.hoverImage = hoverImage;
+        this.hover = true;
     }
 
     public boolean isHover() {
@@ -293,6 +336,7 @@ public class ButtonOverlay implements Overlay {
         return x;
     }
 
+    @Override
     public void setX(double x) {
         this.x = x;
     }
@@ -302,9 +346,50 @@ public class ButtonOverlay implements Overlay {
         return y;
     }
 
+    @Override
+    public double scaleX() {
+        return scaleX;
+    }
+
+    @Override
+    public double scaleY() {
+        return scaleY;
+    }
+
+    @Override
+    public void setScaleX(double scaleX) {
+        this.scaleX = scaleX;
+    }
+
+    @Override
+    public void setScaleY(double scaleY) {
+        this.scaleY = scaleY;
+    }
+
+    @Override
+    public double width() {
+        return maxWidth;
+    }
+
+    @Override
+    public double height() {
+        return maxHeight;
+    }
+
+    @Override
+    public void setWidth(double width) {
+        this.maxWidth = width;
+    }
+
+    @Override
+    public void setHeight(double height) {
+        this.maxHeight  = height;
+    }
+
     public void setY(double y) {
         this.y = y;
     }
+
 
     @Override
     public Transitions getTransition() {
@@ -330,8 +415,47 @@ public class ButtonOverlay implements Overlay {
         Button button = new Button();
         button.setId(id);
         if (image != null) {
-            ImageView imageView = new ImageView(image);
+            ImageView imageView = new ImageView(image.getImage());
+            imageView.setFitWidth(image.width());
+            imageView.setFitHeight(image.height());
+            if (image.x() > 0) {
+                imageView.setX(image.x());
+            }
+            if (image.y() > 0) {
+                imageView.setY(image.y());
+            }
+            button.setAlignment(Pos.TOP_CENTER);
             button.setGraphic(imageView);
+            if (image.x() > 0) {
+                button.getGraphic().setTranslateX(image.x());
+            }
+            if (image.y() > 0) {
+                // This can move the image within the button box
+                // The y and x values are separate from the main menu
+                // Top left of the box is 0,0
+                // Bottom right of the box is boxWidth, boxHeight
+                button.getGraphic().setTranslateY(image.y());
+            }
+        }
+        if (menu != null) {
+            //TODO: This is so fucking stupid if it works.
+            menu.setRenderFadeInFill(false);
+            menu.setRenderFadeOutFill(false);
+
+            // Resize elements
+            menu.setScaleX(width() / menu.getWidth());
+            menu.setScaleY(height() / menu.getHeight());
+
+            Pane node = menu.render(false);
+
+            node.setMaxSize(maxWidth, maxHeight);
+            node.setTranslateX(button.getTranslateX() - 20);
+            node.setTranslateY(button.getTranslateY() - 20);
+            node.setPrefWidth(node.getMaxWidth() - 100);
+            node.setPrefHeight(node.getMaxHeight() - 100);
+            button.setGraphic(node);
+//            button.setContentDisplay(ContentDisplay.LEFT);
+//            button.setAlignment(Pos.CENTER_LEFT);
         }
         if (text != null && !text.isEmpty()) {
             button.setText(text);
@@ -345,26 +469,50 @@ public class ButtonOverlay implements Overlay {
         if (textFill != null) {
             button.setTextFill(textFill);
         }
+        if (maxHeight > 0) {
+            button.setMaxHeight(maxHeight);
+            button.setPrefHeight(maxHeight);
+        }
+        if (maxWidth > 0) {
+            button.setMaxWidth(maxWidth);
+            button.setPrefWidth(maxWidth);
+        }
         String inLine = "";
         if (backgroundColor != null) {
             inLine += "-fx-background-color: " + cssColor(backgroundColor) + "; ";
+        } else {
+            inLine += "-fx-background-color: transparent; ";
         }
         if (borderColor != null) {
             inLine += "-fx-border-color: " + cssColor(borderColor) + "; ";
+        } else {
+            inLine += "-fx-border-color: transparent; ";
         }
         inLine += "-fx-border-width: " + borderWidth + "; ";
         inLine += "-fx-background-radius: " + backgroundRadius + ";";
 
         // https://stackoverflow.com/questions/30680570/javafx-button-border-and-hover
         if (hover) {
-            AtomicReference<String> attomicInLine = new AtomicReference<>(inLine);
+            AtomicReference<String> atomicInLine = new AtomicReference<>(inLine);
             button.setOnMouseEntered(mouseEvent -> {
-                button.setTextFill(hoverColor);
-                button.setStyle(attomicInLine.get());
+                if (hoverColor != null) {
+                    button.setTextFill(hoverColor);
+                    button.setStyle(atomicInLine.get());
+                }
+                if (hoverImage != null) {
+                    try {
+                        button.setGraphic(new ImageView(hoverImage.build()));
+                    } catch (ImageNotFoundException e) {
+                        RenLogger.LOGGER.error(e.getMessage());
+                    }
+                }
             });
             button.setOnMouseExited(mouseEvent -> {
                 button.setTextFill(textFill);
-                button.setStyle(attomicInLine.get());
+                button.setStyle(atomicInLine.get());
+                if (image != null) {
+                    button.setGraphic(new ImageView(image.getImage()));
+                }
             });
         }
 
@@ -385,18 +533,11 @@ public class ButtonOverlay implements Overlay {
     }
 
     // Helper css function
-    public String cssColor(Color color) {
-        String webFormat = String.format("rgba(%d, %d, %d, %f)",
+    private String cssColor(Color color) {
+        return String.format("rgba(%d, %d, %d, %f)",
                 (int) (255 * color.getRed()),
                 (int) (255 * color.getGreen()),
                 (int) (255 * color.getBlue()),
                 color.getOpacity());
-        return webFormat;
-    }
-
-    public static ButtonOverlay copyOf(String id, ButtonOverlay builder) {
-        ButtonOverlay toReturn = new ButtonOverlay(id, builder.getText(), builder.getFont(), builder.getTextFill(), builder.x(), builder.y(), builder.getXScale(), builder.getYScale());
-        toReturn.setImage(builder.getImage());
-        return toReturn;
     }
 }

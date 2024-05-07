@@ -1,5 +1,7 @@
 package me.piitex.renjava.api.music;
 
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.exceptions.MusicFileNotFound;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 
@@ -21,6 +23,9 @@ public class Tracks implements PersistentData {
     }
 
     public Track getTrack(String trackID) {
+        if (tracks.get(trackID) == null) {
+            RenJava.getInstance().getLogger().error(new MusicFileNotFound(trackID).getMessage());
+        }
         return tracks.get(trackID);
     }
 

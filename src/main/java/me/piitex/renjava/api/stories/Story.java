@@ -1,7 +1,7 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.player.Player;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AnimationScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
@@ -14,9 +14,9 @@ import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneEndEvent;
 import me.piitex.renjava.gui.Menu;
+import org.slf4j.Logger;;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * The Story class represents a narrative or gameplay progression in the RenJava framework.
@@ -68,7 +68,7 @@ public abstract class Story {
     private StoryStartInterface startInterface;
     private StoryEndInterface endInterface;
 
-    private final Logger logger = RenJava.getInstance().getLogger();
+    private final Logger logger = RenLogger.LOGGER;
 
     private final RenJava renJava;
 
@@ -115,7 +115,7 @@ public abstract class Story {
         // Update RenJava Player BEFORE the scenes are added
         renJava.getPlayer().setCurrentStory(this.getId());
 
-        clear(); // Clear previous mappings
+        clear(); // Clear previous mappings (allows refreshing)
         init(); // Initialize when starting
 
         logger.info("Building scene...");
@@ -141,17 +141,6 @@ public abstract class Story {
         init();
     }
 
-    /**
-     * Refreshes a specific scene in the story by replacing it with a new instance of the scene.
-     * This method is useful when you want to update a scene dynamically during the story.
-     *
-     * @param sceneID The ID of the scene to refresh.
-     */
-    public void refresh(String sceneID) {
-        RenScene scene = getScene(sceneID);
-        scenes.replace(sceneID, scene, scene);
-    }
-
     public void clear() {
         scenes.clear();
         sceneIndexMap.clear();
@@ -163,10 +152,11 @@ public abstract class Story {
      */
     public void addScene(RenScene scene) {
         if (scenes.containsKey(scene.getId())) {
-            logger.warning(new DuplicateSceneIdException(scene.getId()).getMessage());
+            logger.warn(new DuplicateSceneIdException(scene.getId()).getMessage());
             scenes.replace(scene.getId(), scenes.get(id), scene);
             return;
         }
+        scene.setStory(this);
         scenes.put(scene.getId(), scene);
         int index = sceneIndexMap.size();
         sceneIndexMap.put(index, scene);
@@ -179,10 +169,7 @@ public abstract class Story {
      */
     public void addScenes(RenScene... scenes) {
         for (RenScene renScene : scenes) {
-            this.scenes.put(renScene.getId(), renScene);
-            int index = sceneIndexMap.size();
-            sceneIndexMap.put(index, renScene);
-            renScene.setIndex(index);
+            addScene(renScene);
         }
     }
 

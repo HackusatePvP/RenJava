@@ -11,6 +11,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.*;
+import me.piitex.renjava.loggers.RenLogger;
 
 public class Element {
     private final Overlay overlay;
@@ -19,9 +20,29 @@ public class Element {
 
     public Element(Overlay overlay) {
         this.overlay = overlay;
+        //FIXME: When scaling the height and width the x and y positions need to be scaled to match the modified width and height.
+        double scaleX = overlay.scaleX();
+        double scaleY = overlay.scaleY();
+        if (scaleX > 0) {
+            overlay.setWidth(overlay.width() * scaleX);
+
+            overlay.setX(overlay.x() * scaleX);
+        }
+        if (scaleY > 0) {
+            overlay.setHeight(overlay.height() * scaleY);
+            overlay.setY(overlay.y() * scaleY);
+        }
         if (overlay instanceof ImageOverlay imageOverlay) {
+            RenLogger.LOGGER.debug("Processing " + imageOverlay.getFileName());
             Image image = imageOverlay.getImage();
             ImageView imageView = new ImageView(image);
+            imageView.setPreserveRatio(true);
+            if (imageOverlay.width() != 0) {
+                imageView.setFitWidth(imageOverlay.width());
+            }
+            if (imageOverlay.width() != 0) {
+                imageView.setFitHeight(imageOverlay.width());
+            }
             imageView.setTranslateX(imageOverlay.x());
             imageView.setTranslateY(imageOverlay.y());
             this.node = imageView;

@@ -4,10 +4,9 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.player.Player;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AutoPlayScene;
-import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.api.scenes.types.choices.Choice;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
@@ -17,7 +16,6 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 
-import java.util.AbstractMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +58,7 @@ public class ScenesEventListener implements EventListener {
         if (event.getScene() instanceof InputScene scene) {
             TextField field = scene.getInputField();
             if (field == null) {
-                RenJava.getInstance().getLogger().severe("TextField for InputScene is null.");
+                RenLogger.LOGGER.error("TextField for InputScene is null.");
                 return;
             }
             InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
@@ -99,5 +97,14 @@ public class ScenesEventListener implements EventListener {
         if (scene.getBuildInterface() != null) {
             scene.getBuildInterface().onBuild(event);
         }
+    }
+
+    @Listener(priority = Priority.HIGHEST)
+    public void onSceneRender(SceneRenderEvent event) {
+        // Event used to save the preview for the save file.
+        RenLogger.LOGGER.info("Updating tracker for {}", event.getRenScene().getId());
+        RenJava.getInstance().getPlayer().setLastRenderedScene(event.getScene()); // Update the player/tracker information
+        RenJava.getInstance().getPlayer().setLastRenderedRenScene(event.getRenScene());
+
     }
 }

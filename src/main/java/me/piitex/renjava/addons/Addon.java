@@ -1,14 +1,11 @@
 package me.piitex.renjava.addons;
 
-import me.piitex.renjava.RenJava;
-import me.piitex.renjava.RenLoggerFormat;
+import me.piitex.renjava.loggers.ApplicationLogger;
 import me.piitex.renjava.events.EventListener;
+import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
 
 /**
  * <p>
@@ -42,7 +39,7 @@ public abstract class Addon {
     private final String name;
     private final Collection<EventListener> registeredListeners = new HashSet<>();
     private final Collection<Addon> dependencies = new HashSet<>();
-    private final Logger logger = RenJava.getInstance().getLogger();
+    private final Logger logger;
 
     /**
      * Constructs a new Addon with the specified name.
@@ -51,6 +48,7 @@ public abstract class Addon {
      */
     public Addon(String name) {
         this.name = name;
+        logger = new ApplicationLogger(name).LOGGER;
     }
 
     /**

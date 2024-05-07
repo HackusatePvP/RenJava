@@ -10,5 +10,5 @@ public enum StageType {
     ANIMATION_SCENE,
     INTERACTABLE_SCENE,
     INPUT_SCENE,
-    CHOICE_SCENE,
+    CHOICE_SCENE, SAVE_MENU,
 }

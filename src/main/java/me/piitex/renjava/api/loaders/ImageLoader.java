@@ -1,4 +1,4 @@
-package me.piitex.renjava.api.builders;
+package me.piitex.renjava.api.loaders;
 
 import javafx.scene.image.*;
 import me.piitex.renjava.api.APIChange;
@@ -30,6 +30,11 @@ public class ImageLoader {
         this.file = new File(directory, name);
     }
 
+    public ImageLoader(String directory, String name) {
+        File fileDirectory = new File(System.getProperty("user.dir") + "/" + directory + "/");
+        this.file = new File(fileDirectory, name);
+    }
+
     @APIChange(description = "Now supports .webp images.", changedVersion = "0.0.289")
     public Image build() throws ImageNotFoundException {
         try {
@@ -57,7 +62,7 @@ public class ImageLoader {
 
 
     // Credit: https://stackoverflow.com/questions/30970005/bufferedimage-to-javafx-image
-    private Image getImage(BufferedImage img){
+    private Image getImage(BufferedImage img) {
         //converting to a good type, read about types here: https://openjfx.io/javadoc/13/javafx.graphics/javafx/scene/image/PixelBuffer.html
         BufferedImage newImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
         newImg.createGraphics().drawImage(img, 0, 0, img.getWidth(), img.getHeight(), null);

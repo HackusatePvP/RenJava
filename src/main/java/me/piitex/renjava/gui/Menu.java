@@ -3,22 +3,19 @@ package me.piitex.renjava.gui;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.*;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlay.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
-import java.util.logging.Logger;
 
 import static javafx.scene.paint.Color.BLACK;
 
@@ -26,20 +23,23 @@ public class Menu {
     private final Stage stage;
     private Pane pane;
     private static Menu rootMenu;
-    private final double width, height;
-
-    private int x, y;
+    private double width, height;
+    private boolean renderFadeInFill = true;
+    private boolean renderFadeOutFill = true;
+    private double x, y;
+    private double scaleX;
+    private double scaleY;
 
     // Pre configured data.
     private String title = renJava.getName();
 
-    private Image backgroundImage;
+    private ImageOverlay backgroundImage;
 
     private final LinkedHashSet<Node> nodes = new LinkedHashSet<>();
-    private final LinkedHashSet<LayoutMenu> parents = new LinkedHashSet<>();
     private final LinkedHashSet<Layout> layouts = new LinkedHashSet<>();
     private final LinkedHashSet<Overlay> overlays = new LinkedHashSet<>();
     private final LinkedHashSet<Menu> children = new LinkedHashSet<>();
+    private final LinkedHashSet<Pane> subPanes = new LinkedHashSet<>();
 
     // Constants
     private static final RenJava renJava = RenJava.getInstance();
@@ -50,14 +50,8 @@ public class Menu {
         this.stage = renJava.getStage();
     }
 
-    public Menu(double width, double height, ImageLoader imageLoader) {
-        if (imageLoader != null) {
-            try {
-                this.backgroundImage = imageLoader.build();
-            } catch (ImageNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
+    public Menu(double width, double height, ImageOverlay backgroundImage) {
+        this.backgroundImage = backgroundImage;
         this.width = width;
         this.height = height;
         this.stage = renJava.getStage();
@@ -75,15 +69,23 @@ public class Menu {
         return height;
     }
 
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
     public double getWidth() {
         return width;
     }
 
-    public int getX() {
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public double getX() {
         return x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
@@ -95,15 +97,39 @@ public class Menu {
         this.y = y;
     }
 
+    public double getScaleX() {
+        return scaleX;
+    }
+
+    public void setScaleX(double scaleX) {
+        this.scaleX = scaleX;
+    }
+
+    public double getScaleY() {
+        return scaleY;
+    }
+
+    public void setScaleY(double scaleY) {
+        this.scaleY = scaleY;
+    }
+
+    public void setRenderFadeInFill(boolean renderFadeInFill) {
+        this.renderFadeInFill = renderFadeInFill;
+    }
+
+    public void setRenderFadeOutFill(boolean renderFadeOutFill) {
+        this.renderFadeOutFill = renderFadeOutFill;
+    }
+
     public String getTitle() {
         return title;
     }
 
-    public Image getBackgroundImage() {
+    public ImageOverlay getBackgroundImage() {
         return backgroundImage;
     }
 
-    public Menu setBackgroundImage(Image backgroundImage) {
+    public Menu setBackgroundImage(ImageOverlay backgroundImage) {
         this.backgroundImage = backgroundImage;
         return this;
     }
@@ -134,16 +160,17 @@ public class Menu {
         return this;
     }
 
-    public LinkedHashSet<LayoutMenu> getParents() {
-        return parents;
-    }
-
-    public void addParent(LayoutMenu layoutMenu) {
-        parents.add(layoutMenu);
-    }
-
     public LinkedHashSet<Menu> getChildren() {
         return children;
+    }
+
+    public LinkedHashSet<Pane> getSubPanes() {
+        return subPanes;
+    }
+
+    public Menu addSubPane(Pane pane) {
+        subPanes.add(pane);
+        return this;
     }
 
     /* Rendering functions */
@@ -158,102 +185,123 @@ public class Menu {
         return this;
     }
 
+    public Pane render() {
+        return render(null, null, true);
+    }
+
+    public Pane render(boolean render) {
+        return render(null, null, render);
+    }
+
+    public Pane render(Pane pane) {
+        return render(pane, null, true);
+    }
+
+    public Pane render(RenScene renScene) {
+        return render(null, renScene, true);
+    }
+
     /**
      * Renders the menu on the screen.
      *
      * @param root The root Group to which the menu will be added. If null, a new Group will be created.
      * @param renScene The RenScene that is being used. If null, it will be assumed this is a main menu screen.
      */
-    public Pane render(@Nullable Pane root, @Nullable RenScene renScene) {
-        Logger logger = renJava.getLogger();
-
+    public Pane render(@Nullable Pane root, @Nullable RenScene renScene, boolean render) {
+        RenLogger.LOGGER.info("Rendering menu...");
         if (root == null) {
+            RenLogger.LOGGER.debug("Root pane is null.");
             root = new Pane();
         }
 
         root.setTranslateX(x);
         root.setTranslateY(y);
-        root.setPrefSize(width, height);
+        if (scaleX > 0) {
+            root.setPrefWidth(width * scaleX);
+            root.setMaxWidth(width * scaleX);
+            root.setMinWidth(width * scaleX);
+        }
+        if (scaleY > 0) {
+            root.setPrefHeight(height * scaleY);
+            root.setMaxHeight(height * scaleY);
+            root.setMinHeight(height * scaleY);
+        }
 
         // Background fill is used for fade ins.
-        BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0,0,0,0));
-        root.setBackground(new Background(backgroundFill));
+        if (renderFadeInFill) {
+            BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0, 0, 0, 0));
+            root.setBackground(new Background(backgroundFill));
+        }
 
         if (backgroundImage != null) {
-            Element backgroundImgElement = new Element(new ImageOverlay(backgroundImage, 0, 0));
+            ImageOverlay backGroundImageOverlay = backgroundImage;
+
+            backGroundImageOverlay.setScaleX(this.scaleX);
+            backGroundImageOverlay.setScaleY(this.scaleY);
+            Element backgroundImgElement = new Element(backGroundImageOverlay);
             backgroundImgElement.render(root);
         }
 
-        logger.info("Rendering layouts...");
+        RenLogger.LOGGER.info("Rendering layouts...");
         for (Layout layout : layouts) {
-            for (Overlay overlay : layout.getOverlays()) {
-                new Element(overlay).render(layout.getPane());
-            }
-            for (Layout child : layout.getChildLayouts()) {
-                // A child layout should be added to a main layout.
-                for (Overlay overlay : child.getOverlays()) {
-                    new Element(overlay).render(child.getPane());
-                }
-
-                Pane childPane = layout.getPane();
-                childPane.setTranslateX(child.getX());
-                childPane.setTranslateY(child.getY());
-                childPane.setPrefSize(child.getWidth(), child.getHeight());
-                if (childPane instanceof HBox hBox) {
-                    hBox.setSpacing(layout.getSpacing());
-                } else if (childPane instanceof VBox vBox) {
-                    vBox.setSpacing(layout.getSpacing());
-                }
-                layout.getPane().getChildren().add(childPane); // Adds the child layout to the main layout.
-            }
-            Pane box = layout.getPane();
-            box.setTranslateX(layout.getX());
-            box.setTranslateY(layout.getY());
-            box.setPrefSize(layout.getWidth(), layout.getHeight());
-            if (box instanceof HBox hBox) {
-                hBox.setSpacing(layout.getSpacing());
-            } else if (box instanceof VBox vBox) {
-                vBox.setSpacing(layout.getSpacing());
-            }
-
-            root.getChildren().add(box);
+            layout.render(root);
         }
 
+        RenLogger.LOGGER.info("Rendering overlays...");
         for (Overlay overlay : overlays) {
+            overlay.setScaleX(scaleX);
+            overlay.setScaleY(scaleY);
+
             new Element(overlay).render(root);
         }
 
+        RenLogger.LOGGER.info("Rendering sub-panes...");
+        for (Pane sub : subPanes) {
+            root.getChildren().add(sub);
+        }
 
         for (Menu menu : children) {
+            RenLogger.LOGGER.info("Rendering child menus...");
             if (menu != null) {
-                menu.render(root, renScene); // Renders menu on top of this menu.
+                menu.setRenderFadeOutFill(renderFadeOutFill);
+                menu.setRenderFadeInFill(renderFadeInFill);
+                menu.setScaleX(scaleX);
+                menu.setScaleY(scaleY);
+                menu.render(root, renScene, render); // Renders menu on top of this menu.
             }
         }
 
         rootMenu = this;
 
-        Scene scene;
-        if (stage.getScene() != null) {
-            scene = stage.getScene();
-            stage.getScene().setRoot(root);
-        } else {
-            stage.setScene(new Scene(root));
-            scene = stage.getScene();
+        if (render) {
+            Scene scene;
+            if (stage.getScene() != null) {
+                scene = stage.getScene();
+                stage.getScene().setRoot(root);
+            } else {
+                stage.setScene(new Scene(root));
+                scene = stage.getScene();
+            }
+
+            setInputControls(scene);
+
+            this.pane = root;
+
+            if (renderFadeOutFill) {
+                scene.setFill(BLACK); // Scene fill is used for fade outs.
+            }
+
+            // Apply transition to root
+            if (renScene != null && renScene.getStartTransition() != null) {
+                Transitions transitions = renScene.getStartTransition();
+                transitions.play(root);
+            }
+            if (renScene != null) {
+                renScene.setStage(stage);
+                RenJava.getInstance().getPlayer().setLastRenderedRenScene(renScene);
+            }
+            stage.show();
         }
-
-        setInputControls(scene);
-
-        this.pane = root;
-
-        scene.setFill(BLACK); // Scene fill is used for fade outs.
-
-        // Apply transition to root
-        if (renScene != null && renScene.getStartTransition() != null) {
-            Transitions transitions = renScene.getStartTransition();
-            transitions.play(root);
-        }
-
-        stage.show();
 
         return root;
     }

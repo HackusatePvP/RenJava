@@ -25,7 +25,7 @@ public class AnimationBuilder {
         Timeline timeline = null;
         // TODO: 2/7/2024 Calculate keyframes base on the time inputted.
         if (animationTarget == AnimationTarget.IMAGE) {
-            ImageView imageView = new ImageView(renScene.getBackgroundImage().build());
+            ImageView imageView = new ImageView(renScene.getBackgroundImage().getImage());
             KeyFrame keyFrame = new KeyFrame(Duration.seconds(0), new KeyValue(imageView.opacityProperty(), 0)); // First second
             KeyFrame keyFrame2 = new KeyFrame(Duration.seconds(0.5), new KeyValue(imageView.opacityProperty(), 0.2)); // First second
             KeyFrame keyFrame3 = new KeyFrame(Duration.seconds(1.5), new KeyValue(imageView.opacityProperty(), 0.5)); // First second

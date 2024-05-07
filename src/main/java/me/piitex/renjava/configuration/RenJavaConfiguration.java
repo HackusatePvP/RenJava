@@ -1,9 +1,8 @@
 package me.piitex.renjava.configuration;
 
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import me.piitex.renjava.api.builders.FontLoader;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 
 import java.util.Map;
 
@@ -17,8 +16,10 @@ public class RenJavaConfiguration {
     private FontLoader dialogueFont;
     private FontLoader uiFont;
     private FontLoader characterDisplayFont;
+    private FontLoader choiceButtonFont;
     private Color dialogueColor = Color.BLACK;
-
+    private Color choiceButtonColor = Color.BLACK;
+    private Color hoverColor = Color.BLUE;
     private int dialogueBoxWidth = 1000;
     private int dialogueBoxHeight = 600;
 
@@ -110,6 +111,14 @@ public class RenJavaConfiguration {
         return characterDisplayFont;
     }
 
+    public FontLoader getChoiceButtonFont() {
+        return choiceButtonFont;
+    }
+
+    public void setChoiceButtonFont(FontLoader choiceButtonFont) {
+        this.choiceButtonFont = choiceButtonFont;
+    }
+
     public void setCharacterDisplayFont(FontLoader characterDisplayFont) {
         this.characterDisplayFont = characterDisplayFont;
     }
@@ -120,6 +129,22 @@ public class RenJavaConfiguration {
 
     public void setDialogueColor(Color dialogueColor) {
         this.dialogueColor = dialogueColor;
+    }
+
+    public Color getChoiceButtonColor() {
+        return choiceButtonColor;
+    }
+
+    public void setChoiceButtonColor(Color choiceButtonColor) {
+        this.choiceButtonColor = choiceButtonColor;
+    }
+
+    public Color getHoverColor() {
+        return hoverColor;
+    }
+
+    public void setHoverColor(Color hoverColor) {
+        this.hoverColor = hoverColor;
     }
 
     public int getDialogueBoxWidth() {
@@ -246,7 +271,6 @@ public class RenJavaConfiguration {
 
     /**
      * Sets how far to the right the character display name will be displayed. This is already aligned to the corner of the image.
-     * @param characterTextOffsetX
      */
     public void setCharacterTextOffsetX(int characterTextOffsetX) {
         this.characterTextOffsetX = characterTextOffsetX;
@@ -258,7 +282,6 @@ public class RenJavaConfiguration {
 
     /**
      * Sets how far down the character display name will be displayed. This is already aligned to the corner of the image.
-     * @param characterTextOffsetY
      */
     public void setCharacterTextOffsetY(int characterTextOffsetY) {
         this.characterTextOffsetY = characterTextOffsetY;

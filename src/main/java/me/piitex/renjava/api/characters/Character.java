@@ -18,7 +18,7 @@ import me.piitex.renjava.api.saves.data.PersistentData;
  * This class is abstract and serves as a base class for creating specific character implementations by extending it and providing additional functionality.
  *
  * @see javafx.scene.paint.Color
- * @see me.piitex.renjava.RenJava
+ * @see RenJava
  */
 public abstract class Character {
     private final String id; // The ID must be unique. The ID system allows you to have multiple characters with the same name.
@@ -48,19 +48,13 @@ public abstract class Character {
      * @param color The color is used to color the display name.
      *
      * @see javafx.scene.paint.Color
-     * @see me.piitex.renjava.RenJava
+     * @see RenJava
      */
     public Character(String id, String name, Color color) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.displayName = name;
-
-        RenJava.getInstance().registerCharacter(this);
-
-        if (this instanceof PersistentData) {
-            RenJava.getInstance().registerData((PersistentData) this);
-        }
     }
 
     public String getId() {

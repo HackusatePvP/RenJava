@@ -3,18 +3,15 @@ package me.piitex.renjava.api.scenes;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.api.scenes.types.SceneBuildInterface;
+import me.piitex.renjava.api.scenes.types.*;
 import me.piitex.renjava.gui.layouts.Container;
 
-import me.piitex.renjava.api.scenes.types.AnimationScene;
-import me.piitex.renjava.api.scenes.types.ImageScene;
-import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.Overlay;
 
 import java.io.File;
@@ -32,6 +29,7 @@ import java.util.HashSet;
  * </p>
  *
  * @see ImageScene
+ * @see AutoPlayScene
  * @see InteractableScene
  * @see AnimationScene
  * @see InputScene
@@ -39,7 +37,7 @@ import java.util.HashSet;
  */
 public abstract class RenScene extends Container {
     private final String id;
-    private ImageLoader backgroundImage;
+    private ImageOverlay backgroundImage;
     private Story story;
     private int index;
     private SceneStartInterface startInterface;
@@ -57,7 +55,7 @@ public abstract class RenScene extends Container {
     private final Collection<File> styleSheets = new HashSet<>();
 
 
-    public RenScene(String id, ImageLoader backgroundImage) {
+    public RenScene(String id, ImageOverlay backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
         setStory(RenJava.getInstance().getPlayer().getCurrentStory()); // Update the current story.
@@ -109,11 +107,11 @@ public abstract class RenScene extends Container {
         return id;
     }
 
-    public ImageLoader getBackgroundImage() {
+    public ImageOverlay getBackgroundImage() {
         return backgroundImage;
     }
 
-    public void setBackgroundImage(ImageLoader backgroundImage) {
+    public void setBackgroundImage(ImageOverlay backgroundImage) {
         this.backgroundImage = backgroundImage;
     }
 

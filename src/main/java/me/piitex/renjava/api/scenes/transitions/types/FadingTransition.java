@@ -3,10 +3,9 @@ package me.piitex.renjava.api.scenes.transitions.types;
 import javafx.animation.FadeTransition;
 import javafx.scene.Node;
 import javafx.util.Duration;
-import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;;
 
 public class FadingTransition extends Transitions {
     private final double fromValue;
@@ -46,7 +45,7 @@ public class FadingTransition extends Transitions {
     @Override
     public void play(Node node) {
         // Remove logger
-        Logger logger = RenJava.getInstance().getLogger();
+        Logger logger = RenLogger.LOGGER;
         logger.info("Playing fading transition...");
 
         fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));

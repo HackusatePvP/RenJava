@@ -1,6 +1,9 @@
 package me.piitex.renjava.addons;
 
+import me.piitex.renjava.loggers.RenLogger;
+import org.slf4j.Logger;;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -9,7 +12,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -17,14 +19,14 @@ public class AddonLoader {
     private final List<Addon> addons = new ArrayList<>();
 
     private final Logger logger;
-    public AddonLoader(Logger logger) {
-        this.logger = logger;
+    public AddonLoader() {
+        logger = RenLogger.LOGGER;
     }
 
     public void load() {
         File directory = new File(System.getProperty("user.dir") + "/addons/");
         if (directory.mkdir()) {
-            logger.warning("Created directory '" + "addons" + "'.");
+            logger.warn("Created directory '" + "addons" + "'.");
         }
         logger.info("Initializing Addon Loader...");
         int size = directory.listFiles().length;
@@ -49,7 +51,7 @@ public class AddonLoader {
             }
             ZipEntry entry = zipFile.getEntry("build.info");
             if (entry == null) {
-                logger.severe("Could not find build.info for " + file.getName() + " Addon will load with the presumption there are no dependencies.");
+                logger.error("Could not find build.info for " + file.getName() + " Addon will load with the presumption there are no dependencies.");
                 nonDependants.add(file);
                 continue;
             }
@@ -96,7 +98,7 @@ public class AddonLoader {
         while (!validations.isEmpty()) {
             lateLoaders.forEach((file, string) -> {
                 if (lastValidated.get().equalsIgnoreCase(file.getName())) {
-                    logger.severe("Could not initialize " + file.getName() + ": May be the result of a missing dependency.");
+                    logger.error("Could not initialize " + file.getName() + ": May be the result of a missing dependency.");
                     validations.remove(file);
                     return;
                 }

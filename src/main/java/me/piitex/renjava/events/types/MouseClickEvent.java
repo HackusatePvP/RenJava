@@ -1,7 +1,6 @@
 package me.piitex.renjava.events.types;
 
 import javafx.scene.input.MouseEvent;
-import me.piitex.renjava.RenJava;
 import me.piitex.renjava.events.Event;
 
 public class MouseClickEvent extends Event {

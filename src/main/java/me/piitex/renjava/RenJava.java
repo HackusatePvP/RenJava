@@ -8,7 +8,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
-import me.piitex.renjava.api.builders.ImageLoader;
+import me.piitex.renjava.api.Game;
+import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.exceptions.InvalidCharacterException;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.Save;
@@ -16,6 +18,7 @@ import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.player.Player;
+import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.Event;
@@ -26,21 +29,24 @@ import me.piitex.renjava.events.defaults.MenuClickEventListener;
 import me.piitex.renjava.events.defaults.ScenesEventListener;
 import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
 
+import me.piitex.renjava.events.types.ShutdownEvent;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
-import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.gui.overlay.ImageOverlay;
+import me.piitex.renjava.gui.overlay.TextFlowOverlay;
+import me.piitex.renjava.loggers.RenLogger;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.logging.*;
 
- /**
+/**
  * The RenJava class serves as the entry point for the RenJava framework. It provides the core functionality and structure for creating visual novel games.
  * <p>
  * To use the RenJava framework, create a new class that extends the `RenJava` class and override its methods to define the behavior of your game.
@@ -49,30 +55,32 @@ import java.util.logging.*;
  * The `RenJava` class handles various aspects of the game, including managing the game window, handling events, managing characters and stories, and saving and loading game data.
  * It also provides methods for registering event listeners, characters, and persistent data objects.
  * <p>
- * To start the game, create an instance of your extended `RenJava` class and pass the necessary parameters, such as the game name, author, and version, to the constructor.
- * The `RenJava` framework will automatically create an instance of your class and initialize the game.
+ * The Game and Configuration annotations are used to build default systems for the framework. Although it's not a hard requirement creating these annotations
+  * is very important for other systems to work as intended. The Logger relies on the Game annotation to pass the name of the logger.
+  * The GUI relies on the Configuration to properly display the window.
  * <pre>{@code
+  *    @Game(name = "My Game", author = "You", version = "1.0);
+  *    @Configuration(title = "My Game 1.0", width = 1920, height = 1080);
  *     public class MyGameClass extends RenJava {
- *
- *         // Note: The constructor cannot contain any parameters.
- *         public MyGameClass() {
- *             super("game name", "author", "version");
- *         }
- *
  *         // abstraction methods.
  *     }
  * }</pre>
  *
  * Note: Do not call the `RenJava` constructor directly. The framework creates a new instance of your class automatically using reflections.
+ *
+ * @see Game
+ * @see Configuration
  */
 public abstract class RenJava {
     protected String name;
-     protected String author;
-     protected String version;
-    private Logger logger;
+    protected String author;
+    protected String version;
     private Player player;
     // Audio Tracking
     private Tracks tracks;
+
+    private Logger logger;
+
     private AddonLoader addonLoader;
 
     private Stage stage; // Move this somewhere else.
@@ -93,27 +101,8 @@ public abstract class RenJava {
 
     private static RenJava instance;
 
-    /**
-     * Entry point for the RenJava framework. This class is designed to be extended by your own class, which will serve as the entry point for your game.
-     * <p>
-     * Note: Do not call this constructor directly. The RenJava framework creates a new instance of your class automatically using reflection.
-     * <p>
-     * Make sure to use {@link Game} to specify the information of the game.
-     * <pre>{@code
-     * public class YourGame extends RenJava {
-     *
-     *     @Game(name = "Your Game", author = "You", version = "1.0")
-     *     public YourGame() {
-     *
-     *     }
-     * }
-     * }</pre>
-     * If you do not specify the game information it will assume default values.
-     *
-     * @see Game
-     */
-    public RenJava() {
-        // Super is ran first than the superior method is ran.
+    protected RenJava() {
+        // Super is executed first then the superior method is executed.
         instance = this;
     }
 
@@ -121,17 +110,10 @@ public abstract class RenJava {
         // Run after super
         this.player = new Player();
         this.tracks = new Tracks();
-        // Load logger
-        this.logger = Logger.getLogger(name);
-        FileHandler fileHandler;
-        try {
-            fileHandler = new FileHandler("log.txt");
-            fileHandler.setFormatter(new RenLoggerFormat());
-            logger.addHandler(fileHandler);
-            logger.info("Starting application...");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        // Initializes the Ren logger which is separated from the application logger.
+        RenLogger.init();
+
         this.registerListener(new MenuClickEventListener());
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
@@ -139,7 +121,7 @@ public abstract class RenJava {
         this.registerData(player);
         this.registerData(tracks);
         new RenLoader(this);
-        this.addonLoader = new AddonLoader(logger);
+        this.addonLoader = new AddonLoader();
     }
 
      public String getName() {
@@ -158,17 +140,21 @@ public abstract class RenJava {
         return player;
     }
 
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     public Tracks getTracks() {
         return tracks;
     }
 
-     public AddonLoader getAddonLoader() {
+    public AddonLoader getAddonLoader() {
          return addonLoader;
      }
-
-     public Logger getLogger() {
-        return logger;
-    }
 
     public String getBuildVersion() {
         return buildVersion;
@@ -244,7 +230,7 @@ public abstract class RenJava {
      */
     public Character getCharacter(String id) {
         if (!registeredCharacters.containsKey(id)) {
-            getLogger().severe(new InvalidCharacterException(id).getMessage());
+            RenJava.getInstance().getLogger().error(new InvalidCharacterException(id).getMessage());
             return null;
         }
         return registeredCharacters.get(id.toLowerCase());
@@ -310,10 +296,10 @@ public abstract class RenJava {
             try {
                 stage.getIcons().add(windowIcon.buildRaw());
             } catch (ImageNotFoundException e) {
-                logger.severe(e.getMessage());
+                RenLogger.LOGGER.error(e.getMessage());
             }
         } else {
-            logger.warning("No window icon set. Please set a window icon for a better user experience.");
+            RenLogger.LOGGER.warn("No window icon set. Please set a window icon for a better user experience.");
         }
 
         stage.initStyle(StageStyle.DECORATED);
@@ -327,6 +313,9 @@ public abstract class RenJava {
 
         stage.setOnHiding(windowEvent -> {
             getAddonLoader().disable();
+            ShutdownEvent shutdownEvent = new ShutdownEvent();
+            callEvent(shutdownEvent);
+
             Platform.exit();
             System.exit(0);
         });
@@ -370,64 +359,37 @@ public abstract class RenJava {
      *         new Character("character1", "Character 1", Color.RED);
      *         new Character("character2", "Character 2", Color.BLUE);
      *
-     *         // Perform any other necessary setup tasks
+     *         // Registers data to be included in the save file.
+     *         MyDataClass dataClass = new MyDataClass();
+     *         registerData(dataClass);
      *     }
      * }</pre>
      */
     public abstract void createBaseData();
 
-    /**
-     * Called to create a splash screen that is displayed before the title screen is loaded.
-     * <p>
-     * The `buildSplashScreen()` method should return a `SplashScreenView` object, which represents the splash screen view to be displayed.
-     * You can customize the appearance and behavior of the splash screen by configuring the `SplashScreenView` object.
-     * <p>
-     * The `SplashScreenView` class provides methods for setting the splash screen image, duration, and any additional UI elements or animations.
-     * You can use these methods to create an engaging and visually appealing splash screen for your game.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *     public SplashScreenView buildSplashScreen() {
-     *         // Create a SplashScreenView object
-     *         SplashScreenView splashScreen = new SplashScreenView();
-     *
-     *         // Set the splash screen image
-     *         splashScreen.setImage("splash.png");
-     *
-     *         // Set the duration of the splash screen (in seconds)
-     *         splashScreen.setDuration(3);
-     *
-     *         // Return the SplashScreenView object
-     *         return splashScreen;
-     *     }
-     * }</pre>
-     *
-     * @return A `SplashScreenView` object representing the splash screen view to be displayed.
-     */
     public abstract Menu buildSplashScreen();
 
-    /**
-     * Called to create the main menu. (This is NOT optional)
-     * @return A MainTitleScreenView object which is parsed to a stage
-     */
     public abstract Menu buildTitleScreen();
 
     public Menu buildSideMenu() {
-        Menu menu = new Menu(350, 500, new ImageLoader("gui/overlay/main_menu.png"));
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, Color.BLUE, 1, 1);
+        Color hoverColor = getConfiguration().getHoverColor();
+
+        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
 
         // Create vbox for the buttons. You can also do an HBox
-        VerticalLayout layout = new VerticalLayout(200, 500);
+        VerticalLayout layout = new VerticalLayout(400, 500);
         layout.setX(50);
         layout.setY(250);
         layout.setSpacing(20);
-        layout.addOverlays(startButton, loadButton, optionsButton, aboutButton);
+        layout.addOverlays(startButton, loadButton, saveButton, optionsButton, aboutButton);
 
         // You don't have to add the button overlays just add the layout which already contains the overlays.
         menu.addLayout(layout);
@@ -436,7 +398,7 @@ public abstract class RenJava {
     }
 
     public Menu buildLoadMenu(int page) {
-        Menu menu = new Menu(1920, 1080, new ImageLoader("gui/main_menu.png"));
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
         // Setup pagination.
         // 6 save slots per page
         //   2 Rows
@@ -445,47 +407,91 @@ public abstract class RenJava {
 
         int maxSavesPerPage = 6;
 
-        int index = 1;
-        VerticalLayout rootLayout = new VerticalLayout(1000, 400); // The root is a vertical which stacks the two horizontal layouts.
-        HorizontalLayout topLayout = new HorizontalLayout(1000, 200);
-        HorizontalLayout bottomLayout = new HorizontalLayout(1000, 200);
+        int index = ((maxSavesPerPage * page) - maxSavesPerPage) + 1;
+        VerticalLayout rootLayout = new VerticalLayout(1000, 800); // The root is a vertical which stacks the two horizontal layouts.
+        rootLayout.setSpacing(10);
+        HorizontalLayout topLayout = new HorizontalLayout(1000, 350);
+        topLayout.setSpacing(20);
+        HorizontalLayout bottomLayout = new HorizontalLayout(1000, 350);
+        bottomLayout.setSpacing(20);
         while (index <=  maxSavesPerPage) {
-            // Create a button overlay of the scene that the save file would have been on.,
-            // This will be a little challenging, it should be possible given the api of the Save object.
-            Save save = new Save(index);
-            if (save.getFile() != null) {
-                if (index <= 3) {
-                    // Top layout
-
-                } else {
-                    // Bottom layout
-                }
+            ButtonOverlay loadButton = getButtonOverlay(page, index);
+            if (index <= 3) {
+                topLayout.addOverlays(loadButton);
+                //topLayout.addSubPane(saveMenu.render());
             } else {
-                // Process empty slot
+                bottomLayout.addOverlays(loadButton);
+                //bottomLayout.addSubPane(saveMenu.render());
             }
             index++;
         }
 
         rootLayout.addChildLayout(topLayout);
         rootLayout.addChildLayout(bottomLayout);
+        rootLayout.setX(500);
+        rootLayout.setY(250);
 
+
+        menu.addLayout(rootLayout);
+
+        // Add Page buttons below.
+        // There should be 8 per view.
+        int pageViewMax = 8;
+        int pageIndex = 0;
+        HorizontalLayout pageLayout = new HorizontalLayout(100, 100);
+        while (pageIndex < pageViewMax) {
+            pageIndex++;
+            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", new FontLoader(getConfiguration().getUiFont(), 26).getFont(), Color.BLACK, 1, 1);
+            pageButton.setBackgroundColor(Color.TRANSPARENT);
+            pageButton.setBorderColor(Color.TRANSPARENT);
+            if (page == pageIndex) {
+                pageButton.setTextFill(Color.BLACK);
+            }
+            pageButton.setHoverColor(configuration.getHoverColor());
+            pageLayout.addOverlays(pageButton);
+        }
+        pageLayout.setX(1000);
+        pageLayout.setY(950);
+
+        menu.addLayout(pageLayout);
 
         return menu;
     }
 
-    public Menu buildLoadingScreen() {
+    @NotNull
+    private static ButtonOverlay getButtonOverlay(int page, int index) {
+        Save save = new Save(index);
+        save.load(false);
+        ImageOverlay saveImage;
+        ButtonOverlay loadButton;
+        saveImage = save.buildPreview(page);
+
+        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309, 1, 1);
+
+        loadButton.setBackgroundColor(Color.TRANSPARENT);
+        loadButton.setBorderColor(Color.TRANSPARENT);
+        return loadButton;
+    }
+
+    public Menu buildSettingsMenu() {
 
         return null;
     }
 
-    public Menu buildSettingsScreen() {
+    public Menu buildAboutMenu() {
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
 
-        return null;
-    }
+        Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 20).getFont();
 
-    public Menu buildAboutScreen() {
+        TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced." +
+                "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine.", 500, 500);
+        aboutText.setFont(font);
+        aboutText.setX(500);
+        aboutText.setY(300);
 
-        return null;
+        menu.addOverlay(aboutText);
+
+        return menu;
     }
 
     /**
@@ -532,16 +538,16 @@ public abstract class RenJava {
      * <br>
      * <p>
      *     The start() method is used to initiate the story by displaying the first scene of the story.
-     *     It retrieves the current story from the StoryManager using the story ID and builds the scene on the stage.
-     *     This method should be called when the game starts.
+     *     Using the {@link Player} object, call the first story (aka event) of the game.
      * </p>
      *
      * Example usage:
      * <pre>{@code
-     *     // Get the current story from the StoryManager
-     *     Story myStory = this.getPlayer().getStory("my-story");
-     *     // Start the story
-     *     myStory.start();
+     *  @Override
+     *  public void start() {
+     *     this.getPlayer().startStory("my-story");
+     *  }
+     *
      * }</pre>
      */
     public abstract void start();
@@ -580,11 +586,11 @@ public abstract class RenJava {
      * @param event Event to be executed.
      */
     public static void callEvent(Event event) {
-        Collection<Method> lowestMethods = new HashSet<>();
-        Collection<Method> lowMethods = new HashSet<>();
-        Collection<Method> normalMethods = new HashSet<>();
-        Collection<Method> highMethods = new HashSet<>();
-        Collection<Method> highestMethods = new HashSet<>();
+        Map<EventListener, Method> lowestMethods = new HashMap<>();
+        Map<EventListener, Method> lowMethods = new HashMap<>();
+        Map<EventListener, Method> normalMethods = new HashMap<>();
+        Map<EventListener, Method> highMethods = new HashMap<>();
+        Map<EventListener, Method> highestMethods = new HashMap<>();
 
         Collection<EventListener> eventListeners = new HashSet<>(getInstance().getRegisteredListeners());
         for (Addon addon : getInstance().getAddonLoader().getAddons()) {
@@ -605,39 +611,38 @@ public abstract class RenJava {
                     if (scan) {
                         Listener listener1 = method.getAnnotation(Listener.class);
                         switch (listener1.priority()) {
-                            case HIGHEST -> highestMethods.add(method);
-                            case HIGH -> highMethods.add(method);
-                            case NORMAL -> normalMethods.add(method);
-                            case LOW -> lowMethods.add(method);
-                            case LOWEST -> lowestMethods.add(method);
+                            case HIGHEST -> highestMethods.put(listener, method);
+                            case HIGH -> highMethods.put(listener,method);
+                            case NORMAL -> normalMethods.put(listener,method);
+                            case LOW -> lowMethods.put(listener,method);
+                            case LOWEST -> lowestMethods.put(listener,method);
                         }
                     }
                 }
             }
         }
 
-        // There has got to be a way to make this better.
-        for (Method method : highestMethods) {
-            invokeMethod(method, event);
-        }
-        for (Method method : highMethods) {
-            invokeMethod(method, event);
-        }
-        for (Method method : normalMethods) {
-            invokeMethod(method, event);
-        }
-        for (Method method : lowMethods) {
-           invokeMethod(method, event);
-        }
-        for (Method method : lowestMethods) {
-            invokeMethod(method, event);
-        }
+        highestMethods.forEach((listener, method) -> {
+            invokeMethod(listener, method, event);
+        });
+        highMethods.forEach((listener, method) -> {
+            invokeMethod(listener, method, event);
+        });
+        normalMethods.forEach((listener, method) -> {
+            invokeMethod(listener, method, event);
+        });
+        lowMethods.forEach((listener, method) -> {
+            invokeMethod(listener, method, event);
+        });
+        lowestMethods.forEach((listener, method) -> {
+            invokeMethod(listener, method, event);
+        });
     }
 
-    private static void invokeMethod(Method method, Event event) {
+    private static void invokeMethod(EventListener listener, Method method, Event event) {
         try {
-            method.invoke(method.getDeclaringClass().getDeclaredConstructor().newInstance(), event);
-        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException e) {
+            method.invoke(listener, event);
+        } catch (IllegalAccessException e) {
             throw new RuntimeException();
         } catch (InvocationTargetException e) {
             e.printStackTrace();

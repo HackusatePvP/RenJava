@@ -1,9 +1,78 @@
 package me.piitex.renjava.api.saves.data;
 
+import me.piitex.renjava.api.saves.file.SectionKeyValue;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Mapper {
+
+    public enum MapperEnum {
+        STRING_STRING,
+        STRING_INT,
+        STRING_BOOLEAN,
+        STRING_DOUBLE,
+        STRING_LONG,
+        STRING_FLOAT,
+        STRING_SHORT,
+        STRING_BYTE,
+        INT_STRING,
+        INT_BOOLEAN,
+        INT_INT,
+        INT_DOUBLE,
+        INT_LONG,
+        INT_FLOAT,
+        INT_SHORT,
+        INT_BYTE,
+        DOUBLE_STRING,
+        DOUBLE_BOOLEAN,
+        DOUBLE_INT,
+        DOUBLE_DOUBLE,
+        DOUBLE_LONG,
+        DOUBLE_FLOAT,
+        DOUBLE_SHORT,
+        DOUBLE_BYTE,
+        BYTE_STRING,
+        BYTE_BOOLEAN,
+        BYTE_INT,
+        BYTE_DOUBLE,
+        BYTE_LONG,
+        BYTE_FLOAT,
+        BYTE_SHORT,
+        BYTE_BYTE
+    }
+
+    public static MapperEnum getType(String typeName) {
+        typeName = typeName.replace("java.util.Map<", "");
+
+        //<java.lang.String, java.lang.Integer>
+        typeName = typeName.replace("java.lang.", "");
+        // <String, Integer>
+
+        String[] typeSplit = typeName.replace("<", "").replace(">", "").split(",");
+        //String
+        //Integer
+
+
+        // Conversion is required as the map needs to be set to the actual type in order to save it.
+        String key = typeSplit[0];
+        String value = typeSplit[1];
+
+        return MapperEnum.valueOf(key.toUpperCase() + "_" + value.toUpperCase());
+    }
+
+    public static void processMap(MapperEnum mapType, Map<Object, Object> genericMap, SectionKeyValue mapSection) {
+        switch (mapType) {
+            case STRING_STRING -> {
+                Map<String, String> map = new HashMap<>();
+                genericMap.forEach((o, o2) -> {
+                    map.put((String) o, (String) o2);
+                });
+
+                map.forEach(mapSection::addKeyValue);
+            }
+        }
+    }
 
     public static Map<String, String> toStringMap(Map<Object, Object> map) {
         Map<String, String> toReturn = new HashMap<>();

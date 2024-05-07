@@ -1,6 +1,7 @@
 package me.piitex.renjava.utils;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.loggers.RenLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -23,7 +24,7 @@ public class RPAArchive {
                 DirectoryFileFilter.DIRECTORY);
         for (File file : files) {
             if (file.getName().endsWith(".rpa")) {
-                renJava.getLogger().info("Loading archive: " + file.getName());
+                RenLogger.LOGGER.info("Loading archive: " + file.getName());
 
             }
         }
