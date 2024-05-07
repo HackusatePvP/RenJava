@@ -2,7 +2,7 @@
 Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with [JavaFX](https://openjfx.io/).
 
 **Community**
-- [Website](), [Discord](), [YouTube]()
+- [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
 
 ## Project Requirements
 - [Java-17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) (You can typically download this within your IDE)
