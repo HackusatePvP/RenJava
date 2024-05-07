@@ -5,6 +5,7 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
@@ -78,11 +79,27 @@ public class Launch extends Application {
                 file.createNewFile();
             }
 
+            String jarPath = Launch.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+                    .getPath();
+
+            System.out.println("Path: " + jarPath);
+
+            String[] split = jarPath.split("/");
+            String fileName = split[split.length - 1];
+
             FileWriter writer = new FileWriter(file);
             writer.append("main=").append(clazz.getName());
+            writer.append("\n");
+            writer.write("file=" + fileName);
             writer.close();
         } catch (IOException e) {
             System.err.println("Could not create the 'build.info' file. This might be a first time setup. Once the application opens please exit and relaunch.");
+        } catch (URISyntaxException e) {
+            System.err.println("Could retrieve runtime information.");
         }
 
 
