@@ -378,11 +378,11 @@ public abstract class RenJava {
 
         Color hoverColor = getConfiguration().getHoverColor();
 
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
 
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(400, 500);
@@ -441,7 +441,7 @@ public abstract class RenJava {
         HorizontalLayout pageLayout = new HorizontalLayout(100, 100);
         while (pageIndex < pageViewMax) {
             pageIndex++;
-            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", new FontLoader(getConfiguration().getUiFont(), 26).getFont(), Color.BLACK, 1, 1);
+            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", Color.BLACK, new FontLoader(getConfiguration().getUiFont(), 26).getFont(), 1, 1);
             pageButton.setBackgroundColor(Color.TRANSPARENT);
             pageButton.setBorderColor(Color.TRANSPARENT);
             if (page == pageIndex) {
