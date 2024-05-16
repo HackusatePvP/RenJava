@@ -1,52 +1,31 @@
 package me.piitex.renjava.gui.overlay;
 
-
-import javafx.scene.text.Text;
-import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
-public class TextOverlay implements Overlay {
-    private final Text text;
-    private FontLoader fontLoader;
-    private double x;
-    private double y;
-    private double scaleX, scaleY;
+public class SliderOverlay implements Overlay {
+    private double x, y;
     private double width, height;
-    private Transitions transitions;
+    private double scaleX, scaleY;
+    private double blockIncrement;
 
-    private IOverlayClick iOverlayClick;
     private IOverlayHover iOverlayHover;
+    private IOverlayClick iOverlayClick;
 
-    public TextOverlay(String text, double x, double y) {
-        this.text = new Text(text);
+    public SliderOverlay(int width, int height, double x, double y) {
+        this.width = width;
+        this.height = height;
         this.x = x;
         this.y = y;
     }
 
-    public TextOverlay(String text, FontLoader fontLoader, double x, double y) {
-        this.text = new Text(text);
-        this.fontLoader = fontLoader;
-        this.x = x;
-        this.y = y;
+    public double getBlockIncrement() {
+        return blockIncrement;
     }
 
-    public TextOverlay(Text text, double x, double y) {
-        this.text = text;
-        this.x = x;
-        this.y = y;
-    }
-
-    public TextOverlay(Text text, FontLoader fontLoader, double x, double y) {
-        this.text = text;
-        this.fontLoader = fontLoader;
-        this.x = x;
-        this.y = y;
-    }
-
-    public Text getText() {
-        return text;
+    public void setBlockIncrement(double blockIncrement) {
+        this.blockIncrement = blockIncrement;
     }
 
     @Override
@@ -109,13 +88,9 @@ public class TextOverlay implements Overlay {
         this.height = height;
     }
 
-    public FontLoader getFontLoader() {
-        return fontLoader;
-    }
-
     @Override
     public Transitions getTransition() {
-        return transitions;
+        return null;
     }
 
     @Override
@@ -138,7 +113,4 @@ public class TextOverlay implements Overlay {
         return iOverlayHover;
     }
 
-    public void setTransitions(Transitions transitions) {
-        this.transitions = transitions;
-    }
 }

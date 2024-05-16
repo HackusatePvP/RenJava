@@ -10,6 +10,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -36,6 +38,9 @@ public class ButtonOverlay implements Overlay {
     private int borderWidth = 0;
     private int backgroundRadius = 0;
 
+    private IOverlayHover iOverlayHover;
+    private IOverlayClick iOverlayClick;
+
     private double x = 1, y = 1;
     private double maxHeight, maxWidth;
     private final double xScale, yScale;
@@ -44,15 +49,6 @@ public class ButtonOverlay implements Overlay {
         this.id = id;
         this.text = text;
         this.textFill = textFill;
-        this.xScale = x;
-        this.yScale = y;
-    }
-
-    public ButtonOverlay(String id, String text, Color textFill, Font font, double xScale, double yScale) {
-        this.id = id;
-        this.text = text;
-        this.textFill = textFill;
-        this.font = font;
         this.xScale = x;
         this.yScale = y;
     }
@@ -90,7 +86,7 @@ public class ButtonOverlay implements Overlay {
      * @param xScale X-Axis scale of the button.
      * @param yScale Y-Axis scale of the button.
      */
-    public ButtonOverlay(String id, String text, Font font, Color textFill, double x, double y, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, Font font, double x, double y, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -111,7 +107,7 @@ public class ButtonOverlay implements Overlay {
      * @param xScale X-Axis scale of the button.
      * @param yScale Y-Axis scale of the button.
      */
-    public ButtonOverlay(String id, String text, Font font, Color textFill, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, Font font, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -120,7 +116,7 @@ public class ButtonOverlay implements Overlay {
         this.yScale = yScale;
     }
 
-    public ButtonOverlay(String id, String text, Font font, Color textFill, Color backgroundColor, Color borderColor, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, Font font, Color backgroundColor, Color borderColor, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -131,7 +127,7 @@ public class ButtonOverlay implements Overlay {
         this.borderColor = borderColor;
     }
 
-    public ButtonOverlay(String id, String text, Font font, Color textFill, Color backgroundColor, Color borderColor, boolean hover, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, Font font, Color backgroundColor, Color borderColor, boolean hover, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -143,7 +139,7 @@ public class ButtonOverlay implements Overlay {
         this.hover = hover;
     }
 
-    public ButtonOverlay(String id, String text, Font font, Color textFill, Color backgroundColor, Color borderColor, Color hoverColor, double xScale, double yScale) {
+    public ButtonOverlay(String id, String text, Color textFill, Font font, Color backgroundColor, Color borderColor, Color hoverColor, double xScale, double yScale) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -235,6 +231,10 @@ public class ButtonOverlay implements Overlay {
         this.id = button.getId();
         this.xScale = button.getScaleX();
         this.yScale = button.getScaleY();
+    }
+
+    public Button getButton() {
+        return button;
     }
 
     public String getId() {
@@ -396,6 +396,27 @@ public class ButtonOverlay implements Overlay {
         return transitions;
     }
 
+    @Override
+    public void setOnclick(IOverlayClick iOverlayClick) {
+        this.iOverlayClick = iOverlayClick;
+    }
+
+    @Override
+    public void setOnHover(IOverlayHover iOverlayHover) {
+        this.iOverlayHover = iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClick getOnClick() {
+        return iOverlayClick;
+    }
+
+    @Override
+    public IOverlayHover getOnHover() {
+        return iOverlayHover;
+    }
+
+
     public void setTransitions(Transitions transitions) {
         this.transitions = transitions;
     }
@@ -491,31 +512,6 @@ public class ButtonOverlay implements Overlay {
         inLine += "-fx-border-width: " + borderWidth + "; ";
         inLine += "-fx-background-radius: " + backgroundRadius + ";";
 
-        // https://stackoverflow.com/questions/30680570/javafx-button-border-and-hover
-        if (hover) {
-            AtomicReference<String> atomicInLine = new AtomicReference<>(inLine);
-            button.setOnMouseEntered(mouseEvent -> {
-                if (hoverColor != null) {
-                    button.setTextFill(hoverColor);
-                    button.setStyle(atomicInLine.get());
-                }
-                if (hoverImage != null) {
-                    try {
-                        button.setGraphic(new ImageView(hoverImage.build()));
-                    } catch (ImageNotFoundException e) {
-                        RenLogger.LOGGER.error(e.getMessage());
-                    }
-                }
-            });
-            button.setOnMouseExited(mouseEvent -> {
-                button.setTextFill(textFill);
-                button.setStyle(atomicInLine.get());
-                if (image != null) {
-                    button.setGraphic(new ImageView(image.getImage()));
-                }
-            });
-        }
-
         button.setStyle(inLine);
 
         if (x != 0 && y != 0) {
@@ -529,6 +525,9 @@ public class ButtonOverlay implements Overlay {
             ButtonClickEvent event = new ButtonClickEvent(RenJava.getInstance().getPlayer().getCurrentScene(), button);
             RenJava.callEvent(event);
         });
+
+        this.button = button;
+
         return button;
     }
 

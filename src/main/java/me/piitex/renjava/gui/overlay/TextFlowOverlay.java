@@ -5,7 +5,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 import java.util.LinkedList;
 
@@ -15,7 +18,10 @@ public class TextFlowOverlay implements Overlay {
     private double scaleX, scaleY;
     private Transitions transitions;
     private Font font;
-    private Color textColor;
+    private Color textColor = Color.BLACK;
+
+    private IOverlayClick iOverlayClick;
+    private IOverlayHover iOverlayHover;
 
     private LinkedList<Text> texts = new LinkedList<>();
 
@@ -25,6 +31,13 @@ public class TextFlowOverlay implements Overlay {
         this.width = width;
         this.height = height;
         texts.add(new Text(text));
+    }
+
+    public TextFlowOverlay(String text, FontLoader fontLoader, int width, int height) {
+        this.texts.add(new Text(text));
+        this.font = fontLoader.getFont();
+        this.width = width;
+        this.height = height;
     }
 
     public TextFlowOverlay(Text text, int width, int height) {
@@ -118,6 +131,27 @@ public class TextFlowOverlay implements Overlay {
     public Transitions getTransition() {
         return transitions;
     }
+
+    @Override
+    public void setOnclick(IOverlayClick iOverlayClick) {
+        this.iOverlayClick = iOverlayClick;
+    }
+
+    @Override
+    public void setOnHover(IOverlayHover iOverlayHover) {
+        this.iOverlayHover = iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClick getOnClick() {
+        return iOverlayClick;
+    }
+
+    @Override
+    public IOverlayHover getOnHover() {
+        return iOverlayHover;
+    }
+
 
     public void setTransitions(Transitions transitions) {
         this.transitions = transitions;

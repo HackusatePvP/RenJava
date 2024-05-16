@@ -3,13 +3,18 @@ package me.piitex.renjava.gui;
 import javafx.scene.Node;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.events.types.OverlayClickEvent;
+import me.piitex.renjava.events.types.OverlayExitEvent;
+import me.piitex.renjava.events.types.OverlayHoverEvent;
 import me.piitex.renjava.gui.overlay.*;
 import me.piitex.renjava.loggers.RenLogger;
 
@@ -25,7 +30,6 @@ public class Element {
         double scaleY = overlay.scaleY();
         if (scaleX > 0) {
             overlay.setWidth(overlay.width() * scaleX);
-
             overlay.setX(overlay.x() * scaleX);
         }
         if (scaleY > 0) {
@@ -65,7 +69,15 @@ public class Element {
             textFlow.setTranslateX(textFlowOverlay.x());
             textFlow.setTranslateY(textFlowOverlay.y());
             this.node = textFlow;
+        } else if (overlay instanceof SliderOverlay sliderOverlay) {
+            Slider slider = new Slider(sliderOverlay.width(), sliderOverlay.height(), 4);
+            slider.setPrefSize(sliderOverlay.width(), sliderOverlay.height());
+            slider.setBlockIncrement(sliderOverlay.getBlockIncrement());
+            this.node = slider;
         }
+
+        // Handle specific input
+        handleInput();
 
         // Render transition for specific overlay.
         if (overlay.getTransition() != null) {
@@ -87,6 +99,18 @@ public class Element {
             transitions.play(node);
         }
         root.getChildren().add(node);
+    }
+
+    private void handleInput() {
+        node.setOnMouseEntered(event -> {
+            RenJava.callEvent(new OverlayHoverEvent(overlay, event));
+        });
+        node.setOnMouseClicked(event -> {
+            RenJava.callEvent(new OverlayClickEvent(overlay, event));
+        });
+        node.setOnMouseExited(event -> {
+            RenJava.callEvent(new OverlayExitEvent(overlay, event));
+        });
     }
 
     public Node getNode() {
