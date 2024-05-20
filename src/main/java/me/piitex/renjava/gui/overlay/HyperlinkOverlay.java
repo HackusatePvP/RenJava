@@ -1,44 +1,49 @@
 package me.piitex.renjava.gui.overlay;
 
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
-public class SliderOverlay implements Overlay {
-    private final double maxValue, minValue, currentValue;
+public class HyperlinkOverlay implements Overlay {
+    private final String label;
+    private final String link;
+    private FontLoader font;
     private double x, y;
-    private double blockIncrement;
 
+    private Transitions transitions;
     private IOverlayHover iOverlayHover;
     private IOverlayClick iOverlayClick;
 
-    public SliderOverlay(double maxValue, double minValue, double currentValue, double x, double y) {
-        // Sliders don't have regions like images or buttons do.
-        this.maxValue = maxValue;
-        this.minValue = minValue;
-        this.currentValue = currentValue;
+    public HyperlinkOverlay(String label, String link, double x, double y) {
+        this.label = label;
+        this.link = link;
         this.x = x;
         this.y = y;
     }
 
-    public double getMaxValue() {
-        return maxValue;
+    public HyperlinkOverlay(String label, String link, FontLoader font, double x, double y) {
+        this.label = label;
+        this.link = link;
+        this.font = font;
+        this.x = x;
+        this.y = y;
     }
 
-    public double getMinValue() {
-        return minValue;
+    public String getLabel() {
+        return label;
     }
 
-    public double getCurrentValue() {
-        return currentValue;
+    public String getLink() {
+        return link;
     }
 
-    public double getBlockIncrement() {
-        return blockIncrement;
+    public FontLoader getFont() {
+        return font;
     }
 
-    public void setBlockIncrement(double blockIncrement) {
-        this.blockIncrement = blockIncrement;
+    public void setFont(FontLoader font) {
+        this.font = font;
     }
 
     @Override
@@ -63,7 +68,7 @@ public class SliderOverlay implements Overlay {
 
     @Override
     public Transitions getTransition() {
-        return null;
+        return transitions;
     }
 
     @Override
@@ -85,5 +90,4 @@ public class SliderOverlay implements Overlay {
     public IOverlayHover getOnHover() {
         return iOverlayHover;
     }
-
 }

@@ -3,6 +3,7 @@ package me.piitex.renjava.gui;
 import javafx.scene.Node;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -26,18 +27,21 @@ public class Element {
     public Element(Overlay overlay) {
         this.overlay = overlay;
         //FIXME: When scaling the height and width the x and y positions need to be scaled to match the modified width and height.
-        double scaleX = overlay.scaleX();
-        double scaleY = overlay.scaleY();
-        if (scaleX > 0) {
-            overlay.setWidth(overlay.width() * scaleX);
-            overlay.setX(overlay.x() * scaleX);
-        }
-        if (scaleY > 0) {
-            overlay.setHeight(overlay.height() * scaleY);
-            overlay.setY(overlay.y() * scaleY);
+
+        if (overlay instanceof Region region) {
+            double scaleX = region.scaleX();
+            double scaleY = region.scaleY();
+            if (scaleX > 0) {
+                region.setWidth(region.width() * scaleX);
+                overlay.setX(overlay.x() * scaleX);
+            }
+            if (scaleY > 0) {
+                region.setHeight(region.height() * scaleY);
+                overlay.setY(overlay.y() * scaleY);
+            }
         }
         if (overlay instanceof ImageOverlay imageOverlay) {
-            RenLogger.LOGGER.debug("Processing " + imageOverlay.getFileName());
+            RenLogger.LOGGER.debug("Processing {}", imageOverlay.getFileName());
             Image image = imageOverlay.getImage();
             ImageView imageView = new ImageView(image);
             imageView.setPreserveRatio(true);
@@ -70,10 +74,23 @@ public class Element {
             textFlow.setTranslateY(textFlowOverlay.y());
             this.node = textFlow;
         } else if (overlay instanceof SliderOverlay sliderOverlay) {
-            Slider slider = new Slider(sliderOverlay.width(), sliderOverlay.height(), 4);
-            slider.setPrefSize(sliderOverlay.width(), sliderOverlay.height());
-            slider.setBlockIncrement(sliderOverlay.getBlockIncrement());
+            //TODO Finish sliders
+            Slider slider = new Slider(sliderOverlay.getMinValue(), sliderOverlay.getMaxValue(), sliderOverlay.getCurrentValue());
+            slider.setTranslateX(sliderOverlay.x());
+            slider.setTranslateY(sliderOverlay.y());
             this.node = slider;
+        } else if (overlay instanceof HyperlinkOverlay hyperlinkOverlay) {
+            Hyperlink hyperlink = new Hyperlink(hyperlinkOverlay.getLabel());
+            hyperlink.setTranslateX(hyperlinkOverlay.x());
+            hyperlink.setTranslateY(hyperlinkOverlay.y());
+            if (hyperlinkOverlay.getFont() != null) {
+                hyperlink.setFont(hyperlinkOverlay.getFont().getFont());
+            }
+            hyperlink.setOnAction(actionEvent -> {
+                RenJava.getInstance().getHost().showDocument(hyperlinkOverlay.getLink());
+            });
+
+            this.node = hyperlink;
         }
 
         // Handle specific input

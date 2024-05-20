@@ -5,7 +5,6 @@ import me.piitex.renjava.gui.overlay.events.IOverlayClick;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 public interface Overlay {
-
     double x();
 
     double y();
@@ -13,22 +12,6 @@ public interface Overlay {
     void setX(double x);
 
     void setY(double y);
-
-    double scaleX();
-
-    double scaleY();
-
-    void setScaleX(double scaleX);
-
-    void setScaleY(double scaleY);
-
-    double width();
-
-    double height();
-
-    void setWidth(double width);
-
-    void setHeight(double height);
 
     Transitions getTransition();
 

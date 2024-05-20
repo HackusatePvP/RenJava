@@ -7,6 +7,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 
+import me.piitex.renjava.gui.overlay.Region;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -249,8 +250,10 @@ public class Menu {
 
         RenLogger.LOGGER.info("Rendering overlays...");
         for (Overlay overlay : overlays) {
-            overlay.setScaleX(scaleX);
-            overlay.setScaleY(scaleY);
+            if (overlay instanceof Region region) {
+                region.setScaleX(scaleX);
+                region.setScaleY(scaleY);
+            }
 
             new Element(overlay).render(root);
         }

@@ -10,7 +10,7 @@ import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
-public class ImageOverlay implements Overlay {
+public class ImageOverlay implements Overlay, Region {
     private Image image;
     private double x;
     private double y;

@@ -6,7 +6,7 @@ import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
-public class InputFieldOverlay implements Overlay {
+public class InputFieldOverlay implements Overlay, Region {
     private double x;
     private double y;
     private double scaleX, scaleY;

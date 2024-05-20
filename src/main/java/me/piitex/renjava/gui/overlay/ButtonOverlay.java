@@ -20,7 +20,7 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ButtonOverlay implements Overlay {
+public class ButtonOverlay implements Overlay, Region {
     private Button button;
     private Transitions transitions;
     private Menu menu;

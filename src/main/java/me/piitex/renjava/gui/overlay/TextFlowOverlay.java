@@ -1,5 +1,7 @@
 package me.piitex.renjava.gui.overlay;
 
+import javafx.scene.SubScene;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
@@ -12,7 +14,7 @@ import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 import java.util.LinkedList;
 
-public class TextFlowOverlay implements Overlay {
+public class TextFlowOverlay implements Overlay, Region {
     private double x;
     private double y;
     private double scaleX, scaleY;
@@ -165,10 +167,14 @@ public class TextFlowOverlay implements Overlay {
     public TextFlow build() {
         TextFlow textFlow = new TextFlow();
         for (Text text : texts) {
+            // Not the best way to go about this
+            text = new Text(text.getText().replace("\\n", System.lineSeparator()));
+
             if (font != null) {
                 text.setFont(font);
             }
             text.setFill(textColor);
+
             textFlow.getChildren().add(text);
         }
 
@@ -176,4 +182,5 @@ public class TextFlowOverlay implements Overlay {
 
         return textFlow;
     }
+
 }

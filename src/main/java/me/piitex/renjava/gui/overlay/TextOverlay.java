@@ -7,7 +7,7 @@ import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
-public class TextOverlay implements Overlay {
+public class TextOverlay implements Overlay, Region {
     private final Text text;
     private FontLoader fontLoader;
     private double x;
