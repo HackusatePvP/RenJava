@@ -46,6 +46,7 @@ public class MenuClickEventListener implements EventListener {
             settings.addMenu(renJava.buildSideMenu());
 
             settings.render();
+            renJava.setStage(renJava.getStage(), StageType.OPTIONS_MENU);
         }
         if (button.getId().equalsIgnoreCase("menu-about-button")) {
             Menu about = renJava.buildAboutMenu();
@@ -110,55 +111,6 @@ public class MenuClickEventListener implements EventListener {
             menu.addMenu(renJava.buildSideMenu());
             menu.render();
             renJava.setStage(renJava.getStage(), StageType.SAVE_MENU); // Update stage type
-        }
-    }
-
-    @Listener
-    public void onOverlayClick(OverlayClickEvent event) {
-        Overlay overlay = event.getOverlay();
-
-        if (overlay.getOnClick() != null) {
-            overlay.getOnClick().onClick(event);
-        }
-    }
-
-    @Listener
-    public void onOverlayHover(OverlayHoverEvent event) {
-        Overlay overlay = event.getOverlay();
-
-        if (overlay.getOnHover() != null) {
-            overlay.getOnHover().onHover(event);
-        }
-
-        if (overlay instanceof ButtonOverlay buttonOverlay) {
-            Button button = buttonOverlay.getButton();
-
-            if (buttonOverlay.isHover()) {
-                if (buttonOverlay.getHoverColor() != null) {
-                   button.setTextFill(buttonOverlay.getHoverColor());
-                }
-                if (buttonOverlay.getHoverImage() != null) {
-                    try {
-                        button.setGraphic(new ImageView(buttonOverlay.getHoverImage().build()));
-                    } catch (ImageNotFoundException e) {
-                        RenLogger.LOGGER.error(e.getMessage());
-                    }
-                }
-            }
-        }
-    }
-
-    @Listener
-    public void onOverlayExit(OverlayExitEvent event) {
-        Overlay overlay = event.getOverlay();
-
-        if (overlay instanceof ButtonOverlay buttonOverlay) {
-            Button button = buttonOverlay.getButton();
-            button.setTextFill(buttonOverlay.getTextFill());
-            button.setStyle(button.getStyle()); // Re-init the style (hopefully this forces the button back to normal.)
-            if (buttonOverlay.getImage() != null) {
-                button.setGraphic(new ImageView(buttonOverlay.getImage().getImage()));
-            }
         }
     }
 

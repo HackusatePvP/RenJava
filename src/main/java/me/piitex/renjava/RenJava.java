@@ -4,6 +4,7 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
@@ -24,10 +25,7 @@ import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.Event;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
-import me.piitex.renjava.events.defaults.GameFlowEventListener;
-import me.piitex.renjava.events.defaults.MenuClickEventListener;
-import me.piitex.renjava.events.defaults.ScenesEventListener;
-import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
+import me.piitex.renjava.events.defaults.*;
 
 import me.piitex.renjava.events.types.ShutdownEvent;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
@@ -36,6 +34,7 @@ import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.gui.overlay.HyperlinkOverlay;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.gui.overlay.TextFlowOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -118,6 +117,7 @@ public abstract class RenJava {
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
+        registerListener(new OverlayEventListener());
         this.registerData(player);
         this.registerData(tracks);
         new RenLoader(this);
@@ -479,17 +479,34 @@ public abstract class RenJava {
     }
 
     public Menu buildAboutMenu() {
-        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
 
-        Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 20).getFont();
+        Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24).getFont();
 
         TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced." +
-                "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine.", 500, 500);
+                "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine. " +
+                "RenJava is licensed under the GNU GPLv3 by using and distributing this software you agree to these terms. " +
+                "Additionally, RenJava uses software which may have additional licenses, all of which are open sourced. ", 1300, 500);
         aboutText.setFont(font);
         aboutText.setX(500);
         aboutText.setY(300);
-
         menu.addOverlay(aboutText);
+
+        TextFlowOverlay buildInfo = new TextFlowOverlay("Do not re-distribute this software without explicit permission from the author.",1300, 700);
+        buildInfo.setX(500);
+        buildInfo.setY(600);
+        buildInfo.setFont(font);
+        Text spacer = new Text(System.lineSeparator());
+        buildInfo.getTexts().add(spacer);
+        buildInfo.getTexts().add(new Text("RenJava Build Version: " + getBuildVersion()));
+        buildInfo.getTexts().add(spacer);
+        buildInfo.getTexts().add(new Text("Game Version: " + getVersion()));
+        buildInfo.getTexts().add(spacer);
+        buildInfo.getTexts().add(new Text("Author: " + getAuthor()));
+        menu.addOverlay(buildInfo);
+
+        HyperlinkOverlay renJavaLink = new HyperlinkOverlay("You can download RenJava for free here.", "https://github.com/HackusatePvP/RenJava", new FontLoader(font, 24), 500, 750);
+        menu.addOverlay(renJavaLink);
 
         return menu;
     }
