@@ -7,7 +7,9 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.zip.ZipFile;
 
 /**
  * For archive files I want it to be similar to how RenPY works so I decided to just use the .rpa format.
@@ -25,7 +27,12 @@ public class RPAArchive {
         for (File file : files) {
             if (file.getName().endsWith(".rpa")) {
                 RenLogger.LOGGER.info("Loading archive: " + file.getName());
+                try {
+                    ZipFile zipFile = new ZipFile(file);
 
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

@@ -69,16 +69,11 @@ public class Save {
                 if (field.isAnnotationPresent(Data.class)) {
                     SectionKeyValue mapSection = handleMap(data, field);
                     if (mapSection != null) {
-//                        System.out.println("Map Section: ");
-
-//                        System.out.println(mapSection);
                         rootSection.addSubSection(mapSection);
 
                         continue;
                     }
-                    // Handle fields
                     try {
-//                        System.out.println("Processing field: " + field.getName());
                         Object object = field.get(data);
                         if (object == null) {
                             RenLogger.LOGGER.warn("Value for '" + field.getName() + "' is null. Will not process data.");
@@ -122,7 +117,6 @@ public class Save {
     private SectionKeyValue handleMap(PersistentData data, Field field) {
         if (field.getGenericType().getTypeName().contains("Map<")) {
             try {
-//                System.out.println("Map type: " + field.getGenericType().getTypeName());
                 SectionKeyValue sectionKeyValue = new SectionKeyValue(field.getName());
                 reconstructMap(sectionKeyValue, data, field);
                 return sectionKeyValue;
@@ -136,7 +130,6 @@ public class Save {
     private void reconstructMap(SectionKeyValue sectionKeyValue, PersistentData data, Field field) throws IllegalAccessException {
         Map<Object, Object> map = (Map<Object, Object>) field.get(data);
         map.entrySet().forEach(objectObjectEntry -> {
-//            System.out.println("Reconstructing entry...");
             sectionKeyValue.addKeyValue(objectObjectEntry.getKey().toString(), objectObjectEntry.getValue().toString());
         });
     }
@@ -144,9 +137,6 @@ public class Save {
 
     // Loads save file
     public void load(boolean process) {
-        // Collect and set string data to class data.
-        // First loop the registered data and find the string data which corresponds with the data.
-
         String fullData = null;
         try {
             fullData = new Scanner(file).useDelimiter("\\Z").next();
@@ -169,16 +159,13 @@ public class Save {
 
             String[] classSplit = fullData.split(clazzName + ":");
             String fields = classSplit[1];
-//            System.out.println("Class Split: " + classSplit[1]);
             String[] fieldSplit = fields.split("\n");
             for (String field : fieldSplit) {
-//                System.out.println("Field: " + field);
                 if (field.trim().isEmpty()) continue;
                 String[] keyValueSplit = field.split(":");
                 String key = keyValueSplit[0];
                 if (keyValueSplit.length == 1) {
                     if (key.startsWith("    ") || key.startsWith("\t")) {
-//                        System.out.println("Mapping found: " + key.trim());
                         mapSection = new SectionKeyValue(key.trim());
                         rootSection.addSubSection(mapSection);
                         continue;
@@ -188,7 +175,6 @@ public class Save {
                 }
                 String value = keyValueSplit[1];
                 if ((key.startsWith("    ") || key.startsWith("\t")) && value.trim().isEmpty()) {
-//                    System.out.println("Mapping found: " + key.trim());
                     mapSection = new SectionKeyValue(key.trim());
                     rootSection.addSubSection(mapSection);
                 } else if (value.trim().isEmpty()) {
@@ -197,11 +183,7 @@ public class Save {
                     if (mapSection != null) {
                         mapSection.addKeyValue(key.trim(), value.trim());
                     }
-//                    System.out.println("Mapping entry found: " + key.trim() + "," + value.trim());
                 } else if (key.startsWith("\t") || key.startsWith("    ")){
-                    // Handle generic entry
-
-                    // Check if entry is an array
                     if (value.contains(",") || value.contains("[")) {
                         if (value.contains("[")) {
                             value = value.replace("[", "").replace("]", "");
@@ -217,7 +199,6 @@ public class Save {
                 processSection(persistentData, rootSection);
             } else {
                 if (rootSection.getSection().contains("me.piitex.renjava.api.player.Player")) {
-//                    System.out.println("Mapping scene...");
                     sceneSection = rootSection;
                 }
             }
@@ -226,57 +207,28 @@ public class Save {
 
 
     public void processSection(PersistentData persistentData, SectionKeyValue rootSection) {
-        // Data is the full data string
-        // me.piitex.SomeData:
-        //    field1: value1
-        //    map:
-        //        key: value
-        //
-
-        // Next set the mapping to the fields
         List<Field> fields = new ArrayList<>(List.of(persistentData.getClass().getDeclaredFields()));
         fields.addAll(List.of(persistentData.getClass().getFields()));
         for (Field field : fields) {
             if (field.isAnnotationPresent(Data.class)) {
-                //System.out.println("Processing Field: " + field.getName());
                 field.setAccessible(true);
                 if (field.getGenericType().getTypeName().contains("Map<")) {
                     // This is a map load. Scan for subsections if the field name matches. Add all data
                     for (SectionKeyValue subSection : rootSection.getSubSections()) {
                         if (subSection.getSection().equalsIgnoreCase(field.getName())) {
                             // Convert Map<String, String> to whatever the map of the object is
-
                             // Set the current values to whatever the load file is
                             deconstructMap(subSection, persistentData, field);
-
-//                            try {
-//                                System.out.println("Map: " + field.get(persistentData).toString());
-//                            } catch (IllegalAccessException e) {
-//                                throw new RuntimeException(e);
-//                            }
-
                         }
                     }
                 }
 
                 String keyToSet = (String) rootSection.getKeyValueMap().keySet().stream().filter(key -> key.toString().equalsIgnoreCase(field.getName())).findAny().orElse(null);
                 if (keyToSet != null) {
-//                    System.out.println("Key To Set: " + keyToSet);
                     try {
-
                         // Casting string might not be a good idea.
                         String value = (String) rootSection.getKeyValueMap().get(keyToSet);
-
-//                        System.out.println("Setting values for: " + field.getName());
                         setField(field, persistentData, value.strip());
-
-                        // Testing checks
-//                        if (field.getName().equalsIgnoreCase("currentStory")) {
-//                            System.out.println("Current Story: " + field.get(persistentData));
-//                        }
-//                        if (field.getName().equalsIgnoreCase("currentScene")) {
-//                            System.out.println("Current Scene: " + field.get(persistentData));
-//                        }
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         RenLogger.LOGGER.trace(e.getMessage());
                     }
@@ -296,7 +248,6 @@ public class Save {
         }
 
         if (objectMap == null) {
-//            System.out.println("Map was null. Defaulting...");
             objectMap = new HashMap<>();
         }
 
@@ -304,8 +255,6 @@ public class Save {
         // TODO: 3/3/2024 Convert generic map type to actual type using the Mapper class
         Map<Object, Object> finalObjectMap = objectMap;
         subSection.getKeyValueMap().forEach((key, value) -> {
-//            System.out.println("Setting map...");
-//            System.out.println(key + ": " + value);
             finalObjectMap.put(key, value);
         });
     }
@@ -363,8 +312,8 @@ public class Save {
 
             // Since the Renpy assets account for Text they made a transparency space.
             // To circumvent this extra space we need to add the length of the space so everything is properly aligned.
-            saveImage.setX(15);
-            saveImage.setY(15);
+            saveImage.setX(15); // Position inside the button
+            saveImage.setY(15); // Position inside the button
 
              // Get whatever page they are on
             return saveImage;

@@ -44,7 +44,6 @@ public class GameFlowEventListener implements EventListener {
         Logger logger = RenLogger.LOGGER;
 
         // Only do this if it's not the title screen or any other menu screen
-
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
 
         switch (button) {
