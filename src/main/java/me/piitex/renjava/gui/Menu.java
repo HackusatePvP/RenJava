@@ -7,6 +7,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 
+import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.gui.overlay.Region;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -228,12 +229,6 @@ public class Menu {
             root.setMinHeight(height * scaleY);
         }
 
-        // Background fill is used for fade ins.
-        if (renderFadeInFill) {
-            BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0, 0, 0, 0));
-            root.setBackground(new Background(backgroundFill));
-        }
-
         if (backgroundImage != null) {
             ImageOverlay backGroundImageOverlay = backgroundImage;
 
@@ -290,14 +285,34 @@ public class Menu {
 
             this.pane = root;
 
-            if (renderFadeOutFill) {
-                scene.setFill(BLACK); // Scene fill is used for fade outs.
-            }
 
             // Apply transition to root
             if (renScene != null && renScene.getStartTransition() != null) {
                 Transitions transitions = renScene.getStartTransition();
+
+                if (transitions instanceof FadingTransition fadingTransition) {
+                    // Background fill is used for fade ins.
+                    if (renderFadeInFill) {
+                        BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
+                        root.setBackground(new Background(backgroundFill));
+                    }
+                    if (renderFadeOutFill) {
+                        scene.setFill(fadingTransition.getColor()); // Scene fill is used for fade outs.
+                    }
+
+                }
+
                 transitions.play(root);
+            } else {
+                // Background fill is used for fade ins. Defaults to black
+                if (renderFadeInFill) {
+                    BackgroundFill backgroundFill = new BackgroundFill(BLACK, new CornerRadii(1), new Insets(0, 0, 0, 0));
+                    root.setBackground(new Background(backgroundFill));
+                }
+                if (renderFadeOutFill) {
+                    scene.setFill(BLACK); // Scene fill is used for fade outs.
+                }
+
             }
             if (renScene != null) {
                 renScene.setStage(stage);

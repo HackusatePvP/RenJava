@@ -1,10 +1,15 @@
 package me.piitex.renjava.events.defaults;
 
+import javafx.geometry.Insets;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -21,6 +26,7 @@ import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.tasks.KeyHeldTask;
 import org.slf4j.Logger;;
 
+import java.awt.*;
 import java.util.Timer;
 
 
@@ -222,6 +228,12 @@ public class GameFlowEventListener implements EventListener {
                 if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
                     player.setTransitionPlaying(true);
                     Pane pane = previousMenu.getPane();
+                    if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
+                        BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
+                        pane.setBackground(new Background(backgroundFill));
+                        pane.getScene().setFill(fadingTransition.getColor());
+                        renJava.getStage().getScene().setFill(fadingTransition.getColor());
+                    }
                     scene.getEndTransition().play(pane); // Starts transition.
                 } else {
                     nextScene.render(nextScene.build(true));

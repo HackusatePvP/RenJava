@@ -2,6 +2,7 @@ package me.piitex.renjava.api.scenes.transitions.types;
 
 import javafx.animation.FadeTransition;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -15,8 +16,19 @@ public class FadingTransition extends Transitions {
 
     private FadeTransition fadeTransition;
 
+    private Color color = Color.BLACK;
+
     // Cheap hack
     private static FadingTransition previousTranition = null;
+
+    public FadingTransition(double fromValue, double toValue, double duration, Color color) {
+        super(duration);
+        this.fromValue = fromValue;
+        this.toValue = toValue;
+        this.cycleCount = 1;
+        this.autoReverse = false;
+        this.color = color;
+    }
 
     public FadingTransition(double fromValue, double toValue, int cycleCount, boolean autoReverse, double duration) {
         super(duration);
@@ -25,6 +37,7 @@ public class FadingTransition extends Transitions {
         this.cycleCount = cycleCount;
         this.autoReverse = autoReverse;
     }
+
 
     public double getFromValue() {
         return fromValue;
@@ -40,6 +53,10 @@ public class FadingTransition extends Transitions {
 
     public boolean isAutoReverse() {
         return autoReverse;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     @Override
