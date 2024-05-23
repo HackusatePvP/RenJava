@@ -19,6 +19,9 @@ import me.piitex.renjava.events.types.OverlayHoverEvent;
 import me.piitex.renjava.gui.overlay.*;
 import me.piitex.renjava.loggers.RenLogger;
 
+import java.io.File;
+import java.net.MalformedURLException;
+
 public class Element {
     private final Overlay overlay;
     private Node node;
@@ -78,6 +81,22 @@ public class Element {
             Slider slider = new Slider(sliderOverlay.getMinValue(), sliderOverlay.getMaxValue(), sliderOverlay.getCurrentValue());
             slider.setTranslateX(sliderOverlay.x());
             slider.setTranslateY(sliderOverlay.y());
+            slider.setBlockIncrement(sliderOverlay.getBlockIncrement());
+
+            // To design sliders we NEED a css file which contains the styling. I'm not able to inline this via code which sucks.
+            // Hopefully the slider gets improvements in JavaFX.
+
+            // Check if they have css files
+            File sliderCss = new File(System.getProperty("user.dir") + "/game/css/slider.css");
+            if (!sliderCss.exists()) {
+                RenLogger.LOGGER.error("Slider css file does not exist. Please run or copy the css files from RSDK. Without a slider css file, the sliders won't properly be designed.");
+            } else {
+                try {
+                    slider.getStylesheets().add(sliderCss.toURI().toURL().toExternalForm());
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             this.node = slider;
         } else if (overlay instanceof HyperlinkOverlay hyperlinkOverlay) {
             Hyperlink hyperlink = new Hyperlink(hyperlinkOverlay.getLabel());
