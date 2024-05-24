@@ -32,11 +32,8 @@ import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
+import me.piitex.renjava.gui.overlay.*;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.overlay.HyperlinkOverlay;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
-import me.piitex.renjava.gui.overlay.TextFlowOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -474,8 +471,63 @@ public abstract class RenJava {
     }
 
     public Menu buildSettingsMenu() {
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
 
-        return null;
+        // 1 hbox 3 vboxes
+
+        // Display    Rollback     Skip
+        // Windowed     Disabled   Unseen Text
+        // Full screen  Enabled    After Choices
+        //              Right      Transitions
+
+
+        HorizontalLayout rootLayout = new HorizontalLayout(1200, 600);
+        rootLayout.setX(600);
+        rootLayout.setY(200);
+        rootLayout.setSpacing(100);
+
+        VerticalLayout displayBox = new VerticalLayout(300, 400);
+        TextOverlay displayText = new TextOverlay("Display", getConfiguration().getUiFont(), 0, 0);
+        ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        displayBox.addOverlays(displayText, windowButton, fullscreenButton);
+
+        VerticalLayout rollbackBox = new VerticalLayout(300, 400);
+        TextOverlay rollbackText = new TextOverlay("Rollback", getConfiguration().getUiFont(), 0, 0);
+        ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        rollbackBox.addOverlays(rollbackText, disabledButton, leftButton, rightButton);
+
+        VerticalLayout skipBox = new VerticalLayout(300, 400);
+        TextOverlay skipText = new TextOverlay("Skip", getConfiguration().getUiFont(), 0, 0);
+        ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", Color.BLACK, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        skipBox.addOverlays(skipText, unseenTextButton, afterChoicesButton, transitionButton);
+
+        // Add all to root layout
+        rootLayout.addChildLayouts(displayBox, rollbackBox, skipBox);
+
+        menu.addLayout(rootLayout);
+
+        // Music sliders
+        VerticalLayout musicBox = new VerticalLayout(400, 600);
+        musicBox.setX(700);
+        musicBox.setY(800);
+        TextOverlay musicVolumeText = new TextOverlay("Music Volume", getConfiguration().getUiFont(), 0, 0);
+        SliderOverlay musicVolumeSlider = new SliderOverlay(100, 0, getSettings().getVolume(), 0,0);
+        musicVolumeSlider.setBlockIncrement(10);
+        musicVolumeSlider.setOnSliderChange(event -> {
+            // Event used when slider changes value
+            System.out.println("Volume: " + event.getValue());
+            getSettings().setVolume(event.getValue());
+        });
+        musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
+
+        menu.addLayout(musicBox);
+
+        return menu;
     }
 
     public Menu buildAboutMenu() {
