@@ -2,15 +2,19 @@ package me.piitex.renjava.gui.overlay;
 
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
+import me.piitex.renjava.gui.overlay.events.ISliderChange;
 
 public class SliderOverlay implements Overlay {
     private final double maxValue, minValue, currentValue;
     private double x, y;
     private double blockIncrement;
 
+    private ISliderChange iSliderChange;
     private IOverlayHover iOverlayHover;
     private IOverlayClick iOverlayClick;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     public SliderOverlay(double maxValue, double minValue, double currentValue, double x, double y) {
         // Sliders don't have regions like images or buttons do.
@@ -66,6 +70,14 @@ public class SliderOverlay implements Overlay {
         return null;
     }
 
+    public void setOnSliderChange(ISliderChange iSliderChange) {
+        this.iSliderChange = iSliderChange;
+    }
+
+    public ISliderChange getSliderChange() {
+        return iSliderChange;
+    }
+
     @Override
     public void setOnclick(IOverlayClick iOverlayClick) {
         this.iOverlayClick = iOverlayClick;
@@ -77,6 +89,11 @@ public class SliderOverlay implements Overlay {
     }
 
     @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -84,6 +101,11 @@ public class SliderOverlay implements Overlay {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
 }

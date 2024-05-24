@@ -4,6 +4,7 @@ import javafx.scene.control.TextField;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 public class InputFieldOverlay implements Overlay, Region {
@@ -16,6 +17,7 @@ public class InputFieldOverlay implements Overlay, Region {
 
     private IOverlayClick iOverlayClick;
     private IOverlayHover iOverlayHover;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     public InputFieldOverlay(double x, double y, FontLoader fontLoader) {
         this.x = x;
@@ -99,6 +101,11 @@ public class InputFieldOverlay implements Overlay, Region {
     }
 
     @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -106,6 +113,11 @@ public class InputFieldOverlay implements Overlay, Region {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
     public void setTransitions(Transitions transitions) {

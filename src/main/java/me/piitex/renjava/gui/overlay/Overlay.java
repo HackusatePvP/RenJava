@@ -2,6 +2,7 @@ package me.piitex.renjava.gui.overlay;
 
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 public interface Overlay {
@@ -19,7 +20,11 @@ public interface Overlay {
 
     void setOnHover(IOverlayHover iOverlayHover);
 
+    void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease);
+
     IOverlayClick getOnClick();
 
     IOverlayHover getOnHover();
+
+    IOverlayClickRelease getOnRelease();
 }

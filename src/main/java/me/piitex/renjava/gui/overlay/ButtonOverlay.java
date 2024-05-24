@@ -11,6 +11,7 @@ import javafx.scene.text.Font;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.ImageLoader;
@@ -34,12 +35,13 @@ public class ButtonOverlay implements Overlay, Region {
     private Color borderColor;
     private Color hoverColor;
     private ImageLoader hoverImage;
-    private boolean hover;
+    private boolean hover = true;
     private int borderWidth = 0;
     private int backgroundRadius = 0;
 
     private IOverlayHover iOverlayHover;
     private IOverlayClick iOverlayClick;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     private double x = 1, y = 1;
     private double maxHeight, maxWidth;
@@ -148,7 +150,6 @@ public class ButtonOverlay implements Overlay, Region {
         this.yScale = yScale;
         this.backgroundColor = backgroundColor;
         this.borderColor = borderColor;
-        this.hover = true;
         this.hoverColor = hoverColor;
     }
 
@@ -407,6 +408,11 @@ public class ButtonOverlay implements Overlay, Region {
     }
 
     @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -414,6 +420,11 @@ public class ButtonOverlay implements Overlay, Region {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
 
@@ -495,6 +506,7 @@ public class ButtonOverlay implements Overlay, Region {
             button.setPrefHeight(maxHeight);
         }
         if (maxWidth > 0) {
+            button.setMinWidth(maxWidth);
             button.setMaxWidth(maxWidth);
             button.setPrefWidth(maxWidth);
         }

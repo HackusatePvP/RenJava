@@ -3,6 +3,7 @@ package me.piitex.renjava.gui.overlay;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 public class HyperlinkOverlay implements Overlay {
@@ -14,6 +15,7 @@ public class HyperlinkOverlay implements Overlay {
     private Transitions transitions;
     private IOverlayHover iOverlayHover;
     private IOverlayClick iOverlayClick;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     public HyperlinkOverlay(String label, String link, double x, double y) {
         this.label = label;
@@ -82,6 +84,11 @@ public class HyperlinkOverlay implements Overlay {
     }
 
     @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -89,5 +96,10 @@ public class HyperlinkOverlay implements Overlay {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 }

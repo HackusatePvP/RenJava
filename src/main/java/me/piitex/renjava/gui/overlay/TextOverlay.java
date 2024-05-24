@@ -5,6 +5,7 @@ import javafx.scene.text.Text;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 public class TextOverlay implements Overlay, Region {
@@ -18,6 +19,7 @@ public class TextOverlay implements Overlay, Region {
 
     private IOverlayClick iOverlayClick;
     private IOverlayHover iOverlayHover;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     public TextOverlay(String text, double x, double y) {
         this.text = new Text(text);
@@ -129,6 +131,11 @@ public class TextOverlay implements Overlay, Region {
     }
 
     @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -136,6 +143,11 @@ public class TextOverlay implements Overlay, Region {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
     public void setTransitions(Transitions transitions) {

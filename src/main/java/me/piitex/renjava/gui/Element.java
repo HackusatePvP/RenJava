@@ -13,9 +13,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.events.types.OverlayClickEvent;
-import me.piitex.renjava.events.types.OverlayExitEvent;
-import me.piitex.renjava.events.types.OverlayHoverEvent;
+import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.overlay.*;
 import me.piitex.renjava.loggers.RenLogger;
 
@@ -82,7 +80,6 @@ public class Element {
             slider.setTranslateX(sliderOverlay.x());
             slider.setTranslateY(sliderOverlay.y());
             slider.setBlockIncrement(sliderOverlay.getBlockIncrement());
-
             // To design sliders we NEED a css file which contains the styling. I'm not able to inline this via code which sucks.
             // Hopefully the slider gets improvements in JavaFX.
 
@@ -97,6 +94,15 @@ public class Element {
                     throw new RuntimeException(e);
                 }
             }
+            // Handle slider events
+            slider.setOnMouseReleased(event -> {
+                SliderChangeEvent changeEvent = new SliderChangeEvent(sliderOverlay, slider.getValue());
+                sliderOverlay.getSliderChange().onSliderChange(changeEvent);
+                RenJava.callEvent(changeEvent);
+
+                RenJava.callEvent(new OverlayClickReleaseEvent(overlay, event));
+            });
+
             this.node = slider;
         } else if (overlay instanceof HyperlinkOverlay hyperlinkOverlay) {
             Hyperlink hyperlink = new Hyperlink(hyperlinkOverlay.getLabel());
@@ -137,6 +143,16 @@ public class Element {
         root.getChildren().add(node);
     }
 
+    public void render(Pane root, double width, double height) {
+        if (transitions != null) {
+            transitions.play(node);
+        }
+
+
+
+        root.getChildren().add(node);
+    }
+
     private void handleInput() {
         node.setOnMouseEntered(event -> {
             RenJava.callEvent(new OverlayHoverEvent(overlay, event));
@@ -147,6 +163,11 @@ public class Element {
         node.setOnMouseExited(event -> {
             RenJava.callEvent(new OverlayExitEvent(overlay, event));
         });
+        if (node.getOnMouseReleased() == null) {
+            node.setOnMouseReleased(event -> {
+                RenJava.callEvent(new OverlayClickReleaseEvent(overlay, event));
+            });
+        }
     }
 
     public Node getNode() {

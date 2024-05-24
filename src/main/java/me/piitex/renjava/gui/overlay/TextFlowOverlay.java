@@ -10,6 +10,7 @@ import javafx.scene.text.TextFlow;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ public class TextFlowOverlay implements Overlay, Region {
 
     private IOverlayClick iOverlayClick;
     private IOverlayHover iOverlayHover;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     private LinkedList<Text> texts = new LinkedList<>();
 
@@ -145,6 +147,11 @@ public class TextFlowOverlay implements Overlay, Region {
     }
 
     @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -152,6 +159,11 @@ public class TextFlowOverlay implements Overlay, Region {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
 
