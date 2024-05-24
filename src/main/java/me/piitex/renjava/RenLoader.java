@@ -36,7 +36,7 @@ public class RenLoader {
         }
 
         // Verify GUI folder
-        File guiDirectory = new File(gameDirectory, "/gui/");
+        File guiDirectory = new File(gameDirectory, "/images/gui/");
         if (!guiDirectory.exists() || guiDirectory.listFiles().length == 0) {
             RenLogger.LOGGER.error("GUI directory does not exist. The game will not work properly, please move all assets into the newly created gui directory.");
             guiDirectory.mkdir();
