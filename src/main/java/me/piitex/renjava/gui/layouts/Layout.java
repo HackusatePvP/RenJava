@@ -7,6 +7,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.overlay.Overlay;
+import me.piitex.renjava.gui.overlay.Region;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -28,8 +29,17 @@ public abstract class Layout {
     }
     
     public void render(Pane root) {
+        pane.setTranslateX(x);
+        pane.setTranslateY(y);
+        pane.setPrefSize(width, height);
         for (Overlay overlay : getOverlays()) {
             // Check if the layout should be a scroll pane.
+
+            // Update overlay sizes
+            if (overlay instanceof Region region) {
+                region.setWidth(pane.getWidth());
+            }
+
             if (isScrollbar()) {
                 ScrollPane scrollPane = new ScrollPane(pane);
                 BorderPane subRoot = new BorderPane(scrollPane);
@@ -42,9 +52,6 @@ public abstract class Layout {
                 pane.getChildren().add(sub);
             }
         }
-        pane.setTranslateX(x);
-        pane.setTranslateY(y);
-        pane.setPrefSize(width, height);
         if (pane instanceof HBox hBox) {
             hBox.setSpacing(spacing);
         } else if (pane instanceof VBox vBox) {
@@ -120,6 +127,10 @@ public abstract class Layout {
 
     public void addChildLayout(Layout layout) {
         this.childLayouts.add(layout);
+    }
+
+    public void addChildLayouts(Layout... layouts) {
+        this.childLayouts.addAll(List.of(layouts));
     }
 
     public LinkedHashSet<Layout> getChildLayouts() {
