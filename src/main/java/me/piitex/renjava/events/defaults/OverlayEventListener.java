@@ -1,6 +1,7 @@
 package me.piitex.renjava.events.defaults;
 
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.events.EventListener;
@@ -41,11 +42,10 @@ public class OverlayEventListener implements EventListener {
                     button.setTextFill(RenJava.getInstance().getConfiguration().getHoverColor());
                 }
                 if (buttonOverlay.getHoverImage() != null) {
-                    try {
-                        button.setGraphic(new ImageView(buttonOverlay.getHoverImage().build()));
-                    } catch (ImageNotFoundException e) {
-                        RenLogger.LOGGER.error(e.getMessage());
-                    }
+                    Image bg = buttonOverlay.getHoverImage().getImage();
+                    ImageView imageView = new ImageView(bg);
+                    imageView.setFitHeight(buttonOverlay.height());
+                    imageView.setFitWidth(buttonOverlay.width());
                 }
             } else {
                 System.out.println("No hover was set for overlay");
@@ -70,7 +70,11 @@ public class OverlayEventListener implements EventListener {
             button.setTextFill(buttonOverlay.getTextFill());
             button.setStyle(button.getStyle()); // Re-init the style (hopefully this forces the button back to normal.)
             if (buttonOverlay.getImage() != null) {
-                button.setGraphic(new ImageView(buttonOverlay.getImage().getImage()));
+                //button.setGraphic(new ImageView(buttonOverlay.getImage().getImage()));
+                Image bg = buttonOverlay.getImage().getImage();
+                ImageView imageView = new ImageView(bg);
+                imageView.setFitHeight(buttonOverlay.height());
+                imageView.setFitWidth(buttonOverlay.width());
             }
         }
     }

@@ -34,7 +34,7 @@ public class ButtonOverlay implements Overlay, Region {
     private Color backgroundColor;
     private Color borderColor;
     private Color hoverColor;
-    private ImageLoader hoverImage;
+    private ImageOverlay hoverImage;
     private boolean hover = true;
     private int borderWidth = 0;
     private int backgroundRadius = 0;
@@ -299,11 +299,11 @@ public class ButtonOverlay implements Overlay, Region {
         this.hover = true;
     }
 
-    public ImageLoader getHoverImage() {
+    public ImageOverlay getHoverImage() {
         return hoverImage;
     }
 
-    public void setHoverImage(ImageLoader hoverImage) {
+    public void setHoverImage(ImageOverlay hoverImage) {
         this.hoverImage = hoverImage;
         this.hover = true;
     }
