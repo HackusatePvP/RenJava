@@ -1,6 +1,7 @@
 package me.piitex.renjava.gui.overlay;
 
 
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -10,6 +11,7 @@ import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 public class TextOverlay implements Overlay, Region {
     private final Text text;
+    private Color textFillColor;
     private FontLoader fontLoader;
     private double x;
     private double y;
@@ -27,12 +29,28 @@ public class TextOverlay implements Overlay, Region {
         this.y = y;
     }
 
+    public TextOverlay(String text, Color textFillColor, double x, double y) {
+        this.text = new Text(text);
+        this.textFillColor = textFillColor;
+        this.x = x;
+        this.y = y;
+    }
+
     public TextOverlay(String text, FontLoader fontLoader, double x, double y) {
         this.text = new Text(text);
         this.fontLoader = fontLoader;
         this.x = x;
         this.y = y;
     }
+
+    public TextOverlay(String text, Color textFillColor, FontLoader fontLoader, double x, double y) {
+        this.text = new Text(text);
+        this.textFillColor = textFillColor;
+        this.fontLoader = fontLoader;
+        this.x = x;
+        this.y = y;
+    }
+
 
     public TextOverlay(Text text, double x, double y) {
         this.text = text;
@@ -49,6 +67,10 @@ public class TextOverlay implements Overlay, Region {
 
     public Text getText() {
         return text;
+    }
+
+    public Color getTextFillColor() {
+        return textFillColor;
     }
 
     @Override

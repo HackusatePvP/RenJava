@@ -61,6 +61,9 @@ public class Element {
                 Font font = textOverlay.getFontLoader().getFont();
                 text.setFont(font);
             }
+            if (textOverlay.getTextFillColor() != null) {
+                text.setFill(textOverlay.getTextFillColor());
+            }
             text.setTranslateX(textOverlay.x());
             text.setTranslateY(textOverlay.y());
             this.node = text;
