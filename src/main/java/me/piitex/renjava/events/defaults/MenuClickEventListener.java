@@ -36,21 +36,21 @@ public class MenuClickEventListener implements EventListener {
         if (button.getId().equalsIgnoreCase("menu-load-button")) {
             // NOTE: 10/20/2023  new LoadScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
             Menu menu = renJava.buildLoadMenu(1); // Builds first page
-            menu.addMenu(renJava.buildSideMenu());
+            menu.addMenu(renJava.buildSideMenu(true));
             menu.render();
             renJava.setStage(renJava.getStage(), StageType.LOAD_MENU); // Update stage type
         }
         if (button.getId().equalsIgnoreCase("menu-preference-button")) {
             //new PreferenceScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
             Menu settings = renJava.buildSettingsMenu();
-            settings.addMenu(renJava.buildSideMenu());
+            settings.addMenu(renJava.buildSideMenu(true));
 
             settings.render();
             renJava.setStage(renJava.getStage(), StageType.OPTIONS_MENU);
         }
         if (button.getId().equalsIgnoreCase("menu-about-button")) {
             Menu about = renJava.buildAboutMenu();
-            about.addMenu(renJava.buildSideMenu());
+            about.addMenu(renJava.buildSideMenu(renJava.getPlayer().isRightClickMenu()));
 
             about.render();
             renJava.setStage(renJava.getStage(), StageType.ABOUT_MENU);
@@ -58,7 +58,7 @@ public class MenuClickEventListener implements EventListener {
         if (button.getId().equalsIgnoreCase("menu-save-button")) {
             //new Save(1, renJava.getPlayer().getCurrentStory().getId(), renJava.getPlayer().getCurrentScene().getId());
             Menu menu = renJava.buildLoadMenu(1); // Builds first page
-            menu.addMenu(renJava.buildSideMenu());
+            menu.addMenu(renJava.buildSideMenu(renJava.getPlayer().isRightClickMenu()));
             menu.render();
 
             renJava.setStage(renJava.getStage(), StageType.SAVE_MENU);
@@ -108,7 +108,7 @@ public class MenuClickEventListener implements EventListener {
 
             // Re-render
             Menu menu = renJava.buildLoadMenu(1); // Builds first page
-            menu.addMenu(renJava.buildSideMenu());
+            menu.addMenu(renJava.buildSideMenu(true));
             menu.render();
             renJava.setStage(renJava.getStage(), StageType.SAVE_MENU); // Update stage type
         }

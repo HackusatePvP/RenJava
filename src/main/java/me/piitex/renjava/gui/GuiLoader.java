@@ -88,7 +88,7 @@ public class GuiLoader {
         stage = new Stage();
         renJava.buildStage(stage); // Builds the stage parameters (Game Window)
 
-        Menu menu = renJava.buildTitleScreen();
+        Menu menu = renJava.buildTitleScreen(false);
         MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
         RenJava.callEvent(event);
 
@@ -100,7 +100,7 @@ public class GuiLoader {
             menu.setBackgroundImage(new ImageOverlay("gui/main_menu.png"));
         }
 
-        Menu sideMenu = renJava.buildSideMenu();
+        Menu sideMenu = renJava.buildSideMenu(false);
         SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(sideMenu);
         RenJava.callEvent(sideMenuBuildEvent);
 
