@@ -2,13 +2,9 @@ package me.piitex.renjava.events.defaults;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
 import me.piitex.renjava.RenJava;
 
 import me.piitex.renjava.events.types.*;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.overlay.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.events.EventListener;
@@ -22,6 +18,7 @@ public class MenuClickEventListener implements EventListener {
     @Listener
     public void onButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
+
         if (button.getId().equalsIgnoreCase("menu-start-button")) {
             RenLogger.LOGGER.info("Creating new game...");
             renJava.createBaseData();
@@ -36,14 +33,14 @@ public class MenuClickEventListener implements EventListener {
         if (button.getId().equalsIgnoreCase("menu-load-button")) {
             // NOTE: 10/20/2023  new LoadScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
             Menu menu = renJava.buildLoadMenu(1); // Builds first page
-            menu.addMenu(renJava.buildSideMenu(true));
+            menu.addMenu(renJava.buildSideMenu(renJava.getPlayer().isRightClickMenu()));
             menu.render();
             renJava.setStage(renJava.getStage(), StageType.LOAD_MENU); // Update stage type
         }
         if (button.getId().equalsIgnoreCase("menu-preference-button")) {
             //new PreferenceScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
             Menu settings = renJava.buildSettingsMenu();
-            settings.addMenu(renJava.buildSideMenu(true));
+            settings.addMenu(renJava.buildSideMenu(renJava.getPlayer().isRightClickMenu()));
 
             settings.render();
             renJava.setStage(renJava.getStage(), StageType.OPTIONS_MENU);
