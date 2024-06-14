@@ -118,7 +118,7 @@ public class GameFlowEventListener implements EventListener {
         }
 
         if (code == KeyCode.CONTROL) {
-            playNextScene();
+            skipHeld = true;
         }
     }
 
