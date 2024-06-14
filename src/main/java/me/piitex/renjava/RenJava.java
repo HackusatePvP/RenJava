@@ -391,7 +391,11 @@ public abstract class RenJava {
         layout.setX(50);
         layout.setY(250);
         layout.setSpacing(20);
-        layout.addOverlays(startButton, loadButton, saveButton, optionsButton, aboutButton);
+        layout.addOverlays(startButton, loadButton);
+        if (rightClickedMenu) {
+            layout.addOverlays(saveButton);
+        }
+        layout.addOverlays(optionsButton, aboutButton);
 
         // You don't have to add the button overlays just add the layout which already contains the overlays.
         menu.addLayout(layout);
