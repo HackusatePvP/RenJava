@@ -80,6 +80,7 @@ public class GameFlowEventListener implements EventListener {
                 } else {
                     // Return to previous screen
                     RenScene renScene = player.getCurrentScene();
+                    if (renScene == null) return;
                     Menu menu = renScene.build(true);
                     SceneBuildEvent sceneBuildEvent = new SceneBuildEvent(renScene, menu);
                     RenJava.callEvent(sceneBuildEvent);
