@@ -400,6 +400,18 @@ public abstract class RenJava {
         // You don't have to add the button overlays just add the layout which already contains the overlays.
         menu.addLayout(layout);
 
+        ButtonOverlay returnButton;
+
+
+        if (getStageType() == StageType.MAIN_MENU) {
+            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        } else {
+            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        }
+        returnButton.setX(25);
+        returnButton.setY(1000);
+        menu.addOverlay(returnButton);
+
         return menu;
     }
 
