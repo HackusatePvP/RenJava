@@ -1,5 +1,6 @@
 package me.piitex.renjava.events.defaults;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -23,18 +24,12 @@ import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.tasks.KeyHeldTask;
 import org.slf4j.Logger;;
-
-import java.awt.*;
-import java.util.Timer;
 
 
 public class GameFlowEventListener implements EventListener {
     // Also experimental, task that runs while the ctrl key is held. Maybe I can change this to a do while or something... I'm not sure.
-    private KeyHeldTask heldTask;
-
-    private final Timer timer = new Timer();
+    private boolean skipHeld = false;
 
     private static final RenJava renJava = RenJava.getInstance();
 
@@ -70,8 +65,8 @@ public class GameFlowEventListener implements EventListener {
                 // Open Main Menu
                 if (!player.isRightClickMenu()) {
                     logger.info("Player is not in menu, opening menu...");
-                    Menu menu = renJava.buildTitleScreen();
-                    menu.addMenu(renJava.buildSideMenu());
+                    Menu menu = renJava.buildTitleScreen(true);
+                    menu.addMenu(renJava.buildSideMenu(true));
 
                     MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
                     RenJava.callEvent(buildEvent);
@@ -211,7 +206,7 @@ public class GameFlowEventListener implements EventListener {
             }
 
             if (scene.getIndex() == story.getLastIndex()) {
-                logger.info("Calling story end event...");
+                //logger.info("Calling story end event...");
                 StoryEndEvent storyEndEvent = new StoryEndEvent(story);
                 RenJava.callEvent(storyEndEvent);
                 return;
