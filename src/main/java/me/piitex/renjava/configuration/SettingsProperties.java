@@ -8,7 +8,7 @@ import java.util.Properties;
 public class SettingsProperties {
     private final File file;
 
-    private int volume = 50; // Don't want to ear blast people right off the start so half volume should work.
+    private double volume = 50; // Don't want to ear blast people right off the start so half volume should work.
     private boolean fullscreen = false;
     private boolean skipTransitions = false;
     private boolean skipUnseenText = false;
@@ -44,7 +44,7 @@ public class SettingsProperties {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            this.volume = Integer.parseInt(properties.getProperty("volume"));
+            this.volume = Double.parseDouble(properties.getProperty("volume"));
             this.fullscreen = Boolean.parseBoolean(properties.getProperty("fullscreen"));
             this.skipTransitions = Boolean.parseBoolean(properties.getProperty("transitions"));
             this.skipUnseenText = Boolean.parseBoolean(properties.getProperty("skip-unseen-text"));
@@ -55,7 +55,7 @@ public class SettingsProperties {
         return volume;
     }
 
-    public void setVolume(int volume) {
+    public void setVolume(double volume) {
         this.volume = volume;
         write("volume", volume + "");
     }

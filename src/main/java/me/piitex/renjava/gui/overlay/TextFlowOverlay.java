@@ -1,21 +1,31 @@
 package me.piitex.renjava.gui.overlay;
 
+import javafx.scene.SubScene;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
+import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
 import java.util.LinkedList;
 
-public class TextFlowOverlay implements Overlay {
+public class TextFlowOverlay implements Overlay, Region {
     private double x;
     private double y;
     private double scaleX, scaleY;
     private Transitions transitions;
     private Font font;
-    private Color textColor;
+    private Color textColor = Color.BLACK;
+
+    private IOverlayClick iOverlayClick;
+    private IOverlayHover iOverlayHover;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     private LinkedList<Text> texts = new LinkedList<>();
 
@@ -25,6 +35,13 @@ public class TextFlowOverlay implements Overlay {
         this.width = width;
         this.height = height;
         texts.add(new Text(text));
+    }
+
+    public TextFlowOverlay(String text, FontLoader fontLoader, int width, int height) {
+        this.texts.add(new Text(text));
+        this.font = fontLoader.getFont();
+        this.width = width;
+        this.height = height;
     }
 
     public TextFlowOverlay(Text text, int width, int height) {
@@ -119,6 +136,37 @@ public class TextFlowOverlay implements Overlay {
         return transitions;
     }
 
+    @Override
+    public void setOnclick(IOverlayClick iOverlayClick) {
+        this.iOverlayClick = iOverlayClick;
+    }
+
+    @Override
+    public void setOnHover(IOverlayHover iOverlayHover) {
+        this.iOverlayHover = iOverlayHover;
+    }
+
+    @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
+    public IOverlayClick getOnClick() {
+        return iOverlayClick;
+    }
+
+    @Override
+    public IOverlayHover getOnHover() {
+        return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
+    }
+
+
     public void setTransitions(Transitions transitions) {
         this.transitions = transitions;
     }
@@ -131,10 +179,14 @@ public class TextFlowOverlay implements Overlay {
     public TextFlow build() {
         TextFlow textFlow = new TextFlow();
         for (Text text : texts) {
+            // Not the best way to go about this
+            text = new Text(text.getText().replace("\\n", System.lineSeparator()));
+
             if (font != null) {
                 text.setFont(font);
             }
             text.setFill(textColor);
+
             textFlow.getChildren().add(text);
         }
 
@@ -142,4 +194,5 @@ public class TextFlowOverlay implements Overlay {
 
         return textFlow;
     }
+
 }

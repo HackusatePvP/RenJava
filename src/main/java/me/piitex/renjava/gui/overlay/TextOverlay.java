@@ -1,12 +1,17 @@
 package me.piitex.renjava.gui.overlay;
 
 
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
+import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
-public class TextOverlay implements Overlay {
+public class TextOverlay implements Overlay, Region {
     private final Text text;
+    private Color textFillColor;
     private FontLoader fontLoader;
     private double x;
     private double y;
@@ -14,8 +19,19 @@ public class TextOverlay implements Overlay {
     private double width, height;
     private Transitions transitions;
 
+    private IOverlayClick iOverlayClick;
+    private IOverlayHover iOverlayHover;
+    private IOverlayClickRelease iOverlayClickRelease;
+
     public TextOverlay(String text, double x, double y) {
         this.text = new Text(text);
+        this.x = x;
+        this.y = y;
+    }
+
+    public TextOverlay(String text, Color textFillColor, double x, double y) {
+        this.text = new Text(text);
+        this.textFillColor = textFillColor;
         this.x = x;
         this.y = y;
     }
@@ -26,6 +42,15 @@ public class TextOverlay implements Overlay {
         this.x = x;
         this.y = y;
     }
+
+    public TextOverlay(String text, Color textFillColor, FontLoader fontLoader, double x, double y) {
+        this.text = new Text(text);
+        this.textFillColor = textFillColor;
+        this.fontLoader = fontLoader;
+        this.x = x;
+        this.y = y;
+    }
+
 
     public TextOverlay(Text text, double x, double y) {
         this.text = text;
@@ -42,6 +67,10 @@ public class TextOverlay implements Overlay {
 
     public Text getText() {
         return text;
+    }
+
+    public Color getTextFillColor() {
+        return textFillColor;
     }
 
     @Override
@@ -111,6 +140,36 @@ public class TextOverlay implements Overlay {
     @Override
     public Transitions getTransition() {
         return transitions;
+    }
+
+    @Override
+    public void setOnclick(IOverlayClick iOverlayClick) {
+        this.iOverlayClick = iOverlayClick;
+    }
+
+    @Override
+    public void setOnHover(IOverlayHover iOverlayHover) {
+        this.iOverlayHover = iOverlayHover;
+    }
+
+    @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
+    public IOverlayClick getOnClick() {
+        return iOverlayClick;
+    }
+
+    @Override
+    public IOverlayHover getOnHover() {
+        return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
     public void setTransitions(Transitions transitions) {

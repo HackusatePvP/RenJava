@@ -4,11 +4,9 @@ import java.io.*;
 import java.util.Properties;
 
 import javafx.application.Platform;
-import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.loggers.RenLogger;
-;
 
 public class RenLoader {
     private final RenJava renJava;
@@ -21,8 +19,7 @@ public class RenLoader {
         setupMain();
         setupGame();
         if (shutdown) {
-            // Shutdown application.
-            RenLogger.LOGGER.error("Game assets do not exist. Please download default assets and place them inside the 'game' folder.");
+            // Shutdown application if startup fails.
             Platform.exit();
             System.exit(0);
             return;
@@ -32,21 +29,23 @@ public class RenLoader {
 
     private void setupMain() {
         RenLogger.LOGGER.info("Checking game environment...");
-
-
         File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
         if (gameDirectory.mkdir()) {
-            RenLogger.LOGGER.error("Game directory does not exist. The game will not work properly, please move all assets into the newly created game directory.");
+            RenLogger.LOGGER.error("Game assets do not exist. Please download default assets and place them inside the 'game/images/gui' folder.");
             shutdown = true;
         }
+
+        // Verify GUI folder
+        File guiDirectory = new File(gameDirectory, "/images/gui/");
+        if (!guiDirectory.exists() || guiDirectory.listFiles().length == 0) {
+            RenLogger.LOGGER.error("GUI directory does not exist. The game will not work properly, please move all assets into the newly created gui directory.");
+            guiDirectory.mkdir();
+            shutdown = true;
+        }
+
         File renJavaDirectory = new File(System.getProperty("user.dir") + "/renjava/");
         if (renJavaDirectory.mkdir()) {
             RenLogger.LOGGER.warn("RenJava folder does not exist. User settings will be reset to defaults.");
-        }
-        for (File file : new File(System.getProperty("user.dir")).listFiles()) {
-            if (file.getName().endsWith(".txt.lck")) {
-                file.delete();
-            }
         }
     }
 
@@ -64,6 +63,8 @@ public class RenLoader {
         File imageDirectory = new File(directory, "/images/");
         if (imageDirectory.mkdir()) {
             RenLogger.LOGGER.warn("Images folder does not exist, creating...");
+            RenLogger.LOGGER.error("Default assets do not exist. Please run RSDK to install these assets or download them from RenPy.");
+            shutdown = true;
         }
         File savesDirectory = new File(directory, "/saves/");
         if (savesDirectory.mkdir()) {
@@ -73,16 +74,6 @@ public class RenLoader {
         if (fontsDirectory.mkdir()) {
             RenLogger.LOGGER.warn("Fonts folder does not exist, creating...");
         }
-
-        RenLogger.LOGGER.info("Loading fonts...");
-        int fonts = 0;
-        for (File file : fontsDirectory.listFiles()) {
-            if (file.getName().endsWith(".ttf")) {
-                fonts++;
-                new FontLoader(file.getName());
-            }
-        }
-        RenLogger.LOGGER.info("Loaded " + fonts + " font(s).");
         File cssDirectory = new File(directory, "/css/");
         cssDirectory.mkdir();
     }

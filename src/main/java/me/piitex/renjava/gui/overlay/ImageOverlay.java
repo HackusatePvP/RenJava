@@ -3,12 +3,15 @@ package me.piitex.renjava.gui.overlay;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
+import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
-public class ImageOverlay implements Overlay {
+public class ImageOverlay implements Overlay, Region {
     private Image image;
     private double x;
     private double y;
@@ -17,6 +20,10 @@ public class ImageOverlay implements Overlay {
     private double height;
     private boolean preserveRatio = true;
     private String fileName;
+
+    private IOverlayHover iOverlayHover;
+    private IOverlayClick iOverlayClick;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     private Transitions transitions;
 
@@ -176,6 +183,36 @@ public class ImageOverlay implements Overlay {
     @Override
     public Transitions getTransition() {
         return transitions;
+    }
+
+    @Override
+    public void setOnclick(IOverlayClick iOverlayClick) {
+        this.iOverlayClick = iOverlayClick;
+    }
+
+    @Override
+    public void setOnHover(IOverlayHover iOverlayHover) {
+        this.iOverlayHover = iOverlayHover;
+    }
+
+    @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
+    public IOverlayClick getOnClick() {
+        return iOverlayClick;
+    }
+
+    @Override
+    public IOverlayHover getOnHover() {
+        return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
     public ImageOverlay setTransitions(Transitions transitions) {

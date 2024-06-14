@@ -4,12 +4,11 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import me.piitex.renjava.RenJava;
 
+import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
-import me.piitex.renjava.events.types.ButtonClickEvent;
-import me.piitex.renjava.events.types.GameStartEvent;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
 
@@ -19,6 +18,8 @@ public class MenuClickEventListener implements EventListener {
     @Listener
     public void onButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
+        boolean rightClicked = renJava.getPlayer().isRightClickMenu();
+
         if (button.getId().equalsIgnoreCase("menu-start-button")) {
             RenLogger.LOGGER.info("Creating new game...");
             renJava.createBaseData();
@@ -31,33 +32,28 @@ public class MenuClickEventListener implements EventListener {
             renJava.start();
         }
         if (button.getId().equalsIgnoreCase("menu-load-button")) {
-            // NOTE: 10/20/2023  new LoadScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
+            renJava.setStage(renJava.getStage(), StageType.LOAD_MENU);
             Menu menu = renJava.buildLoadMenu(1); // Builds first page
-            menu.addMenu(renJava.buildSideMenu());
+            menu.addMenu(renJava.buildSideMenu(rightClicked));
             menu.render();
-            renJava.setStage(renJava.getStage(), StageType.LOAD_MENU); // Update stage type
         }
         if (button.getId().equalsIgnoreCase("menu-preference-button")) {
-            //new PreferenceScreenView(new ImageLoader("gui/overlay/game_menu.png")).build(renJava.getStage(), true);
+            renJava.setStage(renJava.getStage(), StageType.OPTIONS_MENU);
             Menu settings = renJava.buildSettingsMenu();
-            settings.addMenu(renJava.buildSideMenu());
-
+            settings.addMenu(renJava.buildSideMenu(rightClicked));
             settings.render();
         }
         if (button.getId().equalsIgnoreCase("menu-about-button")) {
-            Menu about = renJava.buildAboutMenu();
-            about.addMenu(renJava.buildSideMenu());
-
-            about.render();
             renJava.setStage(renJava.getStage(), StageType.ABOUT_MENU);
+            Menu about = renJava.buildAboutMenu();
+            about.addMenu(renJava.buildSideMenu(rightClicked));
+            about.render();
         }
         if (button.getId().equalsIgnoreCase("menu-save-button")) {
-            //new Save(1, renJava.getPlayer().getCurrentStory().getId(), renJava.getPlayer().getCurrentScene().getId());
-            Menu menu = renJava.buildLoadMenu(1); // Builds first page
-            menu.addMenu(renJava.buildSideMenu());
-            menu.render();
-
             renJava.setStage(renJava.getStage(), StageType.SAVE_MENU);
+            Menu menu = renJava.buildLoadMenu(1); // Builds first page
+            menu.addMenu(renJava.buildSideMenu(rightClicked));
+            menu.render();
         }
         if (button.getId().equalsIgnoreCase("menu-quit-button")) {
             renJava.getAddonLoader().disable();
@@ -103,10 +99,21 @@ public class MenuClickEventListener implements EventListener {
             save.write();
 
             // Re-render
+            renJava.setStage(renJava.getStage(), StageType.SAVE_MENU);
             Menu menu = renJava.buildLoadMenu(1); // Builds first page
-            menu.addMenu(renJava.buildSideMenu());
+            menu.addMenu(renJava.buildSideMenu(true));
             menu.render();
-            renJava.setStage(renJava.getStage(), StageType.SAVE_MENU); // Update stage type
+        }
+        if (button.getId().equalsIgnoreCase("menu-return-button")) {
+            if (renJava.getStageType() == StageType.MAIN_MENU) {
+                renJava.getAddonLoader().disable();
+                Platform.exit();
+                return;
+            }
+            renJava.setStage(renJava.getStage(), StageType.MAIN_MENU);
+            Menu menu = renJava.buildTitleScreen(rightClicked);
+            menu.addMenu(renJava.buildSideMenu(rightClicked));
+            menu.render();
         }
     }
 

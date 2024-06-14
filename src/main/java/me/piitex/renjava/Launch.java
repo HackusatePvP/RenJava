@@ -72,7 +72,6 @@ public class Launch extends Application {
     }
 
     private static void loadClass(Class<?> clazz, String[] args) {
-        //FIXME: For performance save the path of the main class to reduce loading time
         try {
             File file = new File(System.getProperty("user.dir") + "/renjava/build.info");
             if (!file.exists()) {
@@ -102,8 +101,9 @@ public class Launch extends Application {
             System.err.println("Could retrieve runtime information.");
         }
 
-
         try {
+
+            // Creates a new instance of the application and executes the constructor.
             Object o = clazz.getDeclaredConstructor().newInstance();
             RenJava renJava = (RenJava) o;
             if (renJava.getClass().isAnnotationPresent(Game.class)) {
@@ -138,7 +138,6 @@ public class Launch extends Application {
 
             renJava.init(); // Initialize game
             launch(args);
-            //c.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             System.err.println("ERROR: Could initialize the RenJava framework: " + e.getMessage());
         }

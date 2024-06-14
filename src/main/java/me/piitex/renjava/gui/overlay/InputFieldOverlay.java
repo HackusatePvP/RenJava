@@ -3,14 +3,21 @@ package me.piitex.renjava.gui.overlay;
 import javafx.scene.control.TextField;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.gui.overlay.events.IOverlayClick;
+import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
+import me.piitex.renjava.gui.overlay.events.IOverlayHover;
 
-public class InputFieldOverlay implements Overlay {
+public class InputFieldOverlay implements Overlay, Region {
     private double x;
     private double y;
     private double scaleX, scaleY;
     private double height, width;
     private final FontLoader fontLoader;
     private Transitions transitions;
+
+    private IOverlayClick iOverlayClick;
+    private IOverlayHover iOverlayHover;
+    private IOverlayClickRelease iOverlayClickRelease;
 
     public InputFieldOverlay(double x, double y, FontLoader fontLoader) {
         this.x = x;
@@ -81,6 +88,36 @@ public class InputFieldOverlay implements Overlay {
     @Override
     public Transitions getTransition() {
         return transitions;
+    }
+
+    @Override
+    public void setOnclick(IOverlayClick iOverlayClick) {
+        this.iOverlayClick = iOverlayClick;
+    }
+
+    @Override
+    public void setOnHover(IOverlayHover iOverlayHover) {
+        this.iOverlayHover = iOverlayHover;
+    }
+
+    @Override
+    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+        this.iOverlayClickRelease = iOverlayClickRelease;
+    }
+
+    @Override
+    public IOverlayClick getOnClick() {
+        return iOverlayClick;
+    }
+
+    @Override
+    public IOverlayHover getOnHover() {
+        return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayClickRelease getOnRelease() {
+        return iOverlayClickRelease;
     }
 
     public void setTransitions(Transitions transitions) {

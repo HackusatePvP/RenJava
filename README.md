@@ -3,6 +3,7 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 
 **Community**
 - [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
+- [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure) This an example project that is used for testing the framework.
 
 ## Project Requirements
 - [Java-17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) (You can typically download this within your IDE)

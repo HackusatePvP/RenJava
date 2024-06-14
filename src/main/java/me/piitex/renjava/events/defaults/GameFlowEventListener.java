@@ -1,10 +1,16 @@
 package me.piitex.renjava.events.defaults;
 
+import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -18,17 +24,12 @@ import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.tasks.KeyHeldTask;
 import org.slf4j.Logger;;
-
-import java.util.Timer;
 
 
 public class GameFlowEventListener implements EventListener {
     // Also experimental, task that runs while the ctrl key is held. Maybe I can change this to a do while or something... I'm not sure.
-    private KeyHeldTask heldTask;
-
-    private final Timer timer = new Timer();
+    private boolean skipHeld = false;
 
     private static final RenJava renJava = RenJava.getInstance();
 
@@ -44,7 +45,6 @@ public class GameFlowEventListener implements EventListener {
         Logger logger = RenLogger.LOGGER;
 
         // Only do this if it's not the title screen or any other menu screen
-
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
 
         switch (button) {
@@ -65,8 +65,8 @@ public class GameFlowEventListener implements EventListener {
                 // Open Main Menu
                 if (!player.isRightClickMenu()) {
                     logger.info("Player is not in menu, opening menu...");
-                    Menu menu = renJava.buildTitleScreen();
-                    menu.addMenu(renJava.buildSideMenu());
+                    Menu menu = renJava.buildTitleScreen(true);
+                    menu.addMenu(renJava.buildSideMenu(true));
 
                     MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
                     RenJava.callEvent(buildEvent);
@@ -80,6 +80,7 @@ public class GameFlowEventListener implements EventListener {
                 } else {
                     // Return to previous screen
                     RenScene renScene = player.getCurrentScene();
+                    if (renScene == null) return;
                     Menu menu = renScene.build(true);
                     SceneBuildEvent sceneBuildEvent = new SceneBuildEvent(renScene, menu);
                     RenJava.callEvent(sceneBuildEvent);
@@ -113,7 +114,7 @@ public class GameFlowEventListener implements EventListener {
         }
 
         if (code == KeyCode.CONTROL) {
-            playNextScene();
+            skipHeld = true;
         }
     }
 
@@ -206,7 +207,7 @@ public class GameFlowEventListener implements EventListener {
             }
 
             if (scene.getIndex() == story.getLastIndex()) {
-                logger.info("Calling story end event...");
+                //logger.info("Calling story end event...");
                 StoryEndEvent storyEndEvent = new StoryEndEvent(story);
                 RenJava.callEvent(storyEndEvent);
                 return;
@@ -223,6 +224,12 @@ public class GameFlowEventListener implements EventListener {
                 if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
                     player.setTransitionPlaying(true);
                     Pane pane = previousMenu.getPane();
+                    if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
+                        BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
+                        pane.setBackground(new Background(backgroundFill));
+                        pane.getScene().setFill(fadingTransition.getColor());
+                        renJava.getStage().getScene().setFill(fadingTransition.getColor());
+                    }
                     scene.getEndTransition().play(pane); // Starts transition.
                 } else {
                     nextScene.render(nextScene.build(true));

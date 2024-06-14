@@ -12,6 +12,9 @@ public class RenJavaConfiguration {
     private final int height;
     private final ImageLoader gameIcon;
 
+    private Color themeColor = Color.BLACK;
+    private Color subColor = Color.DARKGRAY;
+
     private FontLoader defaultFont;
     private FontLoader dialogueFont;
     private FontLoader uiFont;
@@ -78,6 +81,22 @@ public class RenJavaConfiguration {
 
     public ImageLoader getGameIcon() {
         return gameIcon;
+    }
+
+    public Color getThemeColor() {
+        return themeColor;
+    }
+
+    public void setThemeColor(Color themeColor) {
+        this.themeColor = themeColor;
+    }
+
+    public Color getSubColor() {
+        return subColor;
+    }
+
+    public void setSubColor(Color subColor) {
+        this.subColor = subColor;
     }
 
     public FontLoader getDialogueFont() {

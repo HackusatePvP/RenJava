@@ -4,6 +4,7 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
@@ -24,20 +25,15 @@ import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.Event;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
-import me.piitex.renjava.events.defaults.GameFlowEventListener;
-import me.piitex.renjava.events.defaults.MenuClickEventListener;
-import me.piitex.renjava.events.defaults.ScenesEventListener;
-import me.piitex.renjava.events.defaults.StoryHandlerEventListener;
+import me.piitex.renjava.events.defaults.*;
 
 import me.piitex.renjava.events.types.ShutdownEvent;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
+import me.piitex.renjava.gui.overlay.*;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
-import me.piitex.renjava.gui.overlay.TextFlowOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -118,6 +114,7 @@ public abstract class RenJava {
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
+        registerListener(new OverlayEventListener());
         this.registerData(player);
         this.registerData(tracks);
         new RenLoader(this);
@@ -369,30 +366,51 @@ public abstract class RenJava {
 
     public abstract Menu buildSplashScreen();
 
-    public abstract Menu buildTitleScreen();
+    /**
+     * This method is used to build and design the main menu screen.
+     * @param rightClickMenu True if the user is in the right-clicked main menu. False if they are at the title screen.
+     * @return A new {@link Menu} of the configured screen.
+     */
+    public abstract Menu buildTitleScreen(boolean rightClickMenu);
 
-    public Menu buildSideMenu() {
+    public Menu buildSideMenu(boolean rightClickedMenu) {
         Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
         Color hoverColor = getConfiguration().getHoverColor();
 
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", uiFont, Color.BLACK, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
 
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(400, 500);
         layout.setX(50);
         layout.setY(250);
         layout.setSpacing(20);
-        layout.addOverlays(startButton, loadButton, saveButton, optionsButton, aboutButton);
+        layout.addOverlays(startButton, loadButton);
+        if (rightClickedMenu) {
+            layout.addOverlays(saveButton);
+        }
+        layout.addOverlays(optionsButton, aboutButton);
 
         // You don't have to add the button overlays just add the layout which already contains the overlays.
         menu.addLayout(layout);
+
+        ButtonOverlay returnButton;
+
+
+        if (getStageType() == StageType.MAIN_MENU) {
+            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        } else {
+            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        }
+        returnButton.setX(25);
+        returnButton.setY(1000);
+        menu.addOverlay(returnButton);
 
         return menu;
     }
@@ -441,7 +459,7 @@ public abstract class RenJava {
         HorizontalLayout pageLayout = new HorizontalLayout(100, 100);
         while (pageIndex < pageViewMax) {
             pageIndex++;
-            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", new FontLoader(getConfiguration().getUiFont(), 26).getFont(), Color.BLACK, 1, 1);
+            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", Color.BLACK, new FontLoader(getConfiguration().getUiFont(), 26).getFont(), 1, 1);
             pageButton.setBackgroundColor(Color.TRANSPARENT);
             pageButton.setBorderColor(Color.TRANSPARENT);
             if (page == pageIndex) {
@@ -474,22 +492,97 @@ public abstract class RenJava {
     }
 
     public Menu buildSettingsMenu() {
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
 
-        return null;
+        Color themeColor = getConfiguration().getThemeColor();
+        Color subColor = getConfiguration().getSubColor();
+
+        // 1 hbox 3 vboxes
+
+        // Display    Rollback     Skip
+        // Windowed     Disabled   Unseen Text
+        // Full screen  Enabled    After Choices
+        //              Right      Transitions
+
+
+        HorizontalLayout rootLayout = new HorizontalLayout(1200, 600);
+        rootLayout.setX(600);
+        rootLayout.setY(200);
+        rootLayout.setSpacing(100);
+
+        VerticalLayout displayBox = new VerticalLayout(300, 400);
+        TextOverlay displayText = new TextOverlay("Display", themeColor, getConfiguration().getUiFont(), 0, 0);
+        ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        displayBox.addOverlays(displayText, windowButton, fullscreenButton);
+
+        VerticalLayout rollbackBox = new VerticalLayout(300, 400);
+        TextOverlay rollbackText = new TextOverlay("Rollback", themeColor, getConfiguration().getUiFont(), 0, 0);
+        ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        rollbackBox.addOverlays(rollbackText, disabledButton, leftButton, rightButton);
+
+        VerticalLayout skipBox = new VerticalLayout(300, 400);
+        TextOverlay skipText = new TextOverlay("Skip", themeColor, getConfiguration().getUiFont(), 0, 0);
+        ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        skipBox.addOverlays(skipText, unseenTextButton, afterChoicesButton, transitionButton);
+
+        // Add all to root layout
+        rootLayout.addChildLayouts(displayBox, rollbackBox, skipBox);
+
+        menu.addLayout(rootLayout);
+
+        // Music sliders
+        VerticalLayout musicBox = new VerticalLayout(400, 600);
+        musicBox.setX(700);
+        musicBox.setY(800);
+        TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
+        SliderOverlay musicVolumeSlider = new SliderOverlay(100, 0, getSettings().getVolume(), 0,0);
+        musicVolumeSlider.setBlockIncrement(10);
+        musicVolumeSlider.setOnSliderChange(event -> {
+            // Event used when slider changes value
+            System.out.println("Volume: " + event.getValue());
+            getSettings().setVolume(event.getValue());
+        });
+        musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
+
+        menu.addLayout(musicBox);
+
+        return menu;
     }
 
     public Menu buildAboutMenu() {
-        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
+        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
 
-        Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 20).getFont();
+        Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24).getFont();
 
         TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced." +
-                "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine.", 500, 500);
+                "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine. " +
+                "RenJava is licensed under the GNU GPLv3 by using and distributing this software you agree to these terms. " +
+                "Additionally, RenJava uses software which may have additional licenses, all of which are open sourced. ", 1300, 500);
         aboutText.setFont(font);
         aboutText.setX(500);
         aboutText.setY(300);
-
         menu.addOverlay(aboutText);
+
+        TextFlowOverlay buildInfo = new TextFlowOverlay("Do not re-distribute this software without explicit permission from the author.",1300, 700);
+        buildInfo.setX(500);
+        buildInfo.setY(600);
+        buildInfo.setFont(font);
+        Text spacer = new Text(System.lineSeparator());
+        buildInfo.getTexts().add(spacer);
+        buildInfo.getTexts().add(new Text("RenJava Build Version: " + getBuildVersion()));
+        buildInfo.getTexts().add(spacer);
+        buildInfo.getTexts().add(new Text("Game Version: " + getVersion()));
+        buildInfo.getTexts().add(spacer);
+        buildInfo.getTexts().add(new Text("Author: " + getAuthor()));
+        menu.addOverlay(buildInfo);
+
+        HyperlinkOverlay renJavaLink = new HyperlinkOverlay("You can download RenJava for free here.", "https://github.com/HackusatePvP/RenJava", new FontLoader(font, 24), 500, 750);
+        menu.addOverlay(renJavaLink);
 
         return menu;
     }
