@@ -72,7 +72,6 @@ public class Launch extends Application {
     }
 
     private static void loadClass(Class<?> clazz, String[] args) {
-        //FIXME: For performance save the path of the main class to reduce loading time
         try {
             File file = new File(System.getProperty("user.dir") + "/renjava/build.info");
             if (!file.exists()) {
@@ -104,7 +103,7 @@ public class Launch extends Application {
 
         try {
 
-            // Creates a new instance of the application and executes the conductor.
+            // Creates a new instance of the application and executes the constructor.
             Object o = clazz.getDeclaredConstructor().newInstance();
             RenJava renJava = (RenJava) o;
             if (renJava.getClass().isAnnotationPresent(Game.class)) {
