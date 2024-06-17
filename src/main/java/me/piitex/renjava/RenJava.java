@@ -301,6 +301,9 @@ public abstract class RenJava {
 
         stage.initStyle(StageStyle.DECORATED);
 
+        // Removes fullscreen pop-up message
+        stage.setFullScreenExitHint("");
+
         if (getSettings().isFullscreen()) {
             stage.setFullScreen(true);
         } else {
