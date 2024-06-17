@@ -1,10 +1,7 @@
 package me.piitex.renjava.gui.overlay;
 
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.gui.overlay.events.IOverlayClick;
-import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
-import me.piitex.renjava.gui.overlay.events.IOverlayHover;
-import me.piitex.renjava.gui.overlay.events.ISliderChange;
+import me.piitex.renjava.gui.overlay.events.*;
 
 public class SliderOverlay implements Overlay {
     private final double maxValue, minValue, currentValue;
@@ -13,6 +10,7 @@ public class SliderOverlay implements Overlay {
 
     private ISliderChange iSliderChange;
     private IOverlayHover iOverlayHover;
+    private IOverlayHoverExit iOverlayHoverExit;
     private IOverlayClick iOverlayClick;
     private IOverlayClickRelease iOverlayClickRelease;
 
@@ -94,6 +92,11 @@ public class SliderOverlay implements Overlay {
     }
 
     @Override
+    public void setOnHoverExit(IOverlayHoverExit iOverlayHoverExit) {
+        this.iOverlayHoverExit = iOverlayHoverExit;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -101,6 +104,11 @@ public class SliderOverlay implements Overlay {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayHoverExit getOnHoverExit() {
+        return iOverlayHoverExit;
     }
 
     @Override

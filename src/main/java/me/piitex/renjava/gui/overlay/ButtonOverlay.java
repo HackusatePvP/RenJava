@@ -2,24 +2,19 @@ package me.piitex.renjava.gui.overlay;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
 import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
-import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.gui.overlay.events.IOverlayHoverExit;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.ButtonClickEvent;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ButtonOverlay implements Overlay, Region {
     private Button button;
@@ -30,7 +25,7 @@ public class ButtonOverlay implements Overlay, Region {
     private double scaleX, scaleY;
     private Font font;
     private ImageOverlay image;
-    private Color textFill;
+    private Paint textFill;
     private Color backgroundColor;
     private Color borderColor;
     private Color hoverColor;
@@ -40,6 +35,7 @@ public class ButtonOverlay implements Overlay, Region {
     private int backgroundRadius = 0;
 
     private IOverlayHover iOverlayHover;
+    private IOverlayHoverExit iOverlayHoverExit;
     private IOverlayClick iOverlayClick;
     private IOverlayClickRelease iOverlayClickRelease;
 
@@ -266,11 +262,11 @@ public class ButtonOverlay implements Overlay, Region {
         this.image = image;
     }
 
-    public Color getTextFill() {
+    public Paint getTextFill() {
         return textFill;
     }
 
-    public void setTextFill(Color color) {
+    public void setTextFill(Paint color) {
         this.textFill = color;
     }
 
@@ -413,6 +409,11 @@ public class ButtonOverlay implements Overlay, Region {
     }
 
     @Override
+    public void setOnHoverExit(IOverlayHoverExit iOverlayHoverExit) {
+        this.iOverlayHoverExit = iOverlayHoverExit;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -420,6 +421,11 @@ public class ButtonOverlay implements Overlay, Region {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayHoverExit getOnHoverExit() {
+        return iOverlayHoverExit;
     }
 
     @Override

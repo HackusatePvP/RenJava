@@ -6,6 +6,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.gui.overlay.events.IOverlayClick;
 import me.piitex.renjava.gui.overlay.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlay.events.IOverlayHover;
+import me.piitex.renjava.gui.overlay.events.IOverlayHoverExit;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -22,6 +23,7 @@ public class ImageOverlay implements Overlay, Region {
     private String fileName;
 
     private IOverlayHover iOverlayHover;
+    private IOverlayHoverExit iOverlayHoverExit;
     private IOverlayClick iOverlayClick;
     private IOverlayClickRelease iOverlayClickRelease;
 
@@ -201,6 +203,11 @@ public class ImageOverlay implements Overlay, Region {
     }
 
     @Override
+    public void setOnHoverExit(IOverlayHoverExit iOverlayHoverExit) {
+        this.iOverlayHoverExit = iOverlayHoverExit;
+    }
+
+    @Override
     public IOverlayClick getOnClick() {
         return iOverlayClick;
     }
@@ -208,6 +215,11 @@ public class ImageOverlay implements Overlay, Region {
     @Override
     public IOverlayHover getOnHover() {
         return iOverlayHover;
+    }
+
+    @Override
+    public IOverlayHoverExit getOnHoverExit() {
+        return iOverlayHoverExit;
     }
 
     @Override
