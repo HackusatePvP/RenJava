@@ -4,7 +4,7 @@ import me.piitex.renjava.events.Event;
 import me.piitex.renjava.gui.overlay.ButtonOverlay;
 
 public class ChoiceButtonBuildEvent extends Event {
-    private final ButtonOverlay buttonOverlay;
+    private ButtonOverlay buttonOverlay;
 
     public ChoiceButtonBuildEvent(ButtonOverlay buttonOverlay) {
         this.buttonOverlay = buttonOverlay;
@@ -12,5 +12,9 @@ public class ChoiceButtonBuildEvent extends Event {
 
     public ButtonOverlay getButtonOverlay() {
         return buttonOverlay;
+    }
+
+    public void setButtonOverlay(ButtonOverlay buttonOverlay) {
+        this.buttonOverlay = buttonOverlay;
     }
 }
