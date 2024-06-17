@@ -3,6 +3,7 @@ package me.piitex.renjava.events.defaults;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
@@ -33,12 +34,11 @@ public class OverlayEventListener implements EventListener {
 
         if (overlay instanceof ButtonOverlay buttonOverlay) {
             Button button = buttonOverlay.getButton();
-
             if (buttonOverlay.isHover()) {
                 if (buttonOverlay.getHoverColor() != null) {
+                    buttonOverlay.setTextFill(button.getTextFill());
                     button.setTextFill(buttonOverlay.getHoverColor());
                 } else {
-                    System.out.println("Setting default hover color for: " + buttonOverlay.getId());
                     button.setTextFill(RenJava.getInstance().getConfiguration().getHoverColor());
                 }
                 if (buttonOverlay.getHoverImage() != null) {
@@ -64,17 +64,23 @@ public class OverlayEventListener implements EventListener {
     @Listener
     public void onOverlayExit(OverlayExitEvent event) {
         Overlay overlay = event.getOverlay();
-
+        if (overlay.getOnHoverExit() != null) {
+            overlay.getOnHoverExit().onHoverExit(event);
+        }
         if (overlay instanceof ButtonOverlay buttonOverlay) {
             Button button = buttonOverlay.getButton();
-            button.setTextFill(buttonOverlay.getTextFill());
-            button.setStyle(button.getStyle()); // Re-init the style (hopefully this forces the button back to normal.)
-            if (buttonOverlay.getImage() != null) {
-                //button.setGraphic(new ImageView(buttonOverlay.getImage().getImage()));
-                Image bg = buttonOverlay.getImage().getImage();
-                ImageView imageView = new ImageView(bg);
-                imageView.setFitHeight(buttonOverlay.height());
-                imageView.setFitWidth(buttonOverlay.width());
+            if (buttonOverlay.isHover()) {
+                if (buttonOverlay.getImage() != null) {
+                    Image bg = buttonOverlay.getImage().getImage();
+                    ImageView imageView = new ImageView(bg);
+                    imageView.setFitHeight(buttonOverlay.height());
+                    imageView.setFitWidth(buttonOverlay.width());
+                }
+
+                if (buttonOverlay.getTextFill() != null) {
+
+                    button.setTextFill(buttonOverlay.getTextFill());
+                }
             }
         }
     }

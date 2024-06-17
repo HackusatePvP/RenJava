@@ -168,7 +168,13 @@ public class ChoiceScene extends RenScene {
             for (Choice choice : choices) {
                 ButtonOverlay buttonOverlay;
                 try {
-                    buttonOverlay = new ButtonOverlay(getChoiceButton(choice, choiceBoxImage.build()));
+                    buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.getInstance().getConfiguration().getChoiceButtonFont().getFont(), 0, 0, 1, 1);
+                    buttonOverlay.setBorderColor(Color.TRANSPARENT);
+                    buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
+                    buttonOverlay.setHover(true);
+                    buttonOverlay.setTextFill(RenJava.getInstance().getConfiguration().getChoiceButtonColor());
+                    buttonOverlay.build(); // Sets all the parameters for text
+                    buildImageButton(buttonOverlay, choice, choiceBoxImage.build()); // Sets all the parameters for the image.
                     layout.addOverlays(buttonOverlay);
                 } catch (ImageNotFoundException e) {
                     RenLogger.LOGGER.error(e.getMessage());
@@ -189,12 +195,9 @@ public class ChoiceScene extends RenScene {
         RenJava.callEvent(event);
     }
 
-    private Button getChoiceButton(Choice choice, Image image) {
-        ButtonOverlay buttonOverlay = getButtonOverlay(choice);
-
-
+    private void buildImageButton(ButtonOverlay buttonOverlay, Choice choice, Image image) {
         ChoiceButtonBuildEvent choiceButtonBuildEvent = new ChoiceButtonBuildEvent(buttonOverlay);
-        Button button = choiceButtonBuildEvent.getButtonOverlay().build();
+        Button button = choiceButtonBuildEvent.getButtonOverlay().getButton();
 
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
@@ -206,22 +209,5 @@ public class ChoiceScene extends RenScene {
         button.setMaxWidth(image.getWidth());
         button.setMinHeight(image.getHeight());
         button.setMaxHeight(image.getHeight());
-
-        button.setOnAction(actionEvent -> {
-            ButtonClickEvent event = new ButtonClickEvent(this, button);
-            RenJava.callEvent(event);
-        });
-        return button;
-    }
-
-    @NotNull
-    private static ButtonOverlay getButtonOverlay(Choice choice) {
-        ButtonOverlay buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.getInstance().getConfiguration().getChoiceButtonFont().getFont(), 0, 0, 1, 1);
-        buttonOverlay.setBorderColor(Color.TRANSPARENT);
-        buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
-        buttonOverlay.setHover(true);
-        buttonOverlay.setTextFill(RenJava.getInstance().getConfiguration().getChoiceButtonColor()); //TODO: Make this configurable
-        buttonOverlay.setHoverColor(RenJava.getInstance().getConfiguration().getHoverColor());
-        return buttonOverlay;
     }
 }
