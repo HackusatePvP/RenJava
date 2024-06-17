@@ -75,7 +75,10 @@ public class RenLoader {
             RenLogger.LOGGER.warn("Fonts folder does not exist, creating...");
         }
         File cssDirectory = new File(directory, "/css/");
-        cssDirectory.mkdir();
+        if (cssDirectory.mkdir() || cssDirectory.listFiles().length == 0) {
+            RenLogger.LOGGER.error("Default css file(s) do not exist. Please run RSDK to install these assets.");
+            shutdown = true;
+        }
     }
 
     private void startPreProcess() {
