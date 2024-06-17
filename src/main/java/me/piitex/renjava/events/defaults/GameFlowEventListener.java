@@ -63,7 +63,7 @@ public class GameFlowEventListener implements EventListener {
             case SECONDARY -> {
                 logger.info("Player right clicked!");
                 // Open Main Menu
-                if (!player.isRightClickMenu()) {
+                if (!player.isRightClickMenu() && renJava.getPlayer().getCurrentScene() != null) {
                     logger.info("Player is not in menu, opening menu...");
                     Menu menu = renJava.buildTitleScreen(true);
                     menu.addMenu(renJava.buildSideMenu(true));
