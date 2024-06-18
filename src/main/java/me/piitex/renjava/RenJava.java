@@ -114,18 +114,18 @@ public abstract class RenJava {
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
-        registerListener(new OverlayEventListener());
+        this.registerListener(new OverlayEventListener());
         this.registerData(player);
         this.registerData(tracks);
         new RenLoader(this);
         this.addonLoader = new AddonLoader();
     }
 
-     public String getName() {
+    public String getName() {
          return name;
      }
 
-     public String getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
@@ -170,7 +170,7 @@ public abstract class RenJava {
         return stageType;
     }
 
-     public RenJavaConfiguration getConfiguration() {
+    public RenJavaConfiguration getConfiguration() {
         return configuration;
     }
 
@@ -178,19 +178,19 @@ public abstract class RenJava {
         this.configuration = configuration;
     }
 
-     public SettingsProperties getSettings() {
+    public SettingsProperties getSettings() {
          return settings;
      }
 
-     public void setSettings(SettingsProperties settings) {
+    public void setSettings(SettingsProperties settings) {
          this.settings = settings;
      }
 
-     public HostServices getHost() {
+    public HostServices getHost() {
          return hostServices;
      }
 
-     public void setHost(HostServices services) {
+    public void setHost(HostServices services) {
          this.hostServices = services;
      }
 
@@ -412,7 +412,7 @@ public abstract class RenJava {
             returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
         }
         returnButton.setX(25);
-        returnButton.setY(1000);
+        returnButton.setY(950);
         menu.addOverlay(returnButton);
 
         return menu;
