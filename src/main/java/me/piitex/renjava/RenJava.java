@@ -38,8 +38,12 @@ import me.piitex.renjava.loggers.RenLogger;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -194,6 +198,10 @@ public abstract class RenJava {
          this.hostServices = services;
      }
 
+     public Collection<File> getSaves() {
+         return new LinkedHashSet<>(Arrays.asList(new File(System.getProperty("user.dir") + "/game/saves/").listFiles()));
+     }
+
      /**
      * Registers a character in the RenJava framework.
      * <p>
@@ -313,6 +321,20 @@ public abstract class RenJava {
 
         stage.setOnHiding(windowEvent -> {
             getAddonLoader().disable();
+
+            // Transfer saves to localsaves
+            File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + getName() + "/saves/");
+            for (File file : getSaves()) {
+                File newDirFile = new File(localSaves, file.getName());
+                if (newDirFile.exists()) continue;
+                try {
+                    Files.copy(Path.of(file.getPath()), Path.of(newDirFile.getPath()));
+                    RenLogger.LOGGER.info("Copied '" + file.getName() + "' to local saves.");
+                } catch (IOException ignored) {
+                    // If caught ignore and let the application close.
+                }
+            }
+
             ShutdownEvent shutdownEvent = new ShutdownEvent();
             callEvent(shutdownEvent);
 

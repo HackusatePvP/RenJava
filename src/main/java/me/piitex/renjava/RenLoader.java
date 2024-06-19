@@ -1,6 +1,8 @@
 package me.piitex.renjava;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import javafx.application.Platform;
@@ -88,6 +90,22 @@ public class RenLoader {
 
         // Build setting file
         renJava.setSettings(new SettingsProperties());
+
+        // Move Save files to APPDATA
+        File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getName() + "/");
+        File localSaves = new File(directory, "saves/");
+        localSaves.mkdir();
+
+        // Transfer local saves to game saves if the slot doesn't exist.
+        for (File file : localSaves.listFiles()) {
+            File currentSaveFile = new File(System.getProperty("user.dir") + "/game/saves/" + file.getName());
+            if (currentSaveFile.exists()) continue;
+            try {
+                Files.copy(Path.of(file.getPath()), Path.of(currentSaveFile.getPath()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         // After this method jump to GuiLoader. Loading is a little confusing if you want an idea of how the loader works, check out the Launch class.
         // Essentially, the RenJava constructor is declared first which runs this (RenLoader). After the declaration of the RenJava class the GuiLoader is called in the start() function within
