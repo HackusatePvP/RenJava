@@ -3,6 +3,7 @@ package me.piitex.renjava.api.saves;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -56,7 +57,12 @@ public class Save {
         //        key2: value2
 
         StringBuilder appendString = new StringBuilder();
-        for (PersistentData data : RenJava.getInstance().getRegisteredData()) {
+        Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
+        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+            allData.addAll(addon.getRegisteredData());
+        }
+
+        for (PersistentData data : allData) {
             SectionKeyValue rootSection = new SectionKeyValue(data.getClass().getName());
             Class<?> claz = data.getClass();
             if (appendString.toString().contains(claz.getName())) {
@@ -152,7 +158,12 @@ public class Save {
             return;
         }
 
-        for (PersistentData persistentData : RenJava.getInstance().getRegisteredData()) {
+        Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
+        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+            allData.addAll(addon.getRegisteredData());
+        }
+
+        for (PersistentData persistentData : allData) {
             String clazzName = persistentData.getClass().getName();
             SectionKeyValue rootSection = new SectionKeyValue(clazzName);
             SectionKeyValue mapSection = null;
