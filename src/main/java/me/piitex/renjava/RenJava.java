@@ -459,6 +459,7 @@ public abstract class RenJava {
         bottomLayout.setSpacing(20);
         while (index <=  maxSavesPerPage) {
             ButtonOverlay loadButton = getButtonOverlay(page, index);
+
             if (index <= 3) {
                 topLayout.addOverlays(loadButton);
                 //topLayout.addSubPane(saveMenu.render());
@@ -502,7 +503,7 @@ public abstract class RenJava {
     }
 
     @NotNull
-    private static ButtonOverlay getButtonOverlay(int page, int index) {
+    private ButtonOverlay getButtonOverlay(int page, int index) {
         Save save = new Save(index);
         save.load(false);
         ImageOverlay saveImage;
@@ -510,6 +511,41 @@ public abstract class RenJava {
         saveImage = save.buildPreview(page);
 
         loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309, 1, 1);
+
+        loadButton.setOnclick(event -> {
+            System.out.println("Handling click...");
+            System.out.println("Stage: " + getInstance().getStageType().name());
+            if (getStageType() == StageType.LOAD_MENU) {
+                if (!save.exists()) {
+                    RenLogger.LOGGER.warn("Save file does not exist.");
+                    return;
+                }
+                save.load(true);
+                String storyID = getPlayer().getCurrentStoryID();
+                if (storyID == null) {
+                    RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
+                    return;
+                }
+                createStory();
+
+                // Force update fields
+                getPlayer().setCurrentStory(storyID);
+                getPlayer().getCurrentStory().init(); // Re-initialize story
+
+                getPlayer().setCurrentScene(getPlayer().getCurrentSceneID());
+
+                getPlayer().getCurrentStory().displayScene(getPlayer().getCurrentSceneID());
+            } else if (getStageType() == StageType.SAVE_MENU) {
+                System.out.println("Button id: " + loadButton.getId());
+                save.write();
+
+                // Re-render
+                setStage(getStage(), StageType.SAVE_MENU);
+                Menu menu = buildLoadMenu(1); // Builds first page
+                menu.addMenu(buildSideMenu(true));
+                menu.render();
+            }
+        });
 
         loadButton.setBackgroundColor(Color.TRANSPARENT);
         loadButton.setBorderColor(Color.TRANSPARENT);

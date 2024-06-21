@@ -187,8 +187,10 @@ public class ChoiceScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu) {
-        RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.CHOICE_SCENE);
+    public void render(Menu menu, boolean update) {
+        if (update) {
+            RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.CHOICE_SCENE);
+        }
         menu.render(this);
 
         SceneStartEvent event = new SceneStartEvent(this);

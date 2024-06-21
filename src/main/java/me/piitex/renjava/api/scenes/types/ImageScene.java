@@ -192,8 +192,10 @@ public class ImageScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu) {
-        renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
+    public void render(Menu menu, boolean update) {
+        if (update) {
+            renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
+        }
         menu.render(this);
 
         SceneStartEvent event = new SceneStartEvent(this);

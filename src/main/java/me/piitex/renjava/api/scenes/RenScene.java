@@ -54,23 +54,37 @@ public abstract class RenScene extends Container {
 
     private final Collection<File> styleSheets = new HashSet<>();
 
-
     public RenScene(String id, ImageOverlay backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
         setStory(RenJava.getInstance().getPlayer().getCurrentStory()); // Update the current story.
     }
 
+    /**
+     * Creates an event handler to execute when a scene starts.
+     * @param sceneInterface Code to execute.
+     * @return The modified RenScene.
+     */
     public RenScene onStart(SceneStartInterface sceneInterface) {
         this.startInterface = sceneInterface;
         return this;
     }
 
+    /**
+     * Create an event handler to execute when a scene ends.
+     * @param endInterface Code to execute.
+     * @return The modified RenScene.
+     */
     public RenScene onEnd(SceneEndInterface endInterface) {
         this.endInterface = endInterface;
         return this;
     }
 
+    /**
+     * Create an event handler to execute when a menu is built not rendered.
+     * @param buildInterface Code to execute.
+     * @return The modified RenScene.
+     */
     public RenScene onBuild(SceneBuildInterface buildInterface) {
         this.buildInterface = buildInterface;
         return this;

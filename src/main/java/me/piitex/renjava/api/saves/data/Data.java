@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Fields annotated with Data will be included in the save file.
  * The annotated fields can be private or public, but they cannot be final.
  *
- * @apiNote Only use this annotation on fields. Fields cannot be final.
+ * Note Only use this annotation on fields. Fields cannot be final.
  */
 @Target(ElementType.FIELD)
 @Retention(value = RetentionPolicy.RUNTIME)

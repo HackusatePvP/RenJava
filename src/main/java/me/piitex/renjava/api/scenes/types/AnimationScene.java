@@ -115,7 +115,7 @@ public class AnimationScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu) {
+    public void render(Menu menu, boolean update) {
 
     }
 

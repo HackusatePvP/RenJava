@@ -82,8 +82,10 @@ public class InputScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu) {
-        RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.INPUT_SCENE);
+    public void render(Menu menu, boolean update) {
+        if (update) {
+            RenJava.getInstance().setStage(RenJava.getInstance().getStage(), StageType.INPUT_SCENE);
+        }
         menu.render(this); // FIXME: 12/29/2023 Render depending on if ui is toggled
 
         SceneStartEvent event = new SceneStartEvent(this);

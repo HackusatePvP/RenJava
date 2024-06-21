@@ -25,7 +25,16 @@ public abstract class Container {
 
     public abstract Menu build(boolean ui);
 
-    public abstract void render(Menu menu);
+    public void render(Menu menu) {
+        render(menu, true);
+    }
+
+    /**
+     * Renders the specific {@link Menu} to the screen.
+     * @param menu Menu to be rendered.
+     * @param update If true, the stage will be updated.
+     */
+    public abstract void render(Menu menu, boolean update);
 
     public Stage getStage() {
         return stage;

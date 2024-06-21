@@ -110,8 +110,10 @@ public class InteractableScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu) {
+    public void render(Menu menu, boolean update) {
+        if (update) {
+            renJava.setStage(renJava.getStage(), StageType.INTERACTABLE_SCENE);
+        }
         menu.render(this);
-        renJava.setStage(renJava.getStage(), StageType.INTERACTABLE_SCENE);
     }
 }

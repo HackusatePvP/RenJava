@@ -298,11 +298,12 @@ public class Save {
             // Render the scene to the load button.
             RenScene currentScene = story.getScene((String) sceneSection.get("currentScene"));
             if (currentScene == null) {
-                RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or haas missing information. Unable to render save preview for the file. '" + sceneSection.get("currentScene") + "'");
+                RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or has missing information. Unable to render save preview for the file. '" + sceneSection.get("currentScene") + "'");
                 return new ImageOverlay("gui/button/slot_idle_background.png");
             }
 
-            currentScene.render(currentScene.build(true));
+            // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
+            currentScene.render(currentScene.build(true), false);
 
             WritableImage snapshot = currentScene.getStage().getScene().snapshot(null);
             saveImage = new ImageOverlay(snapshot);
