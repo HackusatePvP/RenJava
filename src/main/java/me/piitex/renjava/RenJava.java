@@ -35,6 +35,8 @@ import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
 import me.piitex.renjava.gui.overlay.*;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.utils.MDUtils;
+import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -323,13 +325,22 @@ public abstract class RenJava {
             getAddonLoader().disable();
 
             // Transfer saves to localsaves
-            File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + getName() + "/saves/");
+            File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + getName() + "-" + getAuthor() + "/saves/");
             for (File file : getSaves()) {
                 File newDirFile = new File(localSaves, file.getName());
-                if (newDirFile.exists()) continue;
+
+                // If the save file already exists check to see if the saves are different. If they are different, replace.
+                if (newDirFile.exists()) {
+                    String localSaveChecksum = MDUtils.getFileCheckSum(newDirFile);
+                    String currentSaveChecksum = MDUtils.getFileCheckSum(file);
+                    RenLogger.LOGGER.debug("Local Save : {}", localSaveChecksum);
+                    RenLogger.LOGGER.debug("Current Save: {}", currentSaveChecksum);
+                    if (localSaveChecksum.equalsIgnoreCase(currentSaveChecksum)) continue;
+                    newDirFile.delete();
+                }
                 try {
                     Files.copy(Path.of(file.getPath()), Path.of(newDirFile.getPath()));
-                    RenLogger.LOGGER.info("Copied '" + file.getName() + "' to local saves.");
+                    RenLogger.LOGGER.info("Copied '{}' to local saves.", file.getName());
                 } catch (IOException ignored) {
                     // If caught ignore and let the application close.
                 }
@@ -513,8 +524,6 @@ public abstract class RenJava {
         loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309, 1, 1);
 
         loadButton.setOnclick(event -> {
-            System.out.println("Handling click...");
-            System.out.println("Stage: " + getInstance().getStageType().name());
             if (getStageType() == StageType.LOAD_MENU) {
                 if (!save.exists()) {
                     RenLogger.LOGGER.warn("Save file does not exist.");
@@ -536,7 +545,6 @@ public abstract class RenJava {
 
                 getPlayer().getCurrentStory().displayScene(getPlayer().getCurrentSceneID());
             } else if (getStageType() == StageType.SAVE_MENU) {
-                System.out.println("Button id: " + loadButton.getId());
                 save.write();
 
                 // Re-render

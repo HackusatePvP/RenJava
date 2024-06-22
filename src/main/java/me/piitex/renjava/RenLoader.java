@@ -3,11 +3,16 @@ package me.piitex.renjava;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
 import javafx.application.Platform;
 import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
+import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.loggers.RenLogger;
 
 public class RenLoader {
@@ -92,9 +97,10 @@ public class RenLoader {
         renJava.setSettings(new SettingsProperties());
 
         // Move Save files to APPDATA
-        File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getName() + "/");
+        if (renJava.getName().equalsIgnoreCase("error") && renJava.getAuthor().equalsIgnoreCase("error")) return;
+        File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getName() + "-" + renJava.getAuthor() + "/");
         File localSaves = new File(directory, "saves/");
-        localSaves.mkdir();
+        localSaves.mkdirs();
 
         // Transfer local saves to game saves if the slot doesn't exist.
         for (File file : localSaves.listFiles()) {
