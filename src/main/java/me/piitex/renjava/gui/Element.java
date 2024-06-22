@@ -150,9 +150,6 @@ public class Element {
         if (transitions != null) {
             transitions.play(node);
         }
-
-
-
         root.getChildren().add(node);
     }
 

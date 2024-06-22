@@ -54,5 +54,4 @@ public class Choice {
         return text;
     }
 
-
 }

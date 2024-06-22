@@ -1,10 +1,8 @@
 package me.piitex.renjava.api.saves;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.addons.Addon;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.overlay.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.data.Data;
@@ -12,10 +10,7 @@ import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
-import me.piitex.renjava.gui.Menu;
 
-import javax.imageio.ImageIO;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;

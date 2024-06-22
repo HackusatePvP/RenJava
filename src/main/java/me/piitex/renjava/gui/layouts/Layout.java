@@ -14,7 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 public abstract class Layout {
-    private final Pane pane; // Get's the pane type for javafx
+    private final Pane pane; // Gets the pane type for javafx
     private double x;
     private double y;
     private int width, height;
