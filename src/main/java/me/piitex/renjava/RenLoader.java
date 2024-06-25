@@ -3,17 +3,14 @@ package me.piitex.renjava;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
+import java.util.Scanner;
 
 import javafx.application.Platform;
 import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
-import me.piitex.renjava.gui.Menu;
 import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.utils.MDUtils;
 
 public class RenLoader {
     private final RenJava renJava;
@@ -90,6 +87,41 @@ public class RenLoader {
 
     private void startPreProcess() {
         RenLogger.LOGGER.info("Generating pre-load data...");
+        RenLogger.LOGGER.info("Checking Game ID...");
+        File buildFile = new File(System.getProperty("user.dir") + "/renjava/build.info");
+        boolean failed = true;
+        if (buildFile.exists()) {
+            try (InputStream inputStream = new FileInputStream(buildFile);
+                 Scanner scanner = new Scanner(inputStream)) {
+                 while (scanner.hasNextLine()) {
+                     String line = scanner.nextLine();
+                     if (line.toLowerCase().startsWith("id=")) {
+                         try {
+                             renJava.id = Integer.parseInt(line.replace("id=", ""));
+                             failed = false;
+                         } catch (NumberFormatException ignored) {
+                             RenLogger.LOGGER.error("Invalid Game ID.");
+                         }
+                         break;
+                     }
+                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (failed) {
+            renJava.id = MDUtils.getGameID(renJava.getName() + renJava.getAuthor());
+            FileWriter writer;
+            try {
+                writer = new FileWriter(buildFile, true);
+                writer.write("\nid=" + renJava.id);
+                writer.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         loadRPAFiles();
         renJava.preEnabled();
 
@@ -98,7 +130,7 @@ public class RenLoader {
 
         // Move Save files to APPDATA
         if (renJava.getName().equalsIgnoreCase("error") && renJava.getAuthor().equalsIgnoreCase("error")) return;
-        File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getName() + "-" + renJava.getAuthor() + "/");
+        File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/");
         File localSaves = new File(directory, "saves/");
         localSaves.mkdirs();
 

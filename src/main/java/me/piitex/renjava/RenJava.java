@@ -77,6 +77,7 @@ public abstract class RenJava {
     protected String name;
     protected String author;
     protected String version;
+    protected int id;
     private Player player;
     // Audio Tracking
     private Tracks tracks;
@@ -137,6 +138,10 @@ public abstract class RenJava {
 
     public String getVersion() {
         return version;
+    }
+
+    public Integer getID() {
+        return id;
     }
 
     public Player getPlayer() {
@@ -325,7 +330,7 @@ public abstract class RenJava {
             getAddonLoader().disable();
 
             // Transfer saves to localsaves
-            File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + getName() + "-" + getAuthor() + "/saves/");
+            File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + id + "/saves/");
             for (File file : getSaves()) {
                 File newDirFile = new File(localSaves, file.getName());
 
@@ -543,6 +548,8 @@ public abstract class RenJava {
 
                 getPlayer().setCurrentScene(getPlayer().getCurrentSceneID());
 
+                getPlayer().setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
+
                 getPlayer().getCurrentStory().displayScene(getPlayer().getCurrentSceneID());
             } else if (getStageType() == StageType.SAVE_MENU) {
                 save.write();
@@ -646,6 +653,8 @@ public abstract class RenJava {
         buildInfo.getTexts().add(new Text("RenJava Build Version: " + getBuildVersion()));
         buildInfo.getTexts().add(spacer);
         buildInfo.getTexts().add(new Text("Game Version: " + getVersion()));
+        buildInfo.getTexts().add(spacer);
+        buildInfo.getTexts().add(new Text("Game ID: " + getID()));
         buildInfo.getTexts().add(spacer);
         buildInfo.getTexts().add(new Text("Author: " + getAuthor()));
         menu.addOverlay(buildInfo);
