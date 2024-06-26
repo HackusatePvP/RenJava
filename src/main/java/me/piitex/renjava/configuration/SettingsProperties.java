@@ -7,8 +7,10 @@ import java.util.Properties;
 
 public class SettingsProperties {
     private final File file;
-
-    private double volume = 50; // Don't want to ear blast people right off the start so half volume should work.
+    private double masterVolume = 50; // Don't want to ear blast people right off the start so half volume should work.
+    private double musicVolume = 100;
+    private double soundVolume = 100;
+    private double voiceVolume = 100;
     private boolean fullscreen = false;
     private boolean skipTransitions = false;
     private boolean skipUnseenText = false;
@@ -32,7 +34,10 @@ public class SettingsProperties {
             properties.setProperty("skip-unseen-text", "false");
             properties.setProperty("transitions", "true");
             properties.setProperty("fullscreen", "false");
-            properties.setProperty("volume", "50");
+            properties.setProperty("master-volume", "50");
+            properties.setProperty("music-volume", "50");
+            properties.setProperty("sound-volume", "50");
+            properties.setProperty("voice-volume", "50");
             try {
                 properties.store(new FileOutputStream(file), null);
             } catch (IOException e) {
@@ -44,20 +49,50 @@ public class SettingsProperties {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            this.volume = Double.parseDouble(properties.getProperty("volume"));
+            this.masterVolume = Double.parseDouble(properties.getProperty("master-volume"));
+            this.musicVolume = Double.parseDouble(properties.getProperty("music-volume"));
+            this.soundVolume = Double.parseDouble(properties.getProperty("sound-volume"));
+            this.voiceVolume = Double.parseDouble(properties.getProperty("voice-volume"));
             this.fullscreen = Boolean.parseBoolean(properties.getProperty("fullscreen"));
             this.skipTransitions = Boolean.parseBoolean(properties.getProperty("transitions"));
             this.skipUnseenText = Boolean.parseBoolean(properties.getProperty("skip-unseen-text"));
         }
     }
 
-    public double getVolume() {
-        return volume;
+    public double getMasterVolume() {
+        return masterVolume;
     }
 
-    public void setVolume(double volume) {
-        this.volume = volume;
-        write("volume", volume + "");
+    public void setMasterVolume(double volume) {
+        this.masterVolume = volume;
+        write("master-volume", volume + "");
+    }
+
+    public double getMusicVolume() {
+        return musicVolume;
+    }
+
+    public void setMusicVolume(double volume) {
+        this.musicVolume = volume;
+        write("music-volume", volume + "");
+    }
+
+    public double getSoundVolume() {
+        return soundVolume;
+    }
+
+    public void setSoundVolume(double volume) {
+        this.soundVolume = volume;
+        write("sound-volume", volume + "");
+    }
+
+    public double getVoiceVolume() {
+        return voiceVolume;
+    }
+
+    public void setVoiceVolume(double volume) {
+        this.voiceVolume = volume;
+        write("voice-volume", volume + "");
     }
 
     public boolean isFullscreen() {

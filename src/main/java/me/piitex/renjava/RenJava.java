@@ -13,6 +13,7 @@ import me.piitex.renjava.api.Game;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.exceptions.InvalidCharacterException;
+import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.api.saves.data.Data;
@@ -611,17 +612,23 @@ public abstract class RenJava {
 
         menu.addLayout(rootLayout);
 
-        // Music sliders
+        // Volume sliders
         VerticalLayout musicBox = new VerticalLayout(400, 600);
         musicBox.setX(700);
         musicBox.setY(800);
         TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
-        SliderOverlay musicVolumeSlider = new SliderOverlay(100, 0, getSettings().getVolume(), 0,0);
+        SliderOverlay musicVolumeSlider = new SliderOverlay(100, 0, getSettings().getMusicVolume(), 0,0);
         musicVolumeSlider.setBlockIncrement(10);
         musicVolumeSlider.setOnSliderChange(event -> {
             // Event used when slider changes value
             System.out.println("Volume: " + event.getValue());
-            getSettings().setVolume(event.getValue());
+            getSettings().setMusicVolume(event.getValue());
+            if (getTracks().getCurrentTrack() != null) {
+                Track track = getTracks().getCurrentTrack();
+                if (track.getPlayer() != null) {
+                    track.getPlayer().setVolume(event.getValue() / 500d); // You want to divide by 500 otherwise its extremely loud.
+                }
+            }
         });
         musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
 

@@ -135,7 +135,6 @@ public class Save {
         });
     }
 
-
     // Loads save file
     public void load(boolean process) {
         String fullData = null;

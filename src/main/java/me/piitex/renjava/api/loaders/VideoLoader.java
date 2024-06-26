@@ -31,7 +31,8 @@ public class VideoLoader {
      */
     public void play(boolean loop) {
         player = new MediaPlayer(media);
-        player.setVolume(RenJava.getInstance().getSettings().getVolume() / 500d);
+        //TODO: Master volume needs to be calculated.
+        player.setVolume(RenJava.getInstance().getSettings().getSoundVolume() / 500d);
         player.play();
         if (loop) {
             player.setCycleCount(MediaPlayer.INDEFINITE);
