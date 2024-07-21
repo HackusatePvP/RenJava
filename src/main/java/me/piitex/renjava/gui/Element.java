@@ -49,8 +49,8 @@ public class Element {
             if (imageOverlay.width() != 0) {
                 imageView.setFitWidth(imageOverlay.width());
             }
-            if (imageOverlay.width() != 0) {
-                imageView.setFitHeight(imageOverlay.width());
+            if (imageOverlay.height() != 0) {
+                imageView.setFitHeight(imageOverlay.height());
             }
             imageView.setTranslateX(imageOverlay.x());
             imageView.setTranslateY(imageOverlay.y());
@@ -98,7 +98,7 @@ public class Element {
                 }
             }
             // Handle slider events
-            slider.setOnMouseReleased(event -> {
+            slider.setOnMouseDragged(event -> {
                 SliderChangeEvent changeEvent = new SliderChangeEvent(sliderOverlay, slider.getValue());
                 sliderOverlay.getSliderChange().onSliderChange(changeEvent);
                 RenJava.callEvent(changeEvent);
@@ -166,6 +166,11 @@ public class Element {
         if (node.getOnMouseReleased() == null) {
             node.setOnMouseReleased(event -> {
                 RenJava.callEvent(new OverlayClickReleaseEvent(overlay, event));
+            });
+        }
+        if (node.getOnMouseDragged() == null) {
+            node.setOnMouseDragged(event -> {
+                RenJava.callEvent(new OverlayDragEvent(overlay, event));
             });
         }
     }

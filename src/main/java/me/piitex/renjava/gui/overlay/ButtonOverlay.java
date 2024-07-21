@@ -454,8 +454,16 @@ public class ButtonOverlay implements Overlay, Region {
         button.setId(id);
         if (image != null) {
             ImageView imageView = new ImageView(image.getImage());
-            imageView.setFitWidth(image.width());
-            imageView.setFitHeight(image.height());
+            if (maxWidth > 0) {
+                imageView.setFitWidth(maxWidth);
+            } else {
+                imageView.setFitWidth(image.width());
+            }
+            if (maxHeight > 0) {
+                imageView.setFitHeight(maxHeight);
+            } else {
+                imageView.setFitHeight(image.height());
+            }
             if (image.x() > 0) {
                 imageView.setX(image.x());
             }
