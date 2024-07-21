@@ -14,6 +14,7 @@ public class SettingsProperties {
     private boolean fullscreen = false;
     private boolean skipTransitions = false;
     private boolean skipUnseenText = false;
+    private boolean multiThreading = true;
 
     private final Properties properties = new Properties();
 
@@ -38,6 +39,7 @@ public class SettingsProperties {
             properties.setProperty("music-volume", "50");
             properties.setProperty("sound-volume", "50");
             properties.setProperty("voice-volume", "50");
+            properties.setProperty("multi-threading", "true");
             try {
                 properties.store(new FileOutputStream(file), null);
             } catch (IOException e) {
@@ -56,6 +58,7 @@ public class SettingsProperties {
             this.fullscreen = Boolean.parseBoolean(properties.getProperty("fullscreen"));
             this.skipTransitions = Boolean.parseBoolean(properties.getProperty("transitions"));
             this.skipUnseenText = Boolean.parseBoolean(properties.getProperty("skip-unseen-text"));
+            this.multiThreading = Boolean.parseBoolean(properties.getProperty("multi-threading"));
         }
     }
 
@@ -97,6 +100,15 @@ public class SettingsProperties {
 
     public boolean isFullscreen() {
         return fullscreen;
+    }
+
+    public boolean isMultiThreading() {
+        return multiThreading;
+    }
+
+    public void setMultiThreading(boolean multiThreading) {
+        this.multiThreading = multiThreading;
+        write("multi-threading", multiThreading + "");
     }
 
     public void setFullscreen(boolean fullscreen) {

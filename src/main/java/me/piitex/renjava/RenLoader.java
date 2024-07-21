@@ -11,6 +11,12 @@ import me.piitex.renjava.api.music.Track;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.MDUtils;
+import me.piitex.renjava.tasks.Tasks;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
+import oshi.software.os.OperatingSystem;
 
 public class RenLoader {
     private final RenJava renJava;
@@ -28,7 +34,57 @@ public class RenLoader {
             System.exit(0);
             return;
         }
-        startPreProcess();
+
+        // This will collect system and RenJava information. Used for me or developers to diagnose issues with the application.
+        // RenJava estimated requirements are as follows;
+        //    1. 4 Core CPU
+        //    2. 2GB Vram
+        //    3. 4GB Ram
+        // Anything less cam result in crashes.
+        // Ran on different thread as to not thread block the gui loader.
+        Tasks.runAsync(() -> {
+            this.startPreProcess();
+
+            StringBuilder builder = new StringBuilder();
+            builder.append("Compiling system information...");
+            // Get system information
+            // New dependency to do this
+            SystemInfo systemInfo = new SystemInfo();
+
+
+            // Operating System
+            OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
+            builder.append("\n\t").append("OS: ").append(operatingSystem.getManufacturer()).append(" ").append(operatingSystem.getFamily());
+            builder.append("\n\tArchitecture: ").append(operatingSystem.getBitness());
+            builder.append("\n\tVersion: ").append(operatingSystem.getVersionInfo());
+
+            builder.append("\n");
+            CentralProcessor centralProcessor = systemInfo.getHardware().getProcessor();
+            builder.append("\n\t").append("CPU: ").append(centralProcessor.getProcessorIdentifier().getName());
+            builder.append("\n\t").append("Logical Cores: ").append(centralProcessor.getLogicalProcessorCount());
+            builder.append("\n\t").append("Physical Cores: ").append(centralProcessor.getPhysicalProcessorCount());
+
+            GlobalMemory memory = systemInfo.getHardware().getMemory();
+            builder.append("\n\t").append("Available Memory: ").append(memory.getAvailable() / 1000000000).append("GB");
+            builder.append("\n\t").append("System Memory: ").append(memory.getTotal() / 1000000000).append("GB");
+
+            builder.append("\n");
+            for (GraphicsCard graphicsCard : systemInfo.getHardware().getGraphicsCards()) {
+                builder.append("\n\t").append("Graphics Card: ").append(graphicsCard.getName());
+                builder.append("\n\t").append("Device ID: ").append(graphicsCard.getDeviceId());
+                builder.append("\n\t").append("Video Memory: ").append(graphicsCard.getVRam() / 1000000000).append("GB");
+                builder.append("\n\t").append("Graphics Version: ").append(graphicsCard.getVersionInfo());
+                builder.append("\n");
+            }
+
+            RenLogger.LOGGER.debug(builder.toString());
+
+            if (centralProcessor.getLogicalProcessorCount() <= 2) {
+                // If running 2 logical processes automatically disable multi-threading.
+                RenLogger.LOGGER.error("Your machine does not meet system requirements. Multi-threading has been automatically disabled.");
+                RenJava.getInstance().getSettings().setMultiThreading(false);
+            }
+        });
     }
 
     private void setupMain() {
@@ -83,6 +139,9 @@ public class RenLoader {
             RenLogger.LOGGER.error("Default css file(s) do not exist. Please run RSDK to install these assets.");
             shutdown = true;
         }
+
+        // Register current user settings
+        renJava.setSettings(new SettingsProperties());
     }
 
     private void startPreProcess() {
@@ -101,6 +160,8 @@ public class RenLoader {
                              failed = false;
                          } catch (NumberFormatException ignored) {
                              RenLogger.LOGGER.error("Invalid Game ID.");
+                             // Print stack trace to file
+
                          }
                          break;
                      }
@@ -124,9 +185,6 @@ public class RenLoader {
 
         loadRPAFiles();
         renJava.preEnabled();
-
-        // Build setting file
-        renJava.setSettings(new SettingsProperties());
 
         // Move Save files to APPDATA
         if (renJava.getName().equalsIgnoreCase("error") && renJava.getAuthor().equalsIgnoreCase("error")) return;
