@@ -143,12 +143,13 @@ public class Save {
         } catch (FileNotFoundException e) {
             // Only error if they are trying to process the loading function.
             if (process) {
-                RenLogger.LOGGER.error(e.getMessage());
+                RenLogger.LOGGER.error("Save file does not exist!", e);
+                RenJava.writeStackTrace(e);
             }
         }
 
         if (fullData == null) {
-            RenLogger.LOGGER.error("Save file does not exist.");
+            RenLogger.LOGGER.warn("Save file does not exist.");
             return;
         }
 
@@ -235,7 +236,8 @@ public class Save {
                         String value = (String) rootSection.getKeyValueMap().get(keyToSet);
                         setField(field, persistentData, value.strip());
                     } catch (NoSuchFieldException | IllegalAccessException e) {
-                        RenLogger.LOGGER.trace(e.getMessage());
+                        RenLogger.LOGGER.error("Could not set field for save file!", e);
+                        RenJava.writeStackTrace(e);
                     }
                 } else {
                     RenLogger.LOGGER.error("Could not set key '" + field.getName() + "'");
