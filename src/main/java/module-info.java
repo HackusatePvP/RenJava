@@ -15,6 +15,7 @@ module RenJava {
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
     requires org.apache.logging.log4j.slf4j2.impl;
+    requires com.github.oshi;
     opens me.piitex.renjava;
     exports me.piitex.renjava;
     exports me.piitex.renjava.configuration;
@@ -46,4 +47,5 @@ module RenJava {
     opens me.piitex.renjava.loggers;
     exports me.piitex.renjava.api;
     opens me.piitex.renjava.api;
+    exports me.piitex.renjava.tasks;
 }
