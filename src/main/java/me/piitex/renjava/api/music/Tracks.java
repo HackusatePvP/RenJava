@@ -34,7 +34,10 @@ public class Tracks implements PersistentData {
     }
 
     public Track getCurrentTrack() {
-        return getTrack(currentTrack);
+        if (currentTrack != null) {
+            return getTrack(currentTrack);
+        }
+        return null;
     }
 
     public boolean isPlaying() {
