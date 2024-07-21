@@ -242,7 +242,9 @@ public abstract class RenJava {
      */
     public Character getCharacter(String id) {
         if (!registeredCharacters.containsKey(id)) {
-            RenJava.getInstance().getLogger().error(new InvalidCharacterException(id).getMessage());
+            InvalidCharacterException characterException = new InvalidCharacterException(id);
+            RenLogger.LOGGER.error("Could not retrieve character '" + id + "'!", characterException);
+            writeStackTrace(characterException);
             return null;
         }
         return registeredCharacters.get(id.toLowerCase());
@@ -308,7 +310,9 @@ public abstract class RenJava {
             try {
                 stage.getIcons().add(windowIcon.buildRaw());
             } catch (ImageNotFoundException e) {
-                RenLogger.LOGGER.error(e.getMessage());
+                RenLogger.LOGGER.error("No window icon set. Please set a window icon for a better user experience.", e);
+                //writeStackTrace(e);
+                // With this particular error it doesn't need to be printed to a file. This error is a result of the authors intentional doing.
             }
         } else {
             RenLogger.LOGGER.warn("No window icon set. Please set a window icon for a better user experience.");
@@ -912,14 +916,14 @@ public abstract class RenJava {
                     try {
                         method.invoke(listener, event);
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new RuntimeException(e);
+                        RenLogger.LOGGER.error("Could not invoke event method for '" + method.getName() + "'", e);
+                        writeStackTrace(e);
                     }
                 });
             }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            RenLogger.LOGGER.error("Could not invoke event method for '" + method.getName() + "'", e);
+            writeStackTrace(e);
         }
     }
 

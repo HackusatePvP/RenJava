@@ -1,5 +1,6 @@
 package me.piitex.renjava.addons;
 
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.loggers.RenLogger;
 import org.slf4j.Logger;;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +48,9 @@ public class AddonLoader {
             try {
                 zipFile = new ZipFile(file);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Invalid or corrupted  addon jar file.", e);
+                RenJava.writeStackTrace(e);
+                return;
             }
             ZipEntry entry = zipFile.getEntry("build.info");
             if (entry == null) {
@@ -76,7 +79,8 @@ public class AddonLoader {
                     }
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Invalid or corrupted  addon jar file.", e);
+                RenJava.writeStackTrace(e);
             }
         }
 
@@ -87,7 +91,8 @@ public class AddonLoader {
                 initAddon(file, null);
             } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                      InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Error occurred when initializing addon!", e);
+                RenJava.writeStackTrace(e);
             }
         });
 
@@ -125,7 +130,8 @@ public class AddonLoader {
                         } catch (IOException | ClassNotFoundException | InvocationTargetException |
                                  NoSuchMethodException |
                                  InstantiationException | IllegalAccessException e) {
-                            throw new RuntimeException(e);
+                            RenLogger.LOGGER.error("Error occurred when initializing addon!", e);
+                            RenJava.writeStackTrace(e);
                         }
                     }
                 } else {
@@ -138,7 +144,8 @@ public class AddonLoader {
                         } catch (IOException | ClassNotFoundException | InvocationTargetException |
                                  NoSuchMethodException |
                                  InstantiationException | IllegalAccessException e) {
-                            throw new RuntimeException(e);
+                            RenLogger.LOGGER.error("Error occurred when initializing addon!", e);
+                            RenJava.writeStackTrace(e);
                         }
                     }
                 }

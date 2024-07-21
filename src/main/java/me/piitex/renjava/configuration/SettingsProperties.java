@@ -1,5 +1,6 @@
 package me.piitex.renjava.configuration;
 
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.loggers.RenLogger;
 
 import java.io.*;
@@ -25,12 +26,14 @@ public class SettingsProperties {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Error occurred while creating settings file!", e);
+                RenJava.writeStackTrace(e);
             }
             try {
                 properties.load(new FileInputStream(file));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Error occurred while loading settings file!", e);
+                RenJava.writeStackTrace(e);
             }
             properties.setProperty("skip-unseen-text", "false");
             properties.setProperty("transitions", "true");
@@ -43,13 +46,15 @@ public class SettingsProperties {
             try {
                 properties.store(new FileOutputStream(file), null);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Error occurred while saving settings file!", e);
+                RenJava.writeStackTrace(e);
             }
         } else {
             try {
                 properties.load(new FileInputStream(file));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Error occurred while loading settings file!", e);
+                RenJava.writeStackTrace(e);
             }
             this.masterVolume = Double.parseDouble(properties.getProperty("master-volume"));
             this.musicVolume = Double.parseDouble(properties.getProperty("music-volume"));
@@ -140,7 +145,8 @@ public class SettingsProperties {
             properties.store(outputStream, null);
             outputStream.close();
         } catch (IOException e) {
-            RenLogger.LOGGER.error("Could not write to settings file: " + e.getMessage());
+            RenLogger.LOGGER.error("Error occurred while writing settings file!", e);
+            RenJava.writeStackTrace(e);
         }
     }
 }

@@ -199,7 +199,8 @@ public class RenLoader {
             try {
                 Files.copy(Path.of(file.getPath()), Path.of(currentSaveFile.getPath()));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("Could not copy local saves!", e);
+                RenJava.writeStackTrace(e);
             }
         }
 
