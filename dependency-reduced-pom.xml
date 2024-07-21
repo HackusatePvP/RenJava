@@ -4,7 +4,7 @@
   <groupId>me.piitex</groupId>
   <artifactId>RenJava</artifactId>
   <name>RenJava</name>
-  <version>0.1.26-SNAPSHOT</version>
+  <version>0.1.41-SNAPSHOT</version>
   <build>
     <resources>
       <resource>
@@ -12,7 +12,7 @@
         <includes>
           <include>**/jasperreports_extension.properties</include>
           <include>**/tecsofti-fonts.xml</include>
-          <include>**/*.*</include>
+          <include>**/*.xml</include>
         </includes>
       </resource>
     </resources>
