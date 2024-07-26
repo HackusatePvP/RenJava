@@ -56,14 +56,14 @@ public class SettingsProperties {
                 RenLogger.LOGGER.error("Error occurred while loading settings file!", e);
                 RenJava.writeStackTrace(e);
             }
-            this.masterVolume = Double.parseDouble(properties.getProperty("master-volume"));
-            this.musicVolume = Double.parseDouble(properties.getProperty("music-volume"));
-            this.soundVolume = Double.parseDouble(properties.getProperty("sound-volume"));
-            this.voiceVolume = Double.parseDouble(properties.getProperty("voice-volume"));
-            this.fullscreen = Boolean.parseBoolean(properties.getProperty("fullscreen"));
-            this.skipTransitions = Boolean.parseBoolean(properties.getProperty("transitions"));
-            this.skipUnseenText = Boolean.parseBoolean(properties.getProperty("skip-unseen-text"));
-            this.multiThreading = Boolean.parseBoolean(properties.getProperty("multi-threading"));
+            this.masterVolume = Double.parseDouble(properties.getProperty("master-volume", "0.5"));
+            this.musicVolume = Double.parseDouble(properties.getProperty("music-volume", "1"));
+            this.soundVolume = Double.parseDouble(properties.getProperty("sound-volume", "1"));
+            this.voiceVolume = Double.parseDouble(properties.getProperty("voice-volume", "1"));
+            this.fullscreen = Boolean.parseBoolean(properties.getProperty("fullscreen", "false"));
+            this.skipTransitions = Boolean.parseBoolean(properties.getProperty("transitions", "false"));
+            this.skipUnseenText = Boolean.parseBoolean(properties.getProperty("skip-unseen-text", "false"));
+            this.multiThreading = Boolean.parseBoolean(properties.getProperty("multi-threading", "true"));
         }
     }
 
