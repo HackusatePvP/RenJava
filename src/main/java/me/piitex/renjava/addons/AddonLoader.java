@@ -2,7 +2,7 @@ package me.piitex.renjava.addons;
 
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.loggers.RenLogger;
-import org.slf4j.Logger;;
+import org.slf4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
