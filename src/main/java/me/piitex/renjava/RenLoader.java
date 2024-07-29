@@ -35,6 +35,8 @@ public class RenLoader {
             return;
         }
 
+        this.startPreProcess();
+
         // This will collect system and RenJava information. Used for me or developers to diagnose issues with the application.
         // RenJava estimated requirements are as follows;
         //    1. 4 Core CPU
@@ -43,8 +45,6 @@ public class RenLoader {
         // Anything less cam result in crashes.
         // Ran on different thread as to not thread block the gui loader.
         Tasks.runAsync(() -> {
-            this.startPreProcess();
-
             StringBuilder builder = new StringBuilder();
             builder.append("Compiling system information...");
             // Get system information
@@ -142,6 +142,12 @@ public class RenLoader {
 
         // Register current user settings
         renJava.setSettings(new SettingsProperties());
+
+        // Delete old stacktrace
+        File file = new File(System.getProperty("user.dir") + "/stacktrace.txt");
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     private void startPreProcess() {
@@ -166,8 +172,15 @@ public class RenLoader {
                          break;
                      }
                  }
+            } catch (SecurityException e) {
+                RenLogger.LOGGER.error("Application could not access file: {}", buildFile.getPath(), e);
+                RenJava.writeStackTrace(e);
+            } catch (FileNotFoundException e) {
+                RenLogger.LOGGER.error("Application could not locate build.info. Try re-launching the application, if the probelms exists manually create the file. '/renjava/build.info", e);
+                RenJava.writeStackTrace(e);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RenLogger.LOGGER.error("IO exception occurred!", e);
+                RenJava.writeStackTrace(e);
             }
         }
 
