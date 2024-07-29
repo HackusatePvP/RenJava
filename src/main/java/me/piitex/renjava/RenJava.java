@@ -2,9 +2,12 @@ package me.piitex.renjava;
 
 import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
@@ -330,6 +333,7 @@ public abstract class RenJava {
         }
         stage.setTitle(getConfiguration().getGameTitle());
 
+        // The onHidingEvent is called when the stage closes (meaning application shutdown)
         stage.setOnHiding(windowEvent -> {
             getAddonLoader().disable();
 
@@ -929,11 +933,11 @@ public abstract class RenJava {
 
     public static void writeStackTrace(Exception e) {
         File file = new File(System.getProperty("user.dir") + "/stacktrace.txt");
-        file.delete();
         try {
             file.createNewFile();
         } catch (IOException ex) {
             RenLogger.LOGGER.error("Could not create error file!", ex);
+            RenJava.writeStackTrace(ex);
             return;
         }
 
@@ -942,6 +946,35 @@ public abstract class RenJava {
             e.printStackTrace(printStream);
         } catch (FileNotFoundException ex) {
             RenLogger.LOGGER.error("Could not write error file!", ex);
+            RenJava.writeStackTrace(e);
         }
+
+        // Very experimental!
+        // When an error occurs prompt the user that an error occurred and to report the bug to the author.
+        Stage errorStage = new Stage(StageStyle.DECORATED);
+        Pane pane = new Pane();
+        pane.setPrefSize(800, 800);
+        Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
+        TextFlow textFlow = new TextFlow();
+        textFlow.setPrefSize(800, 800);
+        textFlow.getChildren().add(text);
+
+        textFlow.getChildren().add(new Text(System.lineSeparator()));
+
+        StringWriter sw = new StringWriter();
+        PrintWriter writer = new PrintWriter(sw);
+        e.printStackTrace(writer);
+        Text stackTrace = new Text(sw.toString());
+
+        textFlow.getChildren().add(stackTrace);
+
+        pane.getChildren().add(textFlow);
+
+        Scene scene = new Scene(pane);
+        errorStage.setScene(scene);
+
+        errorStage.show();
+        errorStage.requestFocus();
+
     }
 }
