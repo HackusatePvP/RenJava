@@ -56,10 +56,10 @@ public class SettingsProperties {
                 RenLogger.LOGGER.error("Error occurred while loading settings file!", e);
                 RenJava.writeStackTrace(e);
             }
-            this.masterVolume = Double.parseDouble(properties.getProperty("master-volume", "0.5"));
-            this.musicVolume = Double.parseDouble(properties.getProperty("music-volume", "1"));
-            this.soundVolume = Double.parseDouble(properties.getProperty("sound-volume", "1"));
-            this.voiceVolume = Double.parseDouble(properties.getProperty("voice-volume", "1"));
+            this.masterVolume = Double.parseDouble(properties.getProperty("master-volume", "50"));
+            this.musicVolume = Double.parseDouble(properties.getProperty("music-volume", "100"));
+            this.soundVolume = Double.parseDouble(properties.getProperty("sound-volume", "100"));
+            this.voiceVolume = Double.parseDouble(properties.getProperty("voice-volume", "100"));
             this.fullscreen = Boolean.parseBoolean(properties.getProperty("fullscreen", "false"));
             this.skipTransitions = Boolean.parseBoolean(properties.getProperty("transitions", "false"));
             this.skipUnseenText = Boolean.parseBoolean(properties.getProperty("skip-unseen-text", "false"));
