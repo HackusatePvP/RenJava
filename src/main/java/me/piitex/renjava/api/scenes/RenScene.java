@@ -4,15 +4,16 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.*;
-import me.piitex.renjava.gui.layouts.Container;
 
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
-import me.piitex.renjava.gui.overlay.Overlay;
+import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
+import me.piitex.renjava.gui.overlays.Overlay;
 
 import java.io.File;
 import java.util.Collection;
@@ -35,7 +36,7 @@ import java.util.HashSet;
  * @see InputScene
  * @see ChoiceScene
  */
-public abstract class RenScene extends Container {
+public abstract class RenScene {
     private final String id;
     private ImageOverlay backgroundImage;
     private Story story;
@@ -164,6 +165,10 @@ public abstract class RenScene extends Container {
     public void setStory(Story story) {
         this.story = story;
     }
+
+    public abstract Container build(boolean ui);
+
+    public abstract void render(Window window, boolean ui);
 
     public abstract StageType getStageType();
 

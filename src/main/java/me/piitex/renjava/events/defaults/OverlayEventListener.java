@@ -3,21 +3,24 @@ package me.piitex.renjava.events.defaults;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.*;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
-import me.piitex.renjava.gui.overlay.Overlay;
+import me.piitex.renjava.gui.overlays.ButtonOverlay;
+import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
+
 
 public class OverlayEventListener implements EventListener {
 
     @Listener
     public void onOverlayClick(OverlayClickEvent event) {
+        RenLogger.LOGGER.debug("Clicked on overlay!");
         Overlay overlay = event.getOverlay();
+        if (overlay instanceof ButtonOverlay buttonOverlay) {
+            RenLogger.LOGGER.debug("Button: " + buttonOverlay.getId());
+        }
 
         if (overlay.getOnClick() != null) {
             overlay.getOnClick().onClick(event);
@@ -44,8 +47,8 @@ public class OverlayEventListener implements EventListener {
                 if (buttonOverlay.getHoverImage() != null) {
                     Image bg = buttonOverlay.getHoverImage().getImage();
                     ImageView imageView = new ImageView(bg);
-                    imageView.setFitHeight(buttonOverlay.height());
-                    imageView.setFitWidth(buttonOverlay.width());
+                    imageView.setFitHeight(buttonOverlay.getHeight());
+                    imageView.setFitWidth(buttonOverlay.getWidth());
                 }
             } else {
                 System.out.println("No hover was set for overlay");
@@ -73,8 +76,8 @@ public class OverlayEventListener implements EventListener {
                 if (buttonOverlay.getImage() != null) {
                     Image bg = buttonOverlay.getImage().getImage();
                     ImageView imageView = new ImageView(bg);
-                    imageView.setFitHeight(buttonOverlay.height());
-                    imageView.setFitWidth(buttonOverlay.width());
+                    imageView.setFitHeight(buttonOverlay.getHeight());
+                    imageView.setFitWidth(buttonOverlay.getWidth());
                 }
 
                 if (buttonOverlay.getTextFill() != null) {

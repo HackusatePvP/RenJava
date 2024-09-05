@@ -1,7 +1,7 @@
 package me.piitex.renjava.events.types;
 
 import me.piitex.renjava.events.Event;
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
+import me.piitex.renjava.gui.overlays.ButtonOverlay;
 
 public class ChoiceButtonBuildEvent extends Event {
     private ButtonOverlay buttonOverlay;

@@ -3,7 +3,7 @@ package me.piitex.renjava.api.saves;
 import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.addons.Addon;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -294,8 +294,7 @@ public class Save {
             System.out.println("Save file " + page + " exists.");
             Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
 
-            //FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
-
+            // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
             // Set the player to the current story (which is off to a horrible start)
             RenJava.getInstance().getPlayer().setCurrentStory(story.getId());
 
@@ -310,9 +309,9 @@ public class Save {
             }
 
             // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
-            currentScene.render(currentScene.build(true), false);
+            currentScene.render(RenJava.getInstance().getGameWindow(), true);
 
-            WritableImage snapshot = currentScene.getStage().getScene().snapshot(null);
+            WritableImage snapshot = RenJava.getInstance().getGameWindow().getStage().getScene().snapshot(null);
             saveImage = new ImageOverlay(snapshot);
 
             saveImage.setWidth(384);

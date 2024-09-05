@@ -5,10 +5,13 @@ import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.types.SceneBuildEvent;
-import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
-import me.piitex.renjava.gui.overlay.Overlay;
+import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.containers.EmptyContainer;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
+import me.piitex.renjava.gui.overlays.Overlay;
 
 /**
  * The InteractableScene class represents an interactable scene in the RenJava framework.
@@ -99,9 +102,11 @@ public class InteractableScene extends RenScene {
     }
 
     @Override
-    public Menu build(boolean ui) {
+    public Container build(boolean ui) {
+        Container menu = new EmptyContainer(0, 0, renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight());
 
-        Menu menu = new Menu(renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight(), backgroundImage);
+        backgroundImage.setOrder(DisplayOrder.LOW);
+        menu.addOverlays(backgroundImage);
 
         SceneBuildEvent event = new SceneBuildEvent(this, menu);
         RenJava.callEvent(event);
@@ -110,10 +115,13 @@ public class InteractableScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu, boolean update) {
-        if (update) {
-            renJava.setStage(renJava.getStage(), StageType.INTERACTABLE_SCENE);
-        }
-        menu.render(this);
+    public void render(Window window, boolean ui) {
+        Container container = build(ui);
+
+        window.clearContainers();
+
+        window.addContainer(container);
+
+        window.render();
     }
 }

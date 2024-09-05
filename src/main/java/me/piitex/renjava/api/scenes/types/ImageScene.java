@@ -8,12 +8,17 @@ import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
-import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
 
-import me.piitex.renjava.gui.overlay.*;
+import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.containers.EmptyContainer;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
+import me.piitex.renjava.gui.overlays.TextFlowOverlay;
+import me.piitex.renjava.gui.overlays.TextOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,6 +111,10 @@ public class ImageScene extends RenScene {
         this.character = character;
     }
 
+    public String getDialogue() {
+        return dialogue;
+    }
+
     public void setDialogue(String dialogue) {
         this.dialogue = dialogue;
     }
@@ -119,24 +128,27 @@ public class ImageScene extends RenScene {
     }
 
     @Override
-    public Menu build(boolean ui) {
-        Menu rootMenu = new Menu(configuration.getWidth(), configuration.getHeight(), backgroundImage);
+    public Container build(boolean ui) {
+        //Menu rootMenu = new Menu(configuration.getWidth(), configuration.getHeight(), backgroundImage);
+        Container container = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
+        if (backgroundImage != null) {
+            backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
+            container.addOverlays(backgroundImage);
+        }
 
         if (ui) {
-            Text characterDisplay;
+            String characterDisplay;
             if (character != null) {
                 if (getCharacterNameDisplay() != null) {
                     // Set character display
-                    characterDisplay = new Text(getCharacterNameDisplay());
+                    characterDisplay = getCharacterNameDisplay();
                 } else {
-                    characterDisplay = new Text(character.getDisplayName());
+                    characterDisplay = character.getDisplayName();
                 }
-                characterDisplay.setFill(character.getColor());
 
                 if (dialogue != null && !dialogue.isEmpty()) {
-                    RenLogger.LOGGER.debug("Rendering textbox");
                     ImageLoader textbox = new ImageLoader("gui/textbox.png");
-                    Menu textboxMenu = new Menu(configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                    Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
 
                     ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
                     textboxMenu.addOverlay(textBoxImage);
@@ -152,25 +164,18 @@ public class ImageScene extends RenScene {
                     }
                     textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
                     textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
-                    textFlowOverlay.setTextColor(configuration.getDialogueColor());
+                    textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
                     textFlowOverlay.setFont(font);
                     textboxMenu.addOverlay(textFlowOverlay);
 
-                    characterDisplay.setFill(character.getColor());
                     TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
                             configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
                             configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
-
-                    characterDisplay.setX(configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX());
-                    characterDisplay.setY(configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
+                    characterText.setTextFillColor(character.getColor());
 
                     textboxMenu.addOverlay(characterText);
 
-                    RenLogger.LOGGER.debug("Textbox Menu Debug: " + textboxMenu.getOverlays().size());
-
-                    rootMenu.addMenu(textboxMenu);
-
-                    RenLogger.LOGGER.debug("Root Menu Debug: " + rootMenu.getChildren().size());
+                    container.addContainers(textboxMenu);
                 }
             }
         }
@@ -184,20 +189,27 @@ public class ImageScene extends RenScene {
             }
         }
 
-        // Call SceneBuild event
-        SceneBuildEvent event = new SceneBuildEvent(this, rootMenu);
+        // Call SceneBuild event.
+        SceneBuildEvent event = new SceneBuildEvent(this, container);
         RenJava.callEvent(event);
 
-        return rootMenu;
+        return container;
     }
 
     @Override
-    public void render(Menu menu, boolean update) {
-        if (update) {
-            renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
-        }
-        menu.render(this);
+    public void render(Window window, boolean ui) {
+        Container container = build(ui);
 
+        // Clear window
+        RenLogger.LOGGER.debug("Clearing existing containers...");
+        window.clearContainers();
+
+        RenLogger.LOGGER.debug("Adding container to window...");
+        window.addContainer(container);
+
+        window.render();
+
+        RenLogger.LOGGER.debug("Calling scene start event...");
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);
     }

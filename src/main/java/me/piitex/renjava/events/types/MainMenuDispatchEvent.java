@@ -1,16 +1,16 @@
 package me.piitex.renjava.events.types;
 
 import me.piitex.renjava.events.Event;
-import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.Container;
 
 public class MainMenuDispatchEvent extends Event {
-    private final Menu menu;
+    private final Container menu;
 
-    public MainMenuDispatchEvent(Menu menu) {
+    public MainMenuDispatchEvent(Container menu) {
         this.menu = menu;
     }
 
-    public Menu getMenu() {
+    public Container getMenu() {
         return menu;
     }
 }

@@ -9,14 +9,14 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.loaders.VideoLoader;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 
 public class AnimationScene extends RenScene {
@@ -47,7 +47,7 @@ public class AnimationScene extends RenScene {
     }
 
     @Override
-    public Menu build(boolean ui) {
+    public Container build(boolean ui) {
         Group root = new Group();
         MediaPlayer player = loader.getPlayer();
         MediaView mediaView = new MediaView(player);
@@ -115,7 +115,7 @@ public class AnimationScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu, boolean update) {
+    public void render(Window window, boolean ui) {
 
     }
 

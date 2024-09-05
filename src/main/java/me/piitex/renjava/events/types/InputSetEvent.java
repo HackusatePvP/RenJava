@@ -1,23 +1,23 @@
 package me.piitex.renjava.events.types;
 
-import javafx.scene.input.MouseEvent;
+
 import me.piitex.renjava.events.Event;
 import me.piitex.renjava.gui.overlays.Overlay;
 
-public class OverlayExitEvent extends Event {
+public class InputSetEvent extends Event {
     private final Overlay overlay;
-    private final MouseEvent event;
+    private final String input;
 
-    public OverlayExitEvent(Overlay overlay, MouseEvent event) {
+    public InputSetEvent(Overlay overlay, String input) {
         this.overlay = overlay;
-        this.event = event;
+        this.input = input;
     }
 
     public Overlay getOverlay() {
         return overlay;
     }
 
-    public MouseEvent getHandler() {
-        return event;
+    public String getInput() {
+        return input;
     }
 }

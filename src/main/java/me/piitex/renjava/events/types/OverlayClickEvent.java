@@ -2,7 +2,7 @@ package me.piitex.renjava.events.types;
 
 import javafx.scene.input.MouseEvent;
 import me.piitex.renjava.events.Event;
-import me.piitex.renjava.gui.overlay.Overlay;
+import me.piitex.renjava.gui.overlays.Overlay;
 
 public class OverlayClickEvent extends Event {
     private final Overlay overlay;

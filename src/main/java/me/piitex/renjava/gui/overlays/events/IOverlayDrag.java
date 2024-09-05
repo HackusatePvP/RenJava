@@ -1,4 +1,4 @@
-package me.piitex.renjava.gui.overlay.events;
+package me.piitex.renjava.gui.overlays.events;
 
 import me.piitex.renjava.events.types.OverlayDragEvent;
 

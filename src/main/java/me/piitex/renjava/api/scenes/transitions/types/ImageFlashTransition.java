@@ -4,7 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,10 +31,10 @@ public class ImageFlashTransition extends Transitions {
     public void play(Node node) {
         for (ImageOverlay imageOverlay : images) {
             ImageView imageView = new ImageView(imageOverlay.getImage());
-            imageView.setFitWidth(imageOverlay.width());
-            imageView.setFitHeight(imageOverlay.width());
-            imageView.setX(imageOverlay.x());
-            imageView.setY(imageOverlay.y());
+            imageView.setFitWidth(imageOverlay.getWidth());
+            imageView.setFitHeight(imageOverlay.getHeight());
+            imageView.setX(imageOverlay.getX());
+            imageView.setY(imageOverlay.getY());
 
             FadingTransition fadingTransition = new FadingTransition(0, 1, getDuration(), transitionColor);
             fadingTransition.play(imageView);
