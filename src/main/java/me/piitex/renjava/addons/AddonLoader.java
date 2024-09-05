@@ -1,7 +1,9 @@
 package me.piitex.renjava.addons;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.loggers.RenLogger;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,6 +11,9 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
@@ -54,34 +59,56 @@ public class AddonLoader {
             }
             ZipEntry entry = zipFile.getEntry("build.info");
             if (entry == null) {
-                logger.error("Could not find build.info for " + file.getName() + " Addon will load with the presumption there are no dependencies.");
+                logger.error("Could not find build.info for " + file.getName() + " Please include a build.info file for proper addon loading. If this addon is running an old version of the RenJava framework it could fail.");
                 nonDependants.add(file);
                 continue;
             }
-            try (InputStream inputStream = zipFile.getInputStream(entry);
-                Scanner scanner = new Scanner(inputStream)) {
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-                    if (line.contains("dependencies")) {
-                        String[] split = line.split(":");
-                        if (split.length == 1) {
-                            nonDependants.add(file);
-                        } else {
-                            String dependency = split[1];
-                            if (dependency.equalsIgnoreCase(" \"\"") || dependency.isEmpty()) {
-                                nonDependants.add(file);
-                                continue;
-                            }
-                            dependency = dependency.replace("\"", "");
-                            lateLoaders.put(file, dependency);
-                            break;
-                        }
+
+            // Convert entry to file then load info file
+            try {
+                File buildFile = new File(System.getProperty("user.dir") + "/addons/build.info");
+                Files.copy(zipFile.getInputStream(entry), Path.of(buildFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
+
+                InfoFile build = new InfoFile(buildFile, false);
+
+                boolean invalidVersion = false;
+
+                if (build.containsKey("ren.version") && !build.getString("ren.version").isEmpty()) {
+                    String ver = build.getString("ren.version");
+                    logger.info("Addon Ren Version: {}", ver);
+
+                    ComparableVersion requiredVersion = new ComparableVersion(ver);
+                    ComparableVersion currentVersion = new ComparableVersion(RenJava.getInstance().getBuildVersion());
+                    if (requiredVersion.compareTo(currentVersion) < 0) {
+                        logger.error(file.getName() + " was built with an older RenJava version. Please advise author to update the addon to support the current running version. There is a high chance this addon will fail, you have been warned. The addon will not load until it is upgraded to the proper version.");
+                        invalidVersion = true;
+                    } else if (requiredVersion.compareTo(currentVersion) > 0) {
+                        logger.error(file.getName() + " was built with a new version of RenJava than the application. Please advise author to downgrade the addon to support the current running version or download a newly updated version of the game. The addon will not load until it is downgraded to the proper version.");
+                        invalidVersion = true;
+                    }
+                } else {
+                    logger.error("Addon does not have a provided RenJava version. In future releases the addon will not load without a proper version.");
+                }
+
+
+                if (build.containsKey("dependencies") && !build.getString("dependencies").isEmpty()) {
+                    String dep = build.getString("dependencies");
+                    if (!invalidVersion) {
+                        lateLoaders.put(file, dep);
+                    }
+                } else {
+                    if (!invalidVersion) {
+                        nonDependants.add(file);
                     }
                 }
+
+                // Delete after
+                buildFile.delete();
+
             } catch (IOException e) {
-                RenLogger.LOGGER.error("Invalid or corrupted  addon jar file.", e);
-                RenJava.writeStackTrace(e);
+                throw new RuntimeException(e);
             }
+
         }
 
         // Execute addons that have no dependencies

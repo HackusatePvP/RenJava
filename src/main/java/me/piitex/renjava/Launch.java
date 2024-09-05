@@ -7,12 +7,15 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 
 import me.piitex.renjava.api.Game;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.configuration.Configuration;
+import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
 import me.piitex.renjava.loggers.ApplicationLogger;
@@ -25,31 +28,23 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Launch extends Application {
+    private static long start;
 
     public static void main(String[] args) {
-        File file = new File(System.getProperty("user.dir") + "/renjava/build.info");
-        boolean failed = true;
+        // Rough execution time (not accurate)
+        start = System.currentTimeMillis();
 
-        if (file.exists()) {
-            try (InputStream inputStream = new FileInputStream(file);
-                 Scanner scanner = new Scanner(inputStream)) {
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-                    if (line.toLowerCase().startsWith("main=")) {
-                        String[] split = line.split("=");
-                        String clazzName = split[1];
-                        Class<?> clazz = Class.forName(clazzName);
-                        loadClass(clazz, args);
-                        failed = false;
-                        break;
-                    }
-                }
-            } catch (IOException | ClassNotFoundException e) {
+        InfoFile buildInfo = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), true);
+        if (buildInfo.containsKey("main")) {
+            String mainClass = buildInfo.getString("main");
+            Class<?> clazz;
+            try {
+                clazz = Class.forName(mainClass);
+                loadClass(clazz, args, buildInfo);
+            } catch (ClassNotFoundException e) {
                 System.err.println("Failed to load class: " + e.getMessage());
             }
-        }
-
-        if (failed) {
+        } else {
             System.err.println("Build info not found. Scanning for RenJava class. This will have noticeable performance impact on low end computers.");
             // Scans for all classes in all packages. (We need to do all packages because this allows the author the freedom to do their own package scheme.)
             Collection<URL> allPackagePrefixes = Arrays.stream(Package.getPackages())
@@ -65,13 +60,13 @@ public class Launch extends Application {
 
             // Detect any classes that extend RenJava
             for (Class<?> c : reflections.getSubTypesOf(RenJava.class)) {
-                loadClass(c, args);
-                return;
+                loadClass(c, args, buildInfo);
+                break;
             }
         }
     }
 
-    private static void loadClass(Class<?> clazz, String[] args) {
+    private static void loadClass(Class<?> clazz, String[] args, InfoFile infoFile) {
         try {
             File file = new File(System.getProperty("user.dir") + "/renjava/build.info");
             if (!file.exists()) {
@@ -90,11 +85,9 @@ public class Launch extends Application {
             String[] split = jarPath.split("/");
             String fileName = split[split.length - 1];
 
-            FileWriter writer = new FileWriter(file);
-            writer.append("main=").append(clazz.getName());
-            writer.append("\n");
-            writer.write("file=" + fileName);
-            writer.close();
+            infoFile.write("main", clazz.getName());
+            infoFile.write("file", fileName);
+
         } catch (IOException e) {
             System.err.println("Could not create the 'build.info' file. This might be a first time setup. Once the application opens please exit and relaunch.");
         } catch (URISyntaxException e) {
@@ -123,7 +116,6 @@ public class Launch extends Application {
                 Configuration conf = renJava.getClass().getAnnotation(Configuration.class);
                 RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name).replace("{author}", renJava.author), conf.width(), conf.height(), new ImageLoader(conf.windowIconPath()));
                 renJava.setConfiguration(configuration);
-
             } else {
                 System.err.println("ERROR: Configuration annotation not found. Please annotate your main class with 'Configuration'");
                 RenJavaConfiguration configuration = new RenJavaConfiguration("Error", 1920, 1080, new ImageLoader("gui/window_icon.png"));
@@ -147,5 +139,10 @@ public class Launch extends Application {
     public void start(Stage stage) {
         // When launched, load the gui stuff.
         new GuiLoader(stage, RenJava.getInstance(), getHostServices());
+
+        long end = System.currentTimeMillis();
+        long time = end - start;
+        DateFormat format = new SimpleDateFormat("ss.SS");
+        RenJava.getInstance().getLogger().info("Loaded in " + format.format(time) + "s");
     }
 }

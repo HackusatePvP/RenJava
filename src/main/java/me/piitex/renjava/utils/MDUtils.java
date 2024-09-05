@@ -21,8 +21,8 @@ public class MDUtils {
             }
             byte[] mdBytes = md.digest();
             StringBuilder buffer = new StringBuilder();
-            for (int i = 0; i < mdBytes.length; i++) {
-                buffer.append(Integer.toString((mdBytes[i] & 0xff) + 0x100, 16).substring(1));
+            for (byte mdByte : mdBytes) {
+                buffer.append(Integer.toString((mdByte & 0xff) + 0x100, 16).substring(1));
             }
             return buffer.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
