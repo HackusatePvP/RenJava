@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import javafx.application.Platform;
 import me.piitex.renjava.api.music.Track;
+import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.MDUtils;
@@ -26,6 +27,7 @@ public class RenLoader {
         this.renJava = renJava;
         RenLogger.LOGGER.info("Starting processes...");
         renJava.buildVersion = getVersion();
+        RenLogger.LOGGER.info("Ren Version: {}", renJava.buildVersion);
         setupMain();
         setupGame();
         if (shutdown) {
@@ -153,47 +155,13 @@ public class RenLoader {
     private void startPreProcess() {
         RenLogger.LOGGER.info("Generating pre-load data...");
         RenLogger.LOGGER.info("Checking Game ID...");
-        File buildFile = new File(System.getProperty("user.dir") + "/renjava/build.info");
-        boolean failed = true;
-        if (buildFile.exists()) {
-            try (InputStream inputStream = new FileInputStream(buildFile);
-                 Scanner scanner = new Scanner(inputStream)) {
-                 while (scanner.hasNextLine()) {
-                     String line = scanner.nextLine();
-                     if (line.toLowerCase().startsWith("id=")) {
-                         try {
-                             renJava.id = Integer.parseInt(line.replace("id=", ""));
-                             failed = false;
-                         } catch (NumberFormatException ignored) {
-                             RenLogger.LOGGER.error("Invalid Game ID.");
-                             // Print stack trace to file
 
-                         }
-                         break;
-                     }
-                 }
-            } catch (SecurityException e) {
-                RenLogger.LOGGER.error("Application could not access file: {}", buildFile.getPath(), e);
-                RenJava.writeStackTrace(e);
-            } catch (FileNotFoundException e) {
-                RenLogger.LOGGER.error("Application could not locate build.info. Try re-launching the application, if the probelms exists manually create the file. '/renjava/build.info", e);
-                RenJava.writeStackTrace(e);
-            } catch (IOException e) {
-                RenLogger.LOGGER.error("IO exception occurred!", e);
-                RenJava.writeStackTrace(e);
-            }
-        }
-
-        if (failed) {
+        InfoFile infoFile = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), true);
+        if (infoFile.containsKey("id")) {
+            renJava.id = infoFile.getInt("id");
+        } else {
             renJava.id = MDUtils.getGameID(renJava.getName() + renJava.getAuthor());
-            FileWriter writer;
-            try {
-                writer = new FileWriter(buildFile, true);
-                writer.write("\nid=" + renJava.id);
-                writer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            infoFile.write("id", renJava.id + "");
         }
 
         loadRPAFiles();
