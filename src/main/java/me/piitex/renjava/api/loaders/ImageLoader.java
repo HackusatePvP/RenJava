@@ -1,9 +1,12 @@
 package me.piitex.renjava.api.loaders;
 
 import javafx.scene.image.*;
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.utils.LimitedHashMap;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -14,12 +17,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.IntBuffer;
+import java.util.Map;
 
 /**
  * Used for loading images. When loading an image insert it inside the cache.
  */
 public class ImageLoader {
     private final File file;
+
+    private static Map<String, Image> imageCache = new LimitedHashMap<>(50);
 
     /**
      * Loads an image via a filename from the base directory.
@@ -35,13 +41,22 @@ public class ImageLoader {
         this.file = new File(fileDirectory, name);
     }
 
-    @APIChange(description = "Now supports .webp images.", changedVersion = "0.0.289")
+    @APIChange(description = "Images will now be added to a cache.", changedVersion = "0.1.141")
     public Image build() throws ImageNotFoundException {
+        if (imageCache.containsKey(file.getPath())) {
+            return imageCache.get(file.getPath());
+        }
         try {
             BufferedImage bufferedImage = ImageIO.read(file);
-            return getImage(bufferedImage);
+            Image image = getImage(bufferedImage);
+            imageCache.put(file.getPath(), image);
+            return image;
         } catch (FileNotFoundException ignored) {
-            throw new ImageNotFoundException(this);
+            // Better logging
+            ImageNotFoundException exception = new ImageNotFoundException(this);
+            RenLogger.LOGGER.error(exception.getMessage(), exception);
+            RenJava.writeStackTrace(exception);
+            throw exception;
         } catch (IOException e) {
             return buildRaw();
         }
@@ -52,7 +67,10 @@ public class ImageLoader {
         try {
             return new Image(new FileInputStream(file));
         } catch (FileNotFoundException e) {
-            throw new ImageNotFoundException(this);
+            ImageNotFoundException exception = new ImageNotFoundException(this);
+            RenLogger.LOGGER.error(exception.getMessage(), exception);
+            RenJava.writeStackTrace(exception);
+            throw exception;
         }
     }
 
