@@ -27,7 +27,7 @@ Hero-Adventure-1.0
 ```
 
 ## Project Requirements
-- [Java-17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) (You can typically download this within your IDE)
+- [Java-21](https://www.oracle.com/java/technologies/downloads/#java21) (You can typically download this within your IDE)
 - [intellij](https://www.jetbrains.com/idea/download/?section=windows) or [Eclipse](https://www.eclipse.org/downloads/)
 - [Maven](https://maven.apache.org/download.cgi) (Might come with your IDE)
 
