@@ -1,5 +1,6 @@
 package me.piitex.renjava.addons;
 
+import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.loggers.ApplicationLogger;
 import me.piitex.renjava.events.EventListener;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import java.util.HashSet;
 public abstract class Addon {
     private final String name;
     private final Collection<EventListener> registeredListeners = new HashSet<>();
+    private final Collection<PersistentData> registeredData = new HashSet<>();
     private final Collection<Addon> dependencies = new HashSet<>();
     private final Logger logger;
 
@@ -97,6 +99,23 @@ public abstract class Addon {
      */
     public Collection<EventListener> getRegisteredListeners() {
         return registeredListeners;
+    }
+
+
+    /**
+     * Registers data to be saved to the save file.
+     *
+     * @param data The data class to register.
+     */
+    public void registerData(PersistentData data) {
+        registeredData.add(data);
+    }
+
+    /**
+     * @return The collection of registered data for this addon.
+     */
+    public Collection<PersistentData> getRegisteredData() {
+        return registeredData;
     }
 
     /**

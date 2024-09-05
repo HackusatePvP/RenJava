@@ -15,16 +15,16 @@ module RenJava {
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
     requires org.apache.logging.log4j.slf4j2.impl;
-    opens me.piitex.renjava;
+    requires com.github.oshi;
+    requires maven.artifact;
     exports me.piitex.renjava;
     exports me.piitex.renjava.configuration;
     exports me.piitex.renjava.gui;
     exports me.piitex.renjava.utils;
     exports me.piitex.renjava.api.characters;
     exports me.piitex.renjava.api.loaders;
-    exports me.piitex.renjava.gui.overlay;
+    exports me.piitex.renjava.gui.overlays;
     exports me.piitex.renjava.gui.layouts;
-    exports me.piitex.renjava.gui.layouts.impl;
     exports me.piitex.renjava.events;
     exports me.piitex.renjava.events.exceptions;
     exports me.piitex.renjava.events.types;
@@ -42,8 +42,10 @@ module RenJava {
     exports me.piitex.renjava.api.scenes.animation;
     exports me.piitex.renjava.addons;
     exports me.piitex.renjava.loggers;
-    exports me.piitex.renjava.gui.overlay.events;
-    opens me.piitex.renjava.loggers;
+    exports me.piitex.renjava.gui.overlays.events;
     exports me.piitex.renjava.api;
+    exports me.piitex.renjava.tasks;
+    opens me.piitex.renjava.loggers;
+    opens me.piitex.renjava;
     opens me.piitex.renjava.api;
 }

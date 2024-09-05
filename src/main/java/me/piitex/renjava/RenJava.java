@@ -1,7 +1,6 @@
 package me.piitex.renjava;
 
 import javafx.application.HostServices;
-import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -11,7 +10,6 @@ import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.api.Game;
 import me.piitex.renjava.api.loaders.FontLoader;
-import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.exceptions.InvalidCharacterException;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.Save;
@@ -19,6 +17,7 @@ import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.player.Player;
+import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
@@ -27,17 +26,20 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.defaults.*;
 
-import me.piitex.renjava.events.types.ShutdownEvent;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.Menu;
-import me.piitex.renjava.gui.layouts.impl.HorizontalLayout;
-import me.piitex.renjava.gui.layouts.impl.VerticalLayout;
-import me.piitex.renjava.gui.overlay.*;
+import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.DisplayOrder;
+import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.containers.EmptyContainer;
+import me.piitex.renjava.gui.layouts.HorizontalLayout;
+import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.tasks.Tasks;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -71,6 +73,7 @@ public abstract class RenJava {
     protected String name;
     protected String author;
     protected String version;
+    protected int id;
     private Player player;
     // Audio Tracking
     private Tracks tracks;
@@ -79,6 +82,7 @@ public abstract class RenJava {
 
     private AddonLoader addonLoader;
 
+    private Window gameWindow;
     private Stage stage; // Move this somewhere else.
     private StageType stageType;
 
@@ -114,23 +118,27 @@ public abstract class RenJava {
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
-        registerListener(new OverlayEventListener());
+        this.registerListener(new OverlayEventListener());
         this.registerData(player);
         this.registerData(tracks);
         new RenLoader(this);
         this.addonLoader = new AddonLoader();
     }
 
-     public String getName() {
+    public String getName() {
          return name;
      }
 
-     public String getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
     public String getVersion() {
         return version;
+    }
+
+    public Integer getID() {
+        return id;
     }
 
     public Player getPlayer() {
@@ -157,20 +165,19 @@ public abstract class RenJava {
         return buildVersion;
     }
 
+    public Window getGameWindow() {
+        return gameWindow;
+    }
+
+    public void setGameWindow(Window gameWindow) {
+        this.gameWindow = gameWindow;
+    }
+
     public Stage getStage() {
         return stage;
     }
 
-    public void setStage(Stage stage, StageType type) {
-        this.stage = stage;
-        this.stageType = type;
-    }
-
-    public StageType getStageType() {
-        return stageType;
-    }
-
-     public RenJavaConfiguration getConfiguration() {
+    public RenJavaConfiguration getConfiguration() {
         return configuration;
     }
 
@@ -178,20 +185,24 @@ public abstract class RenJava {
         this.configuration = configuration;
     }
 
-     public SettingsProperties getSettings() {
+    public SettingsProperties getSettings() {
          return settings;
      }
 
-     public void setSettings(SettingsProperties settings) {
+    public void setSettings(SettingsProperties settings) {
          this.settings = settings;
      }
 
-     public HostServices getHost() {
+    public HostServices getHost() {
          return hostServices;
      }
 
-     public void setHost(HostServices services) {
+    public void setHost(HostServices services) {
          this.hostServices = services;
+     }
+
+     public Collection<File> getSaves() {
+         return new LinkedHashSet<>(Arrays.asList(new File(System.getProperty("user.dir") + "/game/saves/").listFiles()));
      }
 
      /**
@@ -227,7 +238,9 @@ public abstract class RenJava {
      */
     public Character getCharacter(String id) {
         if (!registeredCharacters.containsKey(id)) {
-            RenJava.getInstance().getLogger().error(new InvalidCharacterException(id).getMessage());
+            InvalidCharacterException characterException = new InvalidCharacterException(id);
+            RenLogger.LOGGER.error("Could not retrieve character '" + id + "'!", characterException);
+            writeStackTrace(characterException);
             return null;
         }
         return registeredCharacters.get(id.toLowerCase());
@@ -287,39 +300,6 @@ public abstract class RenJava {
         return registeredListeners;
     }
 
-    public void buildStage(Stage stage) {
-        ImageLoader windowIcon = getConfiguration().getGameIcon();
-        if (windowIcon != null) {
-            try {
-                stage.getIcons().add(windowIcon.buildRaw());
-            } catch (ImageNotFoundException e) {
-                RenLogger.LOGGER.error(e.getMessage());
-            }
-        } else {
-            RenLogger.LOGGER.warn("No window icon set. Please set a window icon for a better user experience.");
-        }
-
-        stage.initStyle(StageStyle.DECORATED);
-
-        if (getSettings().isFullscreen()) {
-            stage.setFullScreen(true);
-        } else {
-            stage.setMaximized(true);
-        }
-        stage.setTitle(getConfiguration().getGameTitle());
-
-        stage.setOnHiding(windowEvent -> {
-            getAddonLoader().disable();
-            ShutdownEvent shutdownEvent = new ShutdownEvent();
-            callEvent(shutdownEvent);
-
-            Platform.exit();
-            System.exit(0);
-        });
-
-        this.stage = stage;
-    }
-
     /**
      * This method is called before the game's title screen is shown. It is recommended to implement this method to perform any necessary setup or initialization tasks before the game starts.
      * <p>
@@ -364,59 +344,41 @@ public abstract class RenJava {
      */
     public abstract void createBaseData();
 
-    public abstract Menu buildSplashScreen();
+    public abstract Window buildSplashScreen();
 
-    /**
-     * This method is used to build and design the main menu screen.
-     * @param rightClickMenu True if the user is in the right-clicked main menu. False if they are at the title screen.
-     * @return A new {@link Menu} of the configured screen.
-     */
-    public abstract Menu buildTitleScreen(boolean rightClickMenu);
+    public abstract Container buildMainMenu(boolean rightClick);
 
-    public Menu buildSideMenu(boolean rightClickedMenu) {
-        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/overlay/main_menu.png"));
+    public Container buildSideMenu(boolean rightClick) {
+        // Default container is fine.
+        EmptyContainer container = new EmptyContainer(450, 1080, DisplayOrder.HIGH);
+
+        ImageOverlay backgroundImage = new ImageOverlay("gui/overlay/main_menu.png");
+        container.addOverlay(backgroundImage);
+
+        VerticalLayout layout = new VerticalLayout(400, 400);
+        layout.setX(100);
+        layout.setY(400);
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
         Color hoverColor = getConfiguration().getHoverColor();
 
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
+        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
 
-        // Create vbox for the buttons. You can also do an HBox
-        VerticalLayout layout = new VerticalLayout(400, 500);
-        layout.setX(50);
-        layout.setY(250);
-        layout.setSpacing(20);
-        layout.addOverlays(startButton, loadButton);
-        if (rightClickedMenu) {
-            layout.addOverlays(saveButton);
-        }
-        layout.addOverlays(optionsButton, aboutButton);
+        layout.addOverlays(startButton, loadButton, saveButton, optionsButton, aboutButton);
 
-        // You don't have to add the button overlays just add the layout which already contains the overlays.
-        menu.addLayout(layout);
-
-        ButtonOverlay returnButton;
-
-
-        if (getStageType() == StageType.MAIN_MENU) {
-            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        } else {
-            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor, 1, 1);
-        }
-        returnButton.setX(25);
-        returnButton.setY(1000);
-        menu.addOverlay(returnButton);
-
-        return menu;
+        return container;
     }
 
-    public Menu buildLoadMenu(int page) {
-        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
+    public Container buildLoadMenu(int page) {
+        Container menu = new EmptyContainer(1920, 1080, DisplayOrder.NORMAL);
+        ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
+        imageOverlay.setOrder(DisplayOrder.LOW);
+        menu.addOverlay(imageOverlay);
         // Setup pagination.
         // 6 save slots per page
         //   2 Rows
@@ -434,18 +396,19 @@ public abstract class RenJava {
         bottomLayout.setSpacing(20);
         while (index <=  maxSavesPerPage) {
             ButtonOverlay loadButton = getButtonOverlay(page, index);
+            loadButton.setOrder(DisplayOrder.HIGH);
+
             if (index <= 3) {
                 topLayout.addOverlays(loadButton);
-                //topLayout.addSubPane(saveMenu.render());
             } else {
                 bottomLayout.addOverlays(loadButton);
-                //bottomLayout.addSubPane(saveMenu.render());
             }
             index++;
         }
 
         rootLayout.addChildLayout(topLayout);
         rootLayout.addChildLayout(bottomLayout);
+
         rootLayout.setX(500);
         rootLayout.setY(250);
 
@@ -466,7 +429,7 @@ public abstract class RenJava {
                 pageButton.setTextFill(Color.BLACK);
             }
             pageButton.setHoverColor(configuration.getHoverColor());
-            pageLayout.addOverlays(pageButton);
+            pageLayout.addOverlay(pageButton);
         }
         pageLayout.setX(1000);
         pageLayout.setY(950);
@@ -477,22 +440,70 @@ public abstract class RenJava {
     }
 
     @NotNull
-    private static ButtonOverlay getButtonOverlay(int page, int index) {
+    private ButtonOverlay getButtonOverlay(int page, int index) {
         Save save = new Save(index);
         save.load(false);
         ImageOverlay saveImage;
         ButtonOverlay loadButton;
         saveImage = save.buildPreview(page);
 
-        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309, 1, 1);
+        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309);
+
+        loadButton.setOnclick(event -> {
+            if (getPlayer().getCurrentStageType() == StageType.LOAD_MENU) {
+                if (!save.exists()) {
+                    RenLogger.LOGGER.warn("Save file does not  0-exist.");
+                    return;
+                }
+                save.load(true);
+                String storyID = getPlayer().getCurrentStoryID();
+                if (storyID == null) {
+                    RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
+                    return;
+                }
+                RenLogger.LOGGER.info("Processing save file...");
+
+                RenLogger.LOGGER.debug("Reloading story...");
+                createStory();
+
+                // Force update fields
+                RenLogger.LOGGER.debug("Setting current story: " + storyID);
+                getPlayer().setCurrentStory(storyID);
+                RenLogger.LOGGER.debug("Initializing story...");
+                getPlayer().getCurrentStory().init(); // Re-initialize story
+
+                RenLogger.LOGGER.debug("Setting current scene: " + getPlayer().getCurrentSceneID());
+                getPlayer().setCurrentScene(getPlayer().getCurrentSceneID());
+
+                getPlayer().setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
+
+                RenLogger.LOGGER.debug("Rendering scene...");
+                RenScene scene = getPlayer().getCurrentScene();
+                getPlayer().getStory(storyID).displayScene(scene);
+
+            } else if (getPlayer().getCurrentStageType() == StageType.SAVE_MENU) {
+                Tasks.runAsync(() -> {
+                    save.write();
+                });
+
+                // Re-render
+                getPlayer().setCurrentStageType(StageType.SAVE_MENU);
+                Container menu = buildLoadMenu(1); // Builds first page
+                menu.addContainers(buildSideMenu(true));
+                menu.render();
+            }
+        });
 
         loadButton.setBackgroundColor(Color.TRANSPARENT);
         loadButton.setBorderColor(Color.TRANSPARENT);
         return loadButton;
     }
 
-    public Menu buildSettingsMenu() {
-        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
+    public Container buildSettingsMenu(boolean ui) {
+        Container menu = new EmptyContainer(1920, 1080);
+        ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
+        imageOverlay.setOrder(DisplayOrder.LOW);
+        menu.addOverlay(imageOverlay);
 
         Color themeColor = getConfiguration().getThemeColor();
         Color subColor = getConfiguration().getSubColor();
@@ -512,22 +523,22 @@ public abstract class RenJava {
 
         VerticalLayout displayBox = new VerticalLayout(300, 400);
         TextOverlay displayText = new TextOverlay("Display", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
-        ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", subColor, getConfiguration().getUiFont().getFont(), 0,0);
         displayBox.addOverlays(displayText, windowButton, fullscreenButton);
 
         VerticalLayout rollbackBox = new VerticalLayout(300, 400);
         TextOverlay rollbackText = new TextOverlay("Rollback", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
-        ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
-        ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", subColor, getConfiguration().getUiFont().getFont(), 0,0);
         rollbackBox.addOverlays(rollbackText, disabledButton, leftButton, rightButton);
 
         VerticalLayout skipBox = new VerticalLayout(300, 400);
         TextOverlay skipText = new TextOverlay("Skip", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
-        ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
-        ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", subColor, getConfiguration().getUiFont().getFont(), 0,0,1,1);
+        ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", subColor, getConfiguration().getUiFont().getFont(), 0,0);
         skipBox.addOverlays(skipText, unseenTextButton, afterChoicesButton, transitionButton);
 
         // Add all to root layout
@@ -536,16 +547,16 @@ public abstract class RenJava {
         menu.addLayout(rootLayout);
 
         // Music sliders
-        VerticalLayout musicBox = new VerticalLayout(400, 600);
+        VerticalLayout musicBox = new VerticalLayout(1000, 600);
         musicBox.setX(700);
         musicBox.setY(800);
         TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
-        SliderOverlay musicVolumeSlider = new SliderOverlay(100, 0, getSettings().getVolume(), 0,0);
+        SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, getSettings().getMusicVolume(), 0,0, 200, 200);
         musicVolumeSlider.setBlockIncrement(10);
-        musicVolumeSlider.setOnSliderChange(event -> {
+        musicVolumeSlider.setSliderChange(event -> {
             // Event used when slider changes value
             System.out.println("Volume: " + event.getValue());
-            getSettings().setVolume(event.getValue());
+            getSettings().setMusicVolume(event.getValue());
         });
         musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
 
@@ -554,8 +565,9 @@ public abstract class RenJava {
         return menu;
     }
 
-    public Menu buildAboutMenu() {
-        Menu menu = new Menu(1920, 1080, new ImageOverlay("gui/main_menu.png"));
+    public Container buildAboutMenu(boolean rightClicked) {
+        Container menu = new EmptyContainer(1920, 1080);
+        menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
 
         Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24).getFont();
 
@@ -581,8 +593,9 @@ public abstract class RenJava {
         buildInfo.getTexts().add(new Text("Author: " + getAuthor()));
         menu.addOverlay(buildInfo);
 
-        HyperlinkOverlay renJavaLink = new HyperlinkOverlay("You can download RenJava for free here.", "https://github.com/HackusatePvP/RenJava", new FontLoader(font, 24), 500, 750);
-        menu.addOverlay(renJavaLink);
+        // For now hyperlinks are removed and will be migrated to button (thats what they are anyways).
+//        HyperlinkOverlay renJavaLink = new HyperlinkOverlay("You can download RenJava for free here.", "https://github.com/HackusatePvP/RenJava", new FontLoader(font, 24), 500, 750);
+//        menu.addOverlay(renJavaLink);
 
         return menu;
     }
@@ -734,11 +747,73 @@ public abstract class RenJava {
 
     private static void invokeMethod(EventListener listener, Method method, Event event) {
         try {
-            method.invoke(listener, event);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            if (event.isSync()) {
+                method.invoke(listener, event);
+            } else {
+                Tasks.runAsync(() -> {
+                    try {
+                        method.invoke(listener, event);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        RenLogger.LOGGER.error("Could not invoke event method for '" + method.getName() + "'", e);
+                        writeStackTrace(e);
+                    }
+                });
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            RenLogger.LOGGER.error("Could not invoke event method for '" + method.getName() + "'", e);
+            writeStackTrace(e);
         }
+    }
+
+    public static void writeStackTrace(Exception e) {
+        File file = new File(System.getProperty("user.dir") + "/stacktrace.txt");
+        try {
+            file.createNewFile();
+        } catch (IOException ex) {
+            RenLogger.LOGGER.error("Could not create error file!", ex);
+            RenJava.writeStackTrace(ex);
+            return;
+        }
+
+        try {
+            PrintStream printStream = new PrintStream(file);
+            e.printStackTrace(printStream);
+        } catch (FileNotFoundException ex) {
+            RenLogger.LOGGER.error("Could not write error file!", ex);
+            RenJava.writeStackTrace(e);
+        }
+
+//        // Very experimental!
+//        // When an error occurs prompt the user that an error occurred and to report the bug to the author.
+//        Stage errorStage = new Stage(StageStyle.DECORATED);
+//        Pane pane = new Pane();
+//        pane.setPrefSize(800, 800);
+//        Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
+//        TextFlow textFlow = new TextFlow();
+//        textFlow.setPrefSize(800, 800);
+//        textFlow.getChildren().add(text);
+//
+//        textFlow.getChildren().add(new Text(System.lineSeparator()));
+//
+//        StringWriter sw = new StringWriter();
+//        PrintWriter writer = new PrintWriter(sw);
+//        e.printStackTrace(writer);
+//        Text stackTrace = new Text(sw.toString());
+//
+//        textFlow.getChildren().add(stackTrace);
+//
+//        pane.getChildren().add(textFlow);
+//
+//        Scene scene = new Scene(pane);
+//        errorStage.setScene(scene);
+//
+//        errorStage.show();
+//        errorStage.requestFocus();
+
+        Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon());
+
+        EmptyContainer container = new EmptyContainer(600,600);
+
+
     }
 }

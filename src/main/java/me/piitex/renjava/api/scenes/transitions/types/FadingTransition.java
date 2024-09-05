@@ -4,6 +4,8 @@ import javafx.animation.FadeTransition;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.events.types.FadingTransitionEndEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import org.slf4j.Logger;;
@@ -77,6 +79,9 @@ public class FadingTransition extends Transitions {
             if (getOnFinish() != null) {
                 getOnFinish().onEnd(actionEvent);
             }
+
+            FadingTransitionEndEvent endEvent = new FadingTransitionEndEvent(this);
+            RenJava.callEvent(endEvent);
         });
         if (previousTranition != null) {
             previousTranition.stop(); // Stop previous animation

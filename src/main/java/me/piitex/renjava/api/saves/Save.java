@@ -1,20 +1,16 @@
 package me.piitex.renjava.api.saves;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
+import me.piitex.renjava.addons.Addon;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
-import me.piitex.renjava.gui.Menu;
 
-import javax.imageio.ImageIO;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -56,7 +52,12 @@ public class Save {
         //        key2: value2
 
         StringBuilder appendString = new StringBuilder();
-        for (PersistentData data : RenJava.getInstance().getRegisteredData()) {
+        Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
+        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+            allData.addAll(addon.getRegisteredData());
+        }
+
+        for (PersistentData data : allData) {
             SectionKeyValue rootSection = new SectionKeyValue(data.getClass().getName());
             Class<?> claz = data.getClass();
             if (appendString.toString().contains(claz.getName())) {
@@ -134,7 +135,6 @@ public class Save {
         });
     }
 
-
     // Loads save file
     public void load(boolean process) {
         String fullData = null;
@@ -143,16 +143,22 @@ public class Save {
         } catch (FileNotFoundException e) {
             // Only error if they are trying to process the loading function.
             if (process) {
-                RenLogger.LOGGER.error(e.getMessage());
+                RenLogger.LOGGER.error("Save file does not exist!", e);
+                RenJava.writeStackTrace(e);
             }
         }
 
         if (fullData == null) {
-            RenLogger.LOGGER.error("Save file does not exist.");
+            RenLogger.LOGGER.warn("Save file does not exist.");
             return;
         }
 
-        for (PersistentData persistentData : RenJava.getInstance().getRegisteredData()) {
+        Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
+        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+            allData.addAll(addon.getRegisteredData());
+        }
+
+        for (PersistentData persistentData : allData) {
             String clazzName = persistentData.getClass().getName();
             SectionKeyValue rootSection = new SectionKeyValue(clazzName);
             SectionKeyValue mapSection = null;
@@ -230,7 +236,8 @@ public class Save {
                         String value = (String) rootSection.getKeyValueMap().get(keyToSet);
                         setField(field, persistentData, value.strip());
                     } catch (NoSuchFieldException | IllegalAccessException e) {
-                        RenLogger.LOGGER.trace(e.getMessage());
+                        RenLogger.LOGGER.error("Could not set field for save file!", e);
+                        RenJava.writeStackTrace(e);
                     }
                 } else {
                     RenLogger.LOGGER.error("Could not set key '" + field.getName() + "'");
@@ -287,8 +294,7 @@ public class Save {
             System.out.println("Save file " + page + " exists.");
             Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
 
-            //FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
-
+            // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
             // Set the player to the current story (which is off to a horrible start)
             RenJava.getInstance().getPlayer().setCurrentStory(story.getId());
 
@@ -298,13 +304,14 @@ public class Save {
             // Render the scene to the load button.
             RenScene currentScene = story.getScene((String) sceneSection.get("currentScene"));
             if (currentScene == null) {
-                RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or haas missing information. Unable to render save preview for the file. '" + sceneSection.get("currentScene") + "'");
+                RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or has missing information. Unable to render save preview for the file. '" + sceneSection.get("currentScene") + "'");
                 return new ImageOverlay("gui/button/slot_idle_background.png");
             }
 
-            currentScene.render(currentScene.build(true));
+            // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
+            currentScene.render(RenJava.getInstance().getGameWindow(), true);
 
-            WritableImage snapshot = currentScene.getStage().getScene().snapshot(null);
+            WritableImage snapshot = RenJava.getInstance().getGameWindow().getStage().getScene().snapshot(null);
             saveImage = new ImageOverlay(snapshot);
 
             saveImage.setWidth(384);

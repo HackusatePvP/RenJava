@@ -1,6 +1,7 @@
 package me.piitex.renjava.api.scenes.types.choices;
 
-import me.piitex.renjava.gui.overlay.ButtonOverlay;
+
+import me.piitex.renjava.gui.overlays.ButtonOverlay;
 
 /**
  * The Choice class represents a choice in a ChoiceScene within the RenJava framework.
@@ -53,6 +54,5 @@ public class Choice {
     public String getText() {
         return text;
     }
-
 
 }

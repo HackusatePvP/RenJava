@@ -1,16 +1,16 @@
 package me.piitex.renjava.events.types;
 
 import me.piitex.renjava.events.Event;
-import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.Container;
 
 public class SideMenuBuildEvent extends Event {
-    private final Menu menu;
+    private final Container container;
 
-    public SideMenuBuildEvent(Menu menu) {
-        this.menu = menu;
+    public SideMenuBuildEvent(Container container) {
+        this.container = container;
     }
 
-    public Menu getMenu() {
-        return menu;
+    public Container getContainer() {
+        return container;
     }
 }

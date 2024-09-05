@@ -3,16 +3,24 @@ package me.piitex.renjava.gui;
 import javafx.animation.PauseTransition;
 
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
+import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.gui.containers.EmptyContainer;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.*;
-;
+import me.piitex.renjava.utils.MDUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Loader class for loading the GUI. Starts with the splash screen first.
@@ -32,16 +40,16 @@ public class GuiLoader {
         RenLogger.LOGGER.info("Creating Splash screen...");
         stage.initStyle(StageStyle.UNDECORATED);
         // Update Stage
-        renJava.setStage(stage, StageType.MAIN_MENU);
+        renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
 
-        Menu menu = renJava.buildSplashScreen();
-        if (menu == null) {
+        Window window = renJava.buildSplashScreen();
+        if (window == null) {
             RenLogger.LOGGER.warn("No splash screen was rendered..");
             renJavaFrameworkBuild();
             return; // Don't create a splash screen if one wasn't set.
         }
 
-        menu.render();
+        window.render();
         PauseTransition wait = new PauseTransition(Duration.seconds(3)); // TODO: 2/17/2024 Make this configurable.
         wait.setOnFinished(actionEvent -> {
             stage.close(); // Closes stage for the splash screen (required)
@@ -85,35 +93,74 @@ public class GuiLoader {
             renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
         }
 
-        stage = new Stage();
-        renJava.buildStage(stage); // Builds the stage parameters (Game Window)
+        // When building title screen create a new window and eventually store the window for easy access
+        Window window = new Window(renJava.getConfiguration().getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
+        // Specifically for the gameWindow it is needed to setup the shutdown events.
+        window.getStage().setOnHiding(windowEvent -> {
+            renJava.getAddonLoader().disable();
 
-        Menu menu = renJava.buildTitleScreen(false);
+            // Transfer saves to localsaves
+            File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/saves/");
+            for (File file : renJava.getSaves()) {
+                File newDirFile = new File(localSaves, file.getName());
+
+                // If the save file already exists check to see if the saves are different. If they are different, replace.
+                if (newDirFile.exists()) {
+                    String localSaveChecksum = MDUtils.getFileCheckSum(newDirFile);
+                    String currentSaveChecksum = MDUtils.getFileCheckSum(file);
+                    RenLogger.LOGGER.debug("Local Save : {}", localSaveChecksum);
+                    RenLogger.LOGGER.debug("Current Save: {}", currentSaveChecksum);
+                    if (localSaveChecksum.equalsIgnoreCase(currentSaveChecksum)) continue;
+                    newDirFile.delete();
+                }
+                try {
+                    Files.copy(Path.of(file.getPath()), Path.of(newDirFile.getPath()));
+                    RenLogger.LOGGER.info("Copied '{}' to local saves.", file.getName());
+                } catch (IOException ignored) {
+                    // If caught ignore and let the application close.
+                }
+            }
+
+            ShutdownEvent shutdownEvent = new ShutdownEvent();
+            RenJava.callEvent(shutdownEvent);
+
+            Platform.exit();
+            System.exit(0);
+        });
+
+        renJava.setGameWindow(window);
+        // Next get the container for the main menu
+        Container menu = renJava.buildMainMenu(false);
         MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
         RenJava.callEvent(event);
 
+
+        // Check if the menu is null
         if (menu == null) {
             RenLogger.LOGGER.error("No title screen was found. Please customize your own title screen for better user experience.");
             RenLogger.LOGGER.warn("Building RenJava default title screen...");
-            menu = new Menu(renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth()).setTitle(renJava.getName() + " v" + renJava.getVersion());
+            menu = new EmptyContainer(0, 0, renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth());
+            menu.addOverlays(new ImageOverlay("gui/main_menu.png"));
 
-            menu.setBackgroundImage(new ImageOverlay("gui/main_menu.png"));
         }
 
-        Menu sideMenu = renJava.buildSideMenu(false);
+        window.addContainer(menu);
+
+        Container sideMenu = renJava.buildSideMenu(false);
         SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(sideMenu);
         RenJava.callEvent(sideMenuBuildEvent);
 
-        menu.addMenu(sideMenu);
+        window.addContainers(sideMenu);
 
         MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(menu);
         RenJava.callEvent(dispatchEvent);
 
-        menu.render();
+        window.render(); // Renders the window
+
         MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu);
         RenJava.callEvent(renderEvent);
 
-        renJava.setStage(stage, StageType.MAIN_MENU);
+        renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
     }
 
     private void postProcess() {

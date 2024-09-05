@@ -1,7 +1,7 @@
 package me.piitex.renjava.events.types;
 
 import me.piitex.renjava.events.Event;
-import me.piitex.renjava.gui.overlay.SliderOverlay;
+import me.piitex.renjava.gui.overlays.SliderOverlay;
 
 public class SliderChangeEvent extends Event {
     private final SliderOverlay sliderOverlay;

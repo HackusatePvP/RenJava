@@ -4,6 +4,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.exceptions.MusicFileNotFound;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
+import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,13 +25,19 @@ public class Tracks implements PersistentData {
 
     public Track getTrack(String trackID) {
         if (tracks.get(trackID) == null) {
-            RenJava.getInstance().getLogger().error(new MusicFileNotFound(trackID).getMessage());
+            MusicFileNotFound musicFileNotFound = new MusicFileNotFound(trackID);
+            RenLogger.LOGGER.error("Could not load track '" + trackID + "'", musicFileNotFound);
+            RenJava.writeStackTrace(musicFileNotFound);
+            return null;
         }
         return tracks.get(trackID);
     }
 
     public Track getCurrentTrack() {
-        return getTrack(currentTrack);
+        if (currentTrack != null) {
+            return getTrack(currentTrack);
+        }
+        return null;
     }
 
     public boolean isPlaying() {
@@ -49,18 +56,47 @@ public class Tracks implements PersistentData {
         this.isLooping = loop;
     }
 
-    public void play(String fileName, boolean loop) {
-        play(getTrack(fileName), loop);
+    public void playMusic(String fileName, boolean loop) {
+        playMusic(getTrack(fileName), loop);
     }
 
-    public void play(Track track, boolean loop) {
+    public void playSound(String fileName, boolean loop) {
+        playSound(getTrack(fileName), loop);
+    }
+
+    public void playVoice(String fileName, boolean loop) {
+        playVoice(getTrack(fileName), loop);
+    }
+
+
+    public void playMusic(Track track, boolean loop) {
         if (getCurrentTrack() != null) {
             getCurrentTrack().stop();
         }
         setPlaying(true);
         currentTrack = track.getId();
         setLoop(loop);
-        track.play(loop);
+        track.playMusic(loop);
+    }
+
+    public void playSound(Track track, boolean loop) {
+        if (getCurrentTrack() != null) {
+            getCurrentTrack().stop();
+        }
+        setPlaying(true);
+        currentTrack = track.getId();
+        setLoop(loop);
+        track.playSound(loop);
+    }
+
+    public void playVoice(Track track, boolean loop) {
+        if (getCurrentTrack() != null) {
+            getCurrentTrack().stop();
+        }
+        setPlaying(true);
+        currentTrack = track.getId();
+        setLoop(loop);
+        track.playVoice(loop);
     }
 
     public void stop() {

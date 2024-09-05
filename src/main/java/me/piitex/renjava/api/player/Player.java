@@ -2,7 +2,8 @@ package me.piitex.renjava.api.player;
 
 import javafx.scene.Scene;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
+import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.exceptions.InvalidStoryException;
@@ -20,6 +21,7 @@ public class Player implements PersistentData {
     private boolean rightClickMenu;
     @Data private String currentScene;
     @Data private String currentStory;
+    private StageType currentStageType;
 
     // Entry to map the story for the image
     private Map.Entry<String, ImageOverlay> lastDisplayedImage;
@@ -115,6 +117,14 @@ public class Player implements PersistentData {
         getStory(id).start();
     }
 
+    public StageType getCurrentStageType() {
+        return currentStageType;
+    }
+
+    public void setCurrentStageType(StageType currentStageType) {
+        this.currentStageType = currentStageType;
+    }
+
     public boolean isRightClickMenu() {
         return rightClickMenu;
     }
@@ -173,7 +183,8 @@ public class Player implements PersistentData {
 
     public void updateScene(RenScene renScene) {
         setCurrentScene(renScene.getId()); // Update the scene.
-        getViewedScenes().put(renScene.getStory().getId(), renScene.getId());
+        RenLogger.LOGGER.debug("Adding to view scenes: {}", renScene.getId());
+        viewedScenes.put(renScene.getStory().getId(), renScene.getId());
         setCurrentStory(renScene.getStory());
     }
 }

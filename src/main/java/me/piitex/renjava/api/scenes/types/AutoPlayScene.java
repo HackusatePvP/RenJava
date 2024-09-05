@@ -4,9 +4,10 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.SceneStartEvent;
-import me.piitex.renjava.gui.Menu;
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.overlay.ImageOverlay;
+import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
 import org.jetbrains.annotations.Nullable;
 
 public class AutoPlayScene extends RenScene {
@@ -38,7 +39,7 @@ public class AutoPlayScene extends RenScene {
     }
 
     @Override
-    public Menu build(boolean ui) {
+    public Container build(boolean ui) {
         if (useImage) {
             return new ImageScene(null, character, dialogue, backgroundImage).build(ui);
         } else {
@@ -47,9 +48,14 @@ public class AutoPlayScene extends RenScene {
     }
 
     @Override
-    public void render(Menu menu) {
-        menu.render(this);
-        renJava.setStage(renJava.getStage(), StageType.IMAGE_SCENE);
+    public void render(Window window, boolean ui) {
+        Container container = build(ui);
+
+        window.clearContainers();
+
+        window.addContainer(container);
+
+        window.render();
 
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);

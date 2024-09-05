@@ -1,68 +1,25 @@
 package me.piitex.renjava.gui.layouts;
 
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import me.piitex.renjava.gui.Element;
-import me.piitex.renjava.gui.overlay.Overlay;
-import me.piitex.renjava.gui.overlay.Region;
+import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.DisplayOrder;
+import me.piitex.renjava.gui.overlays.Overlay;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class Layout {
-    private final Pane pane; // Get's the pane type for javafx
-    private double x;
-    private double y;
-    private int width, height;
-    private double spacing;
-    private boolean scrollbar = false;
-    private final LinkedHashSet<Overlay> overlays = new LinkedHashSet<>();
-    private final LinkedHashSet<Layout> childLayouts = new LinkedHashSet<>();
-    private final LinkedHashSet<Pane> subPanes = new LinkedHashSet<>();
+    private final Pane pane;
+    private double x, y;
+    private final double width, height;
+    private DisplayOrder order = DisplayOrder.LOW;
+    private final LinkedList<Overlay> overlays = new LinkedList<>();
+    private final LinkedList<Layout> childLayouts = new LinkedList<>();
 
-    protected Layout(Pane pane) {
+    protected Layout(Pane pane, double width, double height) {
         this.pane = pane;
-    }
-    
-    public void render(Pane root) {
-        pane.setTranslateX(x);
-        pane.setTranslateY(y);
-        pane.setPrefSize(width, height);
-        for (Overlay overlay : getOverlays()) {
-            // Check if the layout should be a scroll pane.
-
-            // Update overlay sizes
-            if (overlay instanceof Region region) {
-                region.setWidth(pane.getWidth());
-            }
-
-            if (isScrollbar()) {
-                ScrollPane scrollPane = new ScrollPane(pane);
-                BorderPane subRoot = new BorderPane(scrollPane);
-                root.getChildren().add(subRoot); // Adds as border (could be wrong)
-            }
-            new Element(overlay).render(pane);
-        }
-        for (Pane sub : subPanes) {
-            if (sub != null) {
-                pane.getChildren().add(sub);
-            }
-        }
-        if (pane instanceof HBox hBox) {
-            hBox.setSpacing(spacing);
-        } else if (pane instanceof VBox vBox) {
-            vBox.setSpacing(spacing);
-        }
-
-        root.getChildren().add(pane);
-
-        for (Layout child : childLayouts) {
-            child.render(pane);
-        }
+        this.width = width;
+        this.height = height;
     }
 
     public Pane getPane() {
@@ -85,44 +42,32 @@ public abstract class Layout {
         this.y = y;
     }
 
-    public int getWidth() {
-        return width;
+    public DisplayOrder getOrder() {
+        return order;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
+    public void setOrder(DisplayOrder order) {
+        this.order = order;
     }
 
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public double getSpacing() {
-        return spacing;
-    }
-
-    public void setSpacing(double spacing) {
-        this.spacing = spacing;
-    }
-
-    public boolean isScrollbar() {
-        return scrollbar;
-    }
-
-    public void setScrollbar(boolean scrollbar) {
-        this.scrollbar = scrollbar;
-    }
-
-    public Collection<Overlay> getOverlays() {
+    public LinkedList<Overlay> getOverlays() {
         return overlays;
+    }
+
+    public void addOverlay(Overlay overlay) {
+        this.overlays.add(overlay);
     }
 
     public void addOverlays(Overlay... overlays) {
         this.overlays.addAll(List.of(overlays));
+    }
+
+    public void addOverlays(List<Overlay> overlays) {
+        this.overlays.addAll(overlays);
+    }
+
+    public LinkedList<Layout> getChildLayouts() {
+        return childLayouts;
     }
 
     public void addChildLayout(Layout layout) {
@@ -133,15 +78,5 @@ public abstract class Layout {
         this.childLayouts.addAll(List.of(layouts));
     }
 
-    public LinkedHashSet<Layout> getChildLayouts() {
-        return childLayouts;
-    }
-
-    public LinkedHashSet<Pane> getSubPanes() {
-        return subPanes;
-    }
-
-    public void addSubPane(Pane pane) {
-        subPanes.add(pane);
-    }
+    public abstract Pane render(Container container);
 }

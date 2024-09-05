@@ -5,14 +5,39 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 - [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
 - [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure) This an example project that is used for testing the framework.
 
+## Notice
+As of build 0.1.x, the project is just a demo. You will not be able to create a fully functional game with the current state of the framework.
+I recommend using the experimental branch over the master branch when testing and demoing the framework. Thank you for using and exploring RenJava.
+
+## Updating
+When updating to a newer version of RenJava it is recommended to delete default 'settings.properties' and 'build.info'.
+These files are located in the 'renjava' folder for your game directory. These files need to be reset before you distribute the game.
+RenJava will automatically re-create these files with newer settings and info.
+
+```
+Hero-Adventure-1.0
+  addons
+  game
+  jdk
+  logs
+  renjava
+  HeroAdventure-1.0-SNAPSHOT.jar
+  start.bat
+  start.sh
+```
+
 ## Project Requirements
-- [Java-17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) (You can typically download this within your IDE)
+- [Java-21](https://www.oracle.com/java/technologies/downloads/#java21) (You can typically download this within your IDE)
 - [intellij](https://www.jetbrains.com/idea/download/?section=windows) or [Eclipse](https://www.eclipse.org/downloads/)
 - [Maven](https://maven.apache.org/download.cgi) (Might come with your IDE)
 
 ## Application Requirements
-- Java
 - The OS has to support Java 17 JDK.
+- MacOS not currently supported.
+
+## Updating Application
+If a game has an update please delete the previous version. Make sure to transfer your saves before doing so. This is to prevent malicious attacks that come with having an old JDK installed onto your pc.
+Alternative you can just delete the jdk folder in the old version. As an author you should post this warning to your community for every update.
 
 ## Getting started
 Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about te framework and all of its features.

@@ -3,7 +3,11 @@ package me.piitex.renjava.events.defaults;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AutoPlayScene;
@@ -21,6 +25,31 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ScenesEventListener implements EventListener {
+    private RenScene lastRenderedScene;
+
+    @Listener
+    public void onContainerRender(ContainerRenderEvent event) {
+        // When the render is called the scene should be already set.
+        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        if (scene != null && scene != lastRenderedScene) {
+            RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
+            Window window = RenJava.getInstance().getGameWindow();
+            Transitions transitions = scene.getStartTransition();
+            if (transitions != null) {
+                if (transitions instanceof FadingTransition fadingTransition) {
+                    window.updateBackground(fadingTransition.getColor());
+                }
+                transitions.play(event.getNode());
+            }
+        }
+        lastRenderedScene = scene;
+    }
+
+    @Listener
+    public void fixBackground(FadingTransitionEndEvent event) {
+        Window window = RenJava.getInstance().getGameWindow();
+        window.updateBackground(Color.BLACK);
+    }
 
     @Listener(priority = Priority.HIGHEST)
     public void onSceneStart(SceneStartEvent event) {
@@ -70,7 +99,7 @@ public class ScenesEventListener implements EventListener {
     @Listener(priority = Priority.HIGHEST)
     public void onChoiceButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
-        RenScene scene = event.getScene();
+        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
         if (scene instanceof ChoiceScene choiceScene) {
             Choice choice = choiceScene.getChoice(button.getId());
             if (choice != null) {

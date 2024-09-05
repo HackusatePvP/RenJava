@@ -1,6 +1,7 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AnimationScene;
@@ -13,8 +14,7 @@ import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneEndEvent;
-import me.piitex.renjava.gui.Menu;
-import org.slf4j.Logger;;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -80,6 +80,8 @@ public abstract class Story {
         this.id = id;
         // Global var
         renJava = RenJava.getInstance();
+
+        RenLogger.LOGGER.info("Registering story '{}'", id);
         renJava.getPlayer().addStory(this); // Registers the story.
     }
 
@@ -110,7 +112,6 @@ public abstract class Story {
     /**
      * Displays the first scene of the story and begins the story route.
      */
-
     public void start() {
         // Update RenJava Player BEFORE the scenes are added
         renJava.getPlayer().setCurrentStory(this.getId());
@@ -122,12 +123,14 @@ public abstract class Story {
         RenScene renScene = getScene(0); // Gets the first scene index.
         renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
-        Menu menu = renScene.build(true);
+        Container scene = renScene.build(true);
 
-        SceneBuildEvent buildEvent = new SceneBuildEvent(renScene, menu);
+        SceneBuildEvent buildEvent = new SceneBuildEvent(renScene, scene);
         RenJava.callEvent(buildEvent);
 
-        renScene.render(menu);
+        RenLogger.LOGGER.debug("Rendering first scene...");
+        renScene.render(renJava.getGameWindow(), true);
+        renJava.getPlayer().setCurrentStageType(renScene.getStageType());
     }
 
     /**
@@ -212,7 +215,6 @@ public abstract class Story {
      * Gets the next scene based on the current scene id.
      * @param id ID of the next scene.
      * @return Returns the next RenScene or null.
-     * @throws NullPointerException if the next scene is invalid.
      */
     public RenScene getNextScene(String id) {
         RenScene scene = scenes.get(id);
@@ -235,16 +237,15 @@ public abstract class Story {
      * Gets the next scene based on the current scene id.
      * @param id ID of the previous scene.
      * @return Returns the previous RenScene or null.
-     * @throws NullPointerException if the previous scene is invalid.
      */
-    public RenScene getPreviousScene(String id) {
+    public RenScene getPreviousSceneFromID(String id) {
         RenScene scene = scenes.get(id);
         int index = scene.getIndex() - 1;
         return sceneIndexMap.get(index);
     }
 
     public RenScene getPreviousSceneFromCurrent() {
-        return getPreviousScene(renJava.getPlayer().getCurrentScene().getId());
+        return getPreviousSceneFromID(renJava.getPlayer().getCurrentScene().getId());
     }
 
     public void displayScene(int index) {
@@ -258,10 +259,15 @@ public abstract class Story {
     }
 
     public void displayScene(RenScene scene) {
+        RenLogger.LOGGER.debug("Rendering: " + scene.getId());
+        RenLogger.LOGGER.debug("Calling scene end event...");
         SceneEndEvent event = new SceneEndEvent(getCurrentScene());
         RenJava.callEvent(event);
+        RenLogger.LOGGER.debug("Updating scene...");
         RenJava.getInstance().getPlayer().updateScene(scene);
-        scene.render(scene.build(true));
+        RenLogger.LOGGER.debug("Rendering scene container...");
+        scene.render(renJava.getGameWindow(),true);
+        renJava.getPlayer().setCurrentStageType(scene.getStageType());
     }
 
     public void displayNextScene() {

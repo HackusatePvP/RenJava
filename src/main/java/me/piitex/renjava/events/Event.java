@@ -51,4 +51,14 @@ import me.piitex.renjava.RenJava;
  * <p>
  * Overall, events provide a way to handle and respond to various game actions and events in a structured and organized manner.
  */
-public abstract class Event { }
+public abstract class Event {
+    private boolean sync = true;
+
+    public void setSync(boolean sync) {
+        this.sync = sync;
+    }
+
+    public boolean isSync() {
+        return sync;
+    }
+}
