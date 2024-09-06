@@ -18,7 +18,7 @@ public abstract class Container {
     private final LinkedList<Layout> layouts = new LinkedList<>();
     private final LinkedList<Container> containers = new LinkedList<>();
 
-    protected Container(double x, double y, double width, double height) {
+    public Container(double x, double y, double width, double height) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -26,7 +26,7 @@ public abstract class Container {
         this.order = DisplayOrder.NORMAL;
     }
 
-    protected Container(double x, double y, double width, double height, DisplayOrder order) {
+    public Container(double x, double y, double width, double height, DisplayOrder order) {
         this.x = x;
         this.y = y;
         this.width = width;
