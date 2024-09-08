@@ -123,14 +123,9 @@ public abstract class Story {
         RenScene renScene = getScene(0); // Gets the first scene index.
         renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
-        Container scene = renScene.build(true);
-
-        SceneBuildEvent buildEvent = new SceneBuildEvent(renScene, scene);
-        RenJava.callEvent(buildEvent);
-
         RenLogger.LOGGER.debug("Rendering first scene...");
-        renScene.render(renJava.getGameWindow(), true);
         renJava.getPlayer().setCurrentStageType(renScene.getStageType());
+        renScene.render(renJava.getGameWindow(), true);
     }
 
     /**
