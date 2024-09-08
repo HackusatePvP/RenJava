@@ -118,17 +118,17 @@ public abstract class Overlay {
     }
 
     public void setInputControls(Node node) {
-        if (node.getOnDragEntered() != null) {
+        if (node.getOnDragEntered() == null) {
             node.setOnMouseEntered(event -> {
                 RenJava.callEvent(new OverlayHoverEvent(this, event));
             });
         }
-        if (node.getOnMouseClicked() != null) {
+        if (node.getOnMouseClicked() == null) {
             node.setOnMouseClicked(event -> {
                 RenJava.callEvent(new OverlayClickEvent(this, event));
             });
         }
-        if (node.getOnMouseExited() != null) {
+        if (node.getOnMouseExited() == null) {
             node.setOnMouseExited(event -> {
                 RenJava.callEvent(new OverlayExitEvent(this, event));
             });
