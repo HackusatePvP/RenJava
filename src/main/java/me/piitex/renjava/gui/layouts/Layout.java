@@ -74,6 +74,10 @@ public abstract class Layout {
         this.childLayouts.add(layout);
     }
 
+    public void addChildLayouts(LinkedList<Layout> layouts) {
+        this.childLayouts.addAll(layouts);
+    }
+
     public void addChildLayouts(Layout... layouts) {
         this.childLayouts.addAll(List.of(layouts));
     }

@@ -183,7 +183,7 @@ public class ImageScene extends RenScene {
 
         for (File file : getStyleSheets()) {
             try {
-                RenJava.getInstance().getStage().getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
+                RenJava.getInstance().getGameWindow().getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
             } catch (MalformedURLException e) {
                 renJava.getLogger().error(e.getMessage());
             }

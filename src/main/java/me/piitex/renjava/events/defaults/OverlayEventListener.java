@@ -4,6 +4,8 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.*;
@@ -85,6 +87,15 @@ public class OverlayEventListener implements EventListener {
                     button.setTextFill(buttonOverlay.getTextFill());
                 }
             }
+        }
+    }
+
+    @Listener
+    public void onInputSet(InputSetEvent event) {
+        RenScene renScene = RenJava.getInstance().getPlayer().getCurrentScene();
+        if (renScene == null) return;
+        if (renScene instanceof InputScene inputScene) {
+            inputScene.getSetInterface().onInputSet(event);
         }
     }
 }

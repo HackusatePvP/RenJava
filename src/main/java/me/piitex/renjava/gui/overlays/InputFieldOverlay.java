@@ -2,6 +2,7 @@ package me.piitex.renjava.gui.overlays;
 
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
+import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.events.types.InputSetEvent;
 import me.piitex.renjava.gui.overlays.events.IInputSetEvent;
@@ -10,7 +11,9 @@ public class InputFieldOverlay extends Overlay implements Region {
     private double width, height;
     private double scaleWidth, scaleHeight;
     private final String defaultInput;
+    private FontLoader fontLoader;
     private String hintText = "";
+    private String currentText;
 
     private IInputSetEvent iInputSetEvent;
 
@@ -32,15 +35,31 @@ public class InputFieldOverlay extends Overlay implements Region {
         setY(y);
     }
 
+    public FontLoader getFontLoader() {
+        return fontLoader;
+    }
+
+    public void setFontLoader(FontLoader fontLoader) {
+        this.fontLoader = fontLoader;
+    }
+
+    public String getCurrentText() {
+        return currentText;
+    }
+
     @Override
     public Node render() {
         TextField textField = build();
         textField.setPromptText(hintText);
         textField.setText(defaultInput);
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Input: " + newValue);
+            InputSetEvent event = new InputSetEvent(this, newValue);
             if (getiInputSetEvent() != null) {
-                getiInputSetEvent().onInputSet(new InputSetEvent(this, newValue));
+                getiInputSetEvent().onInputSet(event);
             }
+            RenJava.callEvent(event);
+            currentText = newValue;
         });
         setInputControls(textField);
         renderTransitions(textField);
@@ -91,7 +110,7 @@ public class InputFieldOverlay extends Overlay implements Region {
         return iInputSetEvent;
     }
 
-    public void setInputSetEvent(IInputSetEvent iInputSetEvent) {
+    public void onInputSetEvent(IInputSetEvent iInputSetEvent) {
         this.iInputSetEvent = iInputSetEvent;
     }
 
@@ -99,8 +118,11 @@ public class InputFieldOverlay extends Overlay implements Region {
         TextField textField = new TextField();
         textField.setTranslateX(getX());
         textField.setTranslateY(getY());
-        textField.setStyle("");
-        textField.setStyle("-fx-control-inner-background: grey; -fx-background-color: grey;");
+//        textField.setStyle("");
+        if (fontLoader != null) {
+            textField.setFont(getFontLoader().getFont());
+        }
+        textField.setStyle("-fx-control-inner-background: transparent; -fx-background-color: transparent;");
         textField.setPrefSize(width, height);
         return textField;
     }

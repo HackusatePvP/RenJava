@@ -17,6 +17,7 @@ module RenJava {
     requires org.apache.logging.log4j.slf4j2.impl;
     requires com.github.oshi;
     requires maven.artifact;
+    requires org.apache.commons.lang3;
     exports me.piitex.renjava;
     exports me.piitex.renjava.configuration;
     exports me.piitex.renjava.gui;
