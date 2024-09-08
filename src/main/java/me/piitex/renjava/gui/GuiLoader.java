@@ -161,6 +161,8 @@ public class GuiLoader {
         MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(menu);
         RenJava.callEvent(dispatchEvent);
 
+        window.setMaximized(configuration.isMaximizedGameWindow());
+
         window.render(); // Renders the window
 
         MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu);
