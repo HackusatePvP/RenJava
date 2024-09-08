@@ -4,6 +4,7 @@ import javafx.application.HostServices;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
@@ -30,18 +31,21 @@ import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
+import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.tasks.Tasks;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -83,8 +87,6 @@ public abstract class RenJava {
     private AddonLoader addonLoader;
 
     private Window gameWindow;
-    private Stage stage; // Move this somewhere else.
-    private StageType stageType;
 
     private RenJavaConfiguration configuration;
 
@@ -98,6 +100,9 @@ public abstract class RenJava {
     private final Collection<PersistentData> registeredData = new HashSet<>();
 
     protected String buildVersion;
+
+    // Error tracking
+    private static long lastErrorTimeStamp;
 
     private static RenJava instance;
 
@@ -171,10 +176,6 @@ public abstract class RenJava {
 
     public void setGameWindow(Window gameWindow) {
         this.gameWindow = gameWindow;
-    }
-
-    public Stage getStage() {
-        return stage;
     }
 
     public RenJavaConfiguration getConfiguration() {
@@ -766,6 +767,19 @@ public abstract class RenJava {
     }
 
     public static void writeStackTrace(Exception e) {
+
+        if (lastErrorTimeStamp > 0) {
+            Date last = new Date(lastErrorTimeStamp);
+            Date current = new Date(System.currentTimeMillis());
+            long seconds = (current.getTime() - last.getTime()) / DateUtils.MILLIS_PER_SECOND;
+            if (seconds < 30) {
+                RenLogger.LOGGER.error("An error occurred within 30s of a previous error. To prevent spam this error has been silenced.");
+                return;
+            }
+        }
+
+        lastErrorTimeStamp = System.currentTimeMillis();
+
         File file = new File(System.getProperty("user.dir") + "/stacktrace.txt");
         try {
             file.createNewFile();
@@ -783,37 +797,32 @@ public abstract class RenJava {
             RenJava.writeStackTrace(e);
         }
 
-//        // Very experimental!
-//        // When an error occurs prompt the user that an error occurred and to report the bug to the author.
-//        Stage errorStage = new Stage(StageStyle.DECORATED);
-//        Pane pane = new Pane();
-//        pane.setPrefSize(800, 800);
-//        Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
-//        TextFlow textFlow = new TextFlow();
-//        textFlow.setPrefSize(800, 800);
-//        textFlow.getChildren().add(text);
-//
-//        textFlow.getChildren().add(new Text(System.lineSeparator()));
-//
-//        StringWriter sw = new StringWriter();
-//        PrintWriter writer = new PrintWriter(sw);
-//        e.printStackTrace(writer);
-//        Text stackTrace = new Text(sw.toString());
-//
-//        textFlow.getChildren().add(stackTrace);
-//
-//        pane.getChildren().add(textFlow);
-//
-//        Scene scene = new Scene(pane);
-//        errorStage.setScene(scene);
-//
-//        errorStage.show();
-//        errorStage.requestFocus();
-
         Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon());
+        errorWindow.updateBackground(Color.WHITE);
+        errorWindow.setFullscreen(false);
+        errorWindow.setMaximized(false);
 
-        EmptyContainer container = new EmptyContainer(600,600);
+        VerticalLayout rootLayout = new VerticalLayout(900, 600);
+        ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 900, 600);
 
+        Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
+
+
+        StringWriter sw = new StringWriter();
+        PrintWriter writer = new PrintWriter(sw);
+        e.printStackTrace(writer);
+        Text stackTrace = new Text(sw.toString());
+
+        LinkedList<Text> texts = new LinkedList<>();
+        texts.add(text);
+        texts.add(stackTrace);
+
+        TextFlowOverlay textFlowOverlay = new TextFlowOverlay(texts, 900, 600);
+        rootLayout.addOverlay(textFlowOverlay);
+
+        errorWindow.addContainers(container);
+
+        errorWindow.render();
 
     }
 }
