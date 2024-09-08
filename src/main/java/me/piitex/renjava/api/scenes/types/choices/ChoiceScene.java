@@ -165,10 +165,8 @@ public class ChoiceScene extends RenScene {
 
             int scrollStart = 5;
             if (choices.size() > scrollStart) {
-                System.out.println("Creating scroll menu...");
                 menu = new ScrollContainer(layout, 0, 0, configuration.getWidth(), configuration.getHeight());
             } else {
-                System.out.println("Creating empty container...");
                 menu = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
             }
 
