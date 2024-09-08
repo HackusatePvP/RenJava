@@ -134,7 +134,7 @@ public class TextFlowOverlay extends Overlay implements Region {
         }
 
         if (inputFieldOverlay != null) {
-            textFlow.getChildren().add(inputFieldOverlay.build());
+            textFlow.getChildren().add(inputFieldOverlay.render());
         }
 
         textFlow.setPrefSize(width, height);

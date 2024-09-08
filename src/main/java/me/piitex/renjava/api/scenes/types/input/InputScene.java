@@ -1,11 +1,15 @@
 package me.piitex.renjava.api.scenes.types.input;
 
 import javafx.scene.control.TextField;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.api.scenes.types.ImageScene;
+import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.SceneStartEvent;
 
 import me.piitex.renjava.gui.Container;
@@ -16,7 +20,11 @@ import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.InputFieldOverlay;
 import me.piitex.renjava.gui.overlays.TextFlowOverlay;
+import me.piitex.renjava.gui.overlays.TextOverlay;
+import me.piitex.renjava.gui.overlays.events.IInputSetEvent;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedList;
 
 /**
  * The InputScene class represents a scene in the RenJava framework that allows the player to input text.
@@ -34,14 +42,17 @@ import org.jetbrains.annotations.Nullable;
  * </p>
  *
  * @see RenScene
- * @see InputSetInterface
+ * @see IInputSetEvent
  */
 public class InputScene extends RenScene {
     private final String text;
     private String defaultInput = "";
     private final ImageOverlay loader;
-    private TextField inputField;
-    private InputSetInterface setInterface;
+    private Font font;
+    private InputFieldOverlay inputField;
+    private IInputSetEvent setInterface;
+
+    private RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
 
     /**
      * Constructs an InputScene with the specified ID and image loader.
@@ -55,7 +66,15 @@ public class InputScene extends RenScene {
         this.loader = loader;
     }
 
-    public TextField getInputField() {
+    public Font getFont() {
+        return font;
+    }
+
+    public void setFont(Font font) {
+        this.font = font;
+    }
+
+    public InputFieldOverlay getInputField() {
         return inputField;
     }
 
@@ -67,33 +86,65 @@ public class InputScene extends RenScene {
         this.defaultInput = defaultInput;
     }
 
-    public void onSet(InputSetInterface inputSetInterface) {
+    public void onSet(IInputSetEvent inputSetInterface) {
         this.setInterface = inputSetInterface;
     }
 
-    public InputSetInterface getSetInterface() {
+    public IInputSetEvent getSetInterface() {
         return setInterface;
     }
 
     @Override
     public Container build(boolean ui) {
-        Container menu = new EmptyContainer(0, 0,1920, 1080);
+        Container container = new EmptyContainer(0, 0,1920, 1080);
+        loader.setOrder(DisplayOrder.LOW);
+        container.addOverlays(loader);
 
-        Container imageMenu = (new ImageScene(null, null, this.text, this.loader)).build(ui);
         if (ui) {
-            TextFlowOverlay textFlowOverlay;
-            for (Container otherMenu : menu.getContainers()) {
-                textFlowOverlay = (TextFlowOverlay) otherMenu.getOverlays().stream().filter(overlay -> overlay instanceof TextFlowOverlay).findFirst().orElse(null);
-                if (textFlowOverlay != null) {
-                    Text beforeText = textFlowOverlay.getTexts().getLast();
-                    InputFieldOverlay inputFieldOverlay = new InputFieldOverlay(defaultInput, beforeText.getTranslateX() - 30.0, beforeText.getY() + 210.0, 400, 1920);
-                    inputFieldOverlay.setOrder(DisplayOrder.HIGH);
-                    otherMenu.addOverlay(inputFieldOverlay);
+            // Textbox
+            ImageLoader textbox = new ImageLoader("gui/textbox.png");
+            Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+
+            ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
+            textboxMenu.addOverlay(textBoxImage);
+
+
+            if (text != null && !text.isEmpty()) {
+                TextFlowOverlay textFlowOverlay;
+                LinkedList<Text> texts = StringFormatter.formatText(text);
+                if (texts.isEmpty()) {
+                    Text text1 = new Text(text);
+                    text1.setFont(RenJava.getInstance().getConfiguration().getDialogueFont().getFont());
+                    textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+                } else {
+                    textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                 }
+                textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
+                textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
+                textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
+                textFlowOverlay.setFont(font);
+
+                inputField = new InputFieldOverlay(defaultInput, 0,0,500,0);
+
+                inputField.onInputSetEvent(event -> {
+                    getSetInterface().onInputSet(event);
+                    RenJava.callEvent(event);
+                });
+
+                inputField.setOrder(DisplayOrder.HIGH);
+
+
+//                inputFieldOverlay.setFontLoader(RenJava.getInstance().getConfiguration().getUiFont());
+                textFlowOverlay.setInputFieldOverlay(inputField);
+
+                textboxMenu.addOverlay(textFlowOverlay);
+
+
+                container.addContainers(textboxMenu);
             }
         }
-        menu.addContainers(imageMenu);
-        return menu;
+
+        return container;
     }
 
     @Override

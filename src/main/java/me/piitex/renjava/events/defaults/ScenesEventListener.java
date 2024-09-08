@@ -8,6 +8,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.overlays.InputFieldOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AutoPlayScene;
@@ -84,15 +85,15 @@ public class ScenesEventListener implements EventListener {
 
     @Listener(priority = Priority.HIGHEST)
     public void onSceneEnd(SceneEndEvent event) {
-        if (event.getScene() instanceof InputScene scene) {
-            TextField field = scene.getInputField();
-            if (field == null) {
-                RenLogger.LOGGER.error("TextField for InputScene is null.");
-                return;
-            }
-            InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
-            RenJava.callEvent(endEvent);
-        }
+//        if (event.getScene() instanceof InputScene scene) {
+//            TextField field = scene.getInputField();
+//            if (field == null) {
+//                RenLogger.LOGGER.error("TextField for InputScene is null.");
+//                return;
+//            }
+//            InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
+//            RenJava.callEvent(endEvent);
+//        }
 
     }
 
@@ -109,14 +110,6 @@ public class ScenesEventListener implements EventListener {
                     choiceScene.getSelectInterface().onChoiceSelect(selectEvent);
                 }
             }
-        }
-    }
-
-    @Listener(priority = Priority.HIGHEST)
-    public void onInputEndEvent(InputSceneEndEvent event) {
-        InputScene scene = event.getScene();
-        if (scene.getSetInterface() != null) {
-            scene.getSetInterface().onInput(event);
         }
     }
 
