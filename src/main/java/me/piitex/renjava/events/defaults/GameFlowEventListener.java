@@ -149,16 +149,12 @@ public class GameFlowEventListener implements EventListener {
     public void onScrollUp(ScrollUpEvent event) {
         Logger logger = RenLogger.LOGGER;
         Window window = renJava.getGameWindow();
-        logger.info("Scroll up called!");
         if (event.isCancelled()) return; // If the event is canceled, do not roll back.
         if (renJava.getPlayer().getCurrentScene() != null) {
             if (event.isDisplayPreviousScene()) {
                 Story story = renJava.getPlayer().getCurrentStory();
                 RenScene renScene = story.getPreviousSceneFromCurrent();
-                if (renScene == null) {
-                    // log for testing
-                    logger.info("Previous scene not found.");
-                } else {
+                if (renScene != null) {
                     renScene.render(window, true);
                     renJava.getPlayer().updateScene(renScene);
                 }
@@ -173,32 +169,17 @@ public class GameFlowEventListener implements EventListener {
     @Listener
     public void onScrollDown(ScrollDownEvent event) {
         // If they scroll down it acts like skipping.
-        RenLogger.LOGGER.debug("Scroll down called!");
         if (event.isCancelled()) return;
-        RenLogger.LOGGER.debug("Not cancelled!");
         RenScene scene = renJava.getPlayer().getCurrentScene();
         Window window = renJava.getGameWindow();
         if (scene != null) {
-            RenLogger.LOGGER.debug("Current scene not null");
             // This is off by one scene... Test the next scene?
             Story story = scene.getStory();
             RenScene nextScene = story.getNextSceneFromCurrent();
-
-            // Stops here
-            RenLogger.LOGGER.debug("Story ID: {}", story.getId());
-            RenLogger.LOGGER.debug("Next Scene: {}", nextScene.getId());
-
-            RenLogger.LOGGER.debug("Scanning for viewed scenes...");
-            renJava.getPlayer().getViewedScenes().forEach((s, s2) -> {
-                RenLogger.LOGGER.debug("Found: ({},{})", s, s2);
-            });
-
             if (nextScene != null && renJava.getPlayer().hasSeenScene(story, nextScene.getId())) {
-                RenLogger.LOGGER.debug("Next scene not null and player has viewed the next scene");
                 // Render next scene
                 renJava.getPlayer().updateScene(nextScene);
                 nextScene.render(window, true);
-                RenLogger.LOGGER.debug("Rendered");
             }
         }
     }
