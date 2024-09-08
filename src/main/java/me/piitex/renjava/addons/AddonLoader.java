@@ -208,7 +208,7 @@ public class AddonLoader {
                         addons.add(addon);
                         //clazz.getMethod("onLoad").invoke(object, null);
                         addon.onLoad(); // Loads addon
-                        logger.info("Loaded: " + addon.getName());
+                        logger.info("Loaded: {}", addon.getName());
                     }
                 }
             }

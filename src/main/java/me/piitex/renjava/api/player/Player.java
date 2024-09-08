@@ -113,7 +113,7 @@ public class Player implements PersistentData {
             return;
         }
         RenLogger.LOGGER.info("Starting story '" + id + "'");
-        RenJava.getInstance().getPlayer().setCurrentStory(id);
+        setCurrentStory(id);
         getStory(id).start();
     }
 
@@ -183,7 +183,6 @@ public class Player implements PersistentData {
 
     public void updateScene(RenScene renScene) {
         setCurrentScene(renScene.getId()); // Update the scene.
-        RenLogger.LOGGER.debug("Adding to view scenes: {}", renScene.getId());
         viewedScenes.put(renScene.getId(), renScene.getStory().getId());
         setCurrentStory(renScene.getStory());
     }

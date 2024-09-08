@@ -84,20 +84,6 @@ public class ScenesEventListener implements EventListener {
     }
 
     @Listener(priority = Priority.HIGHEST)
-    public void onSceneEnd(SceneEndEvent event) {
-//        if (event.getScene() instanceof InputScene scene) {
-//            TextField field = scene.getInputField();
-//            if (field == null) {
-//                RenLogger.LOGGER.error("TextField for InputScene is null.");
-//                return;
-//            }
-//            InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
-//            RenJava.callEvent(endEvent);
-//        }
-
-    }
-
-    @Listener(priority = Priority.HIGHEST)
     public void onChoiceButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
         RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
