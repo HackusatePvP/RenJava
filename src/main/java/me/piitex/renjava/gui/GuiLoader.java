@@ -15,6 +15,7 @@ import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.*;
+import me.piitex.renjava.tasks.Tasks;
 import me.piitex.renjava.utils.MDUtils;
 
 import java.io.File;
@@ -26,7 +27,7 @@ import java.nio.file.Path;
  * Loader class for loading the GUI. Starts with the splash screen first.
  */
 public class GuiLoader {
-    private Stage stage;
+    private final Stage stage;
     private final RenJava renJava;
 
     public GuiLoader(Stage stage, RenJava renJava, HostServices services) {
@@ -46,14 +47,18 @@ public class GuiLoader {
         if (window == null) {
             RenLogger.LOGGER.warn("No splash screen was rendered..");
             renJavaFrameworkBuild();
+            buildMainMenu();
             return; // Don't create a splash screen if one wasn't set.
         }
 
         window.render();
+
+        Tasks.runAsync(this::renJavaFrameworkBuild);
+
         PauseTransition wait = new PauseTransition(Duration.seconds(3)); // TODO: 2/17/2024 Make this configurable.
         wait.setOnFinished(actionEvent -> {
-            stage.close(); // Closes stage for the splash screen (required)
-            renJavaFrameworkBuild();
+            window.close(); // Closes stage for the splash screen (required)
+            buildMainMenu();
         });
 
         wait.play();
@@ -65,7 +70,6 @@ public class GuiLoader {
         RenLogger.LOGGER.info("Creating story...");
         renJava.createStory();
         postProcess();
-        buildMainMenu();
     }
 
     private void buildMainMenu() {
@@ -93,6 +97,7 @@ public class GuiLoader {
             renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
         }
 
+        RenLogger.LOGGER.info("Rendering main menu...");
         // When building title screen create a new window and eventually store the window for easy access
         Window window = new Window(renJava.getConfiguration().getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
         // Specifically for the gameWindow it is needed to setup the shutdown events.
@@ -128,6 +133,7 @@ public class GuiLoader {
             System.exit(0);
         });
 
+
         renJava.setGameWindow(window);
         // Next get the container for the main menu
         Container menu = renJava.buildMainMenu(false);
@@ -162,6 +168,7 @@ public class GuiLoader {
 
         renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
     }
+
 
     private void postProcess() {
         renJava.getAddonLoader().load();
