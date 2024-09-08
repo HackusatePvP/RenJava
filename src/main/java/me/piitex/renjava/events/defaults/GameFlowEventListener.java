@@ -38,7 +38,6 @@ public class GameFlowEventListener implements EventListener {
     public void onMouseClick(MouseClickEvent event) {
         // RenJa keeps track of current Stages and other stuff
         Window window = renJava.getGameWindow();
-        Stage stage = renJava.getStage();
         StageType stageType = renJava.getPlayer().getCurrentStageType();
         RenScene scene = renJava.getPlayer().getCurrentScene();
         Player player = renJava.getPlayer();
@@ -111,11 +110,11 @@ public class GameFlowEventListener implements EventListener {
             SettingsProperties properties = renJava.getSettings();
             if (properties.isFullscreen()) {
                 properties.setFullscreen(false);
-                stage = renJava.getStage();
+                stage = renJava.getGameWindow().getStage();
                 stage.setFullScreen(false);
             } else {
                 properties.setFullscreen(true);
-                stage = renJava.getStage();
+                stage = renJava.getGameWindow().getStage();
                 stage.setFullScreen(true);
             }
         }
@@ -257,7 +256,7 @@ public class GameFlowEventListener implements EventListener {
                         BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
                         pane.setBackground(new Background(backgroundFill));
                         pane.getScene().setFill(fadingTransition.getColor());
-                        renJava.getStage().getScene().setFill(fadingTransition.getColor());
+                        renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
                     }
                     scene.getEndTransition().play(pane); // Starts transition.
                 } else {
