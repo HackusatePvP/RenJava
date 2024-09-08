@@ -24,6 +24,7 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.tasks.Tasks;
 import org.slf4j.Logger;;
 
 
@@ -104,7 +105,7 @@ public class GameFlowEventListener implements EventListener {
     @Listener
     public void onKeyPress(KeyPressEvent event) {
         // Handle actions when a player presses a key.
-        KeyCode code = event.getCode();
+        KeyCode code = event.getEvent().getCode();
         Stage stage;
         if (code == KeyCode.F11) {
             SettingsProperties properties = renJava.getSettings();
@@ -123,8 +124,26 @@ public class GameFlowEventListener implements EventListener {
             playNextScene();
         }
 
+        // Key-held is a little weird.
         if (code == KeyCode.CONTROL) {
-            skipHeld = true;
+            // Check to see if they viewed the scene first.
+            RenScene currentScene = renJava.getPlayer().getCurrentScene();
+            if (currentScene != null) {
+                RenScene nextScene = currentScene.getStory().getNextScene(currentScene.getId());
+                if (nextScene != null && (renJava.getPlayer().hasSeenScene(nextScene.getStory(), nextScene.getId()) || renJava.getSettings().isSkipUnseenText())) {
+                    Tasks.runJavaFXThread(this::playNextScene);
+                } else {
+                    if (nextScene == null) {
+                        // If the next scene is null call the scene end event
+                        SceneEndEvent endEvent = new SceneEndEvent(currentScene);
+                        if (currentScene.getEndInterface() != null) {
+                            currentScene.getEndInterface().onEnd(endEvent);
+                        }
+                        RenJava.callEvent(endEvent);
+                        return;
+                    }
+                }
+            }
         }
     }
 
@@ -155,6 +174,7 @@ public class GameFlowEventListener implements EventListener {
                 Story story = renJava.getPlayer().getCurrentStory();
                 RenScene renScene = story.getPreviousSceneFromCurrent();
                 if (renScene != null) {
+
                     renScene.render(window, true);
                     renJava.getPlayer().updateScene(renScene);
                 }
@@ -192,7 +212,6 @@ public class GameFlowEventListener implements EventListener {
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
-        System.out.println("Boolean: " + gameMenu);
         if (gameMenu) {
             if (scene == null) {
                 logger.error("The scene is null.");
