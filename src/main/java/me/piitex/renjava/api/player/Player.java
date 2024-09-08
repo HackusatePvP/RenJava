@@ -35,7 +35,7 @@ public class Player implements PersistentData {
     @Data private LinkedHashSet<String> viewedStories = new LinkedHashSet<>(); // Ordered map of what stories the player has viewed.
     private final Map<Integer, Story> viewedStoriesIndex = new HashMap<>(); // Indexing of the viewedStories
 
-    // StoryID, SceneID
+    // SceneID, StoryID
     @Data private Map<String, String> viewedScenes = new HashMap<>();
 
     private final Map<String, Story> storyIdMap = new HashMap<>();
@@ -44,7 +44,7 @@ public class Player implements PersistentData {
     private RenScene lastRenderedRenScene;
 
     public boolean hasSeenScene(Story story, String sceneID) {
-        return viewedScenes.containsKey(story.getId()) && viewedScenes.containsValue(sceneID);
+        return viewedScenes.containsKey(sceneID) && viewedScenes.containsValue(story.getId());
     }
 
     public RenScene getCurrentScene() {
@@ -184,7 +184,7 @@ public class Player implements PersistentData {
     public void updateScene(RenScene renScene) {
         setCurrentScene(renScene.getId()); // Update the scene.
         RenLogger.LOGGER.debug("Adding to view scenes: {}", renScene.getId());
-        viewedScenes.put(renScene.getStory().getId(), renScene.getId());
+        viewedScenes.put(renScene.getId(), renScene.getStory().getId());
         setCurrentStory(renScene.getStory());
     }
 }
