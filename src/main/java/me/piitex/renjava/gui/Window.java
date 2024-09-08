@@ -29,6 +29,7 @@ public class Window {
     private final ImageLoader icon;
     private final StageStyle stageStyle;
     private int width, height;
+    private Color backgroundColor = Color.BLACK;
     private Stage stage;
     private Scene scene;
     private Pane root;
@@ -43,6 +44,24 @@ public class Window {
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        buildStage();
+    }
+
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon) {
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        buildStage();
+    }
+
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height) {
+        this.title = title;
+        this.backgroundColor = backgroundColor;
         this.stageStyle = stageStyle;
         this.icon = icon;
         this.width = width;
@@ -77,7 +96,7 @@ public class Window {
 
         root = new Pane();
 
-        root.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        root.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
 
         scene = new Scene(root);
 
@@ -87,8 +106,13 @@ public class Window {
     }
 
     public void updateBackground(Color color) {
+        this.backgroundColor = color;
         root.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
         stage.getScene().setFill(color);
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
     }
 
     public Stage getStage() {
@@ -106,6 +130,12 @@ public class Window {
     public void setFullscreen(boolean fullscreen) {
         if (stage != null) {
             stage.setFullScreen(fullscreen);
+        }
+    }
+
+    public void setMaximized(boolean maximized) {
+        if (stage != null) {
+            stage.setMaximized(maximized);
         }
     }
 
@@ -127,6 +157,9 @@ public class Window {
         }
     }
 
+    public void buildAndRender() {
+        buildStage();
+    }
 
     // Builds and renders all containers
     public void render() {
@@ -163,6 +196,7 @@ public class Window {
     private void renderContainer(Container container) {
         Map.Entry<Node, LinkedList<Node>> entry = container.render();
         Node node = entry.getKey();
+
         node.prefHeight(container.getHeight());
         node.prefWidth(container.getWidth());
         node.setTranslateX(container.getX());
