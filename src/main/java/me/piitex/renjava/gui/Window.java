@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -13,13 +15,16 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.events.types.ContainerRenderEvent;
-import me.piitex.renjava.events.types.MouseClickEvent;
-import me.piitex.renjava.events.types.ScrollDownEvent;
-import me.piitex.renjava.events.types.ScrollUpEvent;
+import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.utils.KeyUtils;
+import me.piitex.renjava.tasks.Tasks;
+import me.piitex.renjava.utils.ModifierKeyList;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +34,19 @@ public class Window {
     private final ImageLoader icon;
     private final StageStyle stageStyle;
     private int width, height;
+    // Used for scaling the window when it resizes.
     private Color backgroundColor = Color.BLACK;
     private Stage stage;
     private Scene scene;
     private Pane root;
+
+    // Time tracking for thresholds
+    private Instant lastRun;
     private final LinkedList<Container> containers = new LinkedList<>();
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
@@ -52,6 +63,8 @@ public class Window {
     }
 
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
         this.title = title;
         this.backgroundColor = backgroundColor;
         this.stageStyle = stageStyle;
@@ -87,12 +100,9 @@ public class Window {
 
         stage.setTitle(title);
         stage.initStyle(stageStyle);
-        if (width == 0 && height == 0) {
-            stage.setMaximized(true);
-        } else {
-            stage.setWidth(width);
-            stage.setHeight(height);
-        }
+        stage.setWidth(width);
+        stage.setHeight(height);
+
 
         root = new Pane();
 
@@ -159,6 +169,7 @@ public class Window {
 
     public void buildAndRender() {
         buildStage();
+        render();
     }
 
     // Builds and renders all containers
@@ -190,7 +201,9 @@ public class Window {
 
         handleInput(root);
 
+        root.requestFocus();
         stage.show();
+
     }
 
     private void renderContainer(Container container) {
@@ -214,7 +227,7 @@ public class Window {
         RenJava.callEvent(renderEvent);
     }
 
-    protected void handleInput(Pane root) {
+    public void handleInput(Pane root) {
         // Handle inputs
         root.setOnMouseClicked(mouseEvent -> {
             MouseClickEvent clickEvent = new MouseClickEvent(mouseEvent);
@@ -232,6 +245,69 @@ public class Window {
                 RenJava.callEvent(downEvent);
             }
         });
-    }
 
+        root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+
+            if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
+
+                // Slight issue with alt-tabbing. The tab key will never be recognized nor will the release event. This causes infinite looping.
+                // To fix this, if they push down a different modifier set the last one to false to end the loop.
+                // If you tab out for a long period of time your pc will probably slow down.
+                // TODO: Create kill method if they hold longer than 2 or 3 minutes.
+                KeyCode keyCode = KeyUtils.getCurrentKeyDown();
+                if (keyCode != event.getCode()) {
+                    KeyUtils.setModifierDown(keyCode, false);
+                }
+
+                if (keyCode == null) {
+                    // Engine says key was not held before but it is now.
+                    // Update engine
+                    KeyUtils.setModifierDown(event.getCode(), true); // So far it is down.
+
+                    // Start Sub-thread for continous event
+                    Tasks.runAsync(() -> {
+                        while (KeyUtils.getCurrentKeyDown() != null) {
+                            // Add delay threshold
+                            Instant current = Instant.now();
+                            if (lastRun == null) {
+                                Tasks.runJavaFXThread(() -> {
+                                    KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
+                                    RenJava.callEvent(event1);
+                                });
+                                lastRun = current;
+                            } else {
+                                long diff = Duration.between(lastRun, current).toMillis();
+                                if (diff > 100) {
+                                    Tasks.runJavaFXThread(() -> {
+                                        KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
+                                        RenJava.callEvent(event1);
+                                    });
+                                    lastRun = current;
+                                }
+                            }
+                        }
+                    });
+                }
+            } else {
+                KeyPressEvent pressEvent = new KeyPressEvent(event);
+                RenJava.callEvent(pressEvent);
+            }
+        });
+
+
+        root.addEventFilter(KeyEvent.KEY_RELEASED,event -> {
+
+            if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
+                // If CTRL is being set to down set to false to stop the while thread
+                if (KeyUtils.getCurrentKeyDown() != null) {
+                    KeyUtils.setModifierDown(event.getCode(), false);
+                    KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
+                    RenJava.callEvent(releaseEvent);
+                }
+            } else {
+                KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
+                RenJava.callEvent(releaseEvent);
+            }
+        });
+    }
 }
