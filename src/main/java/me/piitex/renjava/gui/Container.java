@@ -2,7 +2,9 @@ package me.piitex.renjava.gui;
 
 import javafx.scene.Node;
 import me.piitex.renjava.gui.layouts.Layout;
+import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
+import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -92,6 +94,47 @@ public abstract class Container {
 
     public void addLayouts(Layout... layouts) {
         this.layouts.addAll(List.of(layouts));
+    }
+
+    // Generalized methods
+    public void buildBase(LinkedList<Node> lowOrder, LinkedList<Node> normalOrder, LinkedList<Node> highOrder) {
+        RenLogger.LOGGER.info("Rendering overlays...");
+        for (Overlay overlay : getOverlays()) {
+
+            // Debugging
+            if (overlay instanceof ImageOverlay imageOverlay) {
+                RenLogger.LOGGER.info("Rendering image {}", imageOverlay.getFileName());
+            }
+
+            if (overlay.getOrder() == DisplayOrder.LOW) {
+                lowOrder.add(overlay.render());
+            } else if (overlay.getOrder() == DisplayOrder.NORMAL) {
+                normalOrder.add(overlay.render());
+            } else if (overlay.getOrder() == DisplayOrder.HIGH) {
+                highOrder.add(overlay.render());
+            }
+        }
+
+        RenLogger.LOGGER.info("Rendering layouts " + getLayouts().size());
+        for (Layout layout : getLayouts()) {
+            if (layout.getOrder() == DisplayOrder.LOW) {
+                lowOrder.add(layout.render(this));
+            } else if (layout.getOrder() == DisplayOrder.NORMAL) {
+                normalOrder.add(layout.render(this));
+            } else if (layout.getOrder() == DisplayOrder.HIGH) {
+                highOrder.add(layout.render(this));
+            }
+        }
+
+
+
+        lowOrder.addAll(normalOrder);
+        lowOrder.addAll(highOrder);
+
+        // Render sub containers
+        for (Container container : getContainers()) {
+            lowOrder.addAll(container.render().getValue()); // Might not work
+        }
     }
 
     /**
