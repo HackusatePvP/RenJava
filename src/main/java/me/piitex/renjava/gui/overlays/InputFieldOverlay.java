@@ -52,6 +52,13 @@ public class InputFieldOverlay extends Overlay implements Region {
         TextField textField = build();
         textField.setPromptText(hintText);
         textField.setText(defaultInput);
+        if (!defaultInput.isEmpty()) {
+            // If there is content manually call set event
+            InputSetEvent event = new InputSetEvent(this, defaultInput);
+            getiInputSetEvent().onInputSet(event);
+            RenJava.callEvent(event);
+        }
+
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             InputSetEvent event = new InputSetEvent(this, newValue);
             if (getiInputSetEvent() != null) {
