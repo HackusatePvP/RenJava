@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
@@ -52,7 +53,7 @@ public class GameFlowEventListener implements EventListener {
             case MIDDLE -> {
                 if (gameMenu) {
                     // Hide ui elements from scene
-                    logger.info("Toggling UI!");
+                    logger.info("Toggling scene ui");
                     player.setUiToggled(!player.isUiToggled());
                     scene.build(player.isUiToggled());
                 }
@@ -62,7 +63,6 @@ public class GameFlowEventListener implements EventListener {
                 playNextScene();
             }
             case SECONDARY -> {
-                logger.info("Player right clicked!");
                 // Open Main Menu
                 if (!player.isRightClickMenu() && renJava.getPlayer().getCurrentScene() != null) {
                     logger.info("Player is not in menu, opening menu...");
@@ -128,7 +128,7 @@ public class GameFlowEventListener implements EventListener {
         if (code == KeyCode.CONTROL) {
             // Check to see if they viewed the scene first.
             RenScene currentScene = renJava.getPlayer().getCurrentScene();
-            if (currentScene != null) {
+            if (currentScene != null && !inputScene(currentScene)) {
                 RenScene nextScene = currentScene.getStory().getNextScene(currentScene.getId());
                 if (nextScene != null && (renJava.getPlayer().hasSeenScene(nextScene.getStory(), nextScene.getId()) || renJava.getSettings().isSkipUnseenText())) {
                     Tasks.runJavaFXThread(this::playNextScene);
@@ -140,11 +140,14 @@ public class GameFlowEventListener implements EventListener {
                             currentScene.getEndInterface().onEnd(endEvent);
                         }
                         RenJava.callEvent(endEvent);
-                        return;
                     }
                 }
             }
         }
+    }
+
+    private boolean inputScene(RenScene scene) {
+        return scene instanceof InputScene || scene instanceof ChoiceScene;
     }
 
     @Listener
@@ -230,14 +233,12 @@ public class GameFlowEventListener implements EventListener {
             }
             RenJava.callEvent(endEvent);
 
-            // Jump to next scene second
             Story story = scene.getStory();
             if (story == null) {
                 return;
             }
 
             if (scene.getIndex() == story.getLastIndex()) {
-                //logger.info("Calling story end event...");
                 StoryEndEvent storyEndEvent = new StoryEndEvent(story);
                 RenJava.callEvent(storyEndEvent);
                 return;
@@ -245,7 +246,6 @@ public class GameFlowEventListener implements EventListener {
 
             if (endEvent.isAutoPlayNextScene()) {
                 logger.info("Calling next scene...");
-                // Call next if the story did not end.
                 RenScene nextScene = story.getNextScene(scene.getId());
 
                 logger.info("Transitioned Played: {}", player.isTransitionPlaying());
