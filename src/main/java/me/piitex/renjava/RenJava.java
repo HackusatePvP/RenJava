@@ -347,18 +347,45 @@ public abstract class RenJava {
 
     public abstract Window buildSplashScreen();
 
+    /**
+     * This function is used to create the main menu screen.
+     *
+     * <p>
+     * The main menu is rendered to the game {@link Window} which is managed by the framework. This function is used to make the base {@link  Container} which is then added to the window.
+     * <p>
+     *     Note, the side menu will be automatically rendered and does not be to be added to this container.
+     * </p>
+     * </p>
+     * <p>
+     * <pre>
+     *     {@code
+     *     public void Container buildMainMenu(boolean rightClick) {
+     *         Container container = new EmptyContainer(1920, 1080) // Width and height of the container
+     *
+     *         // Add overlays to the main menu
+     *         ImageOverlay backgroundImage = new ImageOverlay("gui/main_menu.png");
+     *         backgroundImage.setOrder(DisplayOrder.LOw); // Sends the background image to the back of the container.
+     *         container.addOverlay(backgroundImage);
+     *
+     *         return container;
+     *     }
+     *     }
+     * </pre>
+     * </p>
+     * @see Container
+     * @see Window
+     * @see EmptyContainer
+     * @param rightClick If it is the right-clicked main menu.
+     * @return Container to be used for the main menu.
+     */
     public abstract Container buildMainMenu(boolean rightClick);
 
     public Container buildSideMenu(boolean rightClick) {
-        // Default container is fine.
-        EmptyContainer container = new EmptyContainer(450, 1080, DisplayOrder.HIGH);
+        Container menu = new EmptyContainer(1920, 1080, DisplayOrder.HIGH);
 
-        ImageOverlay backgroundImage = new ImageOverlay("gui/overlay/main_menu.png");
-        container.addOverlay(backgroundImage);
-
-        VerticalLayout layout = new VerticalLayout(400, 400);
-        layout.setX(100);
-        layout.setY(400);
+        ImageOverlay imageOverlay = new ImageOverlay("gui/overlay/main_menu.png");
+        imageOverlay.setOrder(DisplayOrder.LOW);
+        menu.addOverlay(imageOverlay);
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
@@ -369,14 +396,37 @@ public abstract class RenJava {
         ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        // Create vbox for the buttons. You can also do an HBox
+        VerticalLayout layout = new VerticalLayout(400, 500);
+        layout.setOrder(DisplayOrder.HIGH);
+        layout.setX(50);
+        layout.setY(250);
+        layout.setSpacing(20);
+        layout.addOverlays(startButton, loadButton);
+        if (rightClick) {
+            layout.addOverlays(saveButton);
+        }
+        layout.addOverlays(optionsButton, aboutButton);
 
-        layout.addOverlays(startButton, loadButton, saveButton, optionsButton, aboutButton);
+        // You don't have to add the button overlays just add the layout which already contains the overlays.
+        menu.addLayout(layout);
 
-        return container;
+        ButtonOverlay returnButton;
+
+        if (getPlayer().getCurrentStageType() == StageType.MAIN_MENU) {
+            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        } else {
+            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        }
+        returnButton.setX(25);
+        returnButton.setY(1000);
+        menu.addOverlay(returnButton);
+
+        return menu;
     }
 
     public Container buildLoadMenu(int page) {
-        Container menu = new EmptyContainer(1920, 1080, DisplayOrder.NORMAL);
+        Container menu = new EmptyContainer(getConfiguration().getWidth(), configuration.getHeight(), DisplayOrder.NORMAL);
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
         imageOverlay.setOrder(DisplayOrder.LOW);
         menu.addOverlay(imageOverlay);
@@ -501,7 +551,7 @@ public abstract class RenJava {
     }
 
     public Container buildSettingsMenu(boolean ui) {
-        Container menu = new EmptyContainer(1920, 1080);
+        Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
         imageOverlay.setOrder(DisplayOrder.LOW);
         menu.addOverlay(imageOverlay);
@@ -567,7 +617,7 @@ public abstract class RenJava {
     }
 
     public Container buildAboutMenu(boolean rightClicked) {
-        Container menu = new EmptyContainer(1920, 1080);
+        Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
         menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
 
         Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24).getFont();
