@@ -15,8 +15,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.gui.layouts.Layout;
+import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.KeyUtils;
 import me.piitex.renjava.tasks.Tasks;
@@ -29,6 +32,72 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Window is the main GUI component which handle the rendering process for the engine. There are three components to windows which are {@link Container}, {@link Overlay}, {@link Layout}.
+ * Window houses and manages these components.
+ * <p>
+ * You can create and render multiple windows at once. The title is used for the process name and label in the top left corner.
+ * The stage style is used to control how the window is displayed. A decorated style will contain a "X", minimize, and maximize button.
+ * An undecorated style will not contain any top bar similar to a full-screen game.
+ * <pre>
+ * {@code
+ * Window window = new Window("Window Title", StageStyle.DECORATED, new ImageLoader("path/to/icon.png"));
+ * }
+ * </pre>
+ * <p>
+ * To display various elements to a window you must create a container first. Once the container is created you simply have to add it the window.
+ * Note, you can add and position multiple containers to a single window.
+ * <pre>
+ * {@code
+ *  Window window = application.getWindow();
+ *  Container container = new EmptyContainer(x, y, width, height);
+ *  window.addContainer(container);
+ * }
+ * </pre>
+ * <p>
+ * There is no game loop which handles rendering. All the rendering is handled by JavaFX which does it automatically when a node is modified.
+ * To change or render a different container, you must remove the current containers and re-render the window.
+ * <pre>
+ * {@code
+ *  Window window = application.getWindow();
+ *  window.clearContainers(); // Clear existing containers
+ *
+ *  window.addContainer(newContainer);
+ *
+ *  window.render(); // Process newly added container
+ * }
+ * </pre>
+ * <p>
+ * RenJava framework handles the game window which you can access via the {@link RenJava} class.
+ * It is recommended to have your own application instance but isn't necessarily required.
+ * You can modify the game window at any point pass the initial loading stage.
+ * <pre>
+ * {@code
+ *  Window gameWindow = RenJava.getInstance().getGameWindow();
+ * }
+ * </pre>
+ * <p>
+ * All GUI related functions must be called in the JavaFX thread. You can use the {@link Tasks} utility to switch between different threads.
+ * <pre>
+ * {@code
+ *  Tasks.runAsync(() -> {
+ *      // Some code to be ran asynchronously
+ *
+ *      // Handle JavaFX in async
+ *      Tasks.runJavaFXThread(() -> {
+ *          // Gui related code
+ *          window.render();
+ *      })
+ *  })
+ * }
+ * </pre>
+ *
+ * @see Container
+ * @see Overlay
+ * @see Layout
+ * @see Tasks
+ * @see RenJava#getGameWindow()
+ */
 public class Window {
     private final String title;
     private final ImageLoader icon;
@@ -42,6 +111,7 @@ public class Window {
 
     // Time tracking for thresholds
     private Instant lastRun;
+    private Instant firstRun;
     private final LinkedList<Container> containers = new LinkedList<>();
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
@@ -227,7 +297,7 @@ public class Window {
         RenJava.callEvent(renderEvent);
     }
 
-    public void handleInput(Pane root) {
+    private void handleInput(Pane root) {
         // Handle inputs
         root.setOnMouseClicked(mouseEvent -> {
             MouseClickEvent clickEvent = new MouseClickEvent(mouseEvent);
@@ -266,6 +336,7 @@ public class Window {
 
                     // Start Sub-thread for continous event
                     Tasks.runAsync(() -> {
+                        firstRun = Instant.now();
                         while (KeyUtils.getCurrentKeyDown() != null) {
                             // Add delay threshold
                             Instant current = Instant.now();
@@ -277,7 +348,13 @@ public class Window {
                                 lastRun = current;
                             } else {
                                 long diff = Duration.between(lastRun, current).toMillis();
-                                if (diff > 100) {
+                                long firstDiff = Duration.between(firstRun, current).toMinutes();
+                                if (firstDiff > 3) {
+                                    RenLogger.LOGGER.warn("Modifier key was held for 3 minutes. Killing task...");
+                                    KeyUtils.setModifierDown(event.getCode(), false);
+                                    return; // Kill after 3min
+                                }
+                                if (diff > 75) {
                                     Tasks.runJavaFXThread(() -> {
                                         KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
                                         RenJava.callEvent(event1);
