@@ -115,7 +115,6 @@ public abstract class Container {
             }
         }
 
-        RenLogger.LOGGER.info("Rendering layouts " + getLayouts().size());
         for (Layout layout : getLayouts()) {
             if (layout.getOrder() == DisplayOrder.LOW) {
                 lowOrder.add(layout.render(this));

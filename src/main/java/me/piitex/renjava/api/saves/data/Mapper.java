@@ -83,7 +83,6 @@ public class Mapper {
     }
 
     public static Map<String, Integer> toStringIntegerMap(Map<Object, Object> map) {
-        System.out.println("Reconstructing map...");
         Map<String, Integer> toReturn = new HashMap<>();
         map.entrySet().forEach(objectObjectEntry -> {
             toReturn.put(objectObjectEntry.getKey().toString(), (Integer) objectObjectEntry.getValue());
