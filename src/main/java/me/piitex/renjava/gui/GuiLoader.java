@@ -146,8 +146,9 @@ public class GuiLoader {
             RenLogger.LOGGER.error("No title screen was found. Please customize your own title screen for better user experience.");
             RenLogger.LOGGER.warn("Building RenJava default title screen...");
             menu = new EmptyContainer(0, 0, renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth());
-            menu.addOverlays(new ImageOverlay("gui/main_menu.png"));
-
+            ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
+            imageOverlay.setOrder(DisplayOrder.LOW);
+            menu.addOverlay(imageOverlay);
         }
 
         window.addContainer(menu);
