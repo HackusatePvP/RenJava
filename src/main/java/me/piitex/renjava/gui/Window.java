@@ -15,7 +15,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.api.player.Player;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.Layout;
@@ -277,7 +276,7 @@ public class Window {
     }
 
     private void renderContainer(Container container) {
-        Map.Entry<Node, LinkedList<Node>> entry = container.render();
+        Map.Entry<Node, LinkedList<Node>> entry = container.build();
         Node node = entry.getKey();
 
         node.prefHeight(container.getHeight());
@@ -289,6 +288,7 @@ public class Window {
             if (node instanceof Pane pane) {
                 pane.getChildren().add(n);
             }
+            // Different pane types
         }
 
         getRoot().getChildren().add(node);
@@ -317,13 +317,11 @@ public class Window {
         });
 
         root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-
             if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
 
                 // Slight issue with alt-tabbing. The tab key will never be recognized nor will the release event. This causes infinite looping.
                 // To fix this, if they push down a different modifier set the last one to false to end the loop.
                 // If you tab out for a long period of time your pc will probably slow down.
-                // TODO: Create kill method if they hold longer than 2 or 3 minutes.
                 KeyCode keyCode = KeyUtils.getCurrentKeyDown();
                 if (keyCode != event.getCode()) {
                     KeyUtils.setModifierDown(keyCode, false);
@@ -349,10 +347,10 @@ public class Window {
                             } else {
                                 long diff = Duration.between(lastRun, current).toMillis();
                                 long firstDiff = Duration.between(firstRun, current).toMinutes();
-                                if (firstDiff > 3) {
-                                    RenLogger.LOGGER.warn("Modifier key was held for 3 minutes. Killing task...");
+                                if (firstDiff > 2) {
+                                    RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
                                     KeyUtils.setModifierDown(event.getCode(), false);
-                                    return; // Kill after 3min
+                                    return; // Kill after 2min
                                 }
                                 if (diff > 75) {
                                     Tasks.runJavaFXThread(() -> {
