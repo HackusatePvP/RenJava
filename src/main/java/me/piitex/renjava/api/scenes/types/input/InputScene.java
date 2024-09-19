@@ -66,6 +66,19 @@ public class InputScene extends RenScene {
         this.loader = loader;
     }
 
+    /**
+     * Constructs an InputScene with the specified ID.
+     *
+     * @param id     The ID of the InputScene.
+     */
+    public InputScene(String id, @Nullable String text) {
+        super(id, null);
+        this.text = text;
+        loader = RenJava.getInstance().getPlayer().getLastDisplayedImage().getValue();
+        setBackgroundImage(loader);
+    }
+
+
     public FontLoader getFont() {
         return font;
     }
