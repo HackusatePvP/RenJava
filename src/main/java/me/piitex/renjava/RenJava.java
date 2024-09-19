@@ -4,8 +4,6 @@ import javafx.application.HostServices;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
@@ -45,7 +43,6 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.Duration;
 import java.util.*;
 
 /**
@@ -541,7 +538,9 @@ public abstract class RenJava {
                 getPlayer().setCurrentStageType(StageType.SAVE_MENU);
                 Container menu = buildLoadMenu(1); // Builds first page
                 menu.addContainers(buildSideMenu(true));
-                menu.render();
+                getGameWindow().clearContainers();
+                getGameWindow().addContainer(menu);
+                getGameWindow().render();
             }
         });
 
@@ -853,7 +852,7 @@ public abstract class RenJava {
         errorWindow.setMaximized(false);
 
         VerticalLayout rootLayout = new VerticalLayout(900, 600);
-        ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 900, 600);
+        ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 700, 400);
 
         Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
 
