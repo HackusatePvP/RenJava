@@ -5,6 +5,16 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 - [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
 - [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure) This an example project that is used for testing the framework.
 
+## Project Requirements
+- [Java-21](https://www.oracle.com/java/technologies/downloads/#java21) (You can typically download this within your IDE)
+- [intellij](https://www.jetbrains.com/idea/download/?section=windows) or [Eclipse](https://www.eclipse.org/downloads/)
+- [Maven](https://maven.apache.org/download.cgi) (Might come with your IDE)
+- [RSDK](https://github.com/HackusatePvP/RenJavaSDK/releases) (Download the .jar file in the latest release. This is a hard requirement.)
+
+## Application Requirements
+- The OS has to support Java 17 JDK.
+- MacOS not currently supported.
+
 ## Notice
 As of build 0.1.x, the project is just a demo. You will not be able to create a fully functional game with the current state of the framework.
 I recommend using the experimental branch over the master branch when testing and demoing the framework. Thank you for using and exploring RenJava.
@@ -45,15 +55,6 @@ Hero-Adventure-1.0
   start.bat
   start.sh
 ```
-
-## Project Requirements
-- [Java-21](https://www.oracle.com/java/technologies/downloads/#java21) (You can typically download this within your IDE)
-- [intellij](https://www.jetbrains.com/idea/download/?section=windows) or [Eclipse](https://www.eclipse.org/downloads/)
-- [Maven](https://maven.apache.org/download.cgi) (Might come with your IDE)
-
-## Application Requirements
-- The OS has to support Java 17 JDK.
-- MacOS not currently supported.
 
 ## Updating Application
 If a game has an update please delete the previous version. Make sure to transfer your saves before doing so. This is to prevent malicious attacks that come with having an old JDK installed onto your pc.
