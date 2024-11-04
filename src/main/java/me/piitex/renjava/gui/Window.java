@@ -263,6 +263,10 @@ public class Window {
         // Clear and reset before rendering (this will prevent elements being stacked)
         RenLogger.LOGGER.debug("Rendering window...");
 
+        if (containers.isEmpty()) {
+            RenLogger.LOGGER.error("You must add containers to the window before every render call.");
+        }
+
         root.getChildren().clear();
 
         // Gather orders
@@ -295,6 +299,9 @@ public class Window {
 
         root.requestFocus();
         stage.show();
+
+        // Force clear resources that are unused.
+        System.gc();
 
     }
 
@@ -372,7 +379,7 @@ public class Window {
                             } else {
                                 long diff = Duration.between(lastRun, current).toMillis();
                                 long firstDiff = Duration.between(firstRun, current).toMinutes();
-                                if (firstDiff > 2) {
+                                if (firstDiff > 20) {
                                     RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
                                     KeyUtils.setModifierDown(event.getCode(), false);
                                     return; // Kill after 2min
