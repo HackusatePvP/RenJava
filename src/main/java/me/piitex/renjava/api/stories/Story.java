@@ -123,14 +123,8 @@ public abstract class Story {
         RenScene renScene = getScene(0); // Gets the first scene index.
         renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
-        Container scene = renScene.build(true);
-
-        SceneBuildEvent buildEvent = new SceneBuildEvent(renScene, scene);
-        RenJava.callEvent(buildEvent);
-
         RenLogger.LOGGER.debug("Rendering first scene...");
-        renScene.render(renJava.getGameWindow(), true);
-        renJava.getPlayer().setCurrentStageType(renScene.getStageType());
+        displayScene(renScene, false, true);
     }
 
     /**
@@ -259,15 +253,32 @@ public abstract class Story {
     }
 
     public void displayScene(RenScene scene) {
+        displayScene(scene, false);
+    }
+
+    public void displayScene(RenScene scene, boolean rollback) {
+        displayScene(scene, rollback, true);
+    }
+
+    public void displayScene(RenScene scene, boolean rollback, boolean events) {
         RenLogger.LOGGER.debug("Rendering: " + scene.getId());
         RenLogger.LOGGER.debug("Calling scene end event...");
-        SceneEndEvent event = new SceneEndEvent(getCurrentScene());
-        RenJava.callEvent(event);
+        if (events) {
+            SceneEndEvent event = new SceneEndEvent(getCurrentScene());
+            RenJava.callEvent(event);
+        }
         RenLogger.LOGGER.debug("Updating scene...");
         RenJava.getInstance().getPlayer().updateScene(scene);
         RenLogger.LOGGER.debug("Rendering scene container...");
+        renJava.getGameWindow().clearContainers();
+
         scene.render(renJava.getGameWindow(),true);
         renJava.getPlayer().setCurrentStageType(scene.getStageType());
+
+        if (!rollback) {
+            // 0,1,2,3,
+            renJava.getPlayer().getViewedScenes().put(renJava.getPlayer().getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
+        }
     }
 
     public void displayNextScene() {

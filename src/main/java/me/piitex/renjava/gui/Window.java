@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -13,34 +15,125 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.events.types.ContainerRenderEvent;
-import me.piitex.renjava.events.types.MouseClickEvent;
-import me.piitex.renjava.events.types.ScrollDownEvent;
-import me.piitex.renjava.events.types.ScrollUpEvent;
+import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.gui.layouts.Layout;
+import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.utils.KeyUtils;
+import me.piitex.renjava.tasks.Tasks;
+import me.piitex.renjava.utils.ModifierKeyList;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Window is the main GUI component which handle the rendering process for the engine. There are three components to windows which are {@link Container}, {@link Overlay}, {@link Layout}.
+ * Window houses and manages these components.
+ * <p>
+ * You can create and render multiple windows at once. The title is used for the process name and label in the top left corner.
+ * The stage style is used to control how the window is displayed. A decorated style will contain a "X", minimize, and maximize button.
+ * An undecorated style will not contain any top bar similar to a full-screen game.
+ * <pre>
+ * {@code
+ * Window window = new Window("Window Title", StageStyle.DECORATED, new ImageLoader("path/to/icon.png"));
+ * }
+ * </pre>
+ * <p>
+ * To display various elements to a window you must create a container first. Once the container is created you simply have to add it the window.
+ * Note, you can add and position multiple containers to a single window.
+ * <pre>
+ * {@code
+ *  Window window = application.getWindow();
+ *  Container container = new EmptyContainer(x, y, width, height);
+ *  window.addContainer(container);
+ * }
+ * </pre>
+ * <p>
+ * There is no game loop which handles rendering. All the rendering is handled by JavaFX which does it automatically when a node is modified.
+ * To change or render a different container, you must remove the current containers and re-render the window.
+ * <pre>
+ * {@code
+ *  Window window = application.getWindow();
+ *  window.clearContainers(); // Clear existing containers
+ *
+ *  window.addContainer(newContainer);
+ *
+ *  window.render(); // Process newly added container
+ * }
+ * </pre>
+ * <p>
+ * RenJava framework handles the game window which you can access via the {@link RenJava} class.
+ * It is recommended to have your own application instance but isn't necessarily required.
+ * You can modify the game window at any point pass the initial loading stage.
+ * <pre>
+ * {@code
+ *  Window gameWindow = RenJava.getInstance().getGameWindow();
+ * }
+ * </pre>
+ * <p>
+ * All GUI related functions must be called in the JavaFX thread. You can use the {@link Tasks} utility to switch between different threads.
+ * <pre>
+ * {@code
+ *  Tasks.runAsync(() -> {
+ *      // Some code to be ran asynchronously
+ *
+ *      // Handle JavaFX in async
+ *      Tasks.runJavaFXThread(() -> {
+ *          // Gui related code
+ *          window.render();
+ *      })
+ *  })
+ * }
+ * </pre>
+ *
+ * @see Container
+ * @see Overlay
+ * @see Layout
+ * @see Tasks
+ * @see RenJava#getGameWindow()
+ */
 public class Window {
     private final String title;
     private final ImageLoader icon;
     private final StageStyle stageStyle;
     private int width, height;
+    private boolean fullscreen = false, maximized = false;
+    // Used for scaling the window when it resizes.
     private Color backgroundColor = Color.BLACK;
     private Stage stage;
     private Scene scene;
     private Pane root;
+
+    // Time tracking for thresholds
+    private Instant lastRun;
+    private Instant firstRun;
     private final LinkedList<Container> containers = new LinkedList<>();
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
         buildStage();
     }
+
+    public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.setFullscreen(fullscreen);
+        this.setMaximized(maximized);
+        buildStage();
+    }
+
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
@@ -52,6 +145,8 @@ public class Window {
     }
 
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
         this.title = title;
         this.backgroundColor = backgroundColor;
         this.stageStyle = stageStyle;
@@ -87,12 +182,11 @@ public class Window {
 
         stage.setTitle(title);
         stage.initStyle(stageStyle);
-        if (width == 0 && height == 0) {
-            stage.setMaximized(true);
-        } else {
-            stage.setWidth(width);
-            stage.setHeight(height);
-        }
+        stage.setWidth(width);
+        stage.setHeight(height);
+        stage.setMaximized(maximized);
+        stage.setFullScreen(fullscreen);
+
 
         root = new Pane();
 
@@ -128,12 +222,14 @@ public class Window {
     }
 
     public void setFullscreen(boolean fullscreen) {
+        this.fullscreen = fullscreen;
         if (stage != null) {
             stage.setFullScreen(fullscreen);
         }
     }
 
     public void setMaximized(boolean maximized) {
+        this.maximized = maximized;
         if (stage != null) {
             stage.setMaximized(maximized);
         }
@@ -159,12 +255,17 @@ public class Window {
 
     public void buildAndRender() {
         buildStage();
+        render();
     }
 
     // Builds and renders all containers
     public void render() {
         // Clear and reset before rendering (this will prevent elements being stacked)
         RenLogger.LOGGER.debug("Rendering window...");
+
+        if (containers.isEmpty()) {
+            RenLogger.LOGGER.error("You must add containers to the window before every render call.");
+        }
 
         root.getChildren().clear();
 
@@ -188,13 +289,24 @@ public class Window {
         normalOrder.forEach(this::renderContainer);
         highOrder.forEach(this::renderContainer);
 
+        // Not sure if this will cause issues but to reduce resource usage the mappings need to be cleared
+        containers.clear();
+        lowOrder.clear();
+        normalOrder.clear();
+        highOrder.clear();
+
         handleInput(root);
 
+        root.requestFocus();
         stage.show();
+
+        // Force clear resources that are unused.
+        System.gc();
+
     }
 
     private void renderContainer(Container container) {
-        Map.Entry<Node, LinkedList<Node>> entry = container.render();
+        Map.Entry<Node, LinkedList<Node>> entry = container.build();
         Node node = entry.getKey();
 
         node.prefHeight(container.getHeight());
@@ -206,15 +318,17 @@ public class Window {
             if (node instanceof Pane pane) {
                 pane.getChildren().add(n);
             }
+            // Different pane types
         }
 
         getRoot().getChildren().add(node);
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);
+
     }
 
-    protected void handleInput(Pane root) {
+    private void handleInput(Pane root) {
         // Handle inputs
         root.setOnMouseClicked(mouseEvent -> {
             MouseClickEvent clickEvent = new MouseClickEvent(mouseEvent);
@@ -232,6 +346,75 @@ public class Window {
                 RenJava.callEvent(downEvent);
             }
         });
-    }
 
+        root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
+
+                // Slight issue with alt-tabbing. The tab key will never be recognized nor will the release event. This causes infinite looping.
+                // To fix this, if they push down a different modifier set the last one to false to end the loop.
+                // If you tab out for a long period of time your pc will probably slow down.
+                KeyCode keyCode = KeyUtils.getCurrentKeyDown();
+                if (keyCode != event.getCode()) {
+                    KeyUtils.setModifierDown(keyCode, false);
+                }
+
+                if (keyCode == null) {
+                    // Engine says key was not held before but it is now.
+                    // Update engine
+                    KeyUtils.setModifierDown(event.getCode(), true); // So far it is down.
+
+                    // Start Sub-thread for continous event
+                    // FIXME: This causes increase in resource usage. Program jumped from using 200mb memory usage to 800mb.
+                    Tasks.runAsync(() -> {
+                        firstRun = Instant.now();
+                        while (KeyUtils.getCurrentKeyDown() != null) {
+                            // Add delay threshold
+                            Instant current = Instant.now();
+                            if (lastRun == null) {
+                                Tasks.runJavaFXThread(() -> {
+                                    KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
+                                    RenJava.callEvent(event1);
+                                });
+                                lastRun = current;
+                            } else {
+                                long diff = Duration.between(lastRun, current).toMillis();
+                                long firstDiff = Duration.between(firstRun, current).toMinutes();
+                                if (firstDiff > 20) {
+                                    RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
+                                    KeyUtils.setModifierDown(event.getCode(), false);
+                                    return; // Kill after 2min
+                                }
+                                if (diff > 75) {
+                                    Tasks.runJavaFXThread(() -> {
+                                        KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
+                                        RenJava.callEvent(event1);
+                                    });
+                                    lastRun = current;
+                                }
+                            }
+                        }
+                    });
+                }
+            } else {
+                KeyPressEvent pressEvent = new KeyPressEvent(event);
+                RenJava.callEvent(pressEvent);
+            }
+        });
+
+
+        root.addEventFilter(KeyEvent.KEY_RELEASED,event -> {
+
+            if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
+                // If CTRL is being set to down set to false to stop the while thread
+                if (KeyUtils.getCurrentKeyDown() != null) {
+                    KeyUtils.setModifierDown(event.getCode(), false);
+                    KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
+                    RenJava.callEvent(releaseEvent);
+                }
+            } else {
+                KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
+                RenJava.callEvent(releaseEvent);
+            }
+        });
+    }
 }

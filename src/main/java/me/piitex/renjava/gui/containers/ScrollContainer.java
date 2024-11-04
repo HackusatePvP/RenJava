@@ -25,7 +25,7 @@ public class ScrollContainer extends Container {
     }
 
     @Override
-    public Map.Entry<Node, LinkedList<Node>> render() {
+    public Map.Entry<Node, LinkedList<Node>> build() {
         scrollPane = new ScrollPane();
         scrollPane.setTranslateX(getX());
         scrollPane.setTranslateY(getY());

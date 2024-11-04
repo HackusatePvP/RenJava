@@ -48,7 +48,7 @@ public class InputScene extends RenScene {
     private final String text;
     private String defaultInput = "";
     private final ImageOverlay loader;
-    private Font font;
+    private FontLoader font;
     private InputFieldOverlay inputField;
     private IInputSetEvent setInterface;
 
@@ -66,11 +66,24 @@ public class InputScene extends RenScene {
         this.loader = loader;
     }
 
-    public Font getFont() {
+    /**
+     * Constructs an InputScene with the specified ID.
+     *
+     * @param id     The ID of the InputScene.
+     */
+    public InputScene(String id, @Nullable String text) {
+        super(id, null);
+        this.text = text;
+        loader = RenJava.getInstance().getPlayer().getLastDisplayedImage().getValue();
+        setBackgroundImage(loader);
+    }
+
+
+    public FontLoader getFont() {
         return font;
     }
 
-    public void setFont(Font font) {
+    public void setFont(FontLoader font) {
         this.font = font;
     }
 
@@ -122,7 +135,6 @@ public class InputScene extends RenScene {
                 textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
                 textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
                 textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
-                textFlowOverlay.setFont(font);
 
                 inputField = new InputFieldOverlay(defaultInput, 0,0,500,0);
 
@@ -133,8 +145,13 @@ public class InputScene extends RenScene {
 
                 inputField.setOrder(DisplayOrder.HIGH);
 
+                if (font == null) {
+                    // Default font
+                    font = configuration.getDialogueFont();
+                }
+                inputField.setFontLoader(font);
+                textFlowOverlay.setFont(font.getFont());
 
-//                inputFieldOverlay.setFontLoader(RenJava.getInstance().getConfiguration().getUiFont());
                 textFlowOverlay.setInputFieldOverlay(inputField);
 
                 textboxMenu.addOverlay(textFlowOverlay);

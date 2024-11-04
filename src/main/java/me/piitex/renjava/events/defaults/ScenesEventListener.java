@@ -67,7 +67,6 @@ public class ScenesEventListener implements EventListener {
                 public void run() {
                     if (renScene != null) {
                         if (RenJava.getInstance().getPlayer().getCurrentScene().getId().equalsIgnoreCase(scene.getId())) {
-                            System.out.println("Autoplaying next scene...");
                             Platform.runLater(story::displayNextScene);
                         }
                     } else {
@@ -81,20 +80,6 @@ public class ScenesEventListener implements EventListener {
                 }
             }, TimeUnit.MILLISECONDS.toMillis(duration));
         }
-    }
-
-    @Listener(priority = Priority.HIGHEST)
-    public void onSceneEnd(SceneEndEvent event) {
-//        if (event.getScene() instanceof InputScene scene) {
-//            TextField field = scene.getInputField();
-//            if (field == null) {
-//                RenLogger.LOGGER.error("TextField for InputScene is null.");
-//                return;
-//            }
-//            InputSceneEndEvent endEvent = new InputSceneEndEvent(scene, field.getText());
-//            RenJava.callEvent(endEvent);
-//        }
-
     }
 
     @Listener(priority = Priority.HIGHEST)

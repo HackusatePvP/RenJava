@@ -129,7 +129,6 @@ public class ImageScene extends RenScene {
 
     @Override
     public Container build(boolean ui) {
-        //Menu rootMenu = new Menu(configuration.getWidth(), configuration.getHeight(), backgroundImage);
         Container container = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
         if (backgroundImage != null) {
             backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
@@ -172,7 +171,7 @@ public class ImageScene extends RenScene {
                             configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
                             configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
                     characterText.setTextFillColor(character.getColor());
-
+                    characterText.setOrder(DisplayOrder.HIGH);
                     textboxMenu.addOverlay(characterText);
 
                     container.addContainers(textboxMenu);

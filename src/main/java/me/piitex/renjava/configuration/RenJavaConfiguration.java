@@ -10,6 +10,7 @@ public class RenJavaConfiguration {
     private final String gameTitle;
     private final int width;
     private final int height;
+    private boolean maximizedGameWindow = true;
     private final ImageLoader gameIcon;
 
     private Color themeColor = Color.BLACK;
@@ -77,6 +78,14 @@ public class RenJavaConfiguration {
 
     public int getCurrentWidth() {
         return 1920;
+    }
+
+    public void setMaximizedGameWindow(boolean maximizedGameWindow) {
+        this.maximizedGameWindow = maximizedGameWindow;
+    }
+
+    public boolean isMaximizedGameWindow() {
+        return maximizedGameWindow;
     }
 
     public ImageLoader getGameIcon() {

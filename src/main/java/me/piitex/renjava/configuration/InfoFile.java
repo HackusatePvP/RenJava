@@ -38,7 +38,11 @@ public class InfoFile {
                 String line = scanner.nextLine();
                 if (line.contains("=")) {
                     String[] entry = line.split("=");
-                    entryMap.put(entry[0], entry[1].replace("\"", "").trim());
+                    if (entry.length == 1) {
+                        entryMap.put(entry[0], "");
+                    } else {
+                        entryMap.put(entry[0], entry[1].replace("\"", "").trim());
+                    }
                 }
             }
             scanner.close();

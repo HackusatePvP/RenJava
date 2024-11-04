@@ -52,8 +52,6 @@ public class OverlayEventListener implements EventListener {
                     imageView.setFitHeight(buttonOverlay.getHeight());
                     imageView.setFitWidth(buttonOverlay.getWidth());
                 }
-            } else {
-                System.out.println("No hover was set for overlay");
             }
         }
     }

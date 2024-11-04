@@ -11,8 +11,10 @@ import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
+import me.piitex.renjava.utils.LimitedTreeMap;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class that stores player data such as game progress and what scenes they have viewed. Some of the information stored is only useful to the framework but feel free to explore.
@@ -33,10 +35,9 @@ public class Player implements PersistentData {
 
     //StoryID
     @Data private LinkedHashSet<String> viewedStories = new LinkedHashSet<>(); // Ordered map of what stories the player has viewed.
-    private final Map<Integer, Story> viewedStoriesIndex = new HashMap<>(); // Indexing of the viewedStories
 
-    // StoryID, SceneID
-    @Data private Map<String, String> viewedScenes = new HashMap<>();
+    // Index, <SceneID, StoryID>
+    private LimitedTreeMap<Integer, Map.Entry<String, String>> viewedScenes = new LimitedTreeMap<>(50);
 
     private final Map<String, Story> storyIdMap = new HashMap<>();
 
@@ -44,7 +45,7 @@ public class Player implements PersistentData {
     private RenScene lastRenderedRenScene;
 
     public boolean hasSeenScene(Story story, String sceneID) {
-        return viewedScenes.containsKey(story.getId()) && viewedScenes.containsValue(sceneID);
+        return viewedScenes.containsKey(sceneID) && viewedScenes.containsValue(story.getId());
     }
 
     public RenScene getCurrentScene() {
@@ -74,8 +75,6 @@ public class Player implements PersistentData {
         this.currentStory = currentStoryID;
         Story story = getStory(currentStoryID);
         viewedStories.add(currentStoryID); // When setting story update the viewedStory for rollback.
-        int index = viewedStoriesIndex.size();
-        viewedStoriesIndex.put(index, story);
     }
 
     public void setCurrentStory(Story currentStory) {
@@ -90,18 +89,23 @@ public class Player implements PersistentData {
         return storyIdMap.get(id);
     }
 
-    @APINote(description = "There is no method to get the next Story as story routes and dictated by the choices the player makes. Meaning it's impossible to predict with accuracy where the player will go.")
-    public Story getPreviousStory() {
-        return viewedStoriesIndex.get(viewedStoriesIndex.size()); // Get last story
+    public RenScene getLastViewedScene() {
+        // Get the last viewed scene that was rendered. Not the last scene that was indexed.
+        int index = getViewedScenes().lastKey() - 1;
+        Map.Entry<String, String> entry = getViewedScenes().get(index);
+        Story story = getStory(entry.getValue());
+        RenScene renScene = story.getScene(entry.getKey());
+        return renScene;
     }
 
     public LinkedHashSet<String> getViewedStories() {
         return viewedStories;
     }
 
-    public Map<String, String> getViewedScenes() {
+    public TreeMap<Integer, Map.Entry<String, String>> getViewedScenes() {
         return viewedScenes;
     }
+
 
     public Map<String, Story> getStoryIdMap() {
         return storyIdMap;
@@ -113,7 +117,7 @@ public class Player implements PersistentData {
             return;
         }
         RenLogger.LOGGER.info("Starting story '" + id + "'");
-        RenJava.getInstance().getPlayer().setCurrentStory(id);
+        setCurrentStory(id);
         getStory(id).start();
     }
 
@@ -182,9 +186,12 @@ public class Player implements PersistentData {
     }
 
     public void updateScene(RenScene renScene) {
+        updateScene(renScene, false);
+    }
+
+    public void updateScene(RenScene renScene, boolean rollback) {
         setCurrentScene(renScene.getId()); // Update the scene.
-        RenLogger.LOGGER.debug("Adding to view scenes: {}", renScene.getId());
-        viewedScenes.put(renScene.getStory().getId(), renScene.getId());
         setCurrentStory(renScene.getStory());
     }
+
 }

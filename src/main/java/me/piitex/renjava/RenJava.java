@@ -4,8 +4,6 @@ import javafx.application.HostServices;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
@@ -45,7 +43,6 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.Duration;
 import java.util.*;
 
 /**
@@ -100,6 +97,10 @@ public abstract class RenJava {
     private final Collection<PersistentData> registeredData = new HashSet<>();
 
     protected String buildVersion;
+
+    // Cache gui builders to signicantly decrase resource usage.
+    private Container mainMenu, sideMenu, preferenceMenu, helpMenu;
+    private Container mainRightMenu, sideRightMenu, preferenceRightMenu, helpRightMenu;
 
     // Error tracking
     private static long lastErrorTimeStamp;
@@ -347,18 +348,61 @@ public abstract class RenJava {
 
     public abstract Window buildSplashScreen();
 
+    /**
+     * This function is used to create the main menu screen.
+     *
+     * <p>
+     * The main menu is rendered to the game {@link Window} which is managed by the framework. This function is used to make the base {@link  Container} which is then added to the window.
+     * <p>
+     *     Note, the side menu will be automatically rendered and does not be to be added to this container.
+     * </p>
+     * </p>
+     * <p>
+     * <pre>
+     *     {@code
+     *     public void Container buildMainMenu(boolean rightClick) {
+     *         Container container = new EmptyContainer(1920, 1080) // Width and height of the container
+     *
+     *         // Add overlays to the main menu
+     *         ImageOverlay backgroundImage = new ImageOverlay("gui/main_menu.png");
+     *         backgroundImage.setOrder(DisplayOrder.LOw); // Sends the background image to the back of the container.
+     *         container.addOverlay(backgroundImage);
+     *
+     *         return container;
+     *     }
+     *     }
+     * </pre>
+     * </p>
+     * @see Container
+     * @see Window
+     * @see EmptyContainer
+     * @param rightClick If it is the right-clicked main menu.
+     * @return Container to be used for the main menu.
+     */
     public abstract Container buildMainMenu(boolean rightClick);
 
+    public Container getMainMenu() {
+        return mainMenu;
+    }
+
+    public void setMainMenu(Container mainMenu) {
+        this.mainMenu = mainMenu;
+    }
+
+    public Container getMainRightMenu() {
+        return mainRightMenu;
+    }
+
+    public void setMainRightMenu(Container mainRightMenu) {
+        this.mainRightMenu = mainRightMenu;
+    }
+
     public Container buildSideMenu(boolean rightClick) {
-        // Default container is fine.
-        EmptyContainer container = new EmptyContainer(450, 1080, DisplayOrder.HIGH);
+        Container menu = new EmptyContainer(1920, 1080, DisplayOrder.HIGH);
 
-        ImageOverlay backgroundImage = new ImageOverlay("gui/overlay/main_menu.png");
-        container.addOverlay(backgroundImage);
-
-        VerticalLayout layout = new VerticalLayout(400, 400);
-        layout.setX(100);
-        layout.setY(400);
+        ImageOverlay imageOverlay = new ImageOverlay("gui/overlay/main_menu.png");
+        imageOverlay.setOrder(DisplayOrder.LOW);
+        menu.addOverlay(imageOverlay);
 
         Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
 
@@ -369,14 +413,53 @@ public abstract class RenJava {
         ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        // Create vbox for the buttons. You can also do an HBox
+        VerticalLayout layout = new VerticalLayout(400, 500);
+        layout.setOrder(DisplayOrder.HIGH);
+        layout.setX(50);
+        layout.setY(250);
+        layout.setSpacing(20);
+        layout.addOverlays(startButton, loadButton);
+        if (rightClick) {
+            layout.addOverlays(saveButton);
+        }
+        layout.addOverlays(optionsButton, aboutButton);
 
-        layout.addOverlays(startButton, loadButton, saveButton, optionsButton, aboutButton);
+        // You don't have to add the button overlays just add the layout which already contains the overlays.
+        menu.addLayout(layout);
 
-        return container;
+        ButtonOverlay returnButton;
+
+        if (getPlayer().getCurrentStageType() == StageType.MAIN_MENU) {
+            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        } else {
+            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        }
+        returnButton.setX(25);
+        returnButton.setY(1000);
+        menu.addOverlay(returnButton);
+
+        return menu;
+    }
+
+    public Container getSideMenu() {
+        return sideMenu;
+    }
+
+    public void setSideMenu(Container sideMenu) {
+        this.sideMenu = sideMenu;
+    }
+
+    public Container getSideRightMenu() {
+        return sideRightMenu;
+    }
+
+    public void setSideRightMenu(Container sideRightMenu) {
+        this.sideRightMenu = sideRightMenu;
     }
 
     public Container buildLoadMenu(int page) {
-        Container menu = new EmptyContainer(1920, 1080, DisplayOrder.NORMAL);
+        Container menu = new EmptyContainer(getConfiguration().getWidth(), configuration.getHeight(), DisplayOrder.NORMAL);
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
         imageOverlay.setOrder(DisplayOrder.LOW);
         menu.addOverlay(imageOverlay);
@@ -491,7 +574,9 @@ public abstract class RenJava {
                 getPlayer().setCurrentStageType(StageType.SAVE_MENU);
                 Container menu = buildLoadMenu(1); // Builds first page
                 menu.addContainers(buildSideMenu(true));
-                menu.render();
+                getGameWindow().clearContainers();
+                getGameWindow().addContainer(menu);
+                getGameWindow().render();
             }
         });
 
@@ -501,7 +586,7 @@ public abstract class RenJava {
     }
 
     public Container buildSettingsMenu(boolean ui) {
-        Container menu = new EmptyContainer(1920, 1080);
+        Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
         imageOverlay.setOrder(DisplayOrder.LOW);
         menu.addOverlay(imageOverlay);
@@ -566,8 +651,24 @@ public abstract class RenJava {
         return menu;
     }
 
+    public Container getPreferenceMenu() {
+        return preferenceMenu;
+    }
+
+    public void setPreferenceMenu(Container preferenceMenu) {
+        this.preferenceMenu = preferenceMenu;
+    }
+
+    public Container getPreferenceRightMenu() {
+        return preferenceRightMenu;
+    }
+
+    public void setPreferenceRightMenu(Container preferenceRightMenu) {
+        this.preferenceRightMenu = preferenceRightMenu;
+    }
+
     public Container buildAboutMenu(boolean rightClicked) {
-        Container menu = new EmptyContainer(1920, 1080);
+        Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
         menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
 
         Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24).getFont();
@@ -599,6 +700,22 @@ public abstract class RenJava {
 //        menu.addOverlay(renJavaLink);
 
         return menu;
+    }
+
+    public Container getHelpMenu() {
+        return helpMenu;
+    }
+
+    public void setHelpMenu(Container helpMenu) {
+        this.helpMenu = helpMenu;
+    }
+
+    public Container getHelpRightMenu() {
+        return helpRightMenu;
+    }
+
+    public void setHelpRightMenu(Container helpRightMenu) {
+        this.helpRightMenu = helpRightMenu;
     }
 
     /**
@@ -744,6 +861,14 @@ public abstract class RenJava {
         lowestMethods.forEach((listener, method) -> {
             invokeMethod(listener, method, event);
         });
+
+        // Clear resource usage
+        lowestMethods.clear();
+        lowMethods.clear();
+        normalMethods.clear();
+        highMethods.clear();
+        highestMethods.clear();
+        eventListeners.clear();
     }
 
     private static void invokeMethod(EventListener listener, Method method, Event event) {
@@ -799,11 +924,9 @@ public abstract class RenJava {
 
         Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon());
         errorWindow.updateBackground(Color.WHITE);
-        errorWindow.setFullscreen(false);
-        errorWindow.setMaximized(false);
 
         VerticalLayout rootLayout = new VerticalLayout(900, 600);
-        ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 900, 600);
+        ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 700, 400);
 
         Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
 
@@ -823,6 +946,9 @@ public abstract class RenJava {
         errorWindow.addContainers(container);
 
         errorWindow.render();
+
+        // Clear resource usage
+        texts.clear();
 
     }
 }

@@ -291,7 +291,6 @@ public class Save {
     public ImageOverlay buildPreview(int page) {
         ImageOverlay saveImage;
         if (file.exists()) {
-            System.out.println("Save file " + page + " exists.");
             Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
 
             // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.

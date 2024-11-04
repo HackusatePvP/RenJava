@@ -2,7 +2,6 @@ package me.piitex.renjava.gui;
 
 import javafx.scene.Node;
 import me.piitex.renjava.gui.layouts.Layout;
-import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
 
@@ -100,12 +99,6 @@ public abstract class Container {
     public void buildBase(LinkedList<Node> lowOrder, LinkedList<Node> normalOrder, LinkedList<Node> highOrder) {
         RenLogger.LOGGER.info("Rendering overlays...");
         for (Overlay overlay : getOverlays()) {
-
-            // Debugging
-            if (overlay instanceof ImageOverlay imageOverlay) {
-                RenLogger.LOGGER.info("Rendering image {}", imageOverlay.getFileName());
-            }
-
             if (overlay.getOrder() == DisplayOrder.LOW) {
                 lowOrder.add(overlay.render());
             } else if (overlay.getOrder() == DisplayOrder.NORMAL) {
@@ -115,7 +108,6 @@ public abstract class Container {
             }
         }
 
-        RenLogger.LOGGER.info("Rendering layouts " + getLayouts().size());
         for (Layout layout : getLayouts()) {
             if (layout.getOrder() == DisplayOrder.LOW) {
                 lowOrder.add(layout.render(this));
@@ -133,7 +125,7 @@ public abstract class Container {
 
         // Render sub containers
         for (Container container : getContainers()) {
-            lowOrder.addAll(container.render().getValue()); // Might not work
+            lowOrder.addAll(container.build().getValue()); // Might not work
         }
     }
 
@@ -141,5 +133,5 @@ public abstract class Container {
      * This does not directly render the container to the screen. Add the container to the window and use the windows render function.
      * @return An entry set where the key is the pane as a node. The value is the collection of nodes which the pane contains.
      */
-    public abstract Map.Entry<Node, LinkedList<Node>> render();
+    public abstract Map.Entry<Node, LinkedList<Node>> build();
 }

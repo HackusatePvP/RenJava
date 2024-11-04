@@ -48,6 +48,15 @@ public abstract class Layout {
 
     public void setOrder(DisplayOrder order) {
         this.order = order;
+
+        // Update order for all overlays
+        for (Overlay overlay : getOverlays()) {
+            overlay.setOrder(order);
+        }
+
+        for (Layout layout : getChildLayouts()) {
+            layout.setOrder(order);
+        }
     }
 
     public LinkedList<Overlay> getOverlays() {

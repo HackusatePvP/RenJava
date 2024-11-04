@@ -39,8 +39,6 @@ public class VerticalLayout extends Layout {
             pane.getChildren().add(layout.render(container));
         }
 
-        System.out.println("Layout size: " + getPane().getChildren().size());
-
         return getPane();
     }
 }

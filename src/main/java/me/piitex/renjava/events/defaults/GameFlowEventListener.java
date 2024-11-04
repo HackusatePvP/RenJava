@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
@@ -24,13 +25,11 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.tasks.Tasks;
 import org.slf4j.Logger;;
 
 
 public class GameFlowEventListener implements EventListener {
-    // Also experimental, task that runs while the ctrl key is held. Maybe I can change this to a do while or something... I'm not sure.
-    private boolean skipHeld = false;
-
     private static final RenJava renJava = RenJava.getInstance();
 
 
@@ -51,7 +50,7 @@ public class GameFlowEventListener implements EventListener {
             case MIDDLE -> {
                 if (gameMenu) {
                     // Hide ui elements from scene
-                    logger.info("Toggling UI!");
+                    logger.info("Toggling scene ui");
                     player.setUiToggled(!player.isUiToggled());
                     scene.build(player.isUiToggled());
                 }
@@ -61,7 +60,6 @@ public class GameFlowEventListener implements EventListener {
                 playNextScene();
             }
             case SECONDARY -> {
-                logger.info("Player right clicked!");
                 // Open Main Menu
                 if (!player.isRightClickMenu() && renJava.getPlayer().getCurrentScene() != null) {
                     logger.info("Player is not in menu, opening menu...");
@@ -104,7 +102,7 @@ public class GameFlowEventListener implements EventListener {
     @Listener
     public void onKeyPress(KeyPressEvent event) {
         // Handle actions when a player presses a key.
-        KeyCode code = event.getCode();
+        KeyCode code = event.getEvent().getCode();
         Stage stage;
         if (code == KeyCode.F11) {
             SettingsProperties properties = renJava.getSettings();
@@ -123,9 +121,30 @@ public class GameFlowEventListener implements EventListener {
             playNextScene();
         }
 
+        // Key-held is a little weird.
         if (code == KeyCode.CONTROL) {
-            skipHeld = true;
+            // Check to see if they viewed the scene first.
+            RenScene currentScene = renJava.getPlayer().getCurrentScene();
+            if (currentScene != null && !inputScene(currentScene)) {
+                RenScene nextScene = currentScene.getStory().getNextScene(currentScene.getId());
+                if (nextScene != null && (renJava.getPlayer().hasSeenScene(nextScene.getStory(), nextScene.getId()) || renJava.getSettings().isSkipUnseenText())) {
+                    Tasks.runJavaFXThread(this::playNextScene);
+                } else {
+                    if (nextScene == null) {
+                        // If the next scene is null call the scene end event
+                        SceneEndEvent endEvent = new SceneEndEvent(currentScene);
+                        if (currentScene.getEndInterface() != null) {
+                            currentScene.getEndInterface().onEnd(endEvent);
+                        }
+                        RenJava.callEvent(endEvent);
+                    }
+                }
+            }
         }
+    }
+
+    private boolean inputScene(RenScene scene) {
+        return scene instanceof InputScene || scene instanceof ChoiceScene;
     }
 
     @Listener
@@ -149,57 +168,47 @@ public class GameFlowEventListener implements EventListener {
     public void onScrollUp(ScrollUpEvent event) {
         Logger logger = RenLogger.LOGGER;
         Window window = renJava.getGameWindow();
-        logger.info("Scroll up called!");
         if (event.isCancelled()) return; // If the event is canceled, do not roll back.
+        // Instead of rendering the previous scene in the story, use the Player class instead
         if (renJava.getPlayer().getCurrentScene() != null) {
             if (event.isDisplayPreviousScene()) {
-                Story story = renJava.getPlayer().getCurrentStory();
-                RenScene renScene = story.getPreviousSceneFromCurrent();
-                if (renScene == null) {
-                    // log for testing
-                    logger.info("Previous scene not found.");
-                } else {
-                    renScene.render(window, true);
-                    renJava.getPlayer().updateScene(renScene);
+                RenScene previousScene = renJava.getPlayer().getLastViewedScene();
+                if (previousScene != null) {
+                    // Call SceneRollBackEvent
+                    RenScene currentScene = renJava.getPlayer().getCurrentScene();
+                    SceneRollbackEvent rollbackEvent = new SceneRollbackEvent(previousScene, currentScene);
+                    RenJava.callEvent(rollbackEvent);
+                    previousScene.getStory().displayScene(previousScene, true);
+                    // Delete the current scene before the rollback from the viewed scenes
+                    renJava.getPlayer().getViewedScenes().remove(renJava.getPlayer().getViewedScenes().lastKey());
                 }
-            } else {
-                logger.info("Cannot display next scene...");
             }
-        } else {
-            logger.info("Current scene is null...");
         }
+
+//        if (renJava.getPlayer().getCurrentScene() != null) {
+//            if (event.isDisplayPreviousScene()) {
+//                Story story = renJava.getPlayer().getCurrentStory();
+//                RenScene renScene = story.getPreviousSceneFromCurrent();
+//                if (renScene != null) {
+//
+//                    renScene.render(window, true);
+//                    renJava.getPlayer().updateScene(renScene);
+//                }
+//            } else {
+//                logger.info("Cannot display next scene...");
+//            }
+//        } else {
+//            logger.info("Current scene is null...");
+//        }
     }
 
     @Listener
     public void onScrollDown(ScrollDownEvent event) {
         // If they scroll down it acts like skipping.
-        RenLogger.LOGGER.debug("Scroll down called!");
         if (event.isCancelled()) return;
-        RenLogger.LOGGER.debug("Not cancelled!");
         RenScene scene = renJava.getPlayer().getCurrentScene();
-        Window window = renJava.getGameWindow();
         if (scene != null) {
-            RenLogger.LOGGER.debug("Current scene not null");
-            // This is off by one scene... Test the next scene?
-            Story story = scene.getStory();
-            RenScene nextScene = story.getNextSceneFromCurrent();
-
-            // Stops here
-            RenLogger.LOGGER.debug("Story ID: {}", story.getId());
-            RenLogger.LOGGER.debug("Next Scene: {}", nextScene.getId());
-
-            RenLogger.LOGGER.debug("Scanning for viewed scenes...");
-            renJava.getPlayer().getViewedScenes().forEach((s, s2) -> {
-                RenLogger.LOGGER.debug("Found: ({},{})", s, s2);
-            });
-
-            if (nextScene != null && renJava.getPlayer().hasSeenScene(story, nextScene.getId())) {
-                RenLogger.LOGGER.debug("Next scene not null and player has viewed the next scene");
-                // Render next scene
-                renJava.getPlayer().updateScene(nextScene);
-                nextScene.render(window, true);
-                RenLogger.LOGGER.debug("Rendered");
-            }
+            playNextScene();
         }
     }
 
@@ -211,7 +220,6 @@ public class GameFlowEventListener implements EventListener {
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
-        System.out.println("Boolean: " + gameMenu);
         if (gameMenu) {
             if (scene == null) {
                 logger.error("The scene is null.");
@@ -230,14 +238,12 @@ public class GameFlowEventListener implements EventListener {
             }
             RenJava.callEvent(endEvent);
 
-            // Jump to next scene second
             Story story = scene.getStory();
             if (story == null) {
                 return;
             }
 
             if (scene.getIndex() == story.getLastIndex()) {
-                //logger.info("Calling story end event...");
                 StoryEndEvent storyEndEvent = new StoryEndEvent(story);
                 RenJava.callEvent(storyEndEvent);
                 return;
@@ -245,7 +251,6 @@ public class GameFlowEventListener implements EventListener {
 
             if (endEvent.isAutoPlayNextScene()) {
                 logger.info("Calling next scene...");
-                // Call next if the story did not end.
                 RenScene nextScene = story.getNextScene(scene.getId());
 
                 logger.info("Transitioned Played: {}", player.isTransitionPlaying());
@@ -260,8 +265,7 @@ public class GameFlowEventListener implements EventListener {
                     }
                     scene.getEndTransition().play(pane); // Starts transition.
                 } else {
-                    player.updateScene(nextScene);
-                    nextScene.render(renJava.getGameWindow(), true);
+                    story.displayScene(nextScene, false, true);
                     player.setTransitionPlaying(false);
                 }
             }
