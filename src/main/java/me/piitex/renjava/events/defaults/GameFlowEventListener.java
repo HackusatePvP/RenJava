@@ -30,9 +30,6 @@ import org.slf4j.Logger;;
 
 
 public class GameFlowEventListener implements EventListener {
-    // Also experimental, task that runs while the ctrl key is held. Maybe I can change this to a do while or something... I'm not sure.
-    private boolean skipHeld = false;
-
     private static final RenJava renJava = RenJava.getInstance();
 
 
@@ -172,21 +169,37 @@ public class GameFlowEventListener implements EventListener {
         Logger logger = RenLogger.LOGGER;
         Window window = renJava.getGameWindow();
         if (event.isCancelled()) return; // If the event is canceled, do not roll back.
+        // Instead of rendering the previous scene in the story, use the Player class instead
         if (renJava.getPlayer().getCurrentScene() != null) {
             if (event.isDisplayPreviousScene()) {
-                Story story = renJava.getPlayer().getCurrentStory();
-                RenScene renScene = story.getPreviousSceneFromCurrent();
-                if (renScene != null) {
-
-                    renScene.render(window, true);
-                    renJava.getPlayer().updateScene(renScene);
+                RenScene previousScene = renJava.getPlayer().getLastViewedScene();
+                if (previousScene != null) {
+                    // Call SceneRollBackEvent
+                    RenScene currentScene = renJava.getPlayer().getCurrentScene();
+                    SceneRollbackEvent rollbackEvent = new SceneRollbackEvent(previousScene, currentScene);
+                    RenJava.callEvent(rollbackEvent);
+                    System.out.println("Rendering roll back '" + previousScene.getId() + "'.");
+                    previousScene.render(window, true);
+                    renJava.getPlayer().updateScene(previousScene, true);
                 }
-            } else {
-                logger.info("Cannot display next scene...");
             }
-        } else {
-            logger.info("Current scene is null...");
         }
+
+//        if (renJava.getPlayer().getCurrentScene() != null) {
+//            if (event.isDisplayPreviousScene()) {
+//                Story story = renJava.getPlayer().getCurrentStory();
+//                RenScene renScene = story.getPreviousSceneFromCurrent();
+//                if (renScene != null) {
+//
+//                    renScene.render(window, true);
+//                    renJava.getPlayer().updateScene(renScene);
+//                }
+//            } else {
+//                logger.info("Cannot display next scene...");
+//            }
+//        } else {
+//            logger.info("Current scene is null...");
+//        }
     }
 
     @Listener
