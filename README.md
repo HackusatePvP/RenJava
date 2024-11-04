@@ -29,14 +29,14 @@ I will be dropping any future plans for mac. I do not own any apple products nor
 
 ### Linux
 Linux has entered testing and as of now the only distro that will see support is Debian. If you are wanting to use or support other distros, the framework should still work. Similar to mac, you will need to manually download the proper java version and use the java command.
-Linux will have two installation methods `install_linux_64.sh` and `install_linux_local_64`. The `start_linux.sh` will automatically install java if it's not already installed. Note, RenJava will only support x64 archetype and will not support aarch64. 
+Linux will have two installation methods `install_linux_64.sh` and `install_linux_local_64`. The `start_linux.sh` will automatically install java if it's not already installed, and launch the game. Note, RenJava will only support x64 archetype and will not support aarch64. 
 Most normal pc's made pass 2010 should run without issue. 
 
 When running RSDK the linux tar file will no longer be downloaded, instead the .deb file will be.
 To install the .deb file manually use the following commands. You will have to run the newest version of RSDK first to download the .deb file. You can also download it from [amazon](https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html)
 Keep in mind, the above scripts will automatically do this.
 ```bash
-sudo apt install /jdk/linux/amazon-corretto-21-x64-linux-jdk.deb
+sudo apt install ./jdk/linux/amazon-corretto-21-x64-linux-jdk.deb
 ```
 
 ## Updating
