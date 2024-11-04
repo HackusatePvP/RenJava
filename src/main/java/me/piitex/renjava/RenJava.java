@@ -98,6 +98,10 @@ public abstract class RenJava {
 
     protected String buildVersion;
 
+    // Cache gui builders to signicantly decrase resource usage.
+    private Container mainMenu, sideMenu, preferenceMenu, helpMenu;
+    private Container mainRightMenu, sideRightMenu, preferenceRightMenu, helpRightMenu;
+
     // Error tracking
     private static long lastErrorTimeStamp;
 
@@ -377,6 +381,22 @@ public abstract class RenJava {
      */
     public abstract Container buildMainMenu(boolean rightClick);
 
+    public Container getMainMenu() {
+        return mainMenu;
+    }
+
+    public void setMainMenu(Container mainMenu) {
+        this.mainMenu = mainMenu;
+    }
+
+    public Container getMainRightMenu() {
+        return mainRightMenu;
+    }
+
+    public void setMainRightMenu(Container mainRightMenu) {
+        this.mainRightMenu = mainRightMenu;
+    }
+
     public Container buildSideMenu(boolean rightClick) {
         Container menu = new EmptyContainer(1920, 1080, DisplayOrder.HIGH);
 
@@ -420,6 +440,22 @@ public abstract class RenJava {
         menu.addOverlay(returnButton);
 
         return menu;
+    }
+
+    public Container getSideMenu() {
+        return sideMenu;
+    }
+
+    public void setSideMenu(Container sideMenu) {
+        this.sideMenu = sideMenu;
+    }
+
+    public Container getSideRightMenu() {
+        return sideRightMenu;
+    }
+
+    public void setSideRightMenu(Container sideRightMenu) {
+        this.sideRightMenu = sideRightMenu;
     }
 
     public Container buildLoadMenu(int page) {
@@ -615,6 +651,22 @@ public abstract class RenJava {
         return menu;
     }
 
+    public Container getPreferenceMenu() {
+        return preferenceMenu;
+    }
+
+    public void setPreferenceMenu(Container preferenceMenu) {
+        this.preferenceMenu = preferenceMenu;
+    }
+
+    public Container getPreferenceRightMenu() {
+        return preferenceRightMenu;
+    }
+
+    public void setPreferenceRightMenu(Container preferenceRightMenu) {
+        this.preferenceRightMenu = preferenceRightMenu;
+    }
+
     public Container buildAboutMenu(boolean rightClicked) {
         Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
         menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
@@ -648,6 +700,22 @@ public abstract class RenJava {
 //        menu.addOverlay(renJavaLink);
 
         return menu;
+    }
+
+    public Container getHelpMenu() {
+        return helpMenu;
+    }
+
+    public void setHelpMenu(Container helpMenu) {
+        this.helpMenu = helpMenu;
+    }
+
+    public Container getHelpRightMenu() {
+        return helpRightMenu;
+    }
+
+    public void setHelpRightMenu(Container helpRightMenu) {
+        this.helpRightMenu = helpRightMenu;
     }
 
     /**
@@ -793,6 +861,14 @@ public abstract class RenJava {
         lowestMethods.forEach((listener, method) -> {
             invokeMethod(listener, method, event);
         });
+
+        // Clear resource usage
+        lowestMethods.clear();
+        lowMethods.clear();
+        normalMethods.clear();
+        highMethods.clear();
+        highestMethods.clear();
+        eventListeners.clear();
     }
 
     private static void invokeMethod(EventListener listener, Method method, Event event) {
@@ -848,8 +924,6 @@ public abstract class RenJava {
 
         Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon());
         errorWindow.updateBackground(Color.WHITE);
-        errorWindow.setFullscreen(false);
-        errorWindow.setMaximized(false);
 
         VerticalLayout rootLayout = new VerticalLayout(900, 600);
         ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 700, 400);
@@ -872,6 +946,9 @@ public abstract class RenJava {
         errorWindow.addContainers(container);
 
         errorWindow.render();
+
+        // Clear resource usage
+        texts.clear();
 
     }
 }
