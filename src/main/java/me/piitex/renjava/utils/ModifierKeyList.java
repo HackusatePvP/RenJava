@@ -11,7 +11,6 @@ public class ModifierKeyList {
     public static KeyCode[] modifier = new KeyCode[] {
       KeyCode.CONTROL,
       KeyCode.SHIFT,
-      KeyCode.ALT,
       KeyCode.META
     };
 }
