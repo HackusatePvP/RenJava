@@ -151,11 +151,15 @@ public class GuiLoader {
             menu.addOverlay(imageOverlay);
         }
 
+        // Cache the main menu
+        renJava.setMainMenu(menu);
+
         window.addContainer(menu);
 
         Container sideMenu = renJava.buildSideMenu(false);
         SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(sideMenu);
         RenJava.callEvent(sideMenuBuildEvent);
+        renJava.setSideMenu(sideMenu);
 
         window.addContainers(sideMenu);
 
@@ -170,6 +174,22 @@ public class GuiLoader {
         RenJava.callEvent(renderEvent);
 
         renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
+
+        // Caching menus rather than re-building them 500+ times per session will greatly re-deuce resource usage.
+        RenLogger.LOGGER.info("Caching menus...");
+        Container mainRightMenu = renJava.buildMainMenu(true);
+        Container sideRightMenu = renJava.buildSideMenu(true);
+        Container preferenceMenu = renJava.buildSettingsMenu(false);
+        Container preferenceRightMenu = renJava.buildSettingsMenu(true);
+        Container helpMenu = renJava.buildAboutMenu(false);
+        Container helpRightMenu = renJava.buildAboutMenu(true);
+        renJava.setMainRightMenu(mainRightMenu);
+        renJava.setSideRightMenu(sideRightMenu);
+        renJava.setPreferenceMenu(preferenceMenu);
+        renJava.setPreferenceRightMenu(preferenceRightMenu);
+        renJava.setHelpRightMenu(helpRightMenu);
+        renJava.setHelpMenu(helpMenu);
+
     }
 
 
