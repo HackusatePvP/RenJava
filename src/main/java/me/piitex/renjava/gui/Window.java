@@ -102,6 +102,7 @@ public class Window {
     private final ImageLoader icon;
     private final StageStyle stageStyle;
     private int width, height;
+    private boolean fullscreen = false, maximized = false;
     // Used for scaling the window when it resizes.
     private Color backgroundColor = Color.BLACK;
     private Stage stage;
@@ -121,6 +122,18 @@ public class Window {
         this.icon = icon;
         buildStage();
     }
+
+    public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.setFullscreen(fullscreen);
+        this.setMaximized(maximized);
+        buildStage();
+    }
+
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
@@ -171,6 +184,8 @@ public class Window {
         stage.initStyle(stageStyle);
         stage.setWidth(width);
         stage.setHeight(height);
+        stage.setMaximized(maximized);
+        stage.setFullScreen(fullscreen);
 
 
         root = new Pane();
@@ -207,12 +222,14 @@ public class Window {
     }
 
     public void setFullscreen(boolean fullscreen) {
+        this.fullscreen = fullscreen;
         if (stage != null) {
             stage.setFullScreen(fullscreen);
         }
     }
 
     public void setMaximized(boolean maximized) {
+        this.maximized = maximized;
         if (stage != null) {
             stage.setMaximized(maximized);
         }
@@ -268,6 +285,12 @@ public class Window {
         normalOrder.forEach(this::renderContainer);
         highOrder.forEach(this::renderContainer);
 
+        // Not sure if this will cause issues but to reduce resource usage the mappings need to be cleared
+        containers.clear();
+        lowOrder.clear();
+        normalOrder.clear();
+        highOrder.clear();
+
         handleInput(root);
 
         root.requestFocus();
@@ -295,6 +318,7 @@ public class Window {
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);
+
     }
 
     private void handleInput(Pane root) {
@@ -333,6 +357,7 @@ public class Window {
                     KeyUtils.setModifierDown(event.getCode(), true); // So far it is down.
 
                     // Start Sub-thread for continous event
+                    // FIXME: This causes increase in resource usage. Program jumped from using 200mb memory usage to 800mb.
                     Tasks.runAsync(() -> {
                         firstRun = Instant.now();
                         while (KeyUtils.getCurrentKeyDown() != null) {
