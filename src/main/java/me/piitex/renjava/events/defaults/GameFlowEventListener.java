@@ -178,9 +178,9 @@ public class GameFlowEventListener implements EventListener {
                     RenScene currentScene = renJava.getPlayer().getCurrentScene();
                     SceneRollbackEvent rollbackEvent = new SceneRollbackEvent(previousScene, currentScene);
                     RenJava.callEvent(rollbackEvent);
-                    System.out.println("Rendering roll back '" + previousScene.getId() + "'.");
-                    previousScene.render(window, true);
-                    renJava.getPlayer().updateScene(previousScene, true);
+                    previousScene.getStory().displayScene(previousScene, true);
+                    // Delete the current scene before the rollback from the viewed scenes
+                    renJava.getPlayer().getViewedScenes().remove(renJava.getPlayer().getViewedScenes().lastKey());
                 }
             }
         }
@@ -207,16 +207,8 @@ public class GameFlowEventListener implements EventListener {
         // If they scroll down it acts like skipping.
         if (event.isCancelled()) return;
         RenScene scene = renJava.getPlayer().getCurrentScene();
-        Window window = renJava.getGameWindow();
         if (scene != null) {
-            // This is off by one scene... Test the next scene?
-            Story story = scene.getStory();
-            RenScene nextScene = story.getNextSceneFromCurrent();
-            if (nextScene != null && renJava.getPlayer().hasSeenScene(story, nextScene.getId())) {
-                // Render next scene
-                renJava.getPlayer().updateScene(nextScene);
-                nextScene.render(window, true);
-            }
+            playNextScene();
         }
     }
 
@@ -273,8 +265,7 @@ public class GameFlowEventListener implements EventListener {
                     }
                     scene.getEndTransition().play(pane); // Starts transition.
                 } else {
-                    player.updateScene(nextScene);
-                    nextScene.render(renJava.getGameWindow(), true);
+                    story.displayScene(nextScene, false, true);
                     player.setTransitionPlaying(false);
                 }
             }
