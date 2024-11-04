@@ -53,7 +53,7 @@ public class AddonLoader {
             try {
                 zipFile = new ZipFile(file);
             } catch (IOException e) {
-                RenLogger.LOGGER.error("Invalid or corrupted  addon jar file.", e);
+                RenLogger.LOGGER.error("Invalid or corrupted addon jar file.", e);
                 RenJava.writeStackTrace(e);
                 return;
             }
@@ -180,9 +180,11 @@ public class AddonLoader {
                 lastValidated.set(file.getName());
             });
         }
-        // Cleanup
+        // Cleanup (Not clearing these will result in increase resource usage)
         passed.clear();
         lateLoaders.clear();
+        nonDependants.clear();
+        validations.clear();
     }
 
     private void initAddon(File file, @Nullable Collection<Addon> dependencies) throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -197,6 +199,8 @@ public class AddonLoader {
                     String clazzName = clazzString.replace('/', '.').substring(0, clazzString.length() - 6); // removes the .class at the end
 
                     // Authors should warn users about using pirated versions or getting addons from unknown sources.
+                    // This can easily allow malicious code to be executed. I will not be adding any form on 'anti malware' checks. Don't download something you don't trust.
+                    // Also be aware of the licence renjava uses. Authors are required to provide source to code per the GPL 3.0 license.
                     Class<?> clazz = cl.loadClass(clazzName);
                     if (Addon.class.isAssignableFrom(clazz)) {
                         logger.info("Executing addon...");
