@@ -60,6 +60,7 @@ public class Launch extends Application {
 
             // Detect any classes that extend RenJava
             for (Class<?> c : reflections.getSubTypesOf(RenJava.class)) {
+                allPackagePrefixes.clear();
                 loadClass(c, args, buildInfo);
                 break;
             }

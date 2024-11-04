@@ -204,6 +204,7 @@ public class RenLoader {
             if (is != null) {
                 p.load(is);
                 version = p.getProperty("version", "");
+                is.close();
             }
         } catch (Exception e) {
             // ignore
