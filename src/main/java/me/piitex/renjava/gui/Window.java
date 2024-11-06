@@ -223,6 +223,10 @@ public class Window {
         this.fullscreen = fullscreen;
         if (stage != null) {
             stage.setFullScreen(fullscreen);
+            if (!fullscreen) {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
         }
     }
 
@@ -230,6 +234,10 @@ public class Window {
         this.maximized = maximized;
         if (stage != null) {
             stage.setMaximized(maximized);
+            if (!maximized) {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
         }
     }
 
@@ -298,6 +306,8 @@ public class Window {
         handleInput(root);
 
         root.requestFocus();
+        setFullscreen(fullscreen);
+        setMaximized(maximized);
         stage.show();
 
         // Force clear resources that are unused.

@@ -922,11 +922,13 @@ public abstract class RenJava {
             RenJava.writeStackTrace(e);
         }
 
-        Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon());
+        Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon(), 920, 650);
+        errorWindow.setFullscreen(false);
+        errorWindow.setMaximized(false);
         errorWindow.updateBackground(Color.WHITE);
 
         VerticalLayout rootLayout = new VerticalLayout(900, 600);
-        ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 700, 400);
+        ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 900, 600);
 
         Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
 
