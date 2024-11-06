@@ -301,6 +301,14 @@ public class Window {
         stage.show();
 
         // Force clear resources that are unused.
+        // To those who feel like GC is bad practice or indicates broken code allow me to explain.
+        // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
+        // HOWEVER, when you are rendering and loading multiple 10mb+ images within a 5 minute time period auto GC is far too slow.
+        // This call may not do anything at all at times. It tells the JVM that I want to clear any unused references pronto not when it wants to.
+        // There are multiple gc calls within the framework and when testing on my own machine they dramatically decrease resource usage by 300mb+
+        // I will admit that there may be in a memory leak somewhere in the framework, but this is not the solution to that.
+        //
+        // TL;DR I ain't waiting for your slow ass jvm to clear resources.
         System.gc();
 
     }
