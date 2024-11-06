@@ -24,6 +24,7 @@ public class MenuClickEventListener implements EventListener {
 
         if (button.getId().equalsIgnoreCase("menu-start-button")) {
             RenLogger.LOGGER.info("Creating new game...");
+            renJava.getPlayer().resetSession();
             renJava.createBaseData();
             renJava.createStory();
 
