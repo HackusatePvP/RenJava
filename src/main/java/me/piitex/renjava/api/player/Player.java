@@ -2,6 +2,7 @@ package me.piitex.renjava.api.player;
 
 import javafx.scene.Scene;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -34,7 +35,7 @@ public class Player implements PersistentData {
     private boolean skipAutoScene = false;
 
     //StoryID
-    @Data private LinkedHashSet<String> viewedStories = new LinkedHashSet<>(); // Ordered map of what stories the player has viewed.
+    @Data private LinkedList<String> viewedStories = new LinkedList<>(); // Ordered map of what stories the player has viewed.
 
     // Index, <SceneID, StoryID>
     // For now these will be session only and not saved. In RenPy rolling back is saved and tracked. Currently not supported I lack brain power.
@@ -92,6 +93,15 @@ public class Player implements PersistentData {
         return storyIdMap.get(id);
     }
 
+    @APINote(description = "There is no method to get the next Story as story routes and dictated by the choices the player makes. Meaning it's impossible to predict with accuracy where the player will go.")
+    public Story getPreviousStory() {
+        return getStory(viewedStories.getLast());
+    }
+
+
+    @APINote(description = "Gets the last viewed scene in the current session. " +
+            "Sessions are reset when you close the game or start a new save." +
+            "")
     public RenScene getLastViewedScene() {
         // Get the last viewed scene that was rendered. Not the last scene that was indexed.
         RenScene scene = getCurrentStory().getScene(currentScene);
@@ -111,7 +121,9 @@ public class Player implements PersistentData {
         return renScene;
     }
 
-    public LinkedHashSet<String> getViewedStories() {
+    //TODO: Please change this and don't forget
+    @APIChange(changedVersion = "0.1.xxxx", description = "Changed from being a linked hash set to linked list.")
+    public LinkedList<String> getViewedStories() {
         return viewedStories;
     }
 
