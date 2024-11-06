@@ -121,7 +121,6 @@ public abstract class Story {
 
         logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
-        renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
         RenLogger.LOGGER.debug("Rendering first scene...");
         displayScene(renScene, false, true);
@@ -278,6 +277,7 @@ public abstract class Story {
         if (!rollback) {
             // 0,1,2,3,
             renJava.getPlayer().getViewedScenes().put(renJava.getPlayer().getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
+            renJava.getPlayer().getRolledScenes().put(renJava.getPlayer().getRolledScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
         }
     }
 

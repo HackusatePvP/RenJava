@@ -37,7 +37,11 @@ public class Player implements PersistentData {
     @Data private LinkedHashSet<String> viewedStories = new LinkedHashSet<>(); // Ordered map of what stories the player has viewed.
 
     // Index, <SceneID, StoryID>
+    // For now these will be session only and not saved. In RenPy rolling back is saved and tracked. Currently not supported I lack brain power.
     private LimitedTreeMap<Integer, Map.Entry<String, String>> viewedScenes = new LimitedTreeMap<>(50);
+
+    // For going back through roll back. If you rollback the scenes you go back on will be tracked.
+    private LimitedTreeMap<Integer, Map.Entry<String, String>> rolledScenes = new LimitedTreeMap<>(50);
 
     private final Map<String, Story> storyIdMap = new HashMap<>();
 
@@ -73,7 +77,6 @@ public class Player implements PersistentData {
 
     public void setCurrentStory(String currentStoryID) {
         this.currentStory = currentStoryID;
-        Story story = getStory(currentStoryID);
         viewedStories.add(currentStoryID); // When setting story update the viewedStory for rollback.
     }
 
@@ -91,8 +94,18 @@ public class Player implements PersistentData {
 
     public RenScene getLastViewedScene() {
         // Get the last viewed scene that was rendered. Not the last scene that was indexed.
-        int index = getViewedScenes().lastKey() - 1;
+        RenScene scene = getCurrentStory().getScene(currentScene);
+        Map.Entry<Integer, Map.Entry<String, String>> currentEntry = getViewedScenes().entrySet().stream().filter(integerEntryEntry -> integerEntryEntry.getValue().getKey().equalsIgnoreCase(scene.getId()) && integerEntryEntry.getValue().getValue().equalsIgnoreCase(scene.getStory().getId())).findAny().orElse(null);
+        int index;
+        if (currentEntry != null) {
+            index = currentEntry.getKey() - 1;
+        } else {
+            index = getViewedScenes().lastKey() - 1;
+        }
         Map.Entry<String, String> entry = getViewedScenes().get(index);
+        if (entry == null) {
+            entry = getViewedScenes().get(getViewedScenes().lastKey());
+        }
         Story story = getStory(entry.getValue());
         RenScene renScene = story.getScene(entry.getKey());
         return renScene;
@@ -106,6 +119,9 @@ public class Player implements PersistentData {
         return viewedScenes;
     }
 
+    public LimitedTreeMap<Integer, Map.Entry<String, String>> getRolledScenes() {
+        return rolledScenes;
+    }
 
     public Map<String, Story> getStoryIdMap() {
         return storyIdMap;
@@ -192,6 +208,13 @@ public class Player implements PersistentData {
     public void updateScene(RenScene renScene, boolean rollback) {
         setCurrentScene(renScene.getId()); // Update the scene.
         setCurrentStory(renScene.getStory());
+    }
+
+    public void resetSession() {
+        viewedScenes.clear();
+        viewedStories.clear();
+        rolledScenes.clear();
+        lastDisplayedImage = null;
     }
 
 }
