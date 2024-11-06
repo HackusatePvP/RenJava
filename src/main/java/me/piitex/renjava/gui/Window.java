@@ -103,7 +103,6 @@ public class Window {
     private final StageStyle stageStyle;
     private int width, height;
     private boolean fullscreen = false, maximized = false;
-    // Used for scaling the window when it resizes.
     private Color backgroundColor = Color.BLACK;
     private Stage stage;
     private Scene scene;
@@ -133,7 +132,6 @@ public class Window {
         this.setMaximized(maximized);
         buildStage();
     }
-
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
@@ -245,11 +243,13 @@ public class Window {
 
     public void clearContainers() {
         containers.clear();
+        System.gc();
     }
 
     public void close() {
         if (stage != null) {
             stage.close();
+            System.gc(); // Force garbage collection once the window is closed.
         }
     }
 
@@ -379,7 +379,7 @@ public class Window {
                             } else {
                                 long diff = Duration.between(lastRun, current).toMillis();
                                 long firstDiff = Duration.between(firstRun, current).toMinutes();
-                                if (firstDiff > 20) {
+                                if (firstDiff > 20) { // This broke randomly???
                                     RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
                                     KeyUtils.setModifierDown(event.getCode(), false);
                                     return; // Kill after 2min
