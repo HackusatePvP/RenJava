@@ -39,10 +39,10 @@ public class Player implements PersistentData {
 
     // Index, <SceneID, StoryID>
     // For now these will be session only and not saved. In RenPy rolling back is saved and tracked. Currently not supported I lack brain power.
-    private LimitedTreeMap<Integer, Map.Entry<String, String>> viewedScenes = new LimitedTreeMap<>(50);
+    private final LimitedTreeMap<Integer, Map.Entry<String, String>> viewedScenes = new LimitedTreeMap<>(50);
 
     // For going back through roll back. If you rollback the scenes you go back on will be tracked.
-    private LimitedTreeMap<Integer, Map.Entry<String, String>> rolledScenes = new LimitedTreeMap<>(50);
+    private final LimitedTreeMap<Integer, Map.Entry<String, String>> rolledScenes = new LimitedTreeMap<>(50);
 
     private final Map<String, Story> storyIdMap = new HashMap<>();
 
@@ -50,7 +50,8 @@ public class Player implements PersistentData {
     private RenScene lastRenderedRenScene;
 
     public boolean hasSeenScene(Story story, String sceneID) {
-        return viewedScenes.containsKey(sceneID) && viewedScenes.containsValue(story.getId());
+        //return viewedScenes.containsKey(sceneID) && viewedScenes.containsValue(story.getId());
+        return viewedScenes.entrySet().stream().filter(integerEntryEntry -> integerEntryEntry.getValue().getKey().equalsIgnoreCase(sceneID) && integerEntryEntry.getValue().getValue().equalsIgnoreCase(story.getId())).findAny().orElse(null) != null;
     }
 
     public RenScene getCurrentScene() {
@@ -101,7 +102,7 @@ public class Player implements PersistentData {
 
     @APINote(description = "Gets the last viewed scene in the current session. " +
             "Sessions are reset when you close the game or start a new save." +
-            "")
+            "This can return null if the session resets.")
     public RenScene getLastViewedScene() {
         // Get the last viewed scene that was rendered. Not the last scene that was indexed.
         RenScene scene = getCurrentStory().getScene(currentScene);
