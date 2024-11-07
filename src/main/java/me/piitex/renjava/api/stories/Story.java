@@ -119,7 +119,6 @@ public abstract class Story {
         clear(); // Clear previous mappings (allows refreshing)
         init(); // Initialize when starting
 
-        logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
 
         RenLogger.LOGGER.debug("Rendering first scene...");
@@ -260,15 +259,12 @@ public abstract class Story {
     }
 
     public void displayScene(RenScene scene, boolean rollback, boolean events) {
-        RenLogger.LOGGER.debug("Rendering: " + scene.getId());
-        RenLogger.LOGGER.debug("Calling scene end event...");
+        RenLogger.LOGGER.info("Rendering scene {} in story {}", scene.getId(), scene.getStory().getId());
         if (events) {
             SceneEndEvent event = new SceneEndEvent(getCurrentScene());
             RenJava.callEvent(event);
         }
-        RenLogger.LOGGER.debug("Updating scene...");
         RenJava.getInstance().getPlayer().updateScene(scene);
-        RenLogger.LOGGER.debug("Rendering scene container...");
         renJava.getGameWindow().clearContainers();
 
         scene.render(renJava.getGameWindow(),true);

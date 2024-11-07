@@ -154,7 +154,6 @@ public class ImageOverlay extends Overlay implements Region {
     @Override
     public Node render() {
         Image image = getImage();
-        RenLogger.LOGGER.info("Rendering image '{}'", path);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
         if (width != 0) {

@@ -252,10 +252,7 @@ public class GameFlowEventListener implements EventListener {
             }
 
             if (endEvent.isAutoPlayNextScene()) {
-                logger.info("Calling next scene...");
                 RenScene nextScene = story.getNextScene(scene.getId());
-
-                logger.info("Transitioned Played: {}", player.isTransitionPlaying());
                 if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
                     player.setTransitionPlaying(true);
                     Pane pane = renJava.getGameWindow().getRoot();

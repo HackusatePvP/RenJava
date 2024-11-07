@@ -63,10 +63,6 @@ public class FadingTransition extends Transitions {
 
     @Override
     public void play(Node node) {
-        // Remove logger
-        Logger logger = RenLogger.LOGGER;
-        logger.info("Playing fading transition...");
-
         fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));
         fadeTransition.setFromValue(getFromValue());
         fadeTransition.setToValue(getToValue());
@@ -75,7 +71,6 @@ public class FadingTransition extends Transitions {
         fadeTransition.setNode(node);
         fadeTransition.setDuration(Duration.seconds(getDuration()));
         fadeTransition.setOnFinished(actionEvent -> {
-            logger.info("Fading transition finished. Calling onEnd event.");
             if (getOnFinish() != null) {
                 getOnFinish().onEnd(actionEvent);
             }

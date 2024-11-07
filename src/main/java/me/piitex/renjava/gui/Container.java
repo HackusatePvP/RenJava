@@ -97,7 +97,6 @@ public abstract class Container {
 
     // Generalized methods
     public void buildBase(LinkedList<Node> lowOrder, LinkedList<Node> normalOrder, LinkedList<Node> highOrder) {
-        RenLogger.LOGGER.info("Rendering overlays...");
         for (Overlay overlay : getOverlays()) {
             if (overlay.getOrder() == DisplayOrder.LOW) {
                 lowOrder.add(overlay.render());
@@ -117,8 +116,6 @@ public abstract class Container {
                 highOrder.add(layout.render(this));
             }
         }
-
-
 
         lowOrder.addAll(normalOrder);
         lowOrder.addAll(highOrder);

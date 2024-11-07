@@ -269,8 +269,6 @@ public class Window {
     // Builds and renders all containers
     public void render() {
         // Clear and reset before rendering (this will prevent elements being stacked)
-        RenLogger.LOGGER.debug("Rendering window...");
-
         if (containers.isEmpty()) {
             RenLogger.LOGGER.error("You must add containers to the window before every render call.");
         }

@@ -33,10 +33,10 @@ public class ScenesEventListener implements EventListener {
         // When the render is called the scene should be already set.
         RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
         if (scene != null && scene != lastRenderedScene) {
-            RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
             Window window = RenJava.getInstance().getGameWindow();
             Transitions transitions = scene.getStartTransition();
             if (transitions != null) {
+                RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
                 if (transitions instanceof FadingTransition fadingTransition) {
                     window.updateBackground(fadingTransition.getColor());
                 }
