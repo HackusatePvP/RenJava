@@ -19,9 +19,6 @@ public class OverlayEventListener implements EventListener {
     @Listener
     public void onOverlayClick(OverlayClickEvent event) {
         Overlay overlay = event.getOverlay();
-        if (overlay instanceof ButtonOverlay buttonOverlay) {
-            RenLogger.LOGGER.debug("Button: " + buttonOverlay.getId());
-        }
 
         if (overlay.getOnClick() != null) {
             overlay.getOnClick().onClick(event);
