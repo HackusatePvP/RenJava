@@ -49,8 +49,6 @@ public abstract class RenScene {
     private Transitions startTransition;
     private Transitions endTransition;
 
-    private StageType stageType;
-
     private final Collection<Overlay> additionalOverlays = new HashSet<>();
 
     private final Collection<File> styleSheets = new HashSet<>();
