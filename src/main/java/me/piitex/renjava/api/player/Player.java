@@ -99,7 +99,6 @@ public class Player implements PersistentData {
         return getStory(viewedStories.getLast());
     }
 
-
     @APINote(description = "Gets the last viewed scene in the current session. " +
             "Sessions are reset when you close the game or start a new save." +
             "This can return null if the session resets.")
@@ -118,8 +117,7 @@ public class Player implements PersistentData {
             entry = getViewedScenes().get(getViewedScenes().lastKey());
         }
         Story story = getStory(entry.getValue());
-        RenScene renScene = story.getScene(entry.getKey());
-        return renScene;
+        return story.getScene(entry.getKey());
     }
 
     //TODO: Please change this and don't forget
@@ -224,6 +222,8 @@ public class Player implements PersistentData {
     }
 
     public void resetSession() {
+        this.currentScene = null;
+        this.currentStory = null;
         viewedScenes.clear();
         viewedStories.clear();
         rolledScenes.clear();
