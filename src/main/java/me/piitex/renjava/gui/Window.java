@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -195,6 +197,7 @@ public class Window {
         scene.setFill(Color.BLACK);
 
         stage.setScene(scene);
+        handleStageInput(stage);
     }
 
     public void updateBackground(Color color) {
@@ -301,11 +304,6 @@ public class Window {
         normalOrder.clear();
         highOrder.clear();
 
-        handleInput(root);
-
-        root.requestFocus();
-        setFullscreen(fullscreen);
-        setMaximized(maximized);
         stage.show();
 
         // Force clear resources that are unused.
@@ -344,15 +342,13 @@ public class Window {
 
     }
 
-    private void handleInput(Pane root) {
-        // Handle inputs
-        root.setOnMouseClicked(mouseEvent -> {
-            MouseClickEvent clickEvent = new MouseClickEvent(mouseEvent);
+    private void handleStageInput(Stage stage) {
+        stage.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            MouseClickEvent clickEvent = new MouseClickEvent(event);
             RenJava.callEvent(clickEvent);
         });
-
-        root.setOnScroll(scrollEvent -> {
-            double y = scrollEvent.getDeltaY();
+        stage.addEventFilter(ScrollEvent.SCROLL, event -> {
+            double y = event.getDeltaY();
             if (y > 0) {
                 // Scroll up
                 ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
@@ -362,13 +358,8 @@ public class Window {
                 RenJava.callEvent(downEvent);
             }
         });
-
-        root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+        stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
-
-                // Slight issue with alt-tabbing. The tab key will never be recognized nor will the release event. This causes infinite looping.
-                // To fix this, if they push down a different modifier set the last one to false to end the loop.
-                // If you tab out for a long period of time your pc will probably slow down.
                 KeyCode keyCode = KeyUtils.getCurrentKeyDown();
                 if (keyCode != event.getCode()) {
                     KeyUtils.setModifierDown(keyCode, false);
@@ -379,8 +370,7 @@ public class Window {
                     // Update engine
                     KeyUtils.setModifierDown(event.getCode(), true); // So far it is down.
 
-                    // Start Sub-thread for continous event
-                    // FIXME: This causes increase in resource usage. Program jumped from using 200mb memory usage to 800mb.
+                    // Start Sub-thread for continuous event
                     Tasks.runAsync(() -> {
                         firstRun = Instant.now();
                         while (KeyUtils.getCurrentKeyDown() != null) {
@@ -418,7 +408,7 @@ public class Window {
         });
 
 
-        root.addEventFilter(KeyEvent.KEY_RELEASED,event -> {
+        stage.addEventFilter(KeyEvent.KEY_RELEASED,event -> {
 
             if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
                 // If CTRL is being set to down set to false to stop the while thread
@@ -433,4 +423,5 @@ public class Window {
             }
         });
     }
+
 }
