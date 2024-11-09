@@ -265,11 +265,8 @@ public abstract class Story {
             RenJava.callEvent(event);
         }
         RenJava.getInstance().getPlayer().updateScene(scene);
-        renJava.getGameWindow().clearContainers();
-
         scene.render(renJava.getGameWindow(),true);
         renJava.getPlayer().setCurrentStageType(scene.getStageType());
-
         if (!rollback) {
             // 0,1,2,3,
             renJava.getPlayer().getViewedScenes().put(renJava.getPlayer().getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
