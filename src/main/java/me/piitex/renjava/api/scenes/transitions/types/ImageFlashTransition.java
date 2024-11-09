@@ -14,8 +14,9 @@ import java.util.LinkedHashSet;
  * This can be applied to a RenScene which will flash a series of images.
  */
 public class ImageFlashTransition extends Transitions {
-    private final Collection<ImageOverlay> images = new LinkedHashSet<>();
+    private Collection<ImageOverlay> images = new LinkedHashSet<>();
     private final Color transitionColor;
+    private FadingTransition currentTransition;
 
     /**
      *
@@ -25,6 +26,11 @@ public class ImageFlashTransition extends Transitions {
     public ImageFlashTransition(double duration, Color transitionColor) {
         super(duration);
         this.transitionColor = transitionColor;
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return (currentTransition != null && currentTransition.isPlaying());
     }
 
     @Override
@@ -43,7 +49,8 @@ public class ImageFlashTransition extends Transitions {
 
     @Override
     public void stop() {
-
+        currentTransition.stop();
+        images = null;
     }
 
     public void addImages(ImageOverlay... imageOverlays) {

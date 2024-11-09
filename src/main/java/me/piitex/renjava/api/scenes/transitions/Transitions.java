@@ -27,6 +27,8 @@ public abstract class Transitions {
         return duration;
     }
 
+    public abstract boolean isPlaying();
+
     public abstract void play(Node node);
 
     public abstract void stop();

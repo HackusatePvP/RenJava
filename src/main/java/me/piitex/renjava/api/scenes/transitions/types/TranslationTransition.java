@@ -12,6 +12,7 @@ public class TranslationTransition extends Transitions {
     private final double fromY;
     private final double toX;
     private final double toY;
+    private boolean playing;
 
     private TranslationTransition transition;
 
@@ -54,6 +55,11 @@ public class TranslationTransition extends Transitions {
     }
 
     @Override
+    public boolean isPlaying() {
+        return playing;
+    }
+
+    @Override
     public void play(Node node) {
         TranslateTransition transition = new TranslateTransition();
         transition.setByX(byX);
@@ -67,13 +73,16 @@ public class TranslationTransition extends Transitions {
         transition.setOnFinished(actionEvent -> {
             if (getOnFinish() != null) {
                 getOnFinish().onEnd(actionEvent);
+                playing = false;
             }
         });
+        playing = true;
         transition.play();
     }
 
     @Override
     public void stop() {
         transition.stop();
+        playing = false;
     }
 }

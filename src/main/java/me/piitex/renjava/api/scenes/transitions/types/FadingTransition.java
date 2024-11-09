@@ -15,6 +15,7 @@ public class FadingTransition extends Transitions {
     private final double toValue;
     private final int cycleCount;
     private final boolean autoReverse;
+    private boolean playing = false;
 
     private FadeTransition fadeTransition;
 
@@ -62,6 +63,11 @@ public class FadingTransition extends Transitions {
     }
 
     @Override
+    public boolean isPlaying() {
+        return playing;
+    }
+
+    @Override
     public void play(Node node) {
         fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));
         fadeTransition.setFromValue(getFromValue());
@@ -74,6 +80,7 @@ public class FadingTransition extends Transitions {
             if (getOnFinish() != null) {
                 getOnFinish().onEnd(actionEvent);
             }
+            playing = false;
 
             FadingTransitionEndEvent endEvent = new FadingTransitionEndEvent(this);
             RenJava.callEvent(endEvent);
@@ -81,14 +88,17 @@ public class FadingTransition extends Transitions {
         if (previousTranition != null) {
             previousTranition.stop(); // Stop previous animation
         }
+        playing = true;
         fadeTransition.play();
         previousTranition = this;
     }
 
     @Override
     public void stop() {
+        RenLogger.LOGGER.debug("Stopping transition...");
         if (fadeTransition != null) {
             fadeTransition.stop();
+            playing = false;
         }
     }
 }
