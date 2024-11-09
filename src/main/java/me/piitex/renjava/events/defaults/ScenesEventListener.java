@@ -32,6 +32,7 @@ public class ScenesEventListener implements EventListener {
     public void onContainerRender(ContainerRenderEvent event) {
         // When the render is called the scene should be already set.
         RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        if (RenJava.getInstance().getPlayer().isRightClickMenu()) return;
         if (scene != null && scene != lastRenderedScene) {
             Window window = RenJava.getInstance().getGameWindow();
             Transitions transitions = scene.getStartTransition();

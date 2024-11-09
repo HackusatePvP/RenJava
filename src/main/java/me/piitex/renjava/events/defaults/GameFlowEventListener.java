@@ -63,6 +63,7 @@ public class GameFlowEventListener implements EventListener {
                 // Open Main Menu
                 if (!player.isRightClickMenu() && renJava.getPlayer().getCurrentScene() != null) {
                     logger.info("Player is not in menu, opening menu...");
+
                     Container menu = renJava.buildMainMenu(true);
                     menu.addContainers(renJava.buildSideMenu(true));
 
@@ -74,9 +75,10 @@ public class GameFlowEventListener implements EventListener {
 
                     window.addContainer(menu);
 
-                    window.render();
-
+                    // Set flag before rendering. Important for engine checks.
                     player.setRightClickMenu(true);
+
+                    window.render();
 
                     MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu, true);
                     RenJava.callEvent(renderEvent);
