@@ -922,7 +922,7 @@ public abstract class RenJava {
             RenJava.writeStackTrace(e);
         }
 
-        Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon(), 920, 650);
+        Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon(), 920, 650, false);
         errorWindow.setFullscreen(false);
         errorWindow.setMaximized(false);
         errorWindow.updateBackground(Color.WHITE);

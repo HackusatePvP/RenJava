@@ -113,11 +113,23 @@ public class Window {
     // Time tracking for thresholds
     private Instant lastRun;
     private Instant firstRun;
+    private boolean captureInput = true;
+
     private final LinkedList<Container> containers = new LinkedList<>();
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
         this.width = RenJava.getInstance().getConfiguration().getWidth();
         this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        buildStage();
+    }
+
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.captureInput = captureInput;
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
@@ -135,12 +147,34 @@ public class Window {
         buildStage();
     }
 
+    public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, boolean captureInput, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.captureInput = captureInput;
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.setFullscreen(fullscreen);
+        this.setMaximized(maximized);
+        buildStage();
+    }
+
     public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
         this.width = width;
         this.height = height;
+        buildStage();
+    }
+
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput) {
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
         buildStage();
     }
 
@@ -154,6 +188,17 @@ public class Window {
         buildStage();
     }
 
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.captureInput = captureInput;
+        buildStage();
+    }
+
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
         this.backgroundColor = backgroundColor;
@@ -161,6 +206,17 @@ public class Window {
         this.icon = icon;
         this.width = width;
         this.height = height;
+        buildStage();
+    }
+
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput) {
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
         buildStage();
     }
 
@@ -197,7 +253,9 @@ public class Window {
         scene.setFill(Color.BLACK);
 
         stage.setScene(scene);
-        handleStageInput(stage);
+        if (captureInput) {
+            handleStageInput(stage);
+        }
     }
 
     public void updateBackground(Color color) {
@@ -220,6 +278,10 @@ public class Window {
 
     public Pane getRoot() {
         return root;
+    }
+
+    public boolean hasCaptureInput() {
+        return captureInput;
     }
 
     public void setFullscreen(boolean fullscreen) {
