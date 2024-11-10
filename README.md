@@ -25,12 +25,11 @@ The framework will never support 3D games.
 
 ### MacOS
 I will be dropping any future plans for mac. I do not own any apple products nor will that change in the near or far future. The framework should still work for mac but there will be no automatic installation for the os. You will have to manually download and install jdk then execute the jar file via the java command.
-`java -jar RenJavaGame.jar` You might also be able to launch the jar file by clicking on it, though I have no way to confirm as I do not own a mac.
+`java -jar RenJavaGame.jar'. You will still be able to use and test on Mac but most functionality may not work.
 
 ### Linux
 Linux has entered testing and as of now the only distro that will see support is Debian. If you are wanting to use or support other distros, the framework should still work. Similar to mac, you will need to manually download the proper java version and use the java command.
-Linux will have two installation methods `install_linux_64.sh` and `install_linux_local_64`. The `start_linux.sh` will automatically install java if it's not already installed, and launch the game. Note, RenJava will only support x64 archetype and will not support aarch64. 
-Most normal pc's made pass 2010 should run without issue. 
+Linux will have two installation methods `install_linux_64.sh` and `install_linux_local_64`. The `start_linux.sh` will automatically install java if it's not already installed, and launch the game.
 
 When running RSDK the linux tar file will no longer be downloaded, instead the .deb file will be.
 To install the .deb file manually use the following commands. You will have to run the newest version of RSDK first to download the .deb file. You can also download it from [amazon](https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html)
@@ -38,6 +37,13 @@ Keep in mind, the above scripts will automatically do this.
 ```bash
 sudo apt install ./jdk/linux/amazon-corretto-21-x64-linux-jdk.deb
 ```
+
+### Other/Un-supported OS
+To re-iterate, you can use the framework on most systems, as long as that system can render a desktop. The system will also have to support Java 21.
+You can view all supported systems on [amazon-corretto](https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html) which is the JDK I use.
+
+Warning: RenJava is primarily tested on Windows/Linux (Debian). Just because the system can support the framework, does not mean the framework is optimized or functional on that system.
+If you have issues you will have to figure it out on your own. All of this is subjected to change and more os's may get full support later.
 
 ## Updating
 When updating to a newer version of RenJava it is recommended to delete default 'settings.properties' and 'build.info'.
