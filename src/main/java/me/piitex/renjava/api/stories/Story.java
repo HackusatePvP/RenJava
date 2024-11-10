@@ -1,6 +1,7 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -240,6 +241,7 @@ public abstract class Story {
         return getPreviousSceneFromID(renJava.getPlayer().getCurrentScene().getId());
     }
 
+    @APINote(description = "Scene indexes start at 0 which is the first scene. The second scene would be '1'.")
     public void displayScene(int index) {
         RenScene scene = getScene(index);
         displayScene(scene);
@@ -249,6 +251,7 @@ public abstract class Story {
         RenScene scene = getScene(id);
         displayScene(scene);
     }
+
 
     public void displayScene(RenScene scene) {
         displayScene(scene, false);

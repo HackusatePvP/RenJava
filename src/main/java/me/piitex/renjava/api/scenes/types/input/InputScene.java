@@ -52,7 +52,7 @@ public class InputScene extends RenScene {
     private InputFieldOverlay inputField;
     private IInputSetEvent setInterface;
 
-    private RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
+    private final RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
 
     /**
      * Constructs an InputScene with the specified ID and image loader.

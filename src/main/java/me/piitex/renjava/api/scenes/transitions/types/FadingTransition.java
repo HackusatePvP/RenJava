@@ -8,7 +8,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.events.types.FadingTransitionEndEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import org.slf4j.Logger;;
+import org.slf4j.Logger;
 
 public class FadingTransition extends Transitions {
     private final double fromValue;

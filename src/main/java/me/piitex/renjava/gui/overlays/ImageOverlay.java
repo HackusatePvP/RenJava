@@ -15,7 +15,7 @@ public class ImageOverlay extends Overlay implements Region {
     private double width;
     private double height;
     private boolean preserveRatio = true;
-    private String fileName;
+    private final String fileName;
     private String path = "Unknown";
 
     public ImageOverlay(Image image) {

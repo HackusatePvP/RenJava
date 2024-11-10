@@ -25,7 +25,7 @@ import java.util.Map;
 public class ImageLoader {
     private final File file;
 
-    private static Map<String, Image> imageCache = new LimitedHashMap<>(50);
+    private static final Map<String, Image> imageCache = new LimitedHashMap<>(50);
 
     /**
      * Loads an image via a filename from the base directory.
