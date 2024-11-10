@@ -1,7 +1,0 @@
-.text-field {
-    -fx-background-color:
-    -fx-control-inner-background;
-}
-.text-field:focused {
-    -fx-focus-color: transparent;
-}
