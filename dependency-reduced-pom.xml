@@ -4,7 +4,7 @@
   <groupId>me.piitex</groupId>
   <artifactId>RenJava</artifactId>
   <name>RenJava</name>
-  <version>0.1.147-beta</version>
+  <version>0.1.164-beta</version>
   <build>
     <resources>
       <resource>
