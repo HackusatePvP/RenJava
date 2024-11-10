@@ -16,7 +16,6 @@ public class LimitedTreeMap<K, V> extends TreeMap<K, V> {
             remove(firstEntry().getKey());
         }
         super.put(key, value);
-        System.out.println("Insertion Results: " + size());
         return value;
     }
 

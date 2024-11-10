@@ -1,6 +1,7 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -119,9 +120,7 @@ public abstract class Story {
         clear(); // Clear previous mappings (allows refreshing)
         init(); // Initialize when starting
 
-        logger.info("Building scene...");
         RenScene renScene = getScene(0); // Gets the first scene index.
-        renJava.getPlayer().updateScene(renScene); // Set to current scene.
 
         RenLogger.LOGGER.debug("Rendering first scene...");
         displayScene(renScene, false, true);
@@ -242,6 +241,7 @@ public abstract class Story {
         return getPreviousSceneFromID(renJava.getPlayer().getCurrentScene().getId());
     }
 
+    @APINote(description = "Scene indexes start at 0 which is the first scene. The second scene would be '1'.")
     public void displayScene(int index) {
         RenScene scene = getScene(index);
         displayScene(scene);
@@ -252,6 +252,7 @@ public abstract class Story {
         displayScene(scene);
     }
 
+
     public void displayScene(RenScene scene) {
         displayScene(scene, false);
     }
@@ -261,23 +262,18 @@ public abstract class Story {
     }
 
     public void displayScene(RenScene scene, boolean rollback, boolean events) {
-        RenLogger.LOGGER.debug("Rendering: " + scene.getId());
-        RenLogger.LOGGER.debug("Calling scene end event...");
+        RenLogger.LOGGER.info("Rendering scene {} in story {}", scene.getId(), scene.getStory().getId());
         if (events) {
             SceneEndEvent event = new SceneEndEvent(getCurrentScene());
             RenJava.callEvent(event);
         }
-        RenLogger.LOGGER.debug("Updating scene...");
         RenJava.getInstance().getPlayer().updateScene(scene);
-        RenLogger.LOGGER.debug("Rendering scene container...");
-        renJava.getGameWindow().clearContainers();
-
         scene.render(renJava.getGameWindow(),true);
         renJava.getPlayer().setCurrentStageType(scene.getStageType());
-
         if (!rollback) {
             // 0,1,2,3,
             renJava.getPlayer().getViewedScenes().put(renJava.getPlayer().getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
+            renJava.getPlayer().getRolledScenes().put(renJava.getPlayer().getRolledScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
         }
     }
 

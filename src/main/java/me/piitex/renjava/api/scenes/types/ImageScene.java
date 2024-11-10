@@ -200,15 +200,12 @@ public class ImageScene extends RenScene {
         Container container = build(ui);
 
         // Clear window
-        RenLogger.LOGGER.debug("Clearing existing containers...");
         window.clearContainers();
 
-        RenLogger.LOGGER.debug("Adding container to window...");
         window.addContainer(container);
 
         window.render();
 
-        RenLogger.LOGGER.debug("Calling scene start event...");
         SceneStartEvent event = new SceneStartEvent(this);
         RenJava.callEvent(event);
     }

@@ -26,7 +26,7 @@ public abstract class Overlay {
     private IOverlayClick iOverlayClick;
     private IOverlayClickRelease iOverlayClickRelease;
 
-    private Collection<Transitions> transitions = new HashSet<>();
+    private final Collection<Transitions> transitions = new HashSet<>();
 
     public double getX() {
         return x;

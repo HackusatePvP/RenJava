@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -103,7 +105,6 @@ public class Window {
     private final StageStyle stageStyle;
     private int width, height;
     private boolean fullscreen = false, maximized = false;
-    // Used for scaling the window when it resizes.
     private Color backgroundColor = Color.BLACK;
     private Stage stage;
     private Scene scene;
@@ -112,11 +113,23 @@ public class Window {
     // Time tracking for thresholds
     private Instant lastRun;
     private Instant firstRun;
+    private boolean captureInput = true;
+
     private final LinkedList<Container> containers = new LinkedList<>();
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
         this.width = RenJava.getInstance().getConfiguration().getWidth();
         this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        buildStage();
+    }
+
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.captureInput = captureInput;
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
@@ -134,6 +147,17 @@ public class Window {
         buildStage();
     }
 
+    public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, boolean captureInput, ImageLoader icon) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.captureInput = captureInput;
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.setFullscreen(fullscreen);
+        this.setMaximized(maximized);
+        buildStage();
+    }
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
@@ -141,6 +165,16 @@ public class Window {
         this.icon = icon;
         this.width = width;
         this.height = height;
+        buildStage();
+    }
+
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput) {
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
         buildStage();
     }
 
@@ -154,6 +188,17 @@ public class Window {
         buildStage();
     }
 
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
+        this.width = RenJava.getInstance().getConfiguration().getWidth();
+        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.captureInput = captureInput;
+        buildStage();
+    }
+
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height) {
         this.title = title;
         this.backgroundColor = backgroundColor;
@@ -161,6 +206,17 @@ public class Window {
         this.icon = icon;
         this.width = width;
         this.height = height;
+        buildStage();
+    }
+
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput) {
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
         buildStage();
     }
 
@@ -197,6 +253,9 @@ public class Window {
         scene.setFill(Color.BLACK);
 
         stage.setScene(scene);
+        if (captureInput) {
+            handleStageInput(stage);
+        }
     }
 
     public void updateBackground(Color color) {
@@ -221,10 +280,18 @@ public class Window {
         return root;
     }
 
+    public boolean hasCaptureInput() {
+        return captureInput;
+    }
+
     public void setFullscreen(boolean fullscreen) {
         this.fullscreen = fullscreen;
         if (stage != null) {
             stage.setFullScreen(fullscreen);
+            if (!fullscreen) {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
         }
     }
 
@@ -232,6 +299,10 @@ public class Window {
         this.maximized = maximized;
         if (stage != null) {
             stage.setMaximized(maximized);
+            if (!maximized) {
+                stage.setWidth(width);
+                stage.setHeight(height);
+            }
         }
     }
 
@@ -245,11 +316,13 @@ public class Window {
 
     public void clearContainers() {
         containers.clear();
+        System.gc();
     }
 
     public void close() {
         if (stage != null) {
             stage.close();
+            System.gc(); // Force garbage collection once the window is closed.
         }
     }
 
@@ -261,8 +334,6 @@ public class Window {
     // Builds and renders all containers
     public void render() {
         // Clear and reset before rendering (this will prevent elements being stacked)
-        RenLogger.LOGGER.debug("Rendering window...");
-
         if (containers.isEmpty()) {
             RenLogger.LOGGER.error("You must add containers to the window before every render call.");
         }
@@ -295,12 +366,17 @@ public class Window {
         normalOrder.clear();
         highOrder.clear();
 
-        handleInput(root);
-
-        root.requestFocus();
         stage.show();
 
         // Force clear resources that are unused.
+        // To those who feel like GC is bad practice or indicates broken code allow me to explain.
+        // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
+        // HOWEVER, when you are rendering and loading multiple 10mb+ images within a 5 minute time period auto GC is far too slow.
+        // This call may not do anything at all at times. It tells the JVM that I want to clear any unused references pronto not when it wants to.
+        // There are multiple gc calls within the framework and when testing on my own machine they dramatically decrease resource usage by 300mb+
+        // I will admit that there may be in a memory leak somewhere in the framework, but this is not the solution to that.
+        //
+        // TL;DR I ain't waiting for your slow ass jvm to clear resources.
         System.gc();
 
     }
@@ -328,15 +404,13 @@ public class Window {
 
     }
 
-    private void handleInput(Pane root) {
-        // Handle inputs
-        root.setOnMouseClicked(mouseEvent -> {
-            MouseClickEvent clickEvent = new MouseClickEvent(mouseEvent);
+    private void handleStageInput(Stage stage) {
+        stage.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            MouseClickEvent clickEvent = new MouseClickEvent(event);
             RenJava.callEvent(clickEvent);
         });
-
-        root.setOnScroll(scrollEvent -> {
-            double y = scrollEvent.getDeltaY();
+        stage.addEventFilter(ScrollEvent.SCROLL, event -> {
+            double y = event.getDeltaY();
             if (y > 0) {
                 // Scroll up
                 ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
@@ -346,13 +420,8 @@ public class Window {
                 RenJava.callEvent(downEvent);
             }
         });
-
-        root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+        stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
-
-                // Slight issue with alt-tabbing. The tab key will never be recognized nor will the release event. This causes infinite looping.
-                // To fix this, if they push down a different modifier set the last one to false to end the loop.
-                // If you tab out for a long period of time your pc will probably slow down.
                 KeyCode keyCode = KeyUtils.getCurrentKeyDown();
                 if (keyCode != event.getCode()) {
                     KeyUtils.setModifierDown(keyCode, false);
@@ -363,8 +432,7 @@ public class Window {
                     // Update engine
                     KeyUtils.setModifierDown(event.getCode(), true); // So far it is down.
 
-                    // Start Sub-thread for continous event
-                    // FIXME: This causes increase in resource usage. Program jumped from using 200mb memory usage to 800mb.
+                    // Start Sub-thread for continuous event
                     Tasks.runAsync(() -> {
                         firstRun = Instant.now();
                         while (KeyUtils.getCurrentKeyDown() != null) {
@@ -379,7 +447,7 @@ public class Window {
                             } else {
                                 long diff = Duration.between(lastRun, current).toMillis();
                                 long firstDiff = Duration.between(firstRun, current).toMinutes();
-                                if (firstDiff > 20) {
+                                if (firstDiff > 20) { // This broke randomly???
                                     RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
                                     KeyUtils.setModifierDown(event.getCode(), false);
                                     return; // Kill after 2min
@@ -402,7 +470,7 @@ public class Window {
         });
 
 
-        root.addEventFilter(KeyEvent.KEY_RELEASED,event -> {
+        stage.addEventFilter(KeyEvent.KEY_RELEASED,event -> {
 
             if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
                 // If CTRL is being set to down set to false to stop the while thread
@@ -417,4 +485,5 @@ public class Window {
             }
         });
     }
+
 }

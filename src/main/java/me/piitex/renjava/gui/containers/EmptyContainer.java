@@ -35,7 +35,6 @@ public class EmptyContainer extends Container {
 
     @Override
     public Map.Entry<Node, LinkedList<Node>> build() {
-        RenLogger.LOGGER.info("Rendering container...");
         Pane pane = new Pane();
         pane.setTranslateX(getX());
         pane.setTranslateY(getY());

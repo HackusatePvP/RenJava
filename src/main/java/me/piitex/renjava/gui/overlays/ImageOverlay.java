@@ -15,7 +15,7 @@ public class ImageOverlay extends Overlay implements Region {
     private double width;
     private double height;
     private boolean preserveRatio = true;
-    private String fileName;
+    private final String fileName;
     private String path = "Unknown";
 
     public ImageOverlay(Image image) {
@@ -154,7 +154,6 @@ public class ImageOverlay extends Overlay implements Region {
     @Override
     public Node render() {
         Image image = getImage();
-        RenLogger.LOGGER.info("Rendering image '{}'", path);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
         if (width != 0) {
