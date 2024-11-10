@@ -319,6 +319,14 @@ public class Window {
         System.gc();
     }
 
+    // Clears and resets current window.
+    public void clear() {
+        clearContainers();
+        this.root = new Pane();
+        this.scene = new Scene(root);
+        this.stage.setScene(scene);
+    }
+
     public void close() {
         if (stage != null) {
             stage.close();
@@ -390,14 +398,19 @@ public class Window {
         node.setTranslateX(container.getX());
         node.setTranslateY(container.getY());
 
+
         for (Node n : entry.getValue()) {
             if (node instanceof Pane pane) {
-                pane.getChildren().add(n);
+                if (!pane.getChildren().contains(n)) {
+                    pane.getChildren().add(n);
+                }
             }
             // Different pane types
         }
 
-        getRoot().getChildren().add(node);
+        if (!getRoot().getChildren().contains(node)) {
+            getRoot().getChildren().add(node);
+        }
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);

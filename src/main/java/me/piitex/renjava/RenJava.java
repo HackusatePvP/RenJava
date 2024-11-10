@@ -98,9 +98,6 @@ public abstract class RenJava {
 
     protected String buildVersion;
 
-    // Cache gui builders to signicantly decrase resource usage.
-    private Container mainMenu, sideMenu, preferenceMenu, helpMenu;
-    private Container mainRightMenu, sideRightMenu, preferenceRightMenu, helpRightMenu;
 
     // Error tracking
     private static long lastErrorTimeStamp;
@@ -381,22 +378,6 @@ public abstract class RenJava {
      */
     public abstract Container buildMainMenu(boolean rightClick);
 
-    public Container getMainMenu() {
-        return mainMenu;
-    }
-
-    public void setMainMenu(Container mainMenu) {
-        this.mainMenu = mainMenu;
-    }
-
-    public Container getMainRightMenu() {
-        return mainRightMenu;
-    }
-
-    public void setMainRightMenu(Container mainRightMenu) {
-        this.mainRightMenu = mainRightMenu;
-    }
-
     public Container buildSideMenu(boolean rightClick) {
         Container menu = new EmptyContainer(1920, 1080, DisplayOrder.HIGH);
 
@@ -440,22 +421,6 @@ public abstract class RenJava {
         menu.addOverlay(returnButton);
 
         return menu;
-    }
-
-    public Container getSideMenu() {
-        return sideMenu;
-    }
-
-    public void setSideMenu(Container sideMenu) {
-        this.sideMenu = sideMenu;
-    }
-
-    public Container getSideRightMenu() {
-        return sideRightMenu;
-    }
-
-    public void setSideRightMenu(Container sideRightMenu) {
-        this.sideRightMenu = sideRightMenu;
     }
 
     public Container buildLoadMenu(int page) {
@@ -635,7 +600,7 @@ public abstract class RenJava {
         // Music sliders
         VerticalLayout musicBox = new VerticalLayout(1000, 600);
         musicBox.setX(700);
-        musicBox.setY(800);
+        musicBox.setY(600);
         TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
         SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, getSettings().getMusicVolume(), 0,0, 200, 200);
         musicVolumeSlider.setBlockIncrement(10);
@@ -646,26 +611,33 @@ public abstract class RenJava {
         });
         musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
 
-        menu.addLayout(musicBox);
+        // Sound sliders
+        VerticalLayout soundBox = new VerticalLayout(1000, 600);
+        soundBox.setX(700);
+        soundBox.setY(700);
+        TextOverlay soundVolumeText = new TextOverlay("Sound Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
+        SliderOverlay soundVolumeSlider = new SliderOverlay(0, 100, getSettings().getSoundVolume(), 0,0, 200, 200);
+        soundVolumeSlider.setBlockIncrement(10);
+        soundVolumeSlider.setSliderChange(event -> {
+            getSettings().setSoundVolume(event.getValue());
+        });
+        soundBox.addOverlays(soundVolumeText, soundVolumeSlider);
+
+        VerticalLayout voiceBox = new VerticalLayout(1000, 600);
+        voiceBox.setX(700);
+        voiceBox.setY(800);
+        TextOverlay voiceVolumeText = new TextOverlay("Sound Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
+        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, getSettings().getSoundVolume(), 0,0, 200, 200);
+        voiceVolumeSlider.setSliderChange(event -> {
+            getSettings().setVoiceVolume(event.getValue());
+        });
+        voiceBox.addOverlays(voiceVolumeText, voiceVolumeSlider);
+
+        menu.addLayouts(musicBox, soundBox, voiceBox);
 
         return menu;
     }
 
-    public Container getPreferenceMenu() {
-        return preferenceMenu;
-    }
-
-    public void setPreferenceMenu(Container preferenceMenu) {
-        this.preferenceMenu = preferenceMenu;
-    }
-
-    public Container getPreferenceRightMenu() {
-        return preferenceRightMenu;
-    }
-
-    public void setPreferenceRightMenu(Container preferenceRightMenu) {
-        this.preferenceRightMenu = preferenceRightMenu;
-    }
 
     public Container buildAboutMenu(boolean rightClicked) {
         Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
@@ -700,22 +672,6 @@ public abstract class RenJava {
 //        menu.addOverlay(renJavaLink);
 
         return menu;
-    }
-
-    public Container getHelpMenu() {
-        return helpMenu;
-    }
-
-    public void setHelpMenu(Container helpMenu) {
-        this.helpMenu = helpMenu;
-    }
-
-    public Container getHelpRightMenu() {
-        return helpRightMenu;
-    }
-
-    public void setHelpRightMenu(Container helpRightMenu) {
-        this.helpRightMenu = helpRightMenu;
     }
 
     /**
