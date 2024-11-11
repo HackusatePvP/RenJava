@@ -568,8 +568,8 @@ public abstract class RenJava {
 
 
         HorizontalLayout rootLayout = new HorizontalLayout(1200, 600);
-        rootLayout.setX(600);
-        rootLayout.setY(200);
+        rootLayout.setX(580);
+        rootLayout.setY(100);
         rootLayout.setSpacing(100);
 
         VerticalLayout displayBox = new VerticalLayout(300, 400);
@@ -598,42 +598,47 @@ public abstract class RenJava {
         menu.addLayout(rootLayout);
 
         // Music sliders
-        VerticalLayout musicBox = new VerticalLayout(1000, 600);
-        musicBox.setX(700);
-        musicBox.setY(600);
+        VerticalLayout soundRoot = new VerticalLayout(1000, 1000);
+        soundRoot.setX(1150);
+        soundRoot.setY(400);
+        soundRoot.setSpacing(30);
+
+        VerticalLayout masterBox = new VerticalLayout(1000, 100);
+        TextOverlay masterVolumeText = new TextOverlay("Master Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
+        SliderOverlay masterVolumeSlider = new SliderOverlay(0, 100, getSettings().getMasterVolume(), 0,0, 200, 200);
+        masterVolumeSlider.onSliderMove(event -> {
+            getSettings().setMasterVolume(event.getValue());
+        });
+        masterBox.addOverlays(masterVolumeText, masterVolumeSlider);
+
+        VerticalLayout musicBox = new VerticalLayout(1000, 100);
         TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
         SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, getSettings().getMusicVolume(), 0,0, 200, 200);
-        musicVolumeSlider.setBlockIncrement(10);
-        musicVolumeSlider.setSliderChange(event -> {
-            // Event used when slider changes value
-            System.out.println("Volume: " + event.getValue());
+        musicVolumeSlider.onSliderMove(event -> {
             getSettings().setMusicVolume(event.getValue());
         });
         musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
 
-        // Sound sliders
-        VerticalLayout soundBox = new VerticalLayout(1000, 600);
-        soundBox.setX(700);
-        soundBox.setY(700);
+        VerticalLayout soundBox = new VerticalLayout(1000, 100);
         TextOverlay soundVolumeText = new TextOverlay("Sound Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
         SliderOverlay soundVolumeSlider = new SliderOverlay(0, 100, getSettings().getSoundVolume(), 0,0, 200, 200);
-        soundVolumeSlider.setBlockIncrement(10);
-        soundVolumeSlider.setSliderChange(event -> {
+        soundVolumeSlider.onSliderMove(event -> {
             getSettings().setSoundVolume(event.getValue());
         });
         soundBox.addOverlays(soundVolumeText, soundVolumeSlider);
 
-        VerticalLayout voiceBox = new VerticalLayout(1000, 600);
-        voiceBox.setX(700);
-        voiceBox.setY(800);
+        VerticalLayout voiceBox = new VerticalLayout(1000, 100);
         TextOverlay voiceVolumeText = new TextOverlay("Voice Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
-        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, getSettings().getSoundVolume(), 0,0, 200, 200);
-        voiceVolumeSlider.setSliderChange(event -> {
+        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, getSettings().getVoiceVolume(), 0,0, 200, 200);
+        voiceVolumeSlider.onSliderMove(event -> {
             getSettings().setVoiceVolume(event.getValue());
         });
         voiceBox.addOverlays(voiceVolumeText, voiceVolumeSlider);
 
-        menu.addLayouts(musicBox, soundBox, voiceBox);
+
+        soundRoot.addChildLayouts(masterBox, musicBox, soundBox, voiceBox);
+
+        menu.addLayout(soundRoot);
 
         return menu;
     }
