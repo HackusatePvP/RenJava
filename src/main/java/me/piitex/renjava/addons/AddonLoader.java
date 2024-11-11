@@ -80,10 +80,10 @@ public class AddonLoader {
                     ComparableVersion requiredVersion = new ComparableVersion(ver);
                     ComparableVersion currentVersion = new ComparableVersion(RenJava.getInstance().getBuildVersion());
                     if (requiredVersion.compareTo(currentVersion) < 0) {
-                        logger.error(file.getName() + " was built with an older RenJava version. Please advise author to update the addon to support the current running version. There is a high chance this addon will fail, you have been warned. The addon will not load until it is upgraded to the proper version.");
+                        logger.error(file.getName() + " was built with an older RenJava version. Please advise author to update the addon to support the current running version. The addon will not load until it is upgraded to the proper version.");
                         invalidVersion = true;
                     } else if (requiredVersion.compareTo(currentVersion) > 0) {
-                        logger.error(file.getName() + " was built with a new version of RenJava than the application. Please advise author to downgrade the addon to support the current running version or download a newly updated version of the game. The addon will not load until it is downgraded to the proper version.");
+                        logger.error(file.getName() + " was built with a new version of RenJava than the application. Please advise author to downgrade the addon to support the current running version or download a newly updated version of the game. The addon will not load until it the issue is fixed.");
                         invalidVersion = true;
                     }
                 } else {
