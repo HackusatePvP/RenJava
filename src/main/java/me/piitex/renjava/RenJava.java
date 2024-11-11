@@ -25,6 +25,7 @@ import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.defaults.*;
 
+import me.piitex.renjava.events.types.SideMenuBuildEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
@@ -419,6 +420,9 @@ public abstract class RenJava {
         returnButton.setX(25);
         returnButton.setY(1000);
         menu.addOverlay(returnButton);
+
+        SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(menu);
+        RenJava.callEvent(sideMenuBuildEvent);
 
         return menu;
     }

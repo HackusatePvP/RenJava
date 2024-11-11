@@ -154,8 +154,7 @@ public class GuiLoader {
         window.addContainer(menu);
 
         Container sideMenu = renJava.buildSideMenu(false);
-        SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(sideMenu);
-        RenJava.callEvent(sideMenuBuildEvent);
+
 
         window.addContainers(sideMenu);
 
