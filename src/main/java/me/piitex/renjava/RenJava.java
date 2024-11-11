@@ -626,7 +626,7 @@ public abstract class RenJava {
         VerticalLayout voiceBox = new VerticalLayout(1000, 600);
         voiceBox.setX(700);
         voiceBox.setY(800);
-        TextOverlay voiceVolumeText = new TextOverlay("Sound Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
+        TextOverlay voiceVolumeText = new TextOverlay("Voice Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
         SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, getSettings().getSoundVolume(), 0,0, 200, 200);
         voiceVolumeSlider.setSliderChange(event -> {
             getSettings().setVoiceVolume(event.getValue());
