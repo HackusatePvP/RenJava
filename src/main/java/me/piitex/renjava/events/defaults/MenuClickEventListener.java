@@ -100,6 +100,9 @@ public class MenuClickEventListener implements EventListener {
             }
             renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
             Container menu = renJava.buildMainMenu(rightClicked);
+            Container side = renJava.buildSideMenu(rightClicked);
+            side.setOrder(DisplayOrder.HIGH);
+            menu.addContainer(side);
             gameWindow.clearContainers();
             gameWindow.addContainers(menu);
             gameWindow.render();
