@@ -102,6 +102,9 @@ public class GuiLoader {
         Window window = new Window(renJava.getConfiguration().getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
         // Specifically for the gameWindow it is needed to setup the shutdown events.
         window.getStage().setOnHiding(windowEvent -> {
+            ShutdownEvent shutdownEvent = new ShutdownEvent();
+            RenJava.callEvent(shutdownEvent);
+
             renJava.getAddonLoader().disable();
 
             // Transfer saves to localsaves
@@ -125,9 +128,6 @@ public class GuiLoader {
                     // If caught ignore and let the application close.
                 }
             }
-
-            ShutdownEvent shutdownEvent = new ShutdownEvent();
-            RenJava.callEvent(shutdownEvent);
 
             Platform.exit();
             System.exit(0);

@@ -17,10 +17,7 @@ import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
-import me.piitex.renjava.gui.overlays.ImageOverlay;
-import me.piitex.renjava.gui.overlays.InputFieldOverlay;
-import me.piitex.renjava.gui.overlays.TextFlowOverlay;
-import me.piitex.renjava.gui.overlays.TextOverlay;
+import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.gui.overlays.events.IInputSetEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -124,7 +121,7 @@ public class InputScene extends RenScene {
 
             if (text != null && !text.isEmpty()) {
                 TextFlowOverlay textFlowOverlay;
-                LinkedList<Text> texts = StringFormatter.formatText(text);
+                LinkedList<Overlay> texts = StringFormatter.formatText(text);
                 if (texts.isEmpty()) {
                     Text text1 = new Text(text);
                     text1.setFont(RenJava.getInstance().getConfiguration().getDialogueFont().getFont());
@@ -150,7 +147,7 @@ public class InputScene extends RenScene {
                     font = configuration.getDialogueFont();
                 }
                 inputField.setFontLoader(font);
-                textFlowOverlay.setFont(font.getFont());
+                textFlowOverlay.setFont(font);
 
                 textFlowOverlay.setInputFieldOverlay(inputField);
 

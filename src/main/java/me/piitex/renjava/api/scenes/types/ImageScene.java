@@ -17,6 +17,7 @@ import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
+import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.gui.overlays.TextFlowOverlay;
 import me.piitex.renjava.gui.overlays.TextOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -57,7 +58,7 @@ public class ImageScene extends RenScene {
     private Character character;
     private String dialogue;
     private ImageOverlay backgroundImage;
-    private Font font;
+    private FontLoader font;
     private String characterDisplayName;
 
     private final RenJavaConfiguration configuration;
@@ -86,7 +87,7 @@ public class ImageScene extends RenScene {
             this.characterDisplayName = character.getDisplayName();
         }
         configuration = renJava.getConfiguration();
-        font = configuration.getDialogueFont().getFont();
+        font = configuration.getDialogueFont();
     }
 
     public ImageScene(String id, @Nullable Character character, String dialogue) {
@@ -96,7 +97,7 @@ public class ImageScene extends RenScene {
         backgroundImage = renJava.getPlayer().getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
         configuration = renJava.getConfiguration();
-        font = configuration.getDialogueFont().getFont();
+        font = configuration.getDialogueFont();
     }
 
     public Character getCharacter() {
@@ -119,11 +120,11 @@ public class ImageScene extends RenScene {
         this.dialogue = dialogue;
     }
 
-    public Font getDialogueFont() {
+    public FontLoader getDialogueFont() {
         return font;
     }
 
-    public void setDialogueFont(Font font) {
+    public void setDialogueFont(FontLoader font) {
         this.font = font;
     }
 
@@ -152,11 +153,11 @@ public class ImageScene extends RenScene {
                     ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
                     textboxMenu.addOverlay(textBoxImage);
 
-                    LinkedList<Text> texts = StringFormatter.formatText(dialogue);
+                    LinkedList<Overlay> texts = StringFormatter.formatText(dialogue);
                     TextFlowOverlay textFlowOverlay;
                     if (texts.isEmpty()) {
-                        Text text = new Text(dialogue);
-                        text.setFont(renJava.getConfiguration().getDialogueFont().getFont());
+                        TextOverlay text = new TextOverlay(dialogue);
+                        text.setFontLoader(renJava.getConfiguration().getDialogueFont());
                         textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                     } else {
                         textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
@@ -170,7 +171,7 @@ public class ImageScene extends RenScene {
                     TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
                             configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
                             configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
-                    characterText.setTextFillColor(character.getColor());
+                    characterText.setTextFill(character.getColor());
                     characterText.setOrder(DisplayOrder.HIGH);
                     textboxMenu.addOverlay(characterText);
 
