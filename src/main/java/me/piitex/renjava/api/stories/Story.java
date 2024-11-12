@@ -2,10 +2,8 @@ package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APINote;
-import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.api.scenes.types.AnimationScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.api.scenes.types.InteractableScene;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
@@ -13,7 +11,6 @@ import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
-import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.events.types.SceneEndEvent;
 import org.slf4j.Logger;
 
