@@ -1,13 +1,10 @@
 package me.piitex.renjava.gui.overlays;
 
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.LinkedList;
 
@@ -126,24 +123,21 @@ public class TextFlowOverlay extends Overlay implements Region {
                     text.setFontLoader(font);
                 }
                 text.setTextFill(textFillColor);
-            }
-
-            if (overlay instanceof HyperLinkOverlay hyperlink) {
+            } else if (overlay instanceof HyperLinkOverlay hyperlink) {
                 if (font != null) {
                     hyperlink.setFont(font);
                 }
-            }
-
-            if (overlay instanceof ButtonOverlay button) {
+            } else if (overlay instanceof ButtonOverlay button) {
                 if (font != null) {
                     button.setFont(font);
                 }
                 button.setTextFill(textFillColor);
-            }
-            if (overlay instanceof InputFieldOverlay inputField) {
+            } else if (overlay instanceof InputFieldOverlay inputField) {
                 if (font != null) {
                     inputField.setFontLoader(font);
                 }
+            } else {
+                RenLogger.LOGGER.warn("Unsupported overlay in TextFlow. {}", overlay.toString());
             }
 
             textFlow.getChildren().add(overlay.render());
