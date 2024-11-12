@@ -386,7 +386,7 @@ public abstract class RenJava {
         imageOverlay.setOrder(DisplayOrder.LOW);
         menu.addOverlay(imageOverlay);
 
-        Font uiFont = RenJava.getInstance().getConfiguration().getUiFont().getFont();
+        FontLoader uiFont = RenJava.getInstance().getConfiguration().getUiFont();
 
         Color hoverColor = getConfiguration().getHoverColor();
 
@@ -475,7 +475,7 @@ public abstract class RenJava {
         HorizontalLayout pageLayout = new HorizontalLayout(100, 100);
         while (pageIndex < pageViewMax) {
             pageIndex++;
-            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", Color.BLACK, new FontLoader(getConfiguration().getUiFont(), 26).getFont(), 1, 1);
+            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", Color.BLACK, new FontLoader(getConfiguration().getUiFont(), 26), 1, 1);
             pageButton.setBackgroundColor(Color.TRANSPARENT);
             pageButton.setBorderColor(Color.TRANSPARENT);
             if (page == pageIndex) {
@@ -578,22 +578,22 @@ public abstract class RenJava {
 
         VerticalLayout displayBox = new VerticalLayout(300, 400);
         TextOverlay displayText = new TextOverlay("Display", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", subColor, getConfiguration().getUiFont().getFont(), 0,0);
-        ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", subColor, getConfiguration().getUiFont(), 0,0);
+        ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", subColor, getConfiguration().getUiFont(), 0,0);
         displayBox.addOverlays(displayText, windowButton, fullscreenButton);
 
         VerticalLayout rollbackBox = new VerticalLayout(300, 400);
         TextOverlay rollbackText = new TextOverlay("Rollback", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", subColor, getConfiguration().getUiFont().getFont(), 0,0);
-        ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", subColor, getConfiguration().getUiFont().getFont(), 0,0);
-        ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", subColor, getConfiguration().getUiFont(), 0,0);
+        ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", subColor, getConfiguration().getUiFont(), 0,0);
+        ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", subColor, getConfiguration().getUiFont(), 0,0);
         rollbackBox.addOverlays(rollbackText, disabledButton, leftButton, rightButton);
 
         VerticalLayout skipBox = new VerticalLayout(300, 400);
         TextOverlay skipText = new TextOverlay("Skip", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", subColor, getConfiguration().getUiFont().getFont(), 0,0);
-        ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", subColor, getConfiguration().getUiFont().getFont(), 0,0);
-        ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", subColor, getConfiguration().getUiFont().getFont(), 0,0);
+        ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", subColor, getConfiguration().getUiFont(), 0,0);
+        ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", subColor, getConfiguration().getUiFont(), 0,0);
+        ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", subColor, getConfiguration().getUiFont(), 0,0);
         skipBox.addOverlays(skipText, unseenTextButton, afterChoicesButton, transitionButton);
 
         // Add all to root layout
@@ -650,9 +650,10 @@ public abstract class RenJava {
 
     public Container buildAboutMenu(boolean rightClicked) {
         Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
+        TextOverlay spacer = new TextOverlay("\n");
         menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
 
-        Font font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24).getFont();
+        FontLoader font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24);
 
         TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced." +
                 "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine. " +
@@ -660,20 +661,46 @@ public abstract class RenJava {
                 "Additionally, RenJava uses software which may have additional licenses, all of which are open sourced. ", 1300, 500);
         aboutText.setFont(font);
         aboutText.setX(500);
-        aboutText.setY(300);
+        aboutText.setY(100);
         menu.addOverlay(aboutText);
 
-        TextFlowOverlay buildInfo = new TextFlowOverlay("Do not re-distribute this software without explicit permission from the author.",1300, 700);
+        // If you modify the about you must include the license information.
+        TextFlowOverlay licenseText = new TextFlowOverlay("License Information", 1300, 700);
+        licenseText.setX(500);
+        licenseText.setY(300);
+        licenseText.setFont(new FontLoader(font, 20));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("JavaFX is licensed under GPL-2.0: "));
+        licenseText.add(new HyperLinkOverlay("https://github.com/openjdk/jfx/blob/master/LICENSE"));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("Apache software is licensed under Apache 2.0: "));
+        licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("JetBrains is licensed under Apache 2.0: "));
+        licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("WebP ImageIO is licensed under Apache 2.0: "));
+        licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("GoogleCode SoundLibs is licensed under LGPL 2.1: "));
+        licenseText.add(new HyperLinkOverlay("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html"));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("Oshi is licensed under MIT: "));
+        licenseText.add(new HyperLinkOverlay("https://github.com/oshi/oshi/blob/master/LICENSE"));
+
+        menu.addOverlay(licenseText);
+
+
+        TextFlowOverlay buildInfo = new TextFlowOverlay("Do not re-distribute this game without explicit permission from the author.",1300, 700);
         buildInfo.setX(500);
         buildInfo.setY(600);
         buildInfo.setFont(font);
-        Text spacer = new Text(System.lineSeparator());
         buildInfo.getTexts().add(spacer);
-        buildInfo.getTexts().add(new Text("RenJava Build Version: " + getBuildVersion()));
+        buildInfo.getTexts().add(new TextOverlay("RenJava Build Version: " + getBuildVersion()));
         buildInfo.getTexts().add(spacer);
-        buildInfo.getTexts().add(new Text("Game Version: " + getVersion()));
+        buildInfo.getTexts().add(new TextOverlay("Game Version: " + getVersion()));
         buildInfo.getTexts().add(spacer);
-        buildInfo.getTexts().add(new Text("Author: " + getAuthor()));
+        buildInfo.getTexts().add(new TextOverlay("Author: " + getAuthor()));
         menu.addOverlay(buildInfo);
 
         // For now hyperlinks are removed and will be migrated to button (thats what they are anyways).
@@ -895,15 +922,15 @@ public abstract class RenJava {
         VerticalLayout rootLayout = new VerticalLayout(900, 600);
         ScrollContainer container = new ScrollContainer(rootLayout,0, 0, 900, 600);
 
-        Text text = new Text("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
+        TextOverlay text = new TextOverlay("An error has occurred during the application. A stacktrace file has been created. Please send the file and current log to the author. You can close this window to continue but the game may be unstable.");
 
 
         StringWriter sw = new StringWriter();
         PrintWriter writer = new PrintWriter(sw);
         e.printStackTrace(writer);
-        Text stackTrace = new Text(sw.toString());
 
-        LinkedList<Text> texts = new LinkedList<>();
+        TextOverlay stackTrace = new TextOverlay(sw.toString());
+        LinkedList<Overlay> texts = new LinkedList<>();
         texts.add(text);
         texts.add(stackTrace);
 
