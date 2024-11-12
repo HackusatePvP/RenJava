@@ -149,7 +149,7 @@ public class InputScene extends RenScene {
                 inputField.setFontLoader(font);
                 textFlowOverlay.setFont(font);
 
-                textFlowOverlay.setInputFieldOverlay(inputField);
+                textFlowOverlay.add(inputField);
 
                 textboxMenu.addOverlay(textFlowOverlay);
 

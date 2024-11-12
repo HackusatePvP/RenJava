@@ -13,7 +13,6 @@ import java.util.LinkedList;
 
 public class TextFlowOverlay extends Overlay implements Region {
     private LinkedList<Overlay> texts = new LinkedList<>();
-    private InputFieldOverlay inputFieldOverlay;
     private Color textFillColor = Color.BLACK;
     private FontLoader font;
     private double width, height;
@@ -66,14 +65,6 @@ public class TextFlowOverlay extends Overlay implements Region {
 
     public void setTextFillColor(Color textFillColor) {
         this.textFillColor = textFillColor;
-    }
-
-    public InputFieldOverlay getInputFieldOverlay() {
-        return inputFieldOverlay;
-    }
-
-    public void setInputFieldOverlay(InputFieldOverlay inputFieldOverlay) {
-        this.inputFieldOverlay = inputFieldOverlay;
     }
 
     public void add(Overlay overlay) {
@@ -149,13 +140,13 @@ public class TextFlowOverlay extends Overlay implements Region {
                 }
                 button.setTextFill(textFillColor);
             }
+            if (overlay instanceof InputFieldOverlay inputField) {
+                if (font != null) {
+                    inputField.setFontLoader(font);
+                }
+            }
 
             textFlow.getChildren().add(overlay.render());
-        }
-
-        //FIXME: Migrate to the new Node system.
-        if (inputFieldOverlay != null) {
-            textFlow.getChildren().add(inputFieldOverlay.render());
         }
 
         textFlow.setPrefSize(width, height);
