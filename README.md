@@ -5,6 +5,12 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 - [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
 - [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure) This an example project that is used for testing the framework.
 
+## Disclaimer
+RenJava does not claim ownership over any copyrighted material such as music, video, or assets. RenJava is only the framework not the game made by an author.
+Any copyright claims must be filed against the author. RenJava does not own or distribute any game(s). It would be similar to suing YouTube because someone else uploaded an entire move without permission.
+
+As an author you must have expressed consent to use any copyrighted material like music. Alternatively, you could look for royalty free options.
+
 ## Project Requirements
 - [Java-21](https://www.oracle.com/java/technologies/downloads/#java21) (You can typically download this within your IDE)
 - [intellij](https://www.jetbrains.com/idea/download/?section=windows) or [Eclipse](https://www.eclipse.org/downloads/)
