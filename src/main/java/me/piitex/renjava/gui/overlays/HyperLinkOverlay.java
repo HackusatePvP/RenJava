@@ -58,7 +58,7 @@ public class HyperLinkOverlay extends Overlay {
         hyperlink.setTranslateX(getX());
         hyperlink.setTranslateY(getY());
         hyperlink.setOnMouseClicked(event -> {
-            RenJava.getInstance().getHost().showDocument(link);
+            RenJava.openLink(link);
         });
         setInputControls(hyperlink);
         renderTransitions(hyperlink);

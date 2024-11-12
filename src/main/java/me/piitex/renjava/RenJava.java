@@ -670,22 +670,22 @@ public abstract class RenJava {
         licenseText.setY(300);
         licenseText.setFont(new FontLoader(font, 20));
         licenseText.add(spacer);
-        licenseText.add(new TextOverlay("JavaFX is licensed under GPL-2.0: "));
+        licenseText.add(new TextOverlay("\tJavaFX is licensed under GPL-2.0: "));
         licenseText.add(new HyperLinkOverlay("https://github.com/openjdk/jfx/blob/master/LICENSE"));
         licenseText.add(spacer);
-        licenseText.add(new TextOverlay("Apache software is licensed under Apache 2.0: "));
+        licenseText.add(new TextOverlay("\tApache software is licensed under Apache 2.0: "));
         licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
         licenseText.add(spacer);
-        licenseText.add(new TextOverlay("JetBrains is licensed under Apache 2.0: "));
+        licenseText.add(new TextOverlay("\tJetBrains is licensed under Apache 2.0: "));
         licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
         licenseText.add(spacer);
-        licenseText.add(new TextOverlay("WebP ImageIO is licensed under Apache 2.0: "));
+        licenseText.add(new TextOverlay("\tWebP ImageIO is licensed under Apache 2.0: "));
         licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
         licenseText.add(spacer);
-        licenseText.add(new TextOverlay("GoogleCode SoundLibs is licensed under LGPL 2.1: "));
+        licenseText.add(new TextOverlay("\tGoogleCode SoundLibs is licensed under LGPL 2.1: "));
         licenseText.add(new HyperLinkOverlay("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html"));
         licenseText.add(spacer);
-        licenseText.add(new TextOverlay("Oshi is licensed under MIT: "));
+        licenseText.add(new TextOverlay("\tOshi is licensed under MIT: "));
         licenseText.add(new HyperLinkOverlay("https://github.com/oshi/oshi/blob/master/LICENSE"));
 
         menu.addOverlay(licenseText);
@@ -772,6 +772,22 @@ public abstract class RenJava {
 
     public static RenJava getInstance() {
         return instance;
+    }
+
+    /**
+     * Opens the provided link in the players default browser.
+     * <p>
+     *     Example Usage:
+     * <p>
+     * <pre>{@code
+     *  openLink("https://www.google.com");
+     * }</pre>
+     * </p>
+     *
+     * @param url Full url link.
+     */
+    public static void openLink(String url) {
+        getInstance().getHost().showDocument(url);
     }
 
     /**
