@@ -42,6 +42,8 @@ public class GameFlowEventListener implements EventListener {
         Player player = renJava.getPlayer();
         MouseButton button = event.getEvent().getButton();
         Logger logger = RenLogger.LOGGER;
+        System.out.println("Y: " + event.getEvent().getY());
+
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
@@ -57,7 +59,7 @@ public class GameFlowEventListener implements EventListener {
             }
             case PRIMARY -> {
                 // Go Forward
-                playNextScene();
+                playNextScene(event.getEvent().getY());
             }
             case SECONDARY -> {
                 // Open Main Menu
@@ -217,6 +219,10 @@ public class GameFlowEventListener implements EventListener {
     }
 
     private void playNextScene() {
+        playNextScene(-1);
+    }
+
+    private void playNextScene(double pressedY) {
         StageType stageType = renJava.getPlayer().getCurrentStageType();
         RenScene scene = renJava.getPlayer().getCurrentScene();
         Player player = renJava.getPlayer();
@@ -235,6 +241,21 @@ public class GameFlowEventListener implements EventListener {
             if (scene instanceof InteractableScene || scene instanceof ChoiceScene) {
                 return;
             }
+
+            // If the scene is a InputScene check if the click was located inside of the textbox
+            if (scene instanceof InputScene) {
+                System.out.println("Checking...");
+                System.out.println("Pressed: " + pressedY);
+                double textBoxY = renJava.getConfiguration().getTextY();
+                System.out.println("TextBox Y: " + textBoxY);
+                if (pressedY > 0) {
+                    if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {
+                        System.out.println("Flagged!!!");
+                        return;
+                    }
+                }
+            }
+
             // Handle endScene first
             SceneEndEvent endEvent = new SceneEndEvent(scene);
             if (scene.getEndInterface() != null) {
