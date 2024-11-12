@@ -15,6 +15,9 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 - The OS has to support Java 17 JDK.
 - MacOS not currently supported.
 
+## Getting started
+Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about te framework and all of its features.
+
 ## Notice
 As of build 0.1.x, the project is just a demo. You will not be able to create a fully functional game with the current state of the framework.
 I recommend using the experimental branch over the master branch when testing and demoing the framework. Thank you for using and exploring RenJava.
@@ -65,9 +68,6 @@ Hero-Adventure-1.0
 ## Updating Application
 If a game has an update please delete the previous version. Make sure to transfer your saves before doing so. This is to prevent malicious attacks that come with having an old JDK installed onto your pc.
 Alternative you can just delete the jdk folder in the old version. As an author you should post this warning to your community for every update.
-
-## Getting started
-Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about te framework and all of its features.
 
 ## Developers
 - View our api changes [here]().
