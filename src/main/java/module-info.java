@@ -10,7 +10,6 @@ module RenJava {
     requires java.desktop;
     requires org.apache.commons.io;
     requires org.jetbrains.annotations;
-    requires com.goxr3plus.streamplayer;
     requires org.slf4j;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
