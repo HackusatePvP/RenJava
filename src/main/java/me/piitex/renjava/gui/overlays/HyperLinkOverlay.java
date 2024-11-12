@@ -45,15 +45,11 @@ public class HyperLinkOverlay extends Overlay {
         Hyperlink hyperlink;
         if (text == null || text.isEmpty()) {
             hyperlink = new Hyperlink(link);
-            if (font != null) {
-                hyperlink.setFont(font.getFont());
-            }
         } else {
-            Text label = new Text(text);
-            if (font != null) {
-                label.setFont(font.getFont());
-            }
-            hyperlink = new Hyperlink(link, label);
+            hyperlink = new Hyperlink(text);
+        }
+        if (font != null) {
+            hyperlink.setFont(font.getFont());
         }
         hyperlink.setTranslateX(getX());
         hyperlink.setTranslateY(getY());
