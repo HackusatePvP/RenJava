@@ -1,7 +1,7 @@
 package me.piitex.renjava.api.scenes;
 
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.scenes.animation.AnimationBuilder;
+import me.piitex.renjava.api.scenes.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.*;
 
@@ -32,7 +32,7 @@ import java.util.HashSet;
  * @see ImageScene
  * @see AutoPlayScene
  * @see InteractableScene
- * @see AnimationScene
+ * @see VideoScene
  * @see InputScene
  * @see ChoiceScene
  */
@@ -44,7 +44,6 @@ public abstract class RenScene {
     private SceneStartInterface startInterface;
     private SceneEndInterface endInterface;
     private SceneBuildInterface buildInterface;
-    private AnimationBuilder startAnimation;
 
     private Transitions startTransition;
     private Transitions endTransition;
@@ -89,10 +88,6 @@ public abstract class RenScene {
         return this;
     }
 
-    public RenScene setBeginningAnimation(AnimationBuilder animation) {
-        this.startAnimation = animation;
-        return this;
-    }
 
     public RenScene setBeginningTransition(Transitions transition) {
         this.startTransition = transition;
@@ -102,10 +97,6 @@ public abstract class RenScene {
     public RenScene setEndTransition(Transitions transition) {
         this.endTransition = transition;
         return this;
-    }
-
-    public AnimationBuilder getStartAnimation() {
-        return startAnimation;
     }
 
     public Transitions getStartTransition() {
