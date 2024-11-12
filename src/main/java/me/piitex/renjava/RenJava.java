@@ -655,7 +655,7 @@ public abstract class RenJava {
 
         FontLoader font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24);
 
-        TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced." +
+        TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced. " +
                 "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine. " +
                 "RenJava is licensed under the GNU GPLv3 by using and distributing this software you agree to these terms. " +
                 "Additionally, RenJava uses software which may have additional licenses, all of which are open sourced. ", 1300, 500);
@@ -670,8 +670,14 @@ public abstract class RenJava {
         licenseText.setY(300);
         licenseText.setFont(new FontLoader(font, 20));
         licenseText.add(spacer);
+        licenseText.add(new TextOverlay("\tRenJava is licensed under GNU GPL v3: "));
+        licenseText.add(new HyperLinkOverlay("https://www.gnu.org/licenses/gpl-3.0.en.html"));
+        licenseText.add(spacer);
         licenseText.add(new TextOverlay("\tJavaFX is licensed under GPL-2.0: "));
         licenseText.add(new HyperLinkOverlay("https://github.com/openjdk/jfx/blob/master/LICENSE"));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("\tAmazon Corretto is licensed under GPL-2.0 CE: "));
+        licenseText.add(new HyperLinkOverlay("https://openjdk.java.net/legal/gplv2+ce.html"));
         licenseText.add(spacer);
         licenseText.add(new TextOverlay("\tApache software is licensed under Apache 2.0: "));
         licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
@@ -695,17 +701,19 @@ public abstract class RenJava {
         buildInfo.setX(500);
         buildInfo.setY(600);
         buildInfo.setFont(font);
-        buildInfo.getTexts().add(spacer);
-        buildInfo.getTexts().add(new TextOverlay("RenJava Build Version: " + getBuildVersion()));
-        buildInfo.getTexts().add(spacer);
-        buildInfo.getTexts().add(new TextOverlay("Game Version: " + getVersion()));
-        buildInfo.getTexts().add(spacer);
-        buildInfo.getTexts().add(new TextOverlay("Author: " + getAuthor()));
-        menu.addOverlay(buildInfo);
+        buildInfo.add(spacer);
+        buildInfo.add(new TextOverlay("RenJava Build Version: " + getBuildVersion()));
+        buildInfo.add(spacer);
+        buildInfo.add(new TextOverlay("Game Version: " + getVersion()));
+        buildInfo.add(spacer);
+        buildInfo.add(new TextOverlay("Author: " + getAuthor()));
+        buildInfo.add(spacer);
+        buildInfo.add(spacer);
+        buildInfo.add(new TextOverlay("You can download and use RenJava"));
+        buildInfo.add(new HyperLinkOverlay("https://github.com/HackusatePvP/RenJava", "here"));
+        buildInfo.add(new TextOverlay("."));
 
-        // For now hyperlinks are removed and will be migrated to button (thats what they are anyways).
-//        HyperlinkOverlay renJavaLink = new HyperlinkOverlay("You can download RenJava for free here.", "https://github.com/HackusatePvP/RenJava", new FontLoader(font, 24), 500, 750);
-//        menu.addOverlay(renJavaLink);
+        menu.addOverlay(buildInfo);
 
         return menu;
     }
