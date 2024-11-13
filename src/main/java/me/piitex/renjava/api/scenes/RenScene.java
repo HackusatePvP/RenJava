@@ -1,7 +1,7 @@
 package me.piitex.renjava.api.scenes;
 
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.scenes.animation.VideoScene;
+import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.*;
 
