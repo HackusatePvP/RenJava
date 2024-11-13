@@ -319,6 +319,17 @@ public class Window {
         System.gc();
     }
 
+    public void clearContainer(int index) {
+        containers.remove(index);
+
+        // Re-render
+        render();
+    }
+
+    public LinkedList<Container> getContainers() {
+        return containers;
+    }
+
     // Clears and resets current window.
     public void clear() {
         clearContainers();
@@ -369,7 +380,6 @@ public class Window {
         highOrder.forEach(this::renderContainer);
 
         // Not sure if this will cause issues but to reduce resource usage the mappings need to be cleared
-        containers.clear();
         lowOrder.clear();
         normalOrder.clear();
         highOrder.clear();
@@ -387,6 +397,12 @@ public class Window {
         // TL;DR I ain't waiting for your slow ass jvm to clear resources.
         System.gc();
 
+    }
+
+    // Renders container on top of current window
+    public void render(Container container) {
+        renderContainer(container);
+        stage.show();
     }
 
     private void renderContainer(Container container) {
