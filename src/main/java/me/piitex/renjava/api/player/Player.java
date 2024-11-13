@@ -120,7 +120,6 @@ public class Player implements PersistentData {
         return story.getScene(entry.getKey());
     }
 
-    //TODO: Please change this and don't forget
     @APIChange(changedVersion = "0.1.164", description = "Changed from being a linked hash set to linked list.")
     public LinkedList<String> getViewedStories() {
         return viewedStories;
