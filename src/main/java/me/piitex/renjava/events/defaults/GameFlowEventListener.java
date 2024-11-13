@@ -9,6 +9,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.gui.Container;
@@ -43,6 +44,7 @@ public class GameFlowEventListener implements EventListener {
         MouseButton button = event.getEvent().getButton();
         Logger logger = RenLogger.LOGGER;
 
+
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
 
@@ -57,12 +59,18 @@ public class GameFlowEventListener implements EventListener {
             }
             case PRIMARY -> {
                 // Go Forward
-                playNextScene();
+                playNextScene(event.getEvent().getY());
             }
             case SECONDARY -> {
                 // Open Main Menu
                 if (!player.isRightClickMenu() && renJava.getPlayer().getCurrentScene() != null) {
                     logger.info("Player is not in menu, opening menu...");
+
+                    // When opening the right-clicked menu let's see if they are playing any media
+                    if (scene instanceof VideoScene videoScene) {
+                       // They are playing a video. Let's stop the video.
+                        videoScene.getMedia().stop();
+                    }
 
                     Container menu = renJava.buildMainMenu(true);
                     menu.addContainers(renJava.buildSideMenu(true));
@@ -151,8 +159,6 @@ public class GameFlowEventListener implements EventListener {
 
     @Listener
     public void onScrollInput(ScrollInputEvent event) {
-        RenLogger.LOGGER.info("Scroll Y: " + event.getScrollEvent().getDeltaY());
-
         // If the scroll y is less than 0 they are scrolling down.
         double y = event.getScrollEvent().getDeltaY();
 
@@ -217,6 +223,10 @@ public class GameFlowEventListener implements EventListener {
     }
 
     private void playNextScene() {
+        playNextScene(-1);
+    }
+
+    private void playNextScene(double pressedY) {
         StageType stageType = renJava.getPlayer().getCurrentStageType();
         RenScene scene = renJava.getPlayer().getCurrentScene();
         Player player = renJava.getPlayer();
@@ -235,6 +245,18 @@ public class GameFlowEventListener implements EventListener {
             if (scene instanceof InteractableScene || scene instanceof ChoiceScene) {
                 return;
             }
+
+            // If the scene is a InputScene check if the click was located inside of the textbox
+            if (scene instanceof InputScene) {
+                double textBoxY = renJava.getConfiguration().getTextY();
+                System.out.println("TextBox Y: " + textBoxY);
+                if (pressedY > 0) {
+                    if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {
+                        return;
+                    }
+                }
+            }
+
             // Handle endScene first
             SceneEndEvent endEvent = new SceneEndEvent(scene);
             if (scene.getEndInterface() != null) {

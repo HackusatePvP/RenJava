@@ -57,7 +57,7 @@ public class SliderOverlay extends Overlay implements Region {
         return sliderChange;
     }
 
-    public void setSliderChange(ISliderChange sliderChange) {
+    public void onSliderMove(ISliderChange sliderChange) {
         this.sliderChange = sliderChange;
     }
 

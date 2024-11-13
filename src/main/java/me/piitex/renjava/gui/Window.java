@@ -319,6 +319,25 @@ public class Window {
         System.gc();
     }
 
+    public void clearContainer(int index) {
+        containers.remove(index);
+
+        // Re-render
+        render();
+    }
+
+    public LinkedList<Container> getContainers() {
+        return containers;
+    }
+
+    // Clears and resets current window.
+    public void clear() {
+        clearContainers();
+        this.root = new Pane();
+        this.scene = new Scene(root);
+        this.stage.setScene(scene);
+    }
+
     public void close() {
         if (stage != null) {
             stage.close();
@@ -361,7 +380,6 @@ public class Window {
         highOrder.forEach(this::renderContainer);
 
         // Not sure if this will cause issues but to reduce resource usage the mappings need to be cleared
-        containers.clear();
         lowOrder.clear();
         normalOrder.clear();
         highOrder.clear();
@@ -381,6 +399,12 @@ public class Window {
 
     }
 
+    // Renders container on top of current window
+    public void render(Container container) {
+        renderContainer(container);
+        stage.show();
+    }
+
     private void renderContainer(Container container) {
         Map.Entry<Node, LinkedList<Node>> entry = container.build();
         Node node = entry.getKey();
@@ -390,14 +414,19 @@ public class Window {
         node.setTranslateX(container.getX());
         node.setTranslateY(container.getY());
 
+
         for (Node n : entry.getValue()) {
             if (node instanceof Pane pane) {
-                pane.getChildren().add(n);
+                if (!pane.getChildren().contains(n)) {
+                    pane.getChildren().add(n);
+                }
             }
             // Different pane types
         }
 
-        getRoot().getChildren().add(node);
+        if (!getRoot().getChildren().contains(node)) {
+            getRoot().getChildren().add(node);
+        }
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);

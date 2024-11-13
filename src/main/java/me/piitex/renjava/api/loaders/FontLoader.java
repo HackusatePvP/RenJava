@@ -44,6 +44,14 @@ public class FontLoader {
         this.font = Font.font(font.getFamily(), posture, size);
     }
 
+    public FontLoader(Font font, FontWeight weight, FontPosture posture, double size) {
+        this.name = font.getName();
+        this.size = size;
+        this.posture = posture;
+        this.weight = weight;
+        this.font = Font.font(font.getFamily(), weight, posture, size);
+    }
+
     public FontLoader(String name, double size) {
         this.name = name;
         File directory = new File(System.getProperty("user.dir") + "/game/fonts/");

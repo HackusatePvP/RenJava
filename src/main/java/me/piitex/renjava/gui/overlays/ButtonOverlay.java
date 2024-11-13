@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 
@@ -16,7 +17,7 @@ public class ButtonOverlay extends Overlay implements Region {
     private final String id;
     private String text;
     private double scaleX, scaleY;
-    private Font font;
+    private FontLoader font;
     private ImageOverlay image;
     private Paint textFill;
     private Color backgroundColor;
@@ -63,7 +64,7 @@ public class ButtonOverlay extends Overlay implements Region {
      * @param x      X-Axis position of the button.
      * @param y      Y-Axis position of the button.
      */
-    public ButtonOverlay(String id, String text, Color textFill, Font font, double x, double y) {
+    public ButtonOverlay(String id, String text, Color textFill, FontLoader font, double x, double y) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -80,14 +81,14 @@ public class ButtonOverlay extends Overlay implements Region {
      * @param font   Font to be used for the text.
      * @param textFill  Color of the text.
      */
-    public ButtonOverlay(String id, String text, Color textFill, Font font) {
+    public ButtonOverlay(String id, String text, Color textFill, FontLoader font) {
         this.id = id;
         this.text = text;
         this.font = font;
         this.textFill = textFill;
     }
 
-    public ButtonOverlay(String id, String text, Color textFill, Font font, Color backgroundColor, Color borderColor) {
+    public ButtonOverlay(String id, String text, Color textFill, FontLoader font, Color backgroundColor, Color borderColor) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -96,7 +97,7 @@ public class ButtonOverlay extends Overlay implements Region {
         this.borderColor = borderColor;
     }
 
-    public ButtonOverlay(String id, String text, Color textFill, Font font, Color backgroundColor, Color borderColor, boolean hover) {
+    public ButtonOverlay(String id, String text, Color textFill, FontLoader font, Color backgroundColor, Color borderColor, boolean hover) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -106,7 +107,7 @@ public class ButtonOverlay extends Overlay implements Region {
         this.hover = hover;
     }
 
-    public ButtonOverlay(String id, String text, Color textFill, Font font, Color backgroundColor, Color borderColor, Color hoverColor) {
+    public ButtonOverlay(String id, String text, Color textFill, FontLoader font, Color backgroundColor, Color borderColor, Color hoverColor) {
         this.id = id;
         this.text = text;
         this.font = font;
@@ -179,11 +180,11 @@ public class ButtonOverlay extends Overlay implements Region {
         this.text = text;
     }
 
-    public Font getFont() {
+    public FontLoader getFont() {
         return font;
     }
 
-    public void setFont(Font font) {
+    public void setFont(FontLoader font) {
         this.font = font;
     }
 
@@ -351,7 +352,7 @@ public class ButtonOverlay extends Overlay implements Region {
             button.setText(text);
         }
         if (font != null) {
-            button.setFont(font);
+            button.setFont(font.getFont());
         } else {
             // Set default font
 

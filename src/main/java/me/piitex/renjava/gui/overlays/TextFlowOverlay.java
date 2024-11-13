@@ -2,51 +2,49 @@ package me.piitex.renjava.gui.overlays;
 
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.LinkedList;
 
 public class TextFlowOverlay extends Overlay implements Region {
-    private LinkedList<Text> texts = new LinkedList<>();
-    private InputFieldOverlay inputFieldOverlay;
+    private LinkedList<Overlay> texts = new LinkedList<>();
     private Color textFillColor = Color.BLACK;
-    private Font font;
+    private FontLoader font;
     private double width, height;
     private double scaleWidth, scaleHeight;
 
     public TextFlowOverlay(String text, int width, int height) {
         this.width = width;
         this.height = height;
-        texts.add(new Text(text));
+        texts.add(new TextOverlay(text));
     }
 
     public TextFlowOverlay(String text, FontLoader fontLoader, int width, int height) {
-        this.texts.add(new Text(text));
-        this.font = fontLoader.getFont();
+        this.texts.add(new TextOverlay(text));
+        this.font = fontLoader;
         this.width = width;
         this.height = height;
     }
 
-    public TextFlowOverlay(Text text, int width, int height) {
+    public TextFlowOverlay(TextOverlay text, int width, int height) {
         this.width = width;
         this.height = height;
         texts.add(text);
     }
 
-    public TextFlowOverlay(LinkedList<Text> texts, int width, int height) {
+    public TextFlowOverlay(LinkedList<Overlay> texts, int width, int height) {
         this.width = width;
         this.height = height;
         this.texts = texts;
     }
 
-    public LinkedList<Text> getTexts() {
+    public LinkedList<Overlay> getTexts() {
         return texts;
     }
 
-    public void setTexts(LinkedList<Text> texts) {
+    public void setTexts(LinkedList<Overlay> texts) {
         this.texts = texts;
     }
 
@@ -54,11 +52,11 @@ public class TextFlowOverlay extends Overlay implements Region {
         return textFillColor;
     }
 
-    public Font getFont() {
+    public FontLoader getFont() {
         return font;
     }
 
-    public void setFont(Font font) {
+    public void setFont(FontLoader font) {
         this.font = font;
     }
 
@@ -66,12 +64,8 @@ public class TextFlowOverlay extends Overlay implements Region {
         this.textFillColor = textFillColor;
     }
 
-    public InputFieldOverlay getInputFieldOverlay() {
-        return inputFieldOverlay;
-    }
-
-    public void setInputFieldOverlay(InputFieldOverlay inputFieldOverlay) {
-        this.inputFieldOverlay = inputFieldOverlay;
+    public void add(Overlay overlay) {
+        texts.add(overlay);
     }
 
     @Override
@@ -121,20 +115,32 @@ public class TextFlowOverlay extends Overlay implements Region {
 
     public TextFlow build() {
         TextFlow textFlow = new TextFlow();
-        for (Text text : texts) {
-            // Not the best way to go about this
-            text = new Text(text.getText().replace("\\n", System.lineSeparator()));
-
-            if (font != null) {
-                text.setFont(font);
+        for (Overlay overlay : texts) {
+            // Check node type
+            if (overlay instanceof TextOverlay text) {
+                text.setText(text.getText().replace("\\n", System.lineSeparator()));
+                if (font != null) {
+                    text.setFontLoader(font);
+                }
+                text.setTextFill(textFillColor);
+            } else if (overlay instanceof HyperLinkOverlay hyperlink) {
+                if (font != null) {
+                    hyperlink.setFont(font);
+                }
+            } else if (overlay instanceof ButtonOverlay button) {
+                if (font != null) {
+                    button.setFont(font);
+                }
+                button.setTextFill(textFillColor);
+            } else if (overlay instanceof InputFieldOverlay inputField) {
+                if (font != null) {
+                    inputField.setFontLoader(font);
+                }
+            } else {
+                RenLogger.LOGGER.warn("Unsupported overlay in TextFlow. {}", overlay.toString());
             }
-            text.setFill(textFillColor);
 
-            textFlow.getChildren().add(text);
-        }
-
-        if (inputFieldOverlay != null) {
-            textFlow.getChildren().add(inputFieldOverlay.render());
+            textFlow.getChildren().add(overlay.render());
         }
 
         textFlow.setPrefSize(width, height);

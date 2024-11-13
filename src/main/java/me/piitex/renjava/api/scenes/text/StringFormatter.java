@@ -6,13 +6,16 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
 
+import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
+import me.piitex.renjava.gui.overlays.Overlay;
+import me.piitex.renjava.gui.overlays.TextOverlay;
 
 import java.util.LinkedList;
 
 public class StringFormatter {
 
-    public static LinkedList<Text> formatText(String dialogue) {
+    public static LinkedList<Overlay> formatText(String dialogue) {
         // If anyone wants to take a crack at this and optimize it be my guest.
 
         boolean italic = false;
@@ -59,33 +62,31 @@ public class StringFormatter {
         beforeText = beforeText.replace("/i}", "").replace("/b}", "").replace("/s}", "");
         parts.add(beforeText);
 
-        LinkedList<Text> texts = new LinkedList<>();
+        LinkedList<Overlay> texts = new LinkedList<>();
 
         RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
-        Font currentFont = configuration.getDialogueFont().getFont();
-        Font italicFont = Font.font(currentFont.getFamily(), FontWeight.NORMAL, FontPosture.ITALIC, currentFont.getSize());
-        Font boldFont = Font.font(currentFont.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, currentFont.getSize());
+        FontLoader currentFont = configuration.getDialogueFont();
+        FontLoader italicFont = new FontLoader(currentFont.getFont(), FontWeight.NORMAL, FontPosture.ITALIC, currentFont.getSize());
+        FontLoader boldFont = new FontLoader(currentFont.getFont(), FontWeight.BOLD, FontPosture.REGULAR, currentFont.getSize());
 
         for (String s : parts) {
+            TextOverlay text1 = new TextOverlay(s);
             if (s.startsWith("bbbb: ")) {
                 s = s.replace("bbbb: ", "");
-                Text text1 = new Text(s);
-                text1.setFont(boldFont);
+                text1.setFontLoader(boldFont);
                 texts.add(text1);
             } else if (s.startsWith("iiii: ")) {
                 s = s.replace("iiii: ", "");
-                Text text1 = new Text(s);
-                text1.setFont(italicFont);
+                text1.setFontLoader(italicFont);
                 texts.add(text1);
             } else if (s.startsWith("ssss: ")) {
                 s = s.replace("ssss: ", "");
-                Text text1 = new Text(s);
-                text1.setFont(currentFont);
-                text1.setStrikethrough(true);
+                text1.setFontLoader(currentFont);
+                //FIXME Broke with new update
+//                text1.setStrikethrough(true);
                 texts.add(text1);
             } else {
-                Text text1 = new Text(s);
-                text1.setFont(currentFont);
+                text1.setFontLoader(currentFont);
                 texts.add(text1);
             }
         }

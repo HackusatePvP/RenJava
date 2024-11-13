@@ -76,11 +76,19 @@ public class TextOverlay extends Overlay implements Region {
         this.text = text;
     }
 
+    public FontLoader getFontLoader() {
+        return fontLoader;
+    }
+
+    public void setFontLoader(FontLoader fontLoader) {
+        this.fontLoader = fontLoader;
+    }
+
     public Color getTextFillColor() {
         return textFillColor;
     }
 
-    public void setTextFillColor(Color textFillColor) {
+    public void setTextFill(Color textFillColor) {
         this.textFillColor = textFillColor;
     }
 

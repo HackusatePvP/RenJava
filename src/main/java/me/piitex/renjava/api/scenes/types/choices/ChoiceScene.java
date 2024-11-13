@@ -178,7 +178,7 @@ public class ChoiceScene extends RenScene {
             for (Choice choice : choices) {
                 ButtonOverlay buttonOverlay;
                 try {
-                    buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.getInstance().getConfiguration().getChoiceButtonFont().getFont(), 0, 0);
+                    buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.getInstance().getConfiguration().getChoiceButtonFont(), 0, 0);
                     buttonOverlay.setBorderColor(Color.TRANSPARENT);
                     buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
                     buttonOverlay.setHover(true);

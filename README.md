@@ -5,6 +5,12 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 - [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
 - [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure) This an example project that is used for testing the framework.
 
+## Disclaimer
+RenJava does not claim ownership over any copyrighted material such as music, video, or assets. RenJava is only the framework not the game made by an author.
+Any copyright claims must be filed against the author. RenJava does not own or distribute any game(s). It would be similar to suing YouTube because someone else uploaded an entire move without permission.
+
+As an author you must have expressed consent to use any copyrighted material like music. Alternatively, you could look for royalty free options.
+
 ## Project Requirements
 - [Java-21](https://www.oracle.com/java/technologies/downloads/#java21) (You can typically download this within your IDE)
 - [intellij](https://www.jetbrains.com/idea/download/?section=windows) or [Eclipse](https://www.eclipse.org/downloads/)
@@ -14,6 +20,9 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 ## Application Requirements
 - The OS has to support Java 17 JDK.
 - MacOS not currently supported.
+
+## Getting started
+Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about te framework and all of its features.
 
 ## Notice
 As of build 0.1.x, the project is just a demo. You will not be able to create a fully functional game with the current state of the framework.
@@ -65,9 +74,6 @@ Hero-Adventure-1.0
 ## Updating Application
 If a game has an update please delete the previous version. Make sure to transfer your saves before doing so. This is to prevent malicious attacks that come with having an old JDK installed onto your pc.
 Alternative you can just delete the jdk folder in the old version. As an author you should post this warning to your community for every update.
-
-## Getting started
-Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about te framework and all of its features.
 
 ## Developers
 - View our api changes [here]().
