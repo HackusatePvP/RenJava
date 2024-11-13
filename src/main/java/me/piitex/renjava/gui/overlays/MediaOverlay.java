@@ -5,6 +5,8 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.util.Duration;
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.loggers.RenLogger;
 
 import java.io.File;
@@ -40,6 +42,14 @@ public class MediaOverlay extends Overlay implements Region {
         }
         Media media = new Media(file.toURI().toString());
         mediaPlayer = new MediaPlayer(media);
+
+        // Video should be on sound volune
+        SettingsProperties settings = RenJava.getInstance().getSettings();
+        double masterVolume = settings.getMasterVolume();
+        masterVolume = masterVolume / 100;
+        double soundVolume = settings.getSoundVolume();
+        soundVolume = masterVolume * soundVolume;
+        mediaPlayer.setVolume(soundVolume / 500d);
     }
 
     public String getFilePath() {
@@ -59,6 +69,14 @@ public class MediaOverlay extends Overlay implements Region {
                 mediaPlayer.play();
             });
         }
+    }
+
+    public void play() {
+        mediaPlayer.play();
+    }
+
+    public void stop() {
+        mediaPlayer.stop();
     }
 
     @Override
