@@ -1,4 +1,4 @@
-package me.piitex.renjava.api.scenes.animation;
+package me.piitex.renjava.api.scenes.types.animation;
 
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
@@ -20,12 +20,13 @@ import java.util.LinkedList;
 public class VideoScene extends RenScene {
     private Character character;
     private String filePath;
-
+    private double videoWidth = -1, videoHeight = -1;
     // Video scenes can have a textbox
     private String dialogue;
     private FontLoader font;
     private String characterDisplayName;
     private boolean loop = false;
+    private boolean fitVideoToContainer = false;
 
     private MediaOverlay media;
 
@@ -48,6 +49,43 @@ public class VideoScene extends RenScene {
         this.font = null;
         this.loop = loop;
         configuration = RenJava.getInstance().getConfiguration();
+    }
+
+    public VideoScene(String id, String mediaFilePath, boolean loop, boolean fitVideoToContainer) {
+        super(id, null);
+        filePath = mediaFilePath;
+        this.fitVideoToContainer = fitVideoToContainer;
+        this.character = null;
+        this.font = null;
+        this.loop = loop;
+        configuration = RenJava.getInstance().getConfiguration();
+    }
+
+    public VideoScene(String id, String mediaFilePath, boolean loop, double videoWidth, double videoHeight) {
+        super(id, null);
+        filePath = mediaFilePath;
+        this.videoWidth = videoWidth;
+        this.videoHeight = videoHeight;
+        this.character = null;
+        this.font = null;
+        this.loop = loop;
+        configuration = RenJava.getInstance().getConfiguration();
+    }
+
+    public double getVideoWidth() {
+        return videoWidth;
+    }
+
+    public void setVideoWidth(double videoWidth) {
+        this.videoWidth = videoWidth;
+    }
+
+    public double getVideoHeight() {
+        return videoHeight;
+    }
+
+    public void setVideoHeight(double videoHeight) {
+        this.videoHeight = videoHeight;
     }
 
     public Character getCharacter() {
@@ -82,12 +120,36 @@ public class VideoScene extends RenScene {
         return media;
     }
 
+    public boolean isFitVideoToContainer() {
+        return fitVideoToContainer;
+    }
+
+    // Stretches the video resolution to fit the window
+    public void setFitVideoToContainer(boolean fitVideoToContainer) {
+        this.fitVideoToContainer = fitVideoToContainer;
+    }
+
     @Override
     public Container build(boolean ui) {
         Container container = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
 
         // Render video first
         MediaOverlay mediaOverlay = new MediaOverlay(filePath, 0, 0, configuration.getWidth(), configuration.getHeight());
+        if (isFitVideoToContainer()) {
+            // Debug window size
+            Window window = RenJava.getInstance().getGameWindow();
+            double width = window.getStage().getWidth();
+            double height = window.getScene().getHeight();
+
+            mediaOverlay.setWidth(width);
+            mediaOverlay.setHeight(height);
+        }
+        if (videoWidth != -1) {
+            mediaOverlay.setWidth(videoWidth);
+        }
+        if (videoHeight != -1) {
+            mediaOverlay.setHeight(videoHeight);
+        }
         mediaOverlay.setLoop(loop);
         container.addOverlay(mediaOverlay);
 
