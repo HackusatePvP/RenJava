@@ -1,8 +1,12 @@
 package me.piitex.renjava.configuration;
 
 import javafx.scene.paint.Color;
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.exceptions.GameWindowNotSetException;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.Map;
 
@@ -352,5 +356,25 @@ public class RenJavaConfiguration {
 
     public double getWidthScale() {
         return width / 1920d;
+    }
+
+    public double getWindowWidth() {
+        Window window = RenJava.getInstance().getGameWindow();
+        if (window == null) {
+            GameWindowNotSetException exception = new GameWindowNotSetException();
+            RenLogger.LOGGER.error(exception.getMessage(), exception);
+            return -1;
+        }
+        return window.getStage().getWidth();
+    }
+
+    public double getWindowHeight() {
+        Window window = RenJava.getInstance().getGameWindow();
+        if (window == null) {
+            GameWindowNotSetException exception = new GameWindowNotSetException();
+            RenLogger.LOGGER.error(exception.getMessage(), exception);
+            return -1;
+        }
+        return window.getStage().getHeight();
     }
 }
