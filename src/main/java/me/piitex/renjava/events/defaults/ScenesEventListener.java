@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.InputFieldOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -80,6 +81,17 @@ public class ScenesEventListener implements EventListener {
                     }
                 }
             }, TimeUnit.MILLISECONDS.toMillis(duration));
+        }
+    }
+
+    @Listener(priority = Priority.HIGHEST)
+    public void onSceneEnd(SceneEndEvent event) {
+        // If the scene is playing media when it ends stop the media
+        RenScene scene = event.getScene();
+        if (scene instanceof VideoScene videoScene) {
+            if (videoScene.getMedia() != null) {
+                videoScene.getMedia().stop();
+            }
         }
     }
 
