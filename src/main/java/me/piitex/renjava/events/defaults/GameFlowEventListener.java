@@ -9,6 +9,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.gui.Container;
@@ -64,6 +65,12 @@ public class GameFlowEventListener implements EventListener {
                 // Open Main Menu
                 if (!player.isRightClickMenu() && renJava.getPlayer().getCurrentScene() != null) {
                     logger.info("Player is not in menu, opening menu...");
+
+                    // When opening the right-clicked menu let's see if they are playing any media
+                    if (scene instanceof VideoScene videoScene) {
+                       // They are playing a video. Let's stop the video.
+                        videoScene.getMedia().stop();
+                    }
 
                     Container menu = renJava.buildMainMenu(true);
                     menu.addContainers(renJava.buildSideMenu(true));
