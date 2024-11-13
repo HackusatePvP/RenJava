@@ -27,6 +27,8 @@ public class VideoScene extends RenScene {
     private String characterDisplayName;
     private boolean loop = false;
 
+    private MediaOverlay media;
+
     private final RenJavaConfiguration configuration;
 
     private static final RenJava renJava = RenJava.getInstance();
@@ -76,6 +78,10 @@ public class VideoScene extends RenScene {
         this.font = font;
     }
 
+    public MediaOverlay getMedia() {
+        return media;
+    }
+
     @Override
     public Container build(boolean ui) {
         Container container = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
@@ -84,6 +90,8 @@ public class VideoScene extends RenScene {
         MediaOverlay mediaOverlay = new MediaOverlay(filePath, 0, 0, configuration.getWidth(), configuration.getHeight());
         mediaOverlay.setLoop(loop);
         container.addOverlay(mediaOverlay);
+
+        this.media = mediaOverlay;
 
         if (dialogue != null && !dialogue.isEmpty()) {
             // Render TextBox
