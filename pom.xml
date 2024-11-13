@@ -36,22 +36,22 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>21.0.2</version>
+            <version>23.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21.0.2</version>
+            <version>23.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>21.0.2</version>
+            <version>23.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>21.0.2</version>
+            <version>23.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
