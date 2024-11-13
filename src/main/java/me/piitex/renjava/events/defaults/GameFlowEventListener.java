@@ -42,7 +42,6 @@ public class GameFlowEventListener implements EventListener {
         Player player = renJava.getPlayer();
         MouseButton button = event.getEvent().getButton();
         Logger logger = RenLogger.LOGGER;
-        System.out.println("Y: " + event.getEvent().getY());
 
 
         // Only do this if it's not the title screen or any other menu screen
@@ -153,8 +152,6 @@ public class GameFlowEventListener implements EventListener {
 
     @Listener
     public void onScrollInput(ScrollInputEvent event) {
-        RenLogger.LOGGER.info("Scroll Y: " + event.getScrollEvent().getDeltaY());
-
         // If the scroll y is less than 0 they are scrolling down.
         double y = event.getScrollEvent().getDeltaY();
 
@@ -244,13 +241,10 @@ public class GameFlowEventListener implements EventListener {
 
             // If the scene is a InputScene check if the click was located inside of the textbox
             if (scene instanceof InputScene) {
-                System.out.println("Checking...");
-                System.out.println("Pressed: " + pressedY);
                 double textBoxY = renJava.getConfiguration().getTextY();
                 System.out.println("TextBox Y: " + textBoxY);
                 if (pressedY > 0) {
                     if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {
-                        System.out.println("Flagged!!!");
                         return;
                     }
                 }
