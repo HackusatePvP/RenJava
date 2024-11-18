@@ -1,8 +1,9 @@
 package me.piitex.renjava.gui.overlays;
 
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.text.Text;
+import javafx.scene.layout.Border;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
 
@@ -51,6 +52,8 @@ public class HyperLinkOverlay extends Overlay {
         if (font != null) {
             hyperlink.setFont(font.getFont());
         }
+        hyperlink.setBorder(Border.EMPTY);
+        hyperlink.setPadding(new Insets(4,0,4,0));
         hyperlink.setTranslateX(getX());
         hyperlink.setTranslateY(getY());
         hyperlink.setOnMouseClicked(event -> {
