@@ -648,30 +648,33 @@ public abstract class RenJava {
     }
 
 
+    // I do not recommend changing or overriding this method. The licenses must be included for some of the software used.
+    // This method is public just in case you implement other libraries that need their licenses displayed.
     public Container buildAboutMenu(boolean rightClicked) {
         Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
         TextOverlay spacer = new TextOverlay("\n");
         menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
 
         FontLoader font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24);
-
-        TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced. " +
-                "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine. " +
-                "RenJava is licensed under the GNU GPLv3 by using and distributing this software you agree to these terms. " +
-                "Additionally, RenJava uses software which may have additional licenses, all of which are open sourced. ", 1300, 500);
+        TextFlowOverlay aboutText = new TextFlowOverlay("", 1300, 500);
+        aboutText.add(new HyperLinkOverlay("https://github.com/HackusatePvP/RenJava", "RenJava"));
+        aboutText.add(new TextOverlay(" is a VN framework inspired by RenPy and built with JavaFX. Thank you to those respective communities for their contributions. RenJava is free and open sourced licensed under GPL 3.0 for free use."));
         aboutText.setFont(font);
         aboutText.setX(500);
-        aboutText.setY(100);
+        aboutText.setY(150);
         menu.addOverlay(aboutText);
 
         // If you modify the about you must include the license information.
         TextFlowOverlay licenseText = new TextFlowOverlay("License Information", 1300, 700);
         licenseText.setX(500);
-        licenseText.setY(300);
+        licenseText.setY(250);
         licenseText.setFont(new FontLoader(font, 20));
         licenseText.add(spacer);
         licenseText.add(new TextOverlay("\tRenJava is licensed under GNU GPL v3: "));
         licenseText.add(new HyperLinkOverlay("https://www.gnu.org/licenses/gpl-3.0.en.html"));
+        licenseText.add(spacer);
+        licenseText.add(new TextOverlay("\tRenPy is licensed under MIT: "));
+        licenseText.add(new HyperLinkOverlay("https://www.renpy.org/doc/html/license.html"));
         licenseText.add(spacer);
         licenseText.add(new TextOverlay("\tJavaFX is licensed under GPL-2.0: "));
         licenseText.add(new HyperLinkOverlay("https://github.com/openjdk/jfx/blob/master/LICENSE"));
@@ -697,21 +700,24 @@ public abstract class RenJava {
         menu.addOverlay(licenseText);
 
 
-        TextFlowOverlay buildInfo = new TextFlowOverlay("Do not re-distribute this game without explicit permission from the author.",1300, 700);
+        TextFlowOverlay buildInfo = new TextFlowOverlay("Just because the software this game uses may be free for use does not mean you have any right to re-distribute. " +
+                "The author holds and retrains rights to distribute and sell their game as they wish. " +
+                "Consumers hold no rights when re-distributing or publishing this game without explicit permission from the author. " +
+                "Consumers also have no ownership over this digital product and must follow the terms provided by the author. " +
+                "If no terms were provided then you must use the following. You are not allowed to re-sell or re-distribute this game. " +
+                "If you paid for this game you did not pay for ownership but rather permission to use this game. This permission can be revoked at any time for any reason." +
+                "These terms also apply to any addons that may come with the game.",1300, 800);
         buildInfo.setX(500);
         buildInfo.setY(600);
-        buildInfo.setFont(font);
+        buildInfo.setFont(new FontLoader(font, 20));
         buildInfo.add(spacer);
-        buildInfo.add(new TextOverlay("RenJava Build Version: " + getBuildVersion()));
+        buildInfo.add(spacer);
+        buildInfo.add(new TextOverlay("RenJava Version: " + getBuildVersion()));
         buildInfo.add(spacer);
         buildInfo.add(new TextOverlay("Game Version: " + getVersion()));
         buildInfo.add(spacer);
         buildInfo.add(new TextOverlay("Author: " + getAuthor()));
         buildInfo.add(spacer);
-        buildInfo.add(spacer);
-        buildInfo.add(new TextOverlay("You can download and use RenJava"));
-        buildInfo.add(new HyperLinkOverlay("https://github.com/HackusatePvP/RenJava", "here"));
-        buildInfo.add(new TextOverlay("."));
 
         menu.addOverlay(buildInfo);
 
