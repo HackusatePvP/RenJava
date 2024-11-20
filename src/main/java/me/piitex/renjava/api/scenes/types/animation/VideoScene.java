@@ -1,5 +1,7 @@
 package me.piitex.renjava.api.scenes.types.animation;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.loaders.FontLoader;
@@ -28,7 +30,7 @@ public class VideoScene extends RenScene {
     private boolean loop = false;
     private boolean fitVideoToContainer = false;
 
-    private MediaOverlay media;
+    private MediaPlayer mediaPlayer;
 
     private final RenJavaConfiguration configuration;
 
@@ -116,10 +118,6 @@ public class VideoScene extends RenScene {
         this.font = font;
     }
 
-    public MediaOverlay getMedia() {
-        return media;
-    }
-
     public boolean isFitVideoToContainer() {
         return fitVideoToContainer;
     }
@@ -127,6 +125,24 @@ public class VideoScene extends RenScene {
     // Stretches the video resolution to fit the window
     public void setFitVideoToContainer(boolean fitVideoToContainer) {
         this.fitVideoToContainer = fitVideoToContainer;
+    }
+
+    public void stop() {
+        if (renJava.getPlayer().getCurrentMedia() != null) {
+            renJava.getPlayer().getCurrentMedia().stop();
+            renJava.getPlayer().getCurrentMedia().dispose();
+            renJava.getPlayer().setCurrentMedia(null);
+        }
+    }
+
+    public void play() {
+        if (renJava.getPlayer().getCurrentMedia() != null) {
+            renJava.getPlayer().getCurrentMedia().play();
+        } else {
+            MediaPlayer mediaPlayer1 = new MediaPlayer(new Media(filePath));
+            renJava.getPlayer().setCurrentMedia(mediaPlayer1);
+            mediaPlayer1.play();
+        }
     }
 
     @Override
@@ -152,8 +168,6 @@ public class VideoScene extends RenScene {
         }
         mediaOverlay.setLoop(loop);
         container.addOverlay(mediaOverlay);
-
-        this.media = mediaOverlay;
 
         if (dialogue != null && !dialogue.isEmpty()) {
             // Render TextBox
@@ -196,7 +210,6 @@ public class VideoScene extends RenScene {
                 container.addContainers(textboxMenu);
             }
         }
-
         return container;
     }
 

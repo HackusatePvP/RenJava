@@ -69,7 +69,9 @@ public class GameFlowEventListener implements EventListener {
                     // When opening the right-clicked menu let's see if they are playing any media
                     if (scene instanceof VideoScene videoScene) {
                        // They are playing a video. Let's stop the video.
-                        videoScene.getMedia().stop();
+                        if (renJava.getPlayer().getCurrentMedia() != null) {
+                            renJava.getPlayer().getCurrentMedia().stop();
+                        }
                     }
 
                     Container menu = renJava.buildMainMenu(true);
@@ -286,10 +288,11 @@ public class GameFlowEventListener implements EventListener {
                         pane.getScene().setFill(fadingTransition.getColor());
                         renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
                     }
-                    scene.getEndTransition().play(pane); // Starts transition.
+                    scene.getEndTransition().play(scene, pane); // Starts transition.
                 } else {
-                    story.displayScene(nextScene, false, true);
+                    System.out.println("Playing next scene '" + nextScene.getId() +  "'...");
                     player.setTransitionPlaying(false);
+                    story.displayScene(nextScene, false, true);
                 }
             }
         }
