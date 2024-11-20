@@ -102,6 +102,7 @@ public abstract class RenJava {
 
     // Error tracking
     private static long lastErrorTimeStamp;
+    private static int spamTrack = 0;
 
     private static RenJava instance;
 
@@ -502,7 +503,7 @@ public abstract class RenJava {
 
         loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309);
 
-        loadButton.setOnclick(event -> {
+        loadButton.onClick(event -> {
             if (getPlayer().getCurrentStageType() == StageType.LOAD_MENU) {
                 if (!save.exists()) {
                     RenLogger.LOGGER.warn("Save file does not  0-exist.");
@@ -665,7 +666,7 @@ public abstract class RenJava {
         menu.addOverlay(aboutText);
 
         // If you modify the about you must include the license information.
-        TextFlowOverlay licenseText = new TextFlowOverlay("License Information", 1300, 700);
+        TextFlowOverlay licenseText = new TextFlowOverlay("License Information. Some of the licenses below are required to be disclosed. Modify the below only to include additional required licenses.", 1300, 700);
         licenseText.setX(500);
         licenseText.setY(250);
         licenseText.setFont(new FontLoader(font, 20));
@@ -916,13 +917,18 @@ public abstract class RenJava {
     public static void writeStackTrace(Exception e) {
 
         if (lastErrorTimeStamp > 0) {
-            Date last = new Date(lastErrorTimeStamp);
-            Date current = new Date(System.currentTimeMillis());
-            long seconds = (current.getTime() - last.getTime()) / DateUtils.MILLIS_PER_SECOND;
-            if (seconds < 30) {
-                RenLogger.LOGGER.error("An error occurred within 30s of a previous error. To prevent spam this error has been silenced.");
-                return;
+            spamTrack++;
+            if (spamTrack > 5) {
+                Date last = new Date(lastErrorTimeStamp);
+                Date current = new Date(System.currentTimeMillis());
+                long seconds = (current.getTime() - last.getTime()) / DateUtils.MILLIS_PER_SECOND;
+                if (seconds < 30) {
+                    RenLogger.LOGGER.error("An error occurred within 30s of a previous error. To prevent spam this error has been silenced.");
+                    return;
+                }
             }
+        } else {
+            spamTrack = 0;
         }
 
         lastErrorTimeStamp = System.currentTimeMillis();
