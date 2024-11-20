@@ -141,6 +141,10 @@ public class RenLoader {
             RenLogger.LOGGER.error("Default css file(s) do not exist. Please run RSDK to install these assets.");
             shutdown = true;
         }
+        File mediaDirectory = new File(directory, "/media/");
+        if (mediaDirectory.mkdir()) {
+            RenLogger.LOGGER.warn("Media folder does not exist, creating.");
+        }
 
         // Register current user settings
         renJava.setSettings(new SettingsProperties());
