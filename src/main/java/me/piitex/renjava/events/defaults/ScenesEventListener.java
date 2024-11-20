@@ -42,16 +42,18 @@ public class ScenesEventListener implements EventListener {
                 if (transitions instanceof FadingTransition fadingTransition) {
                     window.updateBackground(fadingTransition.getColor());
                 }
-                transitions.play(event.getNode());
+                transitions.play(scene, event.getNode());
             }
         }
         lastRenderedScene = scene;
     }
 
     @Listener
-    public void fixBackground(FadingTransitionEndEvent event) {
-        Window window = RenJava.getInstance().getGameWindow();
-        window.updateBackground(Color.BLACK);
+    public void fixBackground(SceneEndTransitionFinishEvent event) {
+        if (event.getTransitions() instanceof FadingTransition) {
+            Window window = RenJava.getInstance().getGameWindow();
+            window.updateBackground(Color.BLACK);
+        }
     }
 
     @Listener(priority = Priority.HIGHEST)
@@ -89,9 +91,7 @@ public class ScenesEventListener implements EventListener {
         // If the scene is playing media when it ends stop the media
         RenScene scene = event.getScene();
         if (scene instanceof VideoScene videoScene) {
-            if (videoScene.getMedia() != null) {
-                videoScene.getMedia().stop();
-            }
+            videoScene.stop();
         }
     }
 
