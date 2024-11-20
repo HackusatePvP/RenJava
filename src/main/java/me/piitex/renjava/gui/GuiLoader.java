@@ -97,6 +97,10 @@ public class GuiLoader {
             renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
         }
 
+        // Preset width and height
+        renJava.getConfiguration().setCurrentWindowWidth(renJava.getConfiguration().getWidth());
+        renJava.getConfiguration().setCurrentWindowHeight(renJava.getConfiguration().getHeight());
+
         RenLogger.LOGGER.info("Rendering main menu...");
         // When building title screen create a new window and eventually store the window for easy access
         Window window = new Window(renJava.getConfiguration().getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
