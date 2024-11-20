@@ -14,6 +14,8 @@ public class RenJavaConfiguration {
     private final String gameTitle;
     private final int width;
     private final int height;
+    private double currentWindowWidth;
+    private double currentWindowHeight;
     private boolean maximizedGameWindow = true;
     private final ImageLoader gameIcon;
 
@@ -350,31 +352,27 @@ public class RenJavaConfiguration {
         return Map.entry(centerX, centerY);
     }
 
-    public double getHeightScale() {
-        return height / 1080d;
-    }
-
     public double getWidthScale() {
-        return width / 1920d;
+        return currentWindowWidth / width;
     }
 
-    public double getWindowWidth() {
-        Window window = RenJava.getInstance().getGameWindow();
-        if (window == null) {
-            GameWindowNotSetException exception = new GameWindowNotSetException();
-            RenLogger.LOGGER.error(exception.getMessage(), exception);
-            return -1;
-        }
-        return window.getStage().getWidth();
+    public double getHeightScale() {
+        return currentWindowHeight / height;
     }
 
-    public double getWindowHeight() {
-        Window window = RenJava.getInstance().getGameWindow();
-        if (window == null) {
-            GameWindowNotSetException exception = new GameWindowNotSetException();
-            RenLogger.LOGGER.error(exception.getMessage(), exception);
-            return -1;
-        }
-        return window.getStage().getHeight();
+    public double getCurrentWindowWidth() {
+        return currentWindowWidth;
+    }
+
+    public void setCurrentWindowWidth(double currentWindowWidth) {
+        this.currentWindowWidth = currentWindowWidth;
+    }
+
+    public double getCurrentWindowHeight() {
+        return currentWindowHeight;
+    }
+
+    public void setCurrentWindowHeight(double currentWindowHeight) {
+        this.currentWindowHeight = currentWindowHeight;
     }
 }
