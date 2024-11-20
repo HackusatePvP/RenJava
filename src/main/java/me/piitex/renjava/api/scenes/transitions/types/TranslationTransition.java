@@ -3,7 +3,10 @@ package me.piitex.renjava.api.scenes.transitions.types;
 import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
 import javafx.util.Duration;
+import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
+import me.piitex.renjava.events.types.SceneEndTransitionFinishEvent;
 
 public class TranslationTransition extends Transitions {
     private final double byX;
@@ -60,7 +63,7 @@ public class TranslationTransition extends Transitions {
     }
 
     @Override
-    public void play(Node node) {
+    public void play(RenScene scene, Node node) {
         TranslateTransition transition = new TranslateTransition();
         transition.setByX(byX);
         transition.setByY(byY);
@@ -75,6 +78,8 @@ public class TranslationTransition extends Transitions {
                 getOnFinish().onEnd(actionEvent);
                 playing = false;
             }
+            SceneEndTransitionFinishEvent event = new SceneEndTransitionFinishEvent(scene, this);
+            RenJava.callEvent(event);
         });
         playing = true;
         transition.play();

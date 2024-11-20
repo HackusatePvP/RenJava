@@ -1,6 +1,8 @@
 package me.piitex.renjava.api.scenes.transitions;
 
 import javafx.scene.Node;
+import me.piitex.renjava.api.scenes.RenScene;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class Transitions {
     private TransitionFinishInterface finishInterface;
@@ -29,7 +31,7 @@ public abstract class Transitions {
 
     public abstract boolean isPlaying();
 
-    public abstract void play(Node node);
+    public abstract void play(@Nullable RenScene scene, Node node);
 
     public abstract void stop();
 

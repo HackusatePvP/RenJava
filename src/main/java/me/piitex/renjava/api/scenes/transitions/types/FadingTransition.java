@@ -5,10 +5,10 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.events.types.FadingTransitionEndEvent;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.events.types.SceneEndTransitionFinishEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import org.slf4j.Logger;
 
 public class FadingTransition extends Transitions {
     private final double fromValue;
@@ -68,7 +68,7 @@ public class FadingTransition extends Transitions {
     }
 
     @Override
-    public void play(Node node) {
+    public void play(RenScene scene, Node node) {
         fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));
         fadeTransition.setFromValue(getFromValue());
         fadeTransition.setToValue(getToValue());
@@ -82,7 +82,7 @@ public class FadingTransition extends Transitions {
             }
             playing = false;
 
-            FadingTransitionEndEvent endEvent = new FadingTransitionEndEvent(this);
+            SceneEndTransitionFinishEvent endEvent = new SceneEndTransitionFinishEvent(scene, this);
             RenJava.callEvent(endEvent);
         });
         if (previousTranition != null) {

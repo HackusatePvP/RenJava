@@ -3,6 +3,7 @@ package me.piitex.renjava.api.scenes.transitions.types;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 
@@ -34,16 +35,15 @@ public class ImageFlashTransition extends Transitions {
     }
 
     @Override
-    public void play(Node node) {
+    public void play(RenScene scene, Node node) {
         for (ImageOverlay imageOverlay : images) {
             ImageView imageView = new ImageView(imageOverlay.getImage());
             imageView.setFitWidth(imageOverlay.getWidth());
             imageView.setFitHeight(imageOverlay.getHeight());
             imageView.setX(imageOverlay.getX());
             imageView.setY(imageOverlay.getY());
-
             FadingTransition fadingTransition = new FadingTransition(0, 1, getDuration(), transitionColor);
-            fadingTransition.play(imageView);
+            fadingTransition.play(scene, imageView);
         }
     }
 
