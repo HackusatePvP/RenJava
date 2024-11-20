@@ -8,11 +8,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
@@ -244,7 +242,7 @@ public class Window {
         stage.setFullScreen(fullscreen);
 
 
-        root = new Pane();
+        root = new BorderPane();
 
         root.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -430,7 +428,6 @@ public class Window {
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);
-
     }
 
     private void handleStageInput(Stage stage) {
@@ -512,6 +509,25 @@ public class Window {
                 KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
                 RenJava.callEvent(releaseEvent);
             }
+        });
+
+        stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            RenJava.getInstance().getConfiguration().setCurrentWindowHeight(newValue.doubleValue());
+
+            double scaleWidth = RenJava.getInstance().getConfiguration().getWidthScale();
+            double scaleHeight = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getHeight();
+
+            Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
+            root.getTransforms().setAll(scale);
+        });
+        stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+            RenJava.getInstance().getConfiguration().setCurrentWindowWidth(newValue.doubleValue());
+
+            double scaleWidth = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getWidth();
+            double scaleHeight = RenJava.getInstance().getConfiguration().getHeightScale();
+
+            Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
+            root.getTransforms().setAll(scale);
         });
     }
 
