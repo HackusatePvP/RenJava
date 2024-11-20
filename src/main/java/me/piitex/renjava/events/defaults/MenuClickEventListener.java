@@ -18,8 +18,6 @@ public class MenuClickEventListener implements EventListener {
 
     @Listener
     public void onButtonClick(ButtonClickEvent event) {
-        System.out.println("Button: "  + event.getButton().getId());
-
         Button button = event.getButton();
         boolean rightClicked = renJava.getPlayer().isRightClickMenu();
         Window gameWindow = renJava.getGameWindow();
