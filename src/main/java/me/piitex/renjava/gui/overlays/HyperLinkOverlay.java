@@ -25,7 +25,7 @@ public class HyperLinkOverlay extends Overlay {
         return link;
     }
 
-    public FontLoader getFont() {
+    public FontLoader getFontLoader() {
         return font;
     }
 

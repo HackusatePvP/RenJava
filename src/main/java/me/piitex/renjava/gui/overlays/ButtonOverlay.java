@@ -180,7 +180,7 @@ public class ButtonOverlay extends Overlay implements Region {
         this.text = text;
     }
 
-    public FontLoader getFont() {
+    public FontLoader getFontLoader() {
         return font;
     }
 
