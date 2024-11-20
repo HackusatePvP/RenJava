@@ -418,7 +418,7 @@ public abstract class RenJava {
             returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         }
         returnButton.setX(25);
-        returnButton.setY(1000);
+        returnButton.setY(980);
         menu.addOverlay(returnButton);
 
         SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(menu);
