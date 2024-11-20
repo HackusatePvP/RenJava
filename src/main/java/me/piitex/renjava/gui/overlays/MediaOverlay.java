@@ -2,7 +2,6 @@ package me.piitex.renjava.gui.overlays;
 
 import javafx.scene.Node;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
@@ -30,8 +29,8 @@ public class MediaOverlay extends Overlay implements Region {
     private final String filePath;
     private double width = -1, height = -1;
     private double scaleWidth, scaleHeight;
-    private final MediaPlayer mediaPlayer;
     private boolean loop = false;
+    private final RenJava renJava = RenJava.getInstance();
 
     public MediaOverlay(String filePath, int x, int y) {
         this.filePath = filePath;
@@ -42,7 +41,6 @@ public class MediaOverlay extends Overlay implements Region {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }
         Media media = new Media(file.toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
 
         // Video should be on sound volune
         SettingsProperties settings = RenJava.getInstance().getSettings();
@@ -50,7 +48,7 @@ public class MediaOverlay extends Overlay implements Region {
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
         soundVolume = masterVolume * soundVolume;
-        mediaPlayer.setVolume(soundVolume / 500d);
+        renJava.getPlayer().updatePlayingMedia(media);
     }
 
     public MediaOverlay(String filePath, int x, int y, int width, int height) {
@@ -64,7 +62,6 @@ public class MediaOverlay extends Overlay implements Region {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }
         Media media = new Media(file.toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
 
         // Video should be on sound volune
         SettingsProperties settings = RenJava.getInstance().getSettings();
@@ -72,7 +69,7 @@ public class MediaOverlay extends Overlay implements Region {
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
         soundVolume = masterVolume * soundVolume;
-        mediaPlayer.setVolume(soundVolume / 500d);
+        renJava.getPlayer().updatePlayingMedia(media);
     }
 
     public String getFilePath() {
@@ -86,25 +83,25 @@ public class MediaOverlay extends Overlay implements Region {
     public void setLoop(boolean loop) {
         this.loop = loop;
         if (loop) {
-            mediaPlayer.setOnEndOfMedia(() -> {
+            renJava.getPlayer().getCurrentMedia().setOnEndOfMedia(() -> {
                 RenLogger.LOGGER.info("Media ended.");
-                mediaPlayer.seek(Duration.ZERO);
-                mediaPlayer.play();
+                renJava.getPlayer().getCurrentMedia().seek(Duration.ZERO);
+                renJava.getPlayer().getCurrentMedia().play();
             });
         }
     }
 
     public void play() {
-        mediaPlayer.play();
+        renJava.getPlayer().getCurrentMedia().play();
     }
 
     public void stop() {
-        mediaPlayer.stop();
+        renJava.getPlayer().getCurrentMedia().stop();
     }
 
     @Override
     public Node render() {
-        MediaView mediaView = new MediaView(mediaPlayer);
+        MediaView mediaView = new MediaView(renJava.getPlayer().getCurrentMedia());
         if (width != -1) {
             mediaView.setFitWidth(width);
         }
@@ -112,7 +109,7 @@ public class MediaOverlay extends Overlay implements Region {
             mediaView.setFitHeight(height);
         }
         RenLogger.LOGGER.info("Playing media '{}'", System.getProperty("user.dir") + "/" + filePath);
-        mediaPlayer.play();
+        renJava.getPlayer().getCurrentMedia().play();
         return mediaView;
     }
 
