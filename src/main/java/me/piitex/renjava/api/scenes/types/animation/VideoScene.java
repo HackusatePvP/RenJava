@@ -189,7 +189,7 @@ public class VideoScene extends RenScene {
                 TextFlowOverlay textFlowOverlay;
                 if (texts.isEmpty()) {
                     TextOverlay text = new TextOverlay(dialogue);
-                    text.setFontLoader(renJava.getConfiguration().getDialogueFont());
+                    text.setFont(renJava.getConfiguration().getDialogueFont());
                     textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                 } else {
                     textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());

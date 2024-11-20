@@ -146,7 +146,7 @@ public class InputScene extends RenScene {
                     // Default font
                     font = configuration.getDialogueFont();
                 }
-                inputField.setFontLoader(font);
+                inputField.setFont(font);
                 textFlowOverlay.setFont(font);
 
                 textFlowOverlay.add(inputField);

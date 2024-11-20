@@ -52,7 +52,7 @@ public class TextFlowOverlay extends Overlay implements Region {
         return textFillColor;
     }
 
-    public FontLoader getFont() {
+    public FontLoader getFontLoader() {
         return font;
     }
 
@@ -120,7 +120,7 @@ public class TextFlowOverlay extends Overlay implements Region {
             if (overlay instanceof TextOverlay text) {
                 text.setText(text.getText().replace("\\n", System.lineSeparator()));
                 if (font != null) {
-                    text.setFontLoader(font);
+                    text.setFont(font);
                 }
                 text.setTextFill(textFillColor);
             } else if (overlay instanceof HyperLinkOverlay hyperlink) {
@@ -134,7 +134,7 @@ public class TextFlowOverlay extends Overlay implements Region {
                 button.setTextFill(textFillColor);
             } else if (overlay instanceof InputFieldOverlay inputField) {
                 if (font != null) {
-                    inputField.setFontLoader(font);
+                    inputField.setFont(font);
                 }
             } else {
                 RenLogger.LOGGER.warn("Unsupported overlay in TextFlow. {}", overlay.toString());
