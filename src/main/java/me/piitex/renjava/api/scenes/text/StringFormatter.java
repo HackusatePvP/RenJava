@@ -82,8 +82,7 @@ public class StringFormatter {
             } else if (s.startsWith("ssss: ")) {
                 s = s.replace("ssss: ", "");
                 text1.setFontLoader(currentFont);
-                //FIXME Broke with new update
-//                text1.setStrikethrough(true);
+                text1.setStrikeout(true);
                 texts.add(text1);
             } else {
                 text1.setFontLoader(currentFont);
