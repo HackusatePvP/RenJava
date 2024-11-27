@@ -3,6 +3,8 @@ package me.piitex.renjava.api.stories;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
+import me.piitex.renjava.events.types.SceneRenderEvent;
+import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
@@ -119,6 +121,11 @@ public abstract class Story {
         init(); // Initialize when starting
 
         RenScene renScene = getScene(0); // Gets the first scene index.
+
+        if (renScene == null) {
+            RenLogger.LOGGER.error("Story has no scenes in index. Is the story empty?");
+            return;
+        }
 
         RenLogger.LOGGER.debug("Rendering first scene...");
         displayScene(renScene, false, true);
@@ -262,11 +269,17 @@ public abstract class Story {
     public void displayScene(RenScene scene, boolean rollback, boolean events) {
         RenLogger.LOGGER.info("Rendering scene {} in story {}", scene.getId(), scene.getStory().getId());
         if (events) {
-            SceneEndEvent event = new SceneEndEvent(getCurrentScene());
-            RenJava.callEvent(event);
+            SceneEndEvent endEvent = new SceneEndEvent(getCurrentScene());
+            RenJava.callEvent(endEvent);
+
+            SceneStartEvent startEvent = new SceneStartEvent(scene);
+            RenJava.callEvent(startEvent);
         }
+
         RenJava.getInstance().getPlayer().updateScene(scene);
-        scene.render(renJava.getGameWindow(),true);
+
+        scene.render(renJava.getGameWindow(),true, events);
+
         renJava.getPlayer().setCurrentStageType(scene.getStageType());
         if (!rollback) {
             // 0,1,2,3,

@@ -214,21 +214,6 @@ public class VideoScene extends RenScene {
     }
 
     @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        // Clear window
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-
-        SceneStartEvent event = new SceneStartEvent(this);
-        RenJava.callEvent(event);
-    }
-
-    @Override
     public StageType getStageType() {
         return StageType.ANIMATION_SCENE;
     }

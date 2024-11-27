@@ -8,6 +8,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.InputFieldOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -27,26 +28,6 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ScenesEventListener implements EventListener {
-    private RenScene lastRenderedScene;
-
-    @Listener
-    public void onContainerRender(ContainerRenderEvent event) {
-        // When the render is called the scene should be already set.
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
-        if (RenJava.getInstance().getPlayer().isRightClickMenu()) return;
-        if (scene != null && scene != lastRenderedScene) {
-            Window window = RenJava.getInstance().getGameWindow();
-            Transitions transitions = scene.getStartTransition();
-            if (transitions != null) {
-                RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
-                if (transitions instanceof FadingTransition fadingTransition) {
-                    window.updateBackground(fadingTransition.getColor());
-                }
-                transitions.play(scene, event.getNode());
-            }
-        }
-        lastRenderedScene = scene;
-    }
 
     @Listener
     public void fixBackground(SceneEndTransitionFinishEvent event) {
@@ -126,5 +107,21 @@ public class ScenesEventListener implements EventListener {
         RenJava.getInstance().getPlayer().setLastRenderedScene(event.getScene()); // Update the player/tracker information
         RenJava.getInstance().getPlayer().setLastRenderedRenScene(event.getRenScene());
 
+
+        // When the render is called the scene should be already set.
+        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        if (RenJava.getInstance().getPlayer().isRightClickMenu()) return;
+        if (scene != null) {
+            System.out.println("Scene is not null...");
+            Window window = RenJava.getInstance().getGameWindow();
+            Transitions transitions = scene.getStartTransition();
+            if (transitions != null) {
+                RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
+                if (transitions instanceof FadingTransition fadingTransition) {
+                    window.updateBackground(fadingTransition.getColor());
+                }
+                transitions.play(scene, event.getPane());
+            }
+        }
     }
 }

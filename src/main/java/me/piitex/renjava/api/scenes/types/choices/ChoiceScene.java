@@ -198,20 +198,6 @@ public class ChoiceScene extends RenScene {
         return menu;
     }
 
-    @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-
-        SceneStartEvent event = new SceneStartEvent(this);
-        RenJava.callEvent(event);
-    }
-
     private void buildImageButton(ButtonOverlay buttonOverlay, Choice choice, Image image) {
         ChoiceButtonBuildEvent choiceButtonBuildEvent = new ChoiceButtonBuildEvent(buttonOverlay);
         Button button = choiceButtonBuildEvent.getButtonOverlay().getButton();

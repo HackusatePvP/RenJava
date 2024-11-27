@@ -22,7 +22,7 @@ public class FadingTransition extends Transitions {
     private Color color = Color.BLACK;
 
     // Cheap hack
-    private static FadingTransition previousTranition = null;
+    private static FadingTransition previousTransition = null;
 
     public FadingTransition(double fromValue, double toValue, double duration, Color color) {
         super(duration);
@@ -40,7 +40,6 @@ public class FadingTransition extends Transitions {
         this.cycleCount = cycleCount;
         this.autoReverse = autoReverse;
     }
-
 
     public double getFromValue() {
         return fromValue;
@@ -77,6 +76,8 @@ public class FadingTransition extends Transitions {
         fadeTransition.setNode(node);
         fadeTransition.setDuration(Duration.seconds(getDuration()));
         fadeTransition.setOnFinished(actionEvent -> {
+            System.out.println("Calling transition end event!");
+
             if (getOnFinish() != null) {
                 getOnFinish().onEnd(actionEvent);
             }
@@ -84,20 +85,29 @@ public class FadingTransition extends Transitions {
 
             SceneEndTransitionFinishEvent endEvent = new SceneEndTransitionFinishEvent(scene, this);
             RenJava.callEvent(endEvent);
+
+            RenJava.getInstance().getPlayer().setTransitionPlaying(false);
         });
-        if (previousTranition != null) {
-            previousTranition.stop(); // Stop previous animation
+        if (previousTransition != null) {
+            previousTransition.stop(); // Stop previous animation
         }
-        playing = true;
+        RenJava.getInstance().getPlayer().setTransitionPlaying(true);
         fadeTransition.play();
-        previousTranition = this;
+        previousTransition = this;
+        playing = true;
     }
 
     @Override
     public void stop() {
-        RenLogger.LOGGER.debug("Stopping transition...");
         if (fadeTransition != null) {
-            fadeTransition.stop();
+            RenLogger.LOGGER.debug("Stopping transition...");
+            fadeTransition.jumpTo(Duration.INDEFINITE);
+            try {
+                fadeTransition.stop();
+            } catch (Exception e) {
+                RenLogger.LOGGER.error("Error stopping transition!", e);
+                RenJava.writeStackTrace(e);
+            }
             playing = false;
         }
     }

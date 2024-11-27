@@ -42,11 +42,7 @@ import java.util.LinkedList;
  * <p>
  * Example usage:
  * <pre>{@code
- * Story story = new ExampleStory("example-story);
- * Character myCharacter = new Character("character-1", "John", Color.BLUE);
- * ImageLoader backgroundLoader = new ImageLoader("background.png");
- * ImageScene scene = new ImageScene("scene-1", myCharacter, "This is character text!", backgroundLoader);
- * story.addScene(scene);
+ * TODO
  * }</pre>
  * </p>
  *
@@ -194,21 +190,6 @@ public class ImageScene extends RenScene {
         RenJava.callEvent(event);
 
         return container;
-    }
-
-    @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        // Clear window
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-
-        SceneStartEvent event = new SceneStartEvent(this);
-        RenJava.callEvent(event);
     }
 
     @Override

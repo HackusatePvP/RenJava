@@ -47,20 +47,6 @@ public class AutoPlayScene extends RenScene {
         }
     }
 
-    @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-
-        SceneStartEvent event = new SceneStartEvent(this);
-        RenJava.callEvent(event);
-    }
-
     /**
      * Duration is in milliseconds.
      * @return

@@ -277,23 +277,68 @@ public class GameFlowEventListener implements EventListener {
                 return;
             }
 
+
+            RenScene nextScene = null;
             if (endEvent.isAutoPlayNextScene()) {
-                RenScene nextScene = story.getNextScene(scene.getId());
-                if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
-                    player.setTransitionPlaying(true);
-                    Pane pane = renJava.getGameWindow().getRoot();
-                    if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
-                        BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
-                        pane.setBackground(new Background(backgroundFill));
-                        pane.getScene().setFill(fadingTransition.getColor());
-                        renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
+                System.out.println("Scheduled to play next scene.");
+                nextScene = story.getNextScene(scene.getId());
+            }
+
+            if (player.isTransitionPlaying()) {
+                if (scene.getEndTransition() != null) {
+                    System.out.println("Stopping end transition...");
+                    scene.getEndTransition().stop();
+                    if (nextScene != null) {
+                        story.displayScene(nextScene, false, false);
                     }
-                    scene.getEndTransition().play(scene, pane); // Starts transition.
-                } else {
-                    System.out.println("Playing next scene '" + nextScene.getId() +  "'...");
                     player.setTransitionPlaying(false);
-                    story.displayScene(nextScene, false, true);
+                    return;
                 }
+                if (scene.getStartTransition() != null) {
+                    // Force display scene
+                    scene.getStartTransition().stop();
+                    story.displayScene(scene, false, false);
+                    player.setTransitionPlaying(false);
+                    return;
+                }
+            }
+
+            Pane pane = renJava.getGameWindow().getRoot();
+            if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
+                System.out.println("End transition found.");
+
+                // Fix pane coloring for fade transitions
+                if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
+                    System.out.println("Applying fade transition fixes...");
+                    BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
+                    pane.setBackground(new Background(backgroundFill));
+                    pane.getScene().setFill(fadingTransition.getColor());
+                    renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
+                }
+
+                System.out.println("Play transition now...");
+                // Play transition
+                scene.getEndTransition().play(scene, pane);
+
+                return; // When the transition is playing prevent insta displaying the next scene
+            }
+
+            if (nextScene != null && !player.isTransitionPlaying()) {
+                System.out.println("Playing next scene...");
+                story.displayScene(nextScene, false, true);
+            }
+        }
+    }
+
+    @Listener
+    public void onEndTransitionEnd(SceneEndTransitionFinishEvent event) {
+        // Called when the scenes end transition finishes playing
+
+        RenScene scene = event.getScene();
+        RenScene nextScene = scene.getStory().getNextScene(scene.getId());
+        if (!event.isSkipped()) {
+            if (nextScene != null) {
+                scene.getStory().displayScene(nextScene);
             }
         }
     }

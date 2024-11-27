@@ -9,6 +9,7 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
+import me.piitex.renjava.events.types.SceneRenderEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
@@ -157,7 +158,25 @@ public abstract class RenScene {
 
     public abstract Container build(boolean ui);
 
-    public abstract void render(Window window, boolean ui);
+    public void render(Window window, boolean ui) {
+        render(window, ui, true);
+    }
+
+    public void render(Window window, boolean ui, boolean events) {
+        Container container = build(ui);
+
+        // Clear window
+        window.clearContainers();
+
+        window.addContainer(container);
+
+        if (events) { // This is kind of stupid but a temporary fix for transitions.
+            SceneRenderEvent renderEvent = new SceneRenderEvent(this, window.getScene(), window.getRoot());
+            RenJava.callEvent(renderEvent);
+        }
+
+        window.render();
+    }
 
     public abstract StageType getStageType();
 
