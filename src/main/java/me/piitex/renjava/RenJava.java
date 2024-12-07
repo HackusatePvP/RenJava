@@ -159,6 +159,12 @@ public abstract class RenJava {
         return buildVersion;
     }
 
+    /**
+     * <p>
+     * The game {@link Window} is the main window which renders the scenes. The framework will automatically clear containers during the rendering process. Modifying the game window is not fully supported.
+     * Please use the proper events to modify containers as modifications to the game window may have no effect.
+     * @return The current window for the game.
+     */
     public Window getGameWindow() {
         return gameWindow;
     }
@@ -167,15 +173,21 @@ public abstract class RenJava {
         this.gameWindow = gameWindow;
     }
 
+    /**
+     * The configuration is used to modify the design of the application. You can change the fonts and text positions, for example.
+     * @return The current configuration.
+     */
     public RenJavaConfiguration getConfiguration() {
         return CONFIGURATION;
     }
 
-    public void setConfiguration(RenJavaConfiguration configuration) {
-        this.configuration = configuration;
+    public void setConfiguration(RenJavaConfiguration config) {
         CONFIGURATION = config;
     }
 
+    /**
+     * @return The current players settings such as volume.
+     */
     public SettingsProperties getSettings() {
          return settings;
      }
@@ -184,6 +196,9 @@ public abstract class RenJava {
          this.settings = settings;
      }
 
+    /**
+     * @return The systems host services such as web browser.
+     */
     public HostServices getHost() {
          return hostServices;
      }
