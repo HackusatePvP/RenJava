@@ -39,7 +39,7 @@ public class Track {
             });
         } else {
             player.setOnEndOfMedia(() -> {
-                RenJava.getInstance().getTracks().setPlaying(false);
+                RenJava.TRACKS.setPlaying(false);
             });
         }
         //RenLogger.LOGGER.warn("Volume: " + RenJava.getInstance().getSettings().getVolume() / 500d);
@@ -80,7 +80,7 @@ public class Track {
             });
         } else {
             player.setOnEndOfMedia(() -> {
-                RenJava.getInstance().getTracks().setPlaying(false);
+                RenJava.TRACKS.setPlaying(false);
             });
         }
         SettingsProperties settings = RenJava.getInstance().getSettings();
@@ -110,7 +110,7 @@ public class Track {
             });
         } else {
             player.setOnEndOfMedia(() -> {
-                RenJava.getInstance().getTracks().setPlaying(false);
+                RenJava.TRACKS.setPlaying(false);
             });
         }
         SettingsProperties settings = RenJava.getInstance().getSettings();

@@ -86,12 +86,12 @@ public class FadingTransition extends Transitions {
             SceneEndTransitionFinishEvent endEvent = new SceneEndTransitionFinishEvent(scene, this);
             RenJava.callEvent(endEvent);
 
-            RenJava.getInstance().getPlayer().setTransitionPlaying(false);
+            RenJava.PLAYER.setTransitionPlaying(false);
         });
         if (previousTransition != null) {
             previousTransition.stop(); // Stop previous animation
         }
-        RenJava.getInstance().getPlayer().setTransitionPlaying(true);
+        RenJava.PLAYER.setTransitionPlaying(true);
         fadeTransition.play();
         previousTransition = this;
         playing = true;

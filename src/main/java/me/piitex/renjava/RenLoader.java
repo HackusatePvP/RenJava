@@ -119,7 +119,7 @@ public class RenLoader {
         int audioLoaded = 0;
         for (File file : audioDirectory.listFiles()) {
             audioLoaded++;
-            renJava.getTracks().addTrack(new Track(file));
+            RenJava.TRACKS.addTrack(new Track(file));
         }
         RenLogger.LOGGER.info("Loaded " + audioLoaded + " audio file(s)");
         File imageDirectory = new File(directory, "/images/");

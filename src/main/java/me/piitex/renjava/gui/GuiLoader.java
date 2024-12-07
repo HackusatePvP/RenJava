@@ -41,7 +41,7 @@ public class GuiLoader {
         RenLogger.LOGGER.info("Creating Splash screen...");
         stage.initStyle(StageStyle.UNDECORATED);
         // Update Stage
-        renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
+        RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 
         Window window = renJava.buildSplashScreen();
         if (window == null) {
@@ -109,7 +109,7 @@ public class GuiLoader {
             ShutdownEvent shutdownEvent = new ShutdownEvent();
             RenJava.callEvent(shutdownEvent);
 
-            renJava.getAddonLoader().disable();
+            RenJava.ADDONLOADER.disable();
 
             // Transfer saves to localsaves
             File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/saves/");
@@ -172,12 +172,12 @@ public class GuiLoader {
         MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu);
         RenJava.callEvent(renderEvent);
 
-        renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
+        RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 
     }
 
 
     private void postProcess() {
-        renJava.getAddonLoader().load();
+        RenJava.ADDONLOADER.load();
     }
 }

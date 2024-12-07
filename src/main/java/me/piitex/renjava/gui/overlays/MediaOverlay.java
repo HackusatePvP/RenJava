@@ -48,7 +48,7 @@ public class MediaOverlay extends Overlay implements Region {
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
         soundVolume = masterVolume * soundVolume;
-        renJava.getPlayer().updatePlayingMedia(media);
+        RenJava.PLAYER.updatePlayingMedia(media);
     }
 
     public MediaOverlay(String filePath, int x, int y, int width, int height) {

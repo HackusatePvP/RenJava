@@ -77,7 +77,7 @@ public class ImageScene extends RenScene {
         this.dialogue = dialogue;
         if (backgroundImage != null) {
             this.backgroundImage = backgroundImage;
-            renJava.getPlayer().setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), backgroundImage));
+            RenJava.PLAYER.setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), backgroundImage));
         }
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();
@@ -90,7 +90,7 @@ public class ImageScene extends RenScene {
         super(id, null);
         this.character = character;
         this.dialogue = dialogue;
-        backgroundImage = renJava.getPlayer().getLastDisplayedImage().getValue();
+        backgroundImage = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
         configuration = renJava.getConfiguration();
         font = configuration.getDialogueFont();

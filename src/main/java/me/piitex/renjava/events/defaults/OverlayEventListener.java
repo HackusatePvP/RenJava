@@ -11,7 +11,6 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.overlays.ButtonOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.loggers.RenLogger;
 
 
 public class OverlayEventListener implements EventListener {
@@ -86,7 +85,7 @@ public class OverlayEventListener implements EventListener {
 
     @Listener
     public void onInputSet(InputSetEvent event) {
-        RenScene renScene = RenJava.getInstance().getPlayer().getCurrentScene();
+        RenScene renScene = RenJava.PLAYER.getCurrentScene();
         if (renScene == null) return;
         if (renScene instanceof InputScene inputScene) {
             inputScene.getSetInterface().onInputSet(event);

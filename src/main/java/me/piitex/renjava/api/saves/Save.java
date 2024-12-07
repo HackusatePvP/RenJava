@@ -53,7 +53,7 @@ public class Save {
 
         StringBuilder appendString = new StringBuilder();
         Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
-        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+        for (Addon addon : RenJava.ADDONLOADER.getAddons()) {
             allData.addAll(addon.getRegisteredData());
         }
 
@@ -154,7 +154,7 @@ public class Save {
         }
 
         Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
-        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+        for (Addon addon : RenJava.ADDONLOADER.getAddons()) {
             allData.addAll(addon.getRegisteredData());
         }
 
@@ -291,11 +291,11 @@ public class Save {
     public ImageOverlay buildPreview(int page) {
         ImageOverlay saveImage;
         if (file.exists()) {
-            Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
+            Story story = RenJava.PLAYER.getStory((String) sceneSection.get("currentStory"));
 
             // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
             // Set the player to the current story (which is off to a horrible start)
-            RenJava.getInstance().getPlayer().setCurrentStory(story.getId());
+            RenJava.PLAYER.setCurrentStory(story.getId());
 
             // Initialize the story to process the scenes. (Used to execute the `addScene` functions which maps the scenes to the story.)
             story.init();

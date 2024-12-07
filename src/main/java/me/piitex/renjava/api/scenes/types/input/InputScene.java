@@ -71,7 +71,7 @@ public class InputScene extends RenScene {
     public InputScene(String id, @Nullable String text) {
         super(id, null);
         this.text = text;
-        loader = RenJava.getInstance().getPlayer().getLastDisplayedImage().getValue();
+        loader = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(loader);
     }
 

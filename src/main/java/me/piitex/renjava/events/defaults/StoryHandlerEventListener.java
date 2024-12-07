@@ -18,7 +18,7 @@ public class StoryHandlerEventListener implements EventListener {
     public void onSceneStartEvent(SceneStartEvent event) {
         RenScene scene = event.getScene();
         Story story = event.getScene().getStory();
-        Player player = RenJava.getInstance().getPlayer();
+        Player player = RenJava.PLAYER;
         if (scene.getStartInterface() != null) {
             scene.getStartInterface().onStart(event);
         }

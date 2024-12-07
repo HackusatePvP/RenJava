@@ -128,19 +128,19 @@ public class VideoScene extends RenScene {
     }
 
     public void stop() {
-        if (renJava.getPlayer().getCurrentMedia() != null) {
-            renJava.getPlayer().getCurrentMedia().stop();
-            renJava.getPlayer().getCurrentMedia().dispose();
-            renJava.getPlayer().setCurrentMedia(null);
+        if (RenJava.PLAYER.getCurrentMedia() != null) {
+            RenJava.PLAYER.getCurrentMedia().stop();
+            RenJava.PLAYER.getCurrentMedia().dispose();
+            RenJava.PLAYER.setCurrentMedia(null);
         }
     }
 
     public void play() {
-        if (renJava.getPlayer().getCurrentMedia() != null) {
-            renJava.getPlayer().getCurrentMedia().play();
+        if (RenJava.PLAYER.getCurrentMedia() != null) {
+            RenJava.PLAYER.getCurrentMedia().play();
         } else {
             MediaPlayer mediaPlayer1 = new MediaPlayer(new Media(filePath));
-            renJava.getPlayer().setCurrentMedia(mediaPlayer1);
+            RenJava.PLAYER.setCurrentMedia(mediaPlayer1);
             mediaPlayer1.play();
         }
     }

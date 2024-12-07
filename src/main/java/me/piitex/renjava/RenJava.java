@@ -76,22 +76,22 @@ public abstract class RenJava {
     protected String author;
     protected String version;
     protected int id;
-    private Player player;
+    public static Player PLAYER;
     // Audio Tracking
-    private Tracks tracks;
+    public static Tracks TRACKS;
 
-    private Logger logger;
-
-    private AddonLoader addonLoader;
+    public static AddonLoader ADDONLOADER;
 
     private Window gameWindow;
 
-    private RenJavaConfiguration configuration;
+    public static RenJavaConfiguration CONFIGURATION;
 
     // User settings
     private SettingsProperties settings;
 
     private HostServices hostServices;
+
+    private Logger logger;
 
     private final Map<String, Character> registeredCharacters = new HashMap<>();
     private final Collection<EventListener> registeredListeners = new HashSet<>();
@@ -113,8 +113,8 @@ public abstract class RenJava {
 
     protected void init() {
         // Run after super
-        this.player = new Player();
-        this.tracks = new Tracks();
+        PLAYER = new Player();
+        TRACKS = new Tracks();
 
         // Initializes the Ren logger which is separated from the application logger.
         RenLogger.init();
@@ -124,10 +124,10 @@ public abstract class RenJava {
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
         this.registerListener(new OverlayEventListener());
-        this.registerData(player);
-        this.registerData(tracks);
+        this.registerData(PLAYER);
+        this.registerData(TRACKS);
         new RenLoader(this);
-        this.addonLoader = new AddonLoader();
+        ADDONLOADER = new AddonLoader();
     }
 
     public String getName() {
@@ -146,10 +146,6 @@ public abstract class RenJava {
         return id;
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
     public Logger getLogger() {
         return logger;
     }
@@ -158,14 +154,9 @@ public abstract class RenJava {
         this.logger = logger;
     }
 
-    public Tracks getTracks() {
-        return tracks;
-    }
-
-    public AddonLoader getAddonLoader() {
-         return addonLoader;
-     }
-
+    /**
+     * @return The RenJava version the game uses.
+     */
     public String getBuildVersion() {
         return buildVersion;
     }
@@ -179,11 +170,12 @@ public abstract class RenJava {
     }
 
     public RenJavaConfiguration getConfiguration() {
-        return configuration;
+        return CONFIGURATION;
     }
 
     public void setConfiguration(RenJavaConfiguration configuration) {
         this.configuration = configuration;
+        CONFIGURATION = config;
     }
 
     public SettingsProperties getSettings() {
@@ -413,7 +405,7 @@ public abstract class RenJava {
 
         ButtonOverlay returnButton;
 
-        if (getPlayer().getCurrentStageType() == StageType.MAIN_MENU) {
+        if (PLAYER.getCurrentStageType() == StageType.MAIN_MENU) {
             returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         } else {
             returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
@@ -429,7 +421,7 @@ public abstract class RenJava {
     }
 
     public Container buildLoadMenu(int page) {
-        Container menu = new EmptyContainer(getConfiguration().getWidth(), configuration.getHeight(), DisplayOrder.NORMAL);
+        Container menu = new EmptyContainer(getConfiguration().getWidth(), CONFIGURATION.getHeight(), DisplayOrder.NORMAL);
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
         imageOverlay.setOrder(DisplayOrder.LOW);
         menu.addOverlay(imageOverlay);
@@ -482,7 +474,7 @@ public abstract class RenJava {
             if (page == pageIndex) {
                 pageButton.setTextFill(Color.BLACK);
             }
-            pageButton.setHoverColor(configuration.getHoverColor());
+            pageButton.setHoverColor(CONFIGURATION.getHoverColor());
             pageLayout.addOverlay(pageButton);
         }
         pageLayout.setX(1000);
@@ -504,13 +496,13 @@ public abstract class RenJava {
         loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309);
 
         loadButton.onClick(event -> {
-            if (getPlayer().getCurrentStageType() == StageType.LOAD_MENU) {
+            if (PLAYER.getCurrentStageType() == StageType.LOAD_MENU) {
                 if (!save.exists()) {
                     RenLogger.LOGGER.warn("Save file does not  0-exist.");
                     return;
                 }
                 save.load(true);
-                String storyID = getPlayer().getCurrentStoryID();
+                String storyID = PLAYER.getCurrentStoryID();
                 if (storyID == null) {
                     RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
                     return;
@@ -526,22 +518,22 @@ public abstract class RenJava {
                 RenLogger.LOGGER.debug("Initializing story...");
                 getPlayer().getCurrentStory().init(); // Re-initialize story
 
-                RenLogger.LOGGER.debug("Setting current scene: " + getPlayer().getCurrentSceneID());
-                getPlayer().setCurrentScene(getPlayer().getCurrentSceneID());
+                RenLogger.LOGGER.debug("Setting current scene: " + PLAYER.getCurrentSceneID());
+                PLAYER.setCurrentScene(PLAYER.getCurrentSceneID());
 
-                getPlayer().setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
+                PLAYER.setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
 
                 RenLogger.LOGGER.debug("Rendering scene...");
-                RenScene scene = getPlayer().getCurrentScene();
-                getPlayer().getStory(storyID).displayScene(scene);
+                RenScene scene = PLAYER.getCurrentScene();
+                PLAYER.getStory(storyID).displayScene(scene);
 
-            } else if (getPlayer().getCurrentStageType() == StageType.SAVE_MENU) {
+            } else if (PLAYER.getCurrentStageType() == StageType.SAVE_MENU) {
                 Tasks.runAsync(() -> {
                     save.write();
                 });
 
                 // Re-render
-                getPlayer().setCurrentStageType(StageType.SAVE_MENU);
+                PLAYER.setCurrentStageType(StageType.SAVE_MENU);
                 Container menu = buildLoadMenu(1); // Builds first page
                 menu.addContainers(buildSideMenu(true));
                 getGameWindow().clearContainers();
@@ -840,7 +832,7 @@ public abstract class RenJava {
         Map<EventListener, Method> highestMethods = new HashMap<>();
 
         Collection<EventListener> eventListeners = new HashSet<>(getInstance().getRegisteredListeners());
-        for (Addon addon : getInstance().getAddonLoader().getAddons()) {
+        for (Addon addon : ADDONLOADER.getAddons()) {
             eventListeners.addAll(addon.getRegisteredListeners());
         }
 

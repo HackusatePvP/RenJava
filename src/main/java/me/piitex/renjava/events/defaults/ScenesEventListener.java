@@ -51,12 +51,12 @@ public class ScenesEventListener implements EventListener {
                 @Override
                 public void run() {
                     if (renScene != null) {
-                        if (RenJava.getInstance().getPlayer().getCurrentScene().getId().equalsIgnoreCase(scene.getId())) {
+                        if (RenJava.PLAYER.getCurrentScene().getId().equalsIgnoreCase(scene.getId())) {
                             Platform.runLater(story::displayNextScene);
                         }
                     } else {
                         Platform.runLater(() -> {
-                            if (RenJava.getInstance().getPlayer().getCurrentStory().getId().equalsIgnoreCase(story.getId())) {
+                            if (RenJava.PLAYER.getCurrentStory().getId().equalsIgnoreCase(story.getId())) {
                                 // Call story end
                                 RenJava.callEvent(new StoryEndEvent(story));
                             }
@@ -79,7 +79,7 @@ public class ScenesEventListener implements EventListener {
     @Listener(priority = Priority.HIGHEST)
     public void onChoiceButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        RenScene scene = RenJava.PLAYER.getCurrentScene();
         if (scene instanceof ChoiceScene choiceScene) {
             Choice choice = choiceScene.getChoice(button.getId());
             if (choice != null) {
@@ -104,13 +104,13 @@ public class ScenesEventListener implements EventListener {
     public void onSceneRender(SceneRenderEvent event) {
         // Event used to save the preview for the save file.
         RenLogger.LOGGER.info("Updating tracker for {}", event.getRenScene().getId());
-        RenJava.getInstance().getPlayer().setLastRenderedScene(event.getScene()); // Update the player/tracker information
-        RenJava.getInstance().getPlayer().setLastRenderedRenScene(event.getRenScene());
+        RenJava.PLAYER.setLastRenderedScene(event.getScene()); // Update the player/tracker information
+        RenJava.PLAYER.setLastRenderedRenScene(event.getRenScene());
 
 
         // When the render is called the scene should be already set.
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
-        if (RenJava.getInstance().getPlayer().isRightClickMenu()) return;
+        RenScene scene = RenJava.PLAYER.getCurrentScene();
+        if (RenJava.PLAYER.isRightClickMenu()) return;
         if (scene != null) {
             System.out.println("Scene is not null...");
             Window window = RenJava.getInstance().getGameWindow();
