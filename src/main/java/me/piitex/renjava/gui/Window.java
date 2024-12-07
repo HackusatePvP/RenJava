@@ -233,7 +233,6 @@ public class Window {
                 stage.getIcons().add(windowIcon);
             }
         }
-
         stage.setTitle(title);
         stage.initStyle(stageStyle);
         stage.setWidth(width);
@@ -357,7 +356,10 @@ public class Window {
         render();
     }
 
-    // Builds and renders all containers
+    /**
+     * Builds and displays all active nodes on the screen. Can cause flicker if called excessively. If you changed by adding, modifying, or removing {@link Overlay} or {@link Container} you must call this function.
+     * This function translates RenJava API into JavaFX.
+     */
     public void render() {
         // Clear and reset before rendering (this will prevent elements being stacked)
         if (containers.isEmpty()) {
@@ -391,6 +393,9 @@ public class Window {
         normalOrder.clear();
         highOrder.clear();
 
+        stage.requestFocus();
+        stage.setMaximized(maximized);
+        stage.setFullScreen(fullscreen);
         stage.show();
 
         // Force clear resources that are unused.
@@ -424,16 +429,13 @@ public class Window {
 
         for (Node n : entry.getValue()) {
             if (node instanceof Pane pane) {
-                if (!pane.getChildren().contains(n)) {
-                    pane.getChildren().add(n);
-                }
+                pane.getChildren().add(n);
             }
             // Different pane types
         }
 
-        if (!getRoot().getChildren().contains(node)) {
-            getRoot().getChildren().add(node);
-        }
+        getRoot().getChildren().add(node);
+
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);

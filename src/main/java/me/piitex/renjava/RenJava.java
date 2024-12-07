@@ -36,7 +36,6 @@ import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.tasks.Tasks;
 import org.apache.commons.lang3.time.DateUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -453,10 +452,14 @@ public abstract class RenJava {
         topLayout.setSpacing(20);
         HorizontalLayout bottomLayout = new HorizontalLayout(1000, 350);
         bottomLayout.setSpacing(20);
+        // Save the containers to re-render the view (refreshes)
+        LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers());
         while (index <=  maxSavesPerPage) {
-            ButtonOverlay loadButton = getButtonOverlay(page, index);
+            ButtonOverlay loadButton = getButtonOverlay(gameWindow, page, index);
+            if (loadButton == null) {
+                loadButton = new ButtonOverlay("save-", new ImageOverlay("gui/button/slot_idle_background.png"), 0, 0, 414, 309);
+            }
             loadButton.setOrder(DisplayOrder.HIGH);
-
             if (index <= 3) {
                 topLayout.addOverlays(loadButton);
             } else {
@@ -464,6 +467,12 @@ public abstract class RenJava {
             }
             index++;
         }
+
+        // Once the fetching is done re-render the view
+        System.out.println("Container size: " + containers.size());
+        gameWindow.render();
+        gameWindow.setContainers(containers);
+        gameWindow.render();
 
         rootLayout.addChildLayout(topLayout);
         rootLayout.addChildLayout(bottomLayout);
@@ -498,15 +507,16 @@ public abstract class RenJava {
         return menu;
     }
 
-    @NotNull
-    private ButtonOverlay getButtonOverlay(int page, int index) {
+    private ButtonOverlay getButtonOverlay(Window window, int page, int index) {
         Save save = new Save(index);
+        if (!save.getFile().exists()) return null;
         save.load(false);
         ImageOverlay saveImage;
         ButtonOverlay loadButton;
-        saveImage = save.buildPreview(page);
 
-        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309);
+        saveImage = save.buildPreview(window, page);
+
+        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 384, 215);
 
         loadButton.onClick(event -> {
             if (PLAYER.getCurrentStageType() == StageType.LOAD_MENU) {
@@ -527,9 +537,9 @@ public abstract class RenJava {
 
                 // Force update fields
                 RenLogger.LOGGER.debug("Setting current story: " + storyID);
-                getPlayer().setCurrentStory(storyID);
+                PLAYER.setCurrentStory(storyID);
                 RenLogger.LOGGER.debug("Initializing story...");
-                getPlayer().getCurrentStory().init(); // Re-initialize story
+                PLAYER.getCurrentStory().init(); // Re-initialize story
 
                 RenLogger.LOGGER.debug("Setting current scene: " + PLAYER.getCurrentSceneID());
                 PLAYER.setCurrentScene(PLAYER.getCurrentSceneID());

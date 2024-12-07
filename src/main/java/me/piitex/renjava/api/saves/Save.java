@@ -289,7 +289,7 @@ public class Save {
         }
     }
 
-    public ImageOverlay buildPreview(int page) {
+    public ImageOverlay buildPreview(Window window, int page) {
         ImageOverlay saveImage;
         if (file.exists()) {
             Story story = RenJava.PLAYER.getStory((String) sceneSection.get("currentStory"));
@@ -309,9 +309,9 @@ public class Save {
             }
 
             // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
-            currentScene.render(RenJava.getInstance().getGameWindow(), true);
-
-            WritableImage snapshot = RenJava.getInstance().getGameWindow().getStage().getScene().snapshot(null);
+            window.clear();
+            currentScene.render(window, true, false);
+            WritableImage snapshot = window.getRoot().getScene().snapshot(null); // This is not working???
             saveImage = new ImageOverlay(snapshot);
 
             saveImage.setWidth(384);
