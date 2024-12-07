@@ -334,6 +334,7 @@ public class Window {
         this.root = new Pane();
         this.scene = new Scene(root);
         this.stage.setScene(scene);
+        this.stage.show();
     }
 
     public void close() {
