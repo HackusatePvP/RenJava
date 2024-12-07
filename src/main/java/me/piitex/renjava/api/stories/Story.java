@@ -147,11 +147,6 @@ public abstract class Story {
      * @param scene Scene to add the story.
      */
     public void addScene(RenScene scene) {
-        if (scenes.containsKey(scene.getId())) {
-            logger.warn(new DuplicateSceneIdException(scene.getId()).getMessage());
-            scenes.replace(scene.getId(), scenes.get(id), scene);
-            return;
-        }
         scene.setStory(this);
         scenes.put(scene.getId(), scene);
         int index = sceneIndexMap.size();
