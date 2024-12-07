@@ -230,7 +230,7 @@ public class RenLoader {
             version = "";
         }
 
-        return version.replace("-SNAPSHOT", "");
+        return version;
     }
 
 }
