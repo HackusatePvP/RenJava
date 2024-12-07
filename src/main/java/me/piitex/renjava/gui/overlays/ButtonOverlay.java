@@ -6,10 +6,8 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
-import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.ButtonClickEvent;
 
 public class ButtonOverlay extends Overlay implements Region {

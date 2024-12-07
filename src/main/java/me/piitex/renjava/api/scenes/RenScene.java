@@ -56,7 +56,7 @@ public abstract class RenScene {
     public RenScene(String id, ImageOverlay backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
-        setStory(RenJava.getInstance().getPlayer().getCurrentStory()); // Update the current story.
+        setStory(RenJava.PLAYER.getCurrentStory()); // Update the current story.
     }
 
     /**

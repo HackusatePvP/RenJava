@@ -2,8 +2,6 @@ package me.piitex.renjava;
 
 import javafx.application.HostServices;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
@@ -907,7 +905,6 @@ public abstract class RenJava {
     }
 
     public static void writeStackTrace(Exception e) {
-
         if (lastErrorTimeStamp > 0) {
             spamTrack++;
             if (spamTrack > 5) {

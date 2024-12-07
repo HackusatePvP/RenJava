@@ -69,7 +69,7 @@ public class MediaOverlay extends Overlay implements Region {
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
         soundVolume = masterVolume * soundVolume;
-        renJava.getPlayer().updatePlayingMedia(media);
+        RenJava.PLAYER.updatePlayingMedia(media);
     }
 
     public String getFilePath() {
@@ -83,25 +83,25 @@ public class MediaOverlay extends Overlay implements Region {
     public void setLoop(boolean loop) {
         this.loop = loop;
         if (loop) {
-            renJava.getPlayer().getCurrentMedia().setOnEndOfMedia(() -> {
+            RenJava.PLAYER.getCurrentMedia().setOnEndOfMedia(() -> {
                 RenLogger.LOGGER.info("Media ended.");
-                renJava.getPlayer().getCurrentMedia().seek(Duration.ZERO);
-                renJava.getPlayer().getCurrentMedia().play();
+                RenJava.PLAYER.getCurrentMedia().seek(Duration.ZERO);
+                RenJava.PLAYER.getCurrentMedia().play();
             });
         }
     }
 
     public void play() {
-        renJava.getPlayer().getCurrentMedia().play();
+        RenJava.PLAYER.getCurrentMedia().play();
     }
 
     public void stop() {
-        renJava.getPlayer().getCurrentMedia().stop();
+        RenJava.PLAYER.getCurrentMedia().stop();
     }
 
     @Override
     public Node render() {
-        MediaView mediaView = new MediaView(renJava.getPlayer().getCurrentMedia());
+        MediaView mediaView = new MediaView(RenJava.PLAYER.getCurrentMedia());
         if (width != -1) {
             mediaView.setFitWidth(width);
         }
@@ -109,7 +109,7 @@ public class MediaOverlay extends Overlay implements Region {
             mediaView.setFitHeight(height);
         }
         RenLogger.LOGGER.info("Playing media '{}'", System.getProperty("user.dir") + "/" + filePath);
-        renJava.getPlayer().getCurrentMedia().play();
+        RenJava.PLAYER.getCurrentMedia().play();
         return mediaView;
     }
 

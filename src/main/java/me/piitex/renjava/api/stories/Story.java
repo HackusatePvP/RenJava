@@ -3,7 +3,6 @@ package me.piitex.renjava.api.stories;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
-import me.piitex.renjava.events.types.SceneRenderEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -13,7 +12,6 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
-import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
 import me.piitex.renjava.events.types.SceneEndEvent;
 import org.slf4j.Logger;
 

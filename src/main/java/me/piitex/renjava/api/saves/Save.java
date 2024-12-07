@@ -3,6 +3,7 @@ package me.piitex.renjava.api.saves;
 import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.addons.Addon;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.data.Data;
