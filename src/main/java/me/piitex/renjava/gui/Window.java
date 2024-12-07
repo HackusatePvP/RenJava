@@ -113,7 +113,7 @@ public class Window {
     private Instant firstRun;
     private boolean captureInput = true;
 
-    private final LinkedList<Container> containers = new LinkedList<>();
+    private LinkedList<Container> containers = new LinkedList<>();
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
         this.width = RenJava.getInstance().getConfiguration().getWidth();
@@ -310,6 +310,14 @@ public class Window {
 
     public void addContainers(Container... containers) {
         this.containers.addAll(List.of(containers));
+    }
+
+    public void addContainers(LinkedList<Container> cont) {
+        this.containers.addAll(cont);
+    }
+
+    public void setContainers(LinkedList<Container> containers) {
+        this.containers = containers;
     }
 
     public void clearContainers() {
