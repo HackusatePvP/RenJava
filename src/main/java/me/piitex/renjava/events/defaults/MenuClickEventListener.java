@@ -43,8 +43,7 @@ public class MenuClickEventListener implements EventListener {
             side.setOrder(DisplayOrder.HIGH);
             load.addContainers(side);
 
-            gameWindow.clear();
-
+            gameWindow.clearContainers();
             gameWindow.addContainer(load);
             gameWindow.render();
 

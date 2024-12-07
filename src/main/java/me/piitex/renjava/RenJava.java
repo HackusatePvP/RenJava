@@ -470,7 +470,6 @@ public abstract class RenJava {
 
         // Once the fetching is done re-render the view
         System.out.println("Container size: " + containers.size());
-        gameWindow.render();
         gameWindow.setContainers(containers);
         gameWindow.render();
 

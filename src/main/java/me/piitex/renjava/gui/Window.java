@@ -115,6 +115,8 @@ public class Window {
 
     private LinkedList<Container> containers = new LinkedList<>();
 
+    private boolean focused = true;
+
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
         this.width = RenJava.getInstance().getConfiguration().getWidth();
         this.height = RenJava.getInstance().getConfiguration().getHeight();
@@ -218,6 +220,29 @@ public class Window {
         buildStage();
     }
 
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput, boolean focused) {
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
+        this.focused = focused;
+        buildStage();
+    }
+
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput, boolean focused) {
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
+        this.focused = focused;
+        buildStage();
+    }
+
     protected void buildStage() {
         stage = new Stage();
 
@@ -281,6 +306,10 @@ public class Window {
         return captureInput;
     }
 
+    /**
+     * Toggles the stage to full-screen or windowed.
+     * @param fullscreen Pass true for fullscreen, false for windowed.
+     */
     public void setFullscreen(boolean fullscreen) {
         this.fullscreen = fullscreen;
         if (stage != null) {
@@ -341,7 +370,7 @@ public class Window {
         this.root = new Pane();
         this.scene = new Scene(root);
         this.stage.setScene(scene);
-        this.stage.show();
+//        this.stage.show();
     }
 
     public void close() {
@@ -358,9 +387,34 @@ public class Window {
 
     /**
      * Builds and displays all active nodes on the screen. Can cause flicker if called excessively. If you changed by adding, modifying, or removing {@link Overlay} or {@link Container} you must call this function.
-     * This function translates RenJava API into JavaFX.
+     * This function translates RenJava API into JavaFX and updates the stage and scene.
      */
     public void render() {
+        build();
+        if (focused) {
+            stage.requestFocus();
+        }
+        stage.setMaximized(maximized);
+        stage.setFullScreen(fullscreen);
+        stage.show();
+
+        // Force clear resources that are unused.
+        // To those who feel like GC is bad practice or indicates broken code allow me to explain.
+        // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
+        // HOWEVER, when you are rendering and loading multiple 10mb+ images within a 5 minute time period auto GC is far too slow.
+        // This call may not do anything at all at times. It tells the JVM that I want to clear any unused references pronto not when it wants to.
+        // There are multiple gc calls within the framework and when testing on my own machine they dramatically decrease resource usage by 300mb+
+        // I will admit that there may be in a memory leak somewhere in the framework, but this is not the solution to that.
+        //
+        // TL;DR I ain't waiting for your slow ass jvm to clear resources.
+        System.gc();
+
+    }
+
+    /**
+     * This function is used to build the RenJava API onto the JavaFX framework. This will not render the built nodes onto the screen. Recommended to use {@link #render()} for most use cases.
+     */
+    public void build() {
         // Clear and reset before rendering (this will prevent elements being stacked)
         if (containers.isEmpty()) {
             RenLogger.LOGGER.error("You must add containers to the window before every render call.");
@@ -392,23 +446,6 @@ public class Window {
         lowOrder.clear();
         normalOrder.clear();
         highOrder.clear();
-
-        stage.requestFocus();
-        stage.setMaximized(maximized);
-        stage.setFullScreen(fullscreen);
-        stage.show();
-
-        // Force clear resources that are unused.
-        // To those who feel like GC is bad practice or indicates broken code allow me to explain.
-        // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
-        // HOWEVER, when you are rendering and loading multiple 10mb+ images within a 5 minute time period auto GC is far too slow.
-        // This call may not do anything at all at times. It tells the JVM that I want to clear any unused references pronto not when it wants to.
-        // There are multiple gc calls within the framework and when testing on my own machine they dramatically decrease resource usage by 300mb+
-        // I will admit that there may be in a memory leak somewhere in the framework, but this is not the solution to that.
-        //
-        // TL;DR I ain't waiting for your slow ass jvm to clear resources.
-        System.gc();
-
     }
 
     // Renders container on top of current window

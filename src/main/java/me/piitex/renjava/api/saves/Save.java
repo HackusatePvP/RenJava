@@ -1,8 +1,10 @@
 package me.piitex.renjava.api.saves;
 
 import javafx.scene.image.WritableImage;
+import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.addons.Addon;
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -309,10 +311,19 @@ public class Save {
             }
 
             // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
-            window.clear();
-            currentScene.render(window, true, false);
-            WritableImage snapshot = window.getRoot().getScene().snapshot(null); // This is not working???
+            // To prevent the white flash when loading preview use diff window
+            Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
+
+            hiddenWindow.clear();
+//            currentScene.render(hiddenWindow, true, false);
+            Container container = currentScene.build(true);
+            hiddenWindow.addContainers(container);
+            hiddenWindow.build();
+
+            window.getStage().requestFocus();
+            WritableImage snapshot = hiddenWindow.getRoot().getScene().snapshot(null); // This is not working???
             saveImage = new ImageOverlay(snapshot);
+            hiddenWindow.close();
 
             saveImage.setWidth(384);
             saveImage.setHeight(216);
