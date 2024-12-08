@@ -113,9 +113,6 @@ public abstract class RenJava {
         PLAYER = new Player();
         TRACKS = new Tracks();
 
-        // Initializes the Ren logger which is separated from the application logger.
-        RenLogger.init();
-
         this.registerListener(new MenuClickEventListener());
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
@@ -469,7 +466,6 @@ public abstract class RenJava {
         }
 
         // Once the fetching is done re-render the view
-        System.out.println("Container size: " + containers.size());
         gameWindow.setContainers(containers);
         gameWindow.render();
 

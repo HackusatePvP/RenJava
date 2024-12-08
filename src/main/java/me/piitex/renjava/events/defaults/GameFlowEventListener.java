@@ -280,13 +280,11 @@ public class GameFlowEventListener implements EventListener {
 
             RenScene nextScene = null;
             if (endEvent.isAutoPlayNextScene()) {
-                System.out.println("Scheduled to play next scene.");
                 nextScene = story.getNextScene(scene.getId());
             }
 
             if (player.isTransitionPlaying()) {
                 if (scene.getEndTransition() != null) {
-                    System.out.println("Stopping end transition...");
                     scene.getEndTransition().stop();
                     if (nextScene != null) {
                         story.displayScene(nextScene, false, false);
@@ -305,18 +303,14 @@ public class GameFlowEventListener implements EventListener {
 
             Pane pane = renJava.getGameWindow().getRoot();
             if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
-                System.out.println("End transition found.");
-
                 // Fix pane coloring for fade transitions
                 if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
-                    System.out.println("Applying fade transition fixes...");
                     BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
                     pane.setBackground(new Background(backgroundFill));
                     pane.getScene().setFill(fadingTransition.getColor());
                     renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
                 }
 
-                System.out.println("Play transition now...");
                 // Play transition
                 scene.getEndTransition().play(scene, pane);
 
@@ -324,7 +318,6 @@ public class GameFlowEventListener implements EventListener {
             }
 
             if (nextScene != null && !player.isTransitionPlaying()) {
-                System.out.println("Playing next scene...");
                 story.displayScene(nextScene, false, true);
             }
         }

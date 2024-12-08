@@ -311,17 +311,16 @@ public class Save {
             }
 
             // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
-            // To prevent the white flash when loading preview use diff window
+            // To prevent the white flash when loading preview use diff window.
+            // On slower machines the window may pop-up for a few seconds but if that's the case your pc doesn't meet spec requirements to begin with.
             Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
 
-            hiddenWindow.clear();
-//            currentScene.render(hiddenWindow, true, false);
+            hiddenWindow.clear(); // Required (This prevents white boxes from being rendered)
             Container container = currentScene.build(true);
             hiddenWindow.addContainers(container);
             hiddenWindow.build();
 
-            window.getStage().requestFocus();
-            WritableImage snapshot = hiddenWindow.getRoot().getScene().snapshot(null); // This is not working???
+            WritableImage snapshot = hiddenWindow.getRoot().getScene().snapshot(null);
             saveImage = new ImageOverlay(snapshot);
             hiddenWindow.close();
 
@@ -330,10 +329,8 @@ public class Save {
 
             // Since the Renpy assets account for Text they made a transparency space.
             // To circumvent this extra space we need to add the length of the space so everything is properly aligned.
-            saveImage.setX(15); // Position inside the button
             saveImage.setY(15); // Position inside the button
 
-             // Get whatever page they are on
             return saveImage;
         }
         saveImage = new ImageOverlay("gui/button/slot_idle_background.png");

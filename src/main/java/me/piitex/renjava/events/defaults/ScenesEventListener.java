@@ -112,7 +112,6 @@ public class ScenesEventListener implements EventListener {
         RenScene scene = RenJava.PLAYER.getCurrentScene();
         if (RenJava.PLAYER.isRightClickMenu()) return;
         if (scene != null) {
-            System.out.println("Scene is not null...");
             Window window = RenJava.getInstance().getGameWindow();
             Transitions transitions = scene.getStartTransition();
             if (transitions != null) {

@@ -76,8 +76,6 @@ public class FadingTransition extends Transitions {
         fadeTransition.setNode(node);
         fadeTransition.setDuration(Duration.seconds(getDuration()));
         fadeTransition.setOnFinished(actionEvent -> {
-            System.out.println("Calling transition end event!");
-
             if (getOnFinish() != null) {
                 getOnFinish().onEnd(actionEvent);
             }

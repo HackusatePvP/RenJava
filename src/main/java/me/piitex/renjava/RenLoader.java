@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
-import java.util.Scanner;
 
 import javafx.application.Platform;
 import me.piitex.renjava.api.music.Track;

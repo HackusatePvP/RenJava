@@ -19,6 +19,7 @@ import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
 import me.piitex.renjava.loggers.ApplicationLogger;
+import me.piitex.renjava.loggers.RenLogger;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
@@ -34,6 +35,9 @@ public class Launch extends Application {
         // Rough execution time (not accurate)
         start = System.currentTimeMillis();
 
+        // Initializes the Ren logger which is separated from the application logger.
+        RenLogger.init();
+
         InfoFile buildInfo = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), true);
         if (buildInfo.containsKey("main")) {
             String mainClass = buildInfo.getString("main");
@@ -42,10 +46,10 @@ public class Launch extends Application {
                 clazz = Class.forName(mainClass);
                 loadClass(clazz, args, buildInfo);
             } catch (ClassNotFoundException e) {
-                System.err.println("Failed to load class: " + e.getMessage());
+                RenLogger.LOGGER.error("Failed to load class: {}", e.getMessage());
             }
         } else {
-            System.err.println("Build info not found. Scanning for RenJava class. This will have noticeable performance impact on low end computers.");
+            RenLogger.LOGGER.error("Build info not found. Scanning for RenJava class. This will have noticeable performance impact on low end computers.");
             // Scans for all classes in all packages. (We need to do all packages because this allows the author the freedom to do their own package scheme.)
             Collection<URL> allPackagePrefixes = Arrays.stream(Package.getPackages())
                     .map(Package::getName)
@@ -69,11 +73,10 @@ public class Launch extends Application {
 
     private static void loadClass(Class<?> clazz, String[] args, InfoFile infoFile) {
         try {
-            File file = new File(System.getProperty("user.dir") + "/renjava/build.info");
-            if (!file.exists()) {
-                file.createNewFile();
+            if (!infoFile.exists()) {
+                RenLogger.LOGGER.error("Could not create the 'build.info' file. This might be a first time setup. Once the application opens please exit and relaunch.");
+                return; // This will exit the application.
             }
-
             String jarPath = Launch.class
                     .getProtectionDomain()
                     .getCodeSource()
@@ -81,7 +84,7 @@ public class Launch extends Application {
                     .toURI()
                     .getPath();
 
-            System.out.println("Path: " + jarPath);
+            RenLogger.LOGGER.info("Jar path: {}", jarPath);
 
             String[] split = jarPath.split("/");
             String fileName = split[split.length - 1];
@@ -89,10 +92,8 @@ public class Launch extends Application {
             infoFile.write("main", clazz.getName());
             infoFile.write("file", fileName);
 
-        } catch (IOException e) {
-            System.err.println("Could not create the 'build.info' file. This might be a first time setup. Once the application opens please exit and relaunch.");
         } catch (URISyntaxException e) {
-            System.err.println("Could retrieve runtime information.");
+            RenLogger.LOGGER.error("Could retrieve runtime information.", e);
         }
 
         try {
@@ -106,7 +107,7 @@ public class Launch extends Application {
                 renJava.author = game.author();
                 renJava.version = game.version();
             } else {
-                System.err.println("ERROR: Please annotate your main class with 'Game'.");
+                RenLogger.LOGGER.error("Please annotate your main class with 'Game'.");
                 renJava.name = "Error";
                 renJava.author = "Error";
                 renJava.version = "Error";
@@ -118,7 +119,7 @@ public class Launch extends Application {
                 RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name).replace("{author}", renJava.author), conf.width(), conf.height(), new ImageLoader(conf.windowIconPath()));
                 renJava.setConfiguration(configuration);
             } else {
-                System.err.println("ERROR: Configuration annotation not found. Please annotate your main class with 'Configuration'");
+                RenLogger.LOGGER.error("Configuration annotation not found. Please annotate your main class with 'Configuration'");
                 RenJavaConfiguration configuration = new RenJavaConfiguration("Error", 1920, 1080, new ImageLoader("gui/window_icon.png"));
                 renJava.setConfiguration(configuration);
             }
@@ -132,7 +133,7 @@ public class Launch extends Application {
             renJava.init(); // Initialize game
             launch(args);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            System.err.println("ERROR: Could initialize the RenJava framework: " + e.getMessage());
+            RenLogger.LOGGER.error("Could initialize the RenJava framework: {}", e.getMessage());
         }
     }
 

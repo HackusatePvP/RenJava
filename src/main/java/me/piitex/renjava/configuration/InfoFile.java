@@ -51,6 +51,10 @@ public class InfoFile {
         }
     }
 
+    public boolean exists() {
+        return file.exists();
+    }
+
     public boolean containsKey(String key) {
         return entryMap.containsKey(key);
     }

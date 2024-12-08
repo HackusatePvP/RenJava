@@ -366,11 +366,17 @@ public class Window {
 
     // Clears and resets current window.
     public void clear() {
+        clear(false);
+    }
+
+    public void clear(boolean render) {
         clearContainers();
         this.root = new Pane();
         this.scene = new Scene(root);
         this.stage.setScene(scene);
-//        this.stage.show();
+        if (render) {
+            stage.show();
+        }
     }
 
     public void close() {
