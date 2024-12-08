@@ -68,8 +68,8 @@ public class OverlayEventListener implements EventListener {
         if (overlay instanceof ButtonOverlay buttonOverlay) {
             Button button = buttonOverlay.getButton();
             if (buttonOverlay.isHover()) {
-                if (buttonOverlay.getImage() != null) {
-                    Image bg = buttonOverlay.getImage().getImage();
+                if (buttonOverlay.getTopImage() != null) {
+                    Image bg = buttonOverlay.getTopImage().getImage();
                     ImageView imageView = new ImageView(bg);
                     imageView.setFitHeight(buttonOverlay.getHeight());
                     imageView.setFitWidth(buttonOverlay.getWidth());

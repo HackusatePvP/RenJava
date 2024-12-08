@@ -128,7 +128,7 @@ public class ImageOverlay extends Overlay implements Region {
 
     @Override
     public void setHeight(double h) {
-        this.height = height;
+        this.height = h;
     }
 
     @Override

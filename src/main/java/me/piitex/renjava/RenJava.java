@@ -365,7 +365,7 @@ public abstract class RenJava {
      *
      *         // Add overlays to the main menu
      *         ImageOverlay backgroundImage = new ImageOverlay("gui/main_menu.png");
-     *         backgroundImage.setOrder(DisplayOrder.LOw); // Sends the background image to the back of the container.
+     *         backgroundImage.setOrder(DisplayOrder.LOW); // Sends the background image to the back of the container.
      *         container.addOverlay(backgroundImage);
      *
      *         return container;
@@ -452,7 +452,7 @@ public abstract class RenJava {
         // Save the containers to re-render the view (refreshes)
         LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers());
         while (index <=  maxSavesPerPage) {
-            ButtonOverlay loadButton = getButtonOverlay(gameWindow, page, index);
+            ButtonOverlay loadButton = getButtonOverlay(page, index);
             if (loadButton == null) {
                 loadButton = new ButtonOverlay("save-", new ImageOverlay("gui/button/slot_idle_background.png"), 0, 0, 414, 309);
             }
@@ -465,7 +465,7 @@ public abstract class RenJava {
             index++;
         }
 
-        // Once the fetching is done re-render the view
+        // Once the fetching is done re-render the view.
         gameWindow.setContainers(containers);
         gameWindow.render();
 
@@ -502,16 +502,24 @@ public abstract class RenJava {
         return menu;
     }
 
-    private ButtonOverlay getButtonOverlay(Window window, int page, int index) {
+    private ButtonOverlay getButtonOverlay(int page, int index) {
         Save save = new Save(index);
-        if (!save.getFile().exists()) return null;
         save.load(false);
-        ImageOverlay saveImage;
+        ImageOverlay saveImage = new ImageOverlay("gui/button/slot_idle_background.png");
         ButtonOverlay loadButton;
 
-        saveImage = save.buildPreview(window, page);
+        // 384 215
+        // 404 319
 
-        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 384, 215);
+        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 404, 319);
+        loadButton.setAlignGraphicToBox(false);
+        ImageOverlay preview = save.buildPreview(page);
+        if (preview != null) {
+            preview.setWidth(384);
+            preview.setHeight(215);
+        }
+
+        loadButton.addImage(preview);
 
         loadButton.onClick(event -> {
             if (PLAYER.getCurrentStageType() == StageType.LOAD_MENU) {

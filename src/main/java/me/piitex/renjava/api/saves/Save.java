@@ -291,9 +291,9 @@ public class Save {
         }
     }
 
-    public ImageOverlay buildPreview(Window window, int page) {
-        ImageOverlay saveImage;
+    public ImageOverlay buildPreview(int page) {
         if (file.exists()) {
+            ImageOverlay saveImage;
             Story story = RenJava.PLAYER.getStory((String) sceneSection.get("currentStory"));
 
             // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
@@ -333,8 +333,7 @@ public class Save {
 
             return saveImage;
         }
-        saveImage = new ImageOverlay("gui/button/slot_idle_background.png");
-        return saveImage;
+        return null;
     }
 
     public File getFile() {
