@@ -421,12 +421,22 @@ public class Window {
      * This function is used to build the RenJava API onto the JavaFX framework. This will not render the built nodes onto the screen. Recommended to use {@link #render()} for most use cases.
      */
     public void build() {
-        // Clear and reset before rendering (this will prevent elements being stacked)
+        build(false);
+    }
+
+    public void build(boolean reset) {
         if (containers.isEmpty()) {
             RenLogger.LOGGER.error("You must add containers to the window before every render call.");
         }
 
         root.getChildren().clear();
+        if (reset) {
+            // Causes flickering but needed when capturing scene.
+            // Resets the scene.
+            this.root = new Pane();
+            this.scene = new Scene(root);
+            this.stage.setScene(scene);
+        }
 
         // Gather orders
         LinkedList<Container> lowOrder = new LinkedList<>();
