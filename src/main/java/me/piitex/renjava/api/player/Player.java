@@ -82,6 +82,7 @@ public class Player implements PersistentData {
 
     public void setCurrentStory(String currentStoryID) {
         this.currentStory = currentStoryID;
+        if (viewedStories.contains(currentStoryID)) return;
         viewedStories.add(currentStoryID); // When setting story update the viewedStory for rollback.
     }
 
