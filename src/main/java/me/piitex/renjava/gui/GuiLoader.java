@@ -10,6 +10,8 @@ import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.gui.containers.EmptyContainer;
+import me.piitex.renjava.gui.menus.DefaultMainMenu;
+import me.piitex.renjava.gui.menus.MainMenu;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.FontLoader;
@@ -140,36 +142,39 @@ public class GuiLoader {
 
         renJava.setGameWindow(window);
         // Next get the container for the main menu
-        Container menu = renJava.buildMainMenu(false);
-        MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
-        RenJava.callEvent(event);
+//        Container menu = renJava.buildMainMenu(false);
+//        MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
+//        RenJava.callEvent(event);
+
+        MainMenu menu = renJava.getMainMenu();
 
 
         // Check if the menu is null
         if (menu == null) {
             RenLogger.LOGGER.error("No title screen was found. Please customize your own title screen for better user experience.");
             RenLogger.LOGGER.warn("Building RenJava default title screen...");
-            menu = new EmptyContainer(0, 0, renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth());
-            ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
-            imageOverlay.setOrder(DisplayOrder.LOW);
-            menu.addOverlay(imageOverlay);
+            menu = new DefaultMainMenu();
+            renJava.setMainMenu(menu);
         }
 
-        window.addContainer(menu);
+        // Render main menu
+        Container container = menu.mainMenu(false);
+        MainMenuBuildEvent event = new MainMenuBuildEvent(container);
+        RenJava.callEvent(event);
+        window.addContainer(container);
 
-        Container sideMenu = renJava.buildSideMenu(false);
-
+        Container sideMenu = menu.sideMenu(false);
 
         window.addContainers(sideMenu);
 
-        MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(menu);
+        MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(container);
         RenJava.callEvent(dispatchEvent);
 
         window.setMaximized(configuration.isMaximizedGameWindow());
 
         window.render(); // Renders the window
 
-        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu);
+        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(container);
         RenJava.callEvent(renderEvent);
 
         RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
