@@ -45,6 +45,8 @@ module RenJava {
     exports me.piitex.renjava.gui.overlays.events;
     exports me.piitex.renjava.api;
     exports me.piitex.renjava.tasks;
+    exports me.piitex.renjava.gui.menus;
+    exports me.piitex.renjava.api.saves;
     opens me.piitex.renjava.loggers;
     opens me.piitex.renjava;
     opens me.piitex.renjava.api;
