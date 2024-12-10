@@ -1,7 +1,7 @@
 package me.piitex.renjava.api.scenes;
 
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.scenes.animation.VideoScene;
+import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.*;
 
@@ -9,6 +9,7 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
+import me.piitex.renjava.events.types.SceneRenderEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
@@ -55,7 +56,7 @@ public abstract class RenScene {
     public RenScene(String id, ImageOverlay backgroundImage) {
         this.id = id;
         this.backgroundImage = backgroundImage;
-        setStory(RenJava.getInstance().getPlayer().getCurrentStory()); // Update the current story.
+        setStory(RenJava.PLAYER.getCurrentStory()); // Update the current story.
     }
 
     /**
@@ -157,7 +158,25 @@ public abstract class RenScene {
 
     public abstract Container build(boolean ui);
 
-    public abstract void render(Window window, boolean ui);
+    public void render(Window window, boolean ui) {
+        render(window, ui, true);
+    }
+
+    public void render(Window window, boolean ui, boolean events) {
+        Container container = build(ui);
+
+        // Clear window
+        window.clearContainers();
+
+        window.addContainer(container);
+
+        if (events) { // This is kind of stupid but a temporary fix for transitions.
+            SceneRenderEvent renderEvent = new SceneRenderEvent(this, window.getScene(), window.getRoot());
+            RenJava.callEvent(renderEvent);
+        }
+
+        window.render();
+    }
 
     public abstract StageType getStageType();
 

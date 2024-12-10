@@ -113,15 +113,4 @@ public class InteractableScene extends RenScene {
 
         return menu;
     }
-
-    @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-    }
 }

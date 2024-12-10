@@ -39,12 +39,14 @@ module RenJava {
     exports me.piitex.renjava.gui.exceptions;
     exports me.piitex.renjava.api.scenes.types.input;
     exports me.piitex.renjava.api.saves.data;
-    exports me.piitex.renjava.api.scenes.animation;
+    exports me.piitex.renjava.api.scenes.types.animation;
     exports me.piitex.renjava.addons;
     exports me.piitex.renjava.loggers;
     exports me.piitex.renjava.gui.overlays.events;
     exports me.piitex.renjava.api;
     exports me.piitex.renjava.tasks;
+    exports me.piitex.renjava.gui.menus;
+    exports me.piitex.renjava.api.saves;
     opens me.piitex.renjava.loggers;
     opens me.piitex.renjava;
     opens me.piitex.renjava.api;

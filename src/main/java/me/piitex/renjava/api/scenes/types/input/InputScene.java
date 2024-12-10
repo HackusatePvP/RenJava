@@ -71,7 +71,7 @@ public class InputScene extends RenScene {
     public InputScene(String id, @Nullable String text) {
         super(id, null);
         this.text = text;
-        loader = RenJava.getInstance().getPlayer().getLastDisplayedImage().getValue();
+        loader = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(loader);
     }
 
@@ -146,7 +146,7 @@ public class InputScene extends RenScene {
                     // Default font
                     font = configuration.getDialogueFont();
                 }
-                inputField.setFontLoader(font);
+                inputField.setFont(font);
                 textFlowOverlay.setFont(font);
 
                 textFlowOverlay.add(inputField);
@@ -159,20 +159,6 @@ public class InputScene extends RenScene {
         }
 
         return container;
-    }
-
-    @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-
-        SceneStartEvent event = new SceneStartEvent(this);
-        RenJava.callEvent(event);
     }
 
     @Override

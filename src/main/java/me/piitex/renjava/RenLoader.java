@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
-import java.util.Scanner;
 
 import javafx.application.Platform;
 import me.piitex.renjava.api.music.Track;
@@ -119,7 +118,7 @@ public class RenLoader {
         int audioLoaded = 0;
         for (File file : audioDirectory.listFiles()) {
             audioLoaded++;
-            renJava.getTracks().addTrack(new Track(file));
+            RenJava.TRACKS.addTrack(new Track(file));
         }
         RenLogger.LOGGER.info("Loaded " + audioLoaded + " audio file(s)");
         File imageDirectory = new File(directory, "/images/");
@@ -140,6 +139,10 @@ public class RenLoader {
         if (cssDirectory.mkdir() || cssDirectory.listFiles().length == 0) {
             RenLogger.LOGGER.error("Default css file(s) do not exist. Please run RSDK to install these assets.");
             shutdown = true;
+        }
+        File mediaDirectory = new File(directory, "/media/");
+        if (mediaDirectory.mkdir()) {
+            RenLogger.LOGGER.warn("Media folder does not exist, creating.");
         }
 
         // Register current user settings
@@ -226,7 +229,7 @@ public class RenLoader {
             version = "";
         }
 
-        return version.replace("-SNAPSHOT", "");
+        return version;
     }
 
 }

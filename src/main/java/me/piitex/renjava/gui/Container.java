@@ -3,7 +3,6 @@ package me.piitex.renjava.gui;
 import javafx.scene.Node;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -98,22 +97,24 @@ public abstract class Container {
     // Generalized methods
     public void buildBase(LinkedList<Node> lowOrder, LinkedList<Node> normalOrder, LinkedList<Node> highOrder) {
         for (Overlay overlay : getOverlays()) {
+            Node node = overlay.render();
             if (overlay.getOrder() == DisplayOrder.LOW) {
-                lowOrder.add(overlay.render());
+                lowOrder.add(node);
             } else if (overlay.getOrder() == DisplayOrder.NORMAL) {
-                normalOrder.add(overlay.render());
+                normalOrder.add(node);
             } else if (overlay.getOrder() == DisplayOrder.HIGH) {
-                highOrder.add(overlay.render());
+                highOrder.add(node);
             }
         }
 
         for (Layout layout : getLayouts()) {
+            Node node = layout.render(this);
             if (layout.getOrder() == DisplayOrder.LOW) {
-                lowOrder.add(layout.render(this));
+                lowOrder.add(node);
             } else if (layout.getOrder() == DisplayOrder.NORMAL) {
-                normalOrder.add(layout.render(this));
+                normalOrder.add(node);
             } else if (layout.getOrder() == DisplayOrder.HIGH) {
-                highOrder.add(layout.render(this));
+                highOrder.add(node);
             }
         }
 

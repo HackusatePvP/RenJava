@@ -9,7 +9,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.scenes.animation.VideoScene;
+import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.gui.Container;
@@ -38,9 +38,9 @@ public class GameFlowEventListener implements EventListener {
     public void onMouseClick(MouseClickEvent event) {
         // RenJa keeps track of current Stages and other stuff
         Window window = renJava.getGameWindow();
-        StageType stageType = renJava.getPlayer().getCurrentStageType();
-        RenScene scene = renJava.getPlayer().getCurrentScene();
-        Player player = renJava.getPlayer();
+        StageType stageType = RenJava.PLAYER.getCurrentStageType();
+        RenScene scene = RenJava.PLAYER.getCurrentScene();
+        Player player = RenJava.PLAYER;
         MouseButton button = event.getEvent().getButton();
         Logger logger = RenLogger.LOGGER;
 
@@ -63,17 +63,19 @@ public class GameFlowEventListener implements EventListener {
             }
             case SECONDARY -> {
                 // Open Main Menu
-                if (!player.isRightClickMenu() && renJava.getPlayer().getCurrentScene() != null) {
+                if (!player.isRightClickMenu() && RenJava.PLAYER.getCurrentScene() != null) {
                     logger.info("Player is not in menu, opening menu...");
 
                     // When opening the right-clicked menu let's see if they are playing any media
                     if (scene instanceof VideoScene videoScene) {
                        // They are playing a video. Let's stop the video.
-                        videoScene.getMedia().stop();
+                        if (RenJava.PLAYER.getCurrentMedia() != null) {
+                            RenJava.PLAYER.getCurrentMedia().stop();
+                        }
                     }
 
-                    Container menu = renJava.buildMainMenu(true);
-                    menu.addContainers(renJava.buildSideMenu(true));
+                    Container menu = renJava.getMainMenu().mainMenu(true);
+                    menu.addContainers(renJava.getMainMenu().sideMenu(true));
 
                     MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
                     RenJava.callEvent(buildEvent);
@@ -134,10 +136,10 @@ public class GameFlowEventListener implements EventListener {
         // Key-held is a little weird.
         if (code == KeyCode.CONTROL) {
             // Check to see if they viewed the scene first.
-            RenScene currentScene = renJava.getPlayer().getCurrentScene();
+            RenScene currentScene = RenJava.PLAYER.getCurrentScene();
             if (currentScene != null && !inputScene(currentScene)) {
                 RenScene nextScene = currentScene.getStory().getNextScene(currentScene.getId());
-                if (nextScene != null && (renJava.getPlayer().hasSeenScene(nextScene.getStory(), nextScene.getId()) || renJava.getSettings().isSkipUnseenText())) {
+                if (nextScene != null && (RenJava.PLAYER.hasSeenScene(nextScene.getStory(), nextScene.getId()) || renJava.getSettings().isSkipUnseenText())) {
                     Tasks.runJavaFXThread(this::playNextScene);
                 } else {
                     if (nextScene == null) {
@@ -178,12 +180,12 @@ public class GameFlowEventListener implements EventListener {
         Window window = renJava.getGameWindow();
         if (event.isCancelled()) return; // If the event is canceled, do not roll back.
         // Instead of rendering the previous scene in the story, use the Player class instead
-        if (renJava.getPlayer().getCurrentScene() != null) {
+        if (RenJava.PLAYER.getCurrentScene() != null) {
             if (event.isDisplayPreviousScene()) {
-                RenScene previousScene = renJava.getPlayer().getLastViewedScene();
+                RenScene previousScene = RenJava.PLAYER.getLastViewedScene();
                 if (previousScene != null) {
                     // Call SceneRollBackEvent
-                    RenScene currentScene = renJava.getPlayer().getCurrentScene();
+                    RenScene currentScene = RenJava.PLAYER.getCurrentScene();
                     SceneRollbackEvent rollbackEvent = new SceneRollbackEvent(previousScene, currentScene);
                     RenJava.callEvent(rollbackEvent);
                     previousScene.getStory().displayScene(previousScene, true);
@@ -196,15 +198,15 @@ public class GameFlowEventListener implements EventListener {
     public void onScrollDown(ScrollDownEvent event) {
         // If they scroll down it acts like skipping.
         if (event.isCancelled()) return;
-        RenScene scene = renJava.getPlayer().getCurrentScene();
-        if (renJava.getPlayer().getRolledScenes().isEmpty()) {
+        RenScene scene = RenJava.PLAYER.getCurrentScene();
+        if (RenJava.PLAYER.getRolledScenes().isEmpty()) {
             RenLogger.LOGGER.warn("Rollback data is not present.");
         }
         if (scene != null) {
             // Instead of playing the next, the mouse down will return to previous scene from roll back.
             // Example: Scroll up means you are going back to the previous scene. Scroll down you go back to the scene you were at.
 
-            Map.Entry<Integer, Map.Entry<String, String>> entry = renJava.getPlayer().getRolledScenes().entrySet().stream().filter(integerEntryEntry -> integerEntryEntry.getValue().getKey().equalsIgnoreCase(scene.getId()) && integerEntryEntry.getValue().getValue().equalsIgnoreCase(scene.getStory().getId())).findAny().orElse(null);
+            Map.Entry<Integer, Map.Entry<String, String>> entry = RenJava.PLAYER.getRolledScenes().entrySet().stream().filter(integerEntryEntry -> integerEntryEntry.getValue().getKey().equalsIgnoreCase(scene.getId()) && integerEntryEntry.getValue().getValue().equalsIgnoreCase(scene.getStory().getId())).findAny().orElse(null);
 
             if (entry != null) {
                 // Remove scene from rollback
@@ -212,9 +214,9 @@ public class GameFlowEventListener implements EventListener {
 
                 // Play last entry in rollback
                 int lastIndex = index + 1;
-                Map.Entry<String, String> lastEntry = renJava.getPlayer().getRolledScenes().get(lastIndex);
+                Map.Entry<String, String> lastEntry = RenJava.PLAYER.getRolledScenes().get(lastIndex);
                 if (lastEntry != null) {
-                    Story story = renJava.getPlayer().getStory(lastEntry.getValue());
+                    Story story = RenJava.PLAYER.getStory(lastEntry.getValue());
                     RenScene lastScene = story.getScene(lastEntry.getKey());
                     story.displayScene(lastScene, true);
                 }
@@ -227,9 +229,9 @@ public class GameFlowEventListener implements EventListener {
     }
 
     private void playNextScene(double pressedY) {
-        StageType stageType = renJava.getPlayer().getCurrentStageType();
-        RenScene scene = renJava.getPlayer().getCurrentScene();
-        Player player = renJava.getPlayer();
+        StageType stageType = RenJava.PLAYER.getCurrentStageType();
+        RenScene scene = RenJava.PLAYER.getCurrentScene();
+        Player player = RenJava.PLAYER;
         Logger logger = RenLogger.LOGGER;
 
         // Only do this if it's not the title screen or any other menu screen
@@ -275,22 +277,61 @@ public class GameFlowEventListener implements EventListener {
                 return;
             }
 
+
+            RenScene nextScene = null;
             if (endEvent.isAutoPlayNextScene()) {
-                RenScene nextScene = story.getNextScene(scene.getId());
-                if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
-                    player.setTransitionPlaying(true);
-                    Pane pane = renJava.getGameWindow().getRoot();
-                    if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
-                        BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
-                        pane.setBackground(new Background(backgroundFill));
-                        pane.getScene().setFill(fadingTransition.getColor());
-                        renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
+                nextScene = story.getNextScene(scene.getId());
+            }
+
+            if (player.isTransitionPlaying()) {
+                if (scene.getEndTransition() != null) {
+                    scene.getEndTransition().stop();
+                    if (nextScene != null) {
+                        story.displayScene(nextScene, false, false);
                     }
-                    scene.getEndTransition().play(pane); // Starts transition.
-                } else {
-                    story.displayScene(nextScene, false, true);
                     player.setTransitionPlaying(false);
+                    return;
                 }
+                if (scene.getStartTransition() != null) {
+                    // Force display scene
+                    scene.getStartTransition().stop();
+                    story.displayScene(scene, false, false);
+                    player.setTransitionPlaying(false);
+                    return;
+                }
+            }
+
+            Pane pane = renJava.getGameWindow().getRoot();
+            if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
+                // Fix pane coloring for fade transitions
+                if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
+                    BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
+                    pane.setBackground(new Background(backgroundFill));
+                    pane.getScene().setFill(fadingTransition.getColor());
+                    renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
+                }
+
+                // Play transition
+                scene.getEndTransition().play(scene, pane);
+
+                return; // When the transition is playing prevent insta displaying the next scene
+            }
+
+            if (nextScene != null && !player.isTransitionPlaying()) {
+                story.displayScene(nextScene, false, true);
+            }
+        }
+    }
+
+    @Listener
+    public void onEndTransitionEnd(SceneEndTransitionFinishEvent event) {
+        // Called when the scenes end transition finishes playing
+
+        RenScene scene = event.getScene();
+        RenScene nextScene = scene.getStory().getNextScene(scene.getId());
+        if (!event.isSkipped()) {
+            if (nextScene != null) {
+                scene.getStory().displayScene(nextScene);
             }
         }
     }

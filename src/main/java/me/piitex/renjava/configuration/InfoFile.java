@@ -19,7 +19,6 @@ public class InfoFile {
 
     private final Map<String, String> entryMap = new HashMap<>();
 
-
     public InfoFile(File file, boolean create) {
         this.file = file;
         if (!file.exists()) {
@@ -52,6 +51,10 @@ public class InfoFile {
         }
     }
 
+    public boolean exists() {
+        return file.exists();
+    }
+
     public boolean containsKey(String key) {
         return entryMap.containsKey(key);
     }
@@ -64,8 +67,32 @@ public class InfoFile {
         return (String) get(key);
     }
 
+    public Boolean getBoolean(String key) {
+        return Boolean.parseBoolean(getString(key));
+    }
+
     public Integer getInt(String key) {
         return Integer.parseInt(getString(key));
+    }
+
+    public Double getDouble(String key) {
+        return Double.parseDouble(getString(key));
+    }
+
+    public Float getFloat(String key) {
+        return Float.parseFloat(key);
+    }
+
+    public Long getLong(String key) {
+        return Long.getLong(getString(key));
+    }
+
+    public Short getShort(String key) {
+        return Short.parseShort(getString(key));
+    }
+
+    public Byte getByte(String key) {
+        return Byte.parseByte(getString(key));
     }
 
     public void write(String key, String value) {

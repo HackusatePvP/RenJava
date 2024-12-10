@@ -8,11 +8,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
@@ -115,7 +113,9 @@ public class Window {
     private Instant firstRun;
     private boolean captureInput = true;
 
-    private final LinkedList<Container> containers = new LinkedList<>();
+    private LinkedList<Container> containers = new LinkedList<>();
+
+    private boolean focused = true;
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
         this.width = RenJava.getInstance().getConfiguration().getWidth();
@@ -220,6 +220,29 @@ public class Window {
         buildStage();
     }
 
+    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput, boolean focused) {
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
+        this.focused = focused;
+        buildStage();
+    }
+
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput, boolean focused) {
+        this.title = title;
+        this.stageStyle = stageStyle;
+        this.icon = icon;
+        this.width = width;
+        this.height = height;
+        this.captureInput = captureInput;
+        this.focused = focused;
+        buildStage();
+    }
+
     protected void buildStage() {
         stage = new Stage();
 
@@ -235,7 +258,6 @@ public class Window {
                 stage.getIcons().add(windowIcon);
             }
         }
-
         stage.setTitle(title);
         stage.initStyle(stageStyle);
         stage.setWidth(width);
@@ -244,7 +266,7 @@ public class Window {
         stage.setFullScreen(fullscreen);
 
 
-        root = new Pane();
+        root = new BorderPane();
 
         root.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -284,6 +306,10 @@ public class Window {
         return captureInput;
     }
 
+    /**
+     * Toggles the stage to full-screen or windowed.
+     * @param fullscreen Pass true for fullscreen, false for windowed.
+     */
     public void setFullscreen(boolean fullscreen) {
         this.fullscreen = fullscreen;
         if (stage != null) {
@@ -314,6 +340,14 @@ public class Window {
         this.containers.addAll(List.of(containers));
     }
 
+    public void addContainers(LinkedList<Container> cont) {
+        this.containers.addAll(cont);
+    }
+
+    public void setContainers(LinkedList<Container> containers) {
+        this.containers = containers;
+    }
+
     public void clearContainers() {
         containers.clear();
         System.gc();
@@ -332,10 +366,17 @@ public class Window {
 
     // Clears and resets current window.
     public void clear() {
+        clear(false);
+    }
+
+    public void clear(boolean render) {
         clearContainers();
         this.root = new Pane();
         this.scene = new Scene(root);
         this.stage.setScene(scene);
+        if (render) {
+            stage.show();
+        }
     }
 
     public void close() {
@@ -350,14 +391,52 @@ public class Window {
         render();
     }
 
-    // Builds and renders all containers
+    /**
+     * Builds and displays all active nodes on the screen. Can cause flicker if called excessively. If you changed by adding, modifying, or removing {@link Overlay} or {@link Container} you must call this function.
+     * This function translates RenJava API into JavaFX and updates the stage and scene.
+     */
     public void render() {
-        // Clear and reset before rendering (this will prevent elements being stacked)
+        build();
+        if (focused) {
+            stage.requestFocus();
+        }
+        stage.setMaximized(maximized);
+        stage.setFullScreen(fullscreen);
+        stage.show();
+
+        // Force clear resources that are unused.
+        // To those who feel like GC is bad practice or indicates broken code allow me to explain.
+        // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
+        // HOWEVER, when you are rendering and loading multiple 10mb+ images within a 5 minute time period auto GC is far too slow.
+        // This call may not do anything at all at times. It tells the JVM that I want to clear any unused references pronto not when it wants to.
+        // There are multiple gc calls within the framework and when testing on my own machine they dramatically decrease resource usage by 300mb+
+        // I will admit that there may be in a memory leak somewhere in the framework, but this is not the solution to that.
+        //
+        // TL;DR I ain't waiting for your slow ass jvm to clear resources.
+        System.gc();
+
+    }
+
+    /**
+     * This function is used to build the RenJava API onto the JavaFX framework. This will not render the built nodes onto the screen. Recommended to use {@link #render()} for most use cases.
+     */
+    public void build() {
+        build(false);
+    }
+
+    public void build(boolean reset) {
         if (containers.isEmpty()) {
             RenLogger.LOGGER.error("You must add containers to the window before every render call.");
         }
 
         root.getChildren().clear();
+        if (reset) {
+            // Causes flickering but needed when capturing scene.
+            // Resets the scene.
+            this.root = new Pane();
+            this.scene = new Scene(root);
+            this.stage.setScene(scene);
+        }
 
         // Gather orders
         LinkedList<Container> lowOrder = new LinkedList<>();
@@ -383,20 +462,6 @@ public class Window {
         lowOrder.clear();
         normalOrder.clear();
         highOrder.clear();
-
-        stage.show();
-
-        // Force clear resources that are unused.
-        // To those who feel like GC is bad practice or indicates broken code allow me to explain.
-        // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
-        // HOWEVER, when you are rendering and loading multiple 10mb+ images within a 5 minute time period auto GC is far too slow.
-        // This call may not do anything at all at times. It tells the JVM that I want to clear any unused references pronto not when it wants to.
-        // There are multiple gc calls within the framework and when testing on my own machine they dramatically decrease resource usage by 300mb+
-        // I will admit that there may be in a memory leak somewhere in the framework, but this is not the solution to that.
-        //
-        // TL;DR I ain't waiting for your slow ass jvm to clear resources.
-        System.gc();
-
     }
 
     // Renders container on top of current window
@@ -417,20 +482,16 @@ public class Window {
 
         for (Node n : entry.getValue()) {
             if (node instanceof Pane pane) {
-                if (!pane.getChildren().contains(n)) {
-                    pane.getChildren().add(n);
-                }
+                pane.getChildren().add(n);
             }
             // Different pane types
         }
 
-        if (!getRoot().getChildren().contains(node)) {
-            getRoot().getChildren().add(node);
-        }
+        getRoot().getChildren().add(node);
+
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);
-
     }
 
     private void handleStageInput(Stage stage) {
@@ -512,6 +573,25 @@ public class Window {
                 KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
                 RenJava.callEvent(releaseEvent);
             }
+        });
+
+        stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            RenJava.getInstance().getConfiguration().setCurrentWindowHeight(newValue.doubleValue());
+
+            double scaleWidth = RenJava.getInstance().getConfiguration().getWidthScale();
+            double scaleHeight = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getHeight();
+
+            Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
+            root.getTransforms().setAll(scale);
+        });
+        stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+            RenJava.getInstance().getConfiguration().setCurrentWindowWidth(newValue.doubleValue());
+
+            double scaleWidth = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getWidth();
+            double scaleHeight = RenJava.getInstance().getConfiguration().getHeightScale();
+
+            Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
+            root.getTransforms().setAll(scale);
         });
     }
 

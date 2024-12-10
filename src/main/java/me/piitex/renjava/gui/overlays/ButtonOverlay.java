@@ -6,11 +6,11 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
-import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.ButtonClickEvent;
+
+import java.util.LinkedList;
 
 public class ButtonOverlay extends Overlay implements Region {
     private Button button;
@@ -18,7 +18,12 @@ public class ButtonOverlay extends Overlay implements Region {
     private String text;
     private double scaleX, scaleY;
     private FontLoader font;
-    private ImageOverlay image;
+
+    private final LinkedList<ImageOverlay> images = new LinkedList<>();
+    // Needed for some engine fixes
+    private ImageOverlay topImage;
+    private boolean alignGraphicToBox = true;
+
     private Paint textFill;
     private Color backgroundColor;
     private Color borderColor;
@@ -127,14 +132,14 @@ public class ButtonOverlay extends Overlay implements Region {
      */
     public ButtonOverlay(String id, ImageOverlay imageLoader, double x, double y) {
         this.id = id;
-        this.image = imageLoader;
+        this.images.add(imageLoader);
         setX(x);
         setY(y);
     }
 
     public ButtonOverlay(String id, ImageOverlay imageLoader, double x, double y, int width, int height) {
         this.id = id;
-        this.image = imageLoader;
+        this.images.add(imageLoader);
         setX(x);
         setY(y);
         this.width = width;
@@ -152,7 +157,7 @@ public class ButtonOverlay extends Overlay implements Region {
      */
     public ButtonOverlay(String id, ImageOverlay imageLoader, String text, double x, double y) {
         this.id = id;
-        this.image = imageLoader;
+        this.images.add(imageLoader);
         this.text = text;
         setX(x);
         setY(y);
@@ -180,7 +185,7 @@ public class ButtonOverlay extends Overlay implements Region {
         this.text = text;
     }
 
-    public FontLoader getFont() {
+    public FontLoader getFontLoader() {
         return font;
     }
 
@@ -237,12 +242,12 @@ public class ButtonOverlay extends Overlay implements Region {
         this.scaleHeight = h;
     }
 
-    public ImageOverlay getImage() {
-        return image;
+    public LinkedList<ImageOverlay> getImages() {
+        return images;
     }
 
-    public void setImage(ImageOverlay image) {
-        this.image = image;
+    public void addImage(ImageOverlay imageOverlay) {
+        this.images.add(imageOverlay);
     }
 
     public Paint getTextFill() {
@@ -287,6 +292,22 @@ public class ButtonOverlay extends Overlay implements Region {
         this.hover = true;
     }
 
+    public ImageOverlay getTopImage() {
+        return topImage;
+    }
+
+    public void setTopImage(ImageOverlay topImage) {
+        this.topImage = topImage;
+    }
+
+    public boolean isAlignGraphicToBox() {
+        return alignGraphicToBox;
+    }
+
+    public void setAlignGraphicToBox(boolean alignGraphicToBox) {
+        this.alignGraphicToBox = alignGraphicToBox;
+    }
+
     public boolean isHover() {
         return hover;
     }
@@ -317,35 +338,39 @@ public class ButtonOverlay extends Overlay implements Region {
         }
         Button button = new Button();
         button.setId(id);
-        if (image != null) {
-            ImageView imageView = new ImageView(image.getImage());
-            if (width> 0) {
-                imageView.setFitWidth(width);
-            } else {
-                imageView.setFitWidth(image.getWidth());
-            }
-            if (height > 0) {
-                imageView.setFitHeight(height);
-            } else {
-                imageView.setFitHeight(image.getHeight());
-            }
-            if (image.getX() > 0) {
-                imageView.setX(image.getX());
-            }
-            if (image.getY() > 0) {
-                imageView.setY(image.getY());
-            }
-            button.setAlignment(Pos.TOP_CENTER);
-            button.setGraphic(imageView);
-            if (image.getX() > 0) {
-                button.getGraphic().setTranslateX(image.getX());
-            }
-            if (image.getY() > 0) {
-                // This can move the image within the button box
-                // The y and x values are separate from the main menu
-                // Top left of the box is 0,0
-                // Bottom right of the box is boxWidth, boxHeight
-                button.getGraphic().setTranslateY(image.getY());
+        for (ImageOverlay image : images) {
+            topImage = image;
+            if (image != null) {
+                ImageView imageView = new ImageView(image.getImage());
+                if (alignGraphicToBox) {
+                    if (width > 0) {
+                        imageView.setFitWidth(width);
+                    }
+                    if (height > 0) {
+                        imageView.setFitHeight(height);
+                    }
+                } else {
+                    imageView.setFitWidth(image.getWidth());
+                    imageView.setFitHeight(image.getHeight());
+                }
+                if (image.getX() > 0) {
+                    imageView.setX(image.getX());
+                }
+                if (image.getY() > 0) {
+                    imageView.setY(image.getY());
+                }
+                button.setAlignment(Pos.TOP_CENTER);
+                button.setGraphic(imageView);
+                if (image.getX() > 0) {
+                    button.getGraphic().setTranslateX(image.getX());
+                }
+                if (image.getY() > 0) {
+                    // This can move the image within the button box
+                    // The y and x values are separate from the main menu
+                    // Top left of the box is 0,0
+                    // Bottom right of the box is boxWidth, boxHeight
+                    button.getGraphic().setTranslateY(image.getY());
+                }
             }
         }
         if (text != null && !text.isEmpty()) {
@@ -355,8 +380,6 @@ public class ButtonOverlay extends Overlay implements Region {
             button.setFont(font.getFont());
         } else {
             // Set default font
-
-
             button.setFont(RenJava.getInstance().getConfiguration().getUiFont().getFont());
         }
         if (textFill != null) {

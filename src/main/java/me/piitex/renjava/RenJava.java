@@ -2,8 +2,6 @@ package me.piitex.renjava;
 
 import javafx.application.HostServices;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
@@ -34,11 +32,11 @@ import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.gui.menus.MainMenu;
 import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.tasks.Tasks;
 import org.apache.commons.lang3.time.DateUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -76,22 +74,23 @@ public abstract class RenJava {
     protected String author;
     protected String version;
     protected int id;
-    private Player player;
+    public static Player PLAYER;
     // Audio Tracking
-    private Tracks tracks;
+    public static Tracks TRACKS;
 
-    private Logger logger;
-
-    private AddonLoader addonLoader;
+    public static AddonLoader ADDONLOADER;
 
     private Window gameWindow;
+    private MainMenu mainMenu;
 
-    private RenJavaConfiguration configuration;
+    public static RenJavaConfiguration CONFIGURATION;
 
     // User settings
     private SettingsProperties settings;
 
     private HostServices hostServices;
+
+    private Logger logger;
 
     private final Map<String, Character> registeredCharacters = new HashMap<>();
     private final Collection<EventListener> registeredListeners = new HashSet<>();
@@ -102,6 +101,7 @@ public abstract class RenJava {
 
     // Error tracking
     private static long lastErrorTimeStamp;
+    private static int spamTrack = 0;
 
     private static RenJava instance;
 
@@ -112,21 +112,18 @@ public abstract class RenJava {
 
     protected void init() {
         // Run after super
-        this.player = new Player();
-        this.tracks = new Tracks();
-
-        // Initializes the Ren logger which is separated from the application logger.
-        RenLogger.init();
+        PLAYER = new Player();
+        TRACKS = new Tracks();
 
         this.registerListener(new MenuClickEventListener());
         this.registerListener(new GameFlowEventListener());
         this.registerListener(new StoryHandlerEventListener());
         this.registerListener(new ScenesEventListener());
         this.registerListener(new OverlayEventListener());
-        this.registerData(player);
-        this.registerData(tracks);
+        this.registerData(PLAYER);
+        this.registerData(TRACKS);
         new RenLoader(this);
-        this.addonLoader = new AddonLoader();
+        ADDONLOADER = new AddonLoader();
     }
 
     public String getName() {
@@ -145,10 +142,6 @@ public abstract class RenJava {
         return id;
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
     public Logger getLogger() {
         return logger;
     }
@@ -157,18 +150,19 @@ public abstract class RenJava {
         this.logger = logger;
     }
 
-    public Tracks getTracks() {
-        return tracks;
-    }
-
-    public AddonLoader getAddonLoader() {
-         return addonLoader;
-     }
-
+    /**
+     * @return The RenJava version the game uses.
+     */
     public String getBuildVersion() {
         return buildVersion;
     }
 
+    /**
+     * <p>
+     * The game {@link Window} is the main window which renders the scenes. The framework will automatically clear containers during the rendering process. Modifying the game window is not fully supported.
+     * Please use the proper events to modify containers as modifications to the game window may have no effect.
+     * @return The current window for the game.
+     */
     public Window getGameWindow() {
         return gameWindow;
     }
@@ -177,14 +171,29 @@ public abstract class RenJava {
         this.gameWindow = gameWindow;
     }
 
+    public MainMenu getMainMenu() {
+        return mainMenu;
+    }
+
+    public void setMainMenu(MainMenu mainMenu) {
+        this.mainMenu = mainMenu;
+    }
+
+    /**
+     * The configuration is used to modify the design of the application. You can change the fonts and text positions, for example.
+     * @return The current configuration.
+     */
     public RenJavaConfiguration getConfiguration() {
-        return configuration;
+        return CONFIGURATION;
     }
 
-    public void setConfiguration(RenJavaConfiguration configuration) {
-        this.configuration = configuration;
+    public void setConfiguration(RenJavaConfiguration config) {
+        CONFIGURATION = config;
     }
 
+    /**
+     * @return The current players settings such as volume.
+     */
     public SettingsProperties getSettings() {
          return settings;
      }
@@ -193,6 +202,9 @@ public abstract class RenJava {
          this.settings = settings;
      }
 
+    /**
+     * @return The systems host services such as web browser.
+     */
     public HostServices getHost() {
          return hostServices;
      }
@@ -347,378 +359,6 @@ public abstract class RenJava {
     public abstract Window buildSplashScreen();
 
     /**
-     * This function is used to create the main menu screen.
-     *
-     * <p>
-     * The main menu is rendered to the game {@link Window} which is managed by the framework. This function is used to make the base {@link  Container} which is then added to the window.
-     * <p>
-     *     Note, the side menu will be automatically rendered and does not be to be added to this container.
-     * </p>
-     * </p>
-     * <p>
-     * <pre>
-     *     {@code
-     *     public void Container buildMainMenu(boolean rightClick) {
-     *         Container container = new EmptyContainer(1920, 1080) // Width and height of the container
-     *
-     *         // Add overlays to the main menu
-     *         ImageOverlay backgroundImage = new ImageOverlay("gui/main_menu.png");
-     *         backgroundImage.setOrder(DisplayOrder.LOw); // Sends the background image to the back of the container.
-     *         container.addOverlay(backgroundImage);
-     *
-     *         return container;
-     *     }
-     *     }
-     * </pre>
-     * </p>
-     * @see Container
-     * @see Window
-     * @see EmptyContainer
-     * @param rightClick If it is the right-clicked main menu.
-     * @return Container to be used for the main menu.
-     */
-    public abstract Container buildMainMenu(boolean rightClick);
-
-    public Container buildSideMenu(boolean rightClick) {
-        Container menu = new EmptyContainer(1920, 1080, DisplayOrder.HIGH);
-
-        ImageOverlay imageOverlay = new ImageOverlay("gui/overlay/main_menu.png");
-        imageOverlay.setOrder(DisplayOrder.LOW);
-        menu.addOverlay(imageOverlay);
-
-        FontLoader uiFont = RenJava.getInstance().getConfiguration().getUiFont();
-
-        Color hoverColor = getConfiguration().getHoverColor();
-
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        // Create vbox for the buttons. You can also do an HBox
-        VerticalLayout layout = new VerticalLayout(400, 500);
-        layout.setOrder(DisplayOrder.HIGH);
-        layout.setX(50);
-        layout.setY(250);
-        layout.setSpacing(20);
-        layout.addOverlays(startButton, loadButton);
-        if (rightClick) {
-            layout.addOverlays(saveButton);
-        }
-        layout.addOverlays(optionsButton, aboutButton);
-
-        // You don't have to add the button overlays just add the layout which already contains the overlays.
-        menu.addLayout(layout);
-
-        ButtonOverlay returnButton;
-
-        if (getPlayer().getCurrentStageType() == StageType.MAIN_MENU) {
-            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        } else {
-            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        }
-        returnButton.setX(25);
-        returnButton.setY(1000);
-        menu.addOverlay(returnButton);
-
-        SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(menu);
-        RenJava.callEvent(sideMenuBuildEvent);
-
-        return menu;
-    }
-
-    public Container buildLoadMenu(int page) {
-        Container menu = new EmptyContainer(getConfiguration().getWidth(), configuration.getHeight(), DisplayOrder.NORMAL);
-        ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
-        imageOverlay.setOrder(DisplayOrder.LOW);
-        menu.addOverlay(imageOverlay);
-        // Setup pagination.
-        // 6 save slots per page
-        //   2 Rows
-        //   3 Columns
-        // Make this customizable
-
-        int maxSavesPerPage = 6;
-
-        int index = ((maxSavesPerPage * page) - maxSavesPerPage) + 1;
-        VerticalLayout rootLayout = new VerticalLayout(1000, 800); // The root is a vertical which stacks the two horizontal layouts.
-        rootLayout.setSpacing(10);
-        HorizontalLayout topLayout = new HorizontalLayout(1000, 350);
-        topLayout.setSpacing(20);
-        HorizontalLayout bottomLayout = new HorizontalLayout(1000, 350);
-        bottomLayout.setSpacing(20);
-        while (index <=  maxSavesPerPage) {
-            ButtonOverlay loadButton = getButtonOverlay(page, index);
-            loadButton.setOrder(DisplayOrder.HIGH);
-
-            if (index <= 3) {
-                topLayout.addOverlays(loadButton);
-            } else {
-                bottomLayout.addOverlays(loadButton);
-            }
-            index++;
-        }
-
-        rootLayout.addChildLayout(topLayout);
-        rootLayout.addChildLayout(bottomLayout);
-
-        rootLayout.setX(500);
-        rootLayout.setY(250);
-
-
-        menu.addLayout(rootLayout);
-
-        // Add Page buttons below.
-        // There should be 8 per view.
-        int pageViewMax = 8;
-        int pageIndex = 0;
-        HorizontalLayout pageLayout = new HorizontalLayout(100, 100);
-        while (pageIndex < pageViewMax) {
-            pageIndex++;
-            ButtonOverlay pageButton = new ButtonOverlay("page-" + pageIndex, pageIndex + "", Color.BLACK, new FontLoader(getConfiguration().getUiFont(), 26), 1, 1);
-            pageButton.setBackgroundColor(Color.TRANSPARENT);
-            pageButton.setBorderColor(Color.TRANSPARENT);
-            if (page == pageIndex) {
-                pageButton.setTextFill(Color.BLACK);
-            }
-            pageButton.setHoverColor(configuration.getHoverColor());
-            pageLayout.addOverlay(pageButton);
-        }
-        pageLayout.setX(1000);
-        pageLayout.setY(950);
-
-        menu.addLayout(pageLayout);
-
-        return menu;
-    }
-
-    @NotNull
-    private ButtonOverlay getButtonOverlay(int page, int index) {
-        Save save = new Save(index);
-        save.load(false);
-        ImageOverlay saveImage;
-        ButtonOverlay loadButton;
-        saveImage = save.buildPreview(page);
-
-        loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 414, 309);
-
-        loadButton.setOnclick(event -> {
-            if (getPlayer().getCurrentStageType() == StageType.LOAD_MENU) {
-                if (!save.exists()) {
-                    RenLogger.LOGGER.warn("Save file does not  0-exist.");
-                    return;
-                }
-                save.load(true);
-                String storyID = getPlayer().getCurrentStoryID();
-                if (storyID == null) {
-                    RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
-                    return;
-                }
-                RenLogger.LOGGER.info("Processing save file...");
-
-                RenLogger.LOGGER.debug("Reloading story...");
-                createStory();
-
-                // Force update fields
-                RenLogger.LOGGER.debug("Setting current story: " + storyID);
-                getPlayer().setCurrentStory(storyID);
-                RenLogger.LOGGER.debug("Initializing story...");
-                getPlayer().getCurrentStory().init(); // Re-initialize story
-
-                RenLogger.LOGGER.debug("Setting current scene: " + getPlayer().getCurrentSceneID());
-                getPlayer().setCurrentScene(getPlayer().getCurrentSceneID());
-
-                getPlayer().setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
-
-                RenLogger.LOGGER.debug("Rendering scene...");
-                RenScene scene = getPlayer().getCurrentScene();
-                getPlayer().getStory(storyID).displayScene(scene);
-
-            } else if (getPlayer().getCurrentStageType() == StageType.SAVE_MENU) {
-                Tasks.runAsync(() -> {
-                    save.write();
-                });
-
-                // Re-render
-                getPlayer().setCurrentStageType(StageType.SAVE_MENU);
-                Container menu = buildLoadMenu(1); // Builds first page
-                menu.addContainers(buildSideMenu(true));
-                getGameWindow().clearContainers();
-                getGameWindow().addContainer(menu);
-                getGameWindow().render();
-            }
-        });
-
-        loadButton.setBackgroundColor(Color.TRANSPARENT);
-        loadButton.setBorderColor(Color.TRANSPARENT);
-        return loadButton;
-    }
-
-    public Container buildSettingsMenu(boolean ui) {
-        Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
-        ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
-        imageOverlay.setOrder(DisplayOrder.LOW);
-        menu.addOverlay(imageOverlay);
-
-        Color themeColor = getConfiguration().getThemeColor();
-        Color subColor = getConfiguration().getSubColor();
-
-        // 1 hbox 3 vboxes
-
-        // Display    Rollback     Skip
-        // Windowed     Disabled   Unseen Text
-        // Full screen  Enabled    After Choices
-        //              Right      Transitions
-
-
-        HorizontalLayout rootLayout = new HorizontalLayout(1200, 600);
-        rootLayout.setX(580);
-        rootLayout.setY(100);
-        rootLayout.setSpacing(100);
-
-        VerticalLayout displayBox = new VerticalLayout(300, 400);
-        TextOverlay displayText = new TextOverlay("Display", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", subColor, getConfiguration().getUiFont(), 0,0);
-        ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", subColor, getConfiguration().getUiFont(), 0,0);
-        displayBox.addOverlays(displayText, windowButton, fullscreenButton);
-
-        VerticalLayout rollbackBox = new VerticalLayout(300, 400);
-        TextOverlay rollbackText = new TextOverlay("Rollback", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", subColor, getConfiguration().getUiFont(), 0,0);
-        ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", subColor, getConfiguration().getUiFont(), 0,0);
-        ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", subColor, getConfiguration().getUiFont(), 0,0);
-        rollbackBox.addOverlays(rollbackText, disabledButton, leftButton, rightButton);
-
-        VerticalLayout skipBox = new VerticalLayout(300, 400);
-        TextOverlay skipText = new TextOverlay("Skip", themeColor, getConfiguration().getUiFont(), 0, 0);
-        ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", subColor, getConfiguration().getUiFont(), 0,0);
-        ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", subColor, getConfiguration().getUiFont(), 0,0);
-        ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", subColor, getConfiguration().getUiFont(), 0,0);
-        skipBox.addOverlays(skipText, unseenTextButton, afterChoicesButton, transitionButton);
-
-        // Add all to root layout
-        rootLayout.addChildLayouts(displayBox, rollbackBox, skipBox);
-
-        menu.addLayout(rootLayout);
-
-        // Music sliders
-        VerticalLayout soundRoot = new VerticalLayout(1000, 1000);
-        soundRoot.setX(1150);
-        soundRoot.setY(400);
-        soundRoot.setSpacing(30);
-
-        VerticalLayout masterBox = new VerticalLayout(1000, 100);
-        TextOverlay masterVolumeText = new TextOverlay("Master Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
-        SliderOverlay masterVolumeSlider = new SliderOverlay(0, 100, getSettings().getMasterVolume(), 0,0, 200, 200);
-        masterVolumeSlider.onSliderMove(event -> {
-            getSettings().setMasterVolume(event.getValue());
-        });
-        masterBox.addOverlays(masterVolumeText, masterVolumeSlider);
-
-        VerticalLayout musicBox = new VerticalLayout(1000, 100);
-        TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
-        SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, getSettings().getMusicVolume(), 0,0, 200, 200);
-        musicVolumeSlider.onSliderMove(event -> {
-            getSettings().setMusicVolume(event.getValue());
-        });
-        musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
-
-        VerticalLayout soundBox = new VerticalLayout(1000, 100);
-        TextOverlay soundVolumeText = new TextOverlay("Sound Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
-        SliderOverlay soundVolumeSlider = new SliderOverlay(0, 100, getSettings().getSoundVolume(), 0,0, 200, 200);
-        soundVolumeSlider.onSliderMove(event -> {
-            getSettings().setSoundVolume(event.getValue());
-        });
-        soundBox.addOverlays(soundVolumeText, soundVolumeSlider);
-
-        VerticalLayout voiceBox = new VerticalLayout(1000, 100);
-        TextOverlay voiceVolumeText = new TextOverlay("Voice Volume", themeColor, getConfiguration().getUiFont(), 0, 0);
-        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, getSettings().getVoiceVolume(), 0,0, 200, 200);
-        voiceVolumeSlider.onSliderMove(event -> {
-            getSettings().setVoiceVolume(event.getValue());
-        });
-        voiceBox.addOverlays(voiceVolumeText, voiceVolumeSlider);
-
-
-        soundRoot.addChildLayouts(masterBox, musicBox, soundBox, voiceBox);
-
-        menu.addLayout(soundRoot);
-
-        return menu;
-    }
-
-
-    public Container buildAboutMenu(boolean rightClicked) {
-        Container menu = new EmptyContainer(getConfiguration().getWidth(), getConfiguration().getHeight());
-        TextOverlay spacer = new TextOverlay("\n");
-        menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
-
-        FontLoader font = new FontLoader(getConfiguration().getDefaultFont().getFont(), 24);
-
-        TextFlowOverlay aboutText = new TextFlowOverlay("RenJava is inspired by RenPy and built with JavaFX. This project is free for commercial use and open sourced. " +
-                "Credits to the contributors for JavaFX for making this project possible. Credits to RenPy for making the best visual novel engine. " +
-                "RenJava is licensed under the GNU GPLv3 by using and distributing this software you agree to these terms. " +
-                "Additionally, RenJava uses software which may have additional licenses, all of which are open sourced. ", 1300, 500);
-        aboutText.setFont(font);
-        aboutText.setX(500);
-        aboutText.setY(100);
-        menu.addOverlay(aboutText);
-
-        // If you modify the about you must include the license information.
-        TextFlowOverlay licenseText = new TextFlowOverlay("License Information", 1300, 700);
-        licenseText.setX(500);
-        licenseText.setY(300);
-        licenseText.setFont(new FontLoader(font, 20));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tRenJava is licensed under GNU GPL v3: "));
-        licenseText.add(new HyperLinkOverlay("https://www.gnu.org/licenses/gpl-3.0.en.html"));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tJavaFX is licensed under GPL-2.0: "));
-        licenseText.add(new HyperLinkOverlay("https://github.com/openjdk/jfx/blob/master/LICENSE"));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tAmazon Corretto is licensed under GPL-2.0 CE: "));
-        licenseText.add(new HyperLinkOverlay("https://openjdk.java.net/legal/gplv2+ce.html"));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tApache software is licensed under Apache 2.0: "));
-        licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tJetBrains is licensed under Apache 2.0: "));
-        licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tWebP ImageIO is licensed under Apache 2.0: "));
-        licenseText.add(new HyperLinkOverlay("http://www.apache.org/licenses/"));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tGoogleCode SoundLibs is licensed under LGPL 2.1: "));
-        licenseText.add(new HyperLinkOverlay("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html"));
-        licenseText.add(spacer);
-        licenseText.add(new TextOverlay("\tOshi is licensed under MIT: "));
-        licenseText.add(new HyperLinkOverlay("https://github.com/oshi/oshi/blob/master/LICENSE"));
-
-        menu.addOverlay(licenseText);
-
-
-        TextFlowOverlay buildInfo = new TextFlowOverlay("Do not re-distribute this game without explicit permission from the author.",1300, 700);
-        buildInfo.setX(500);
-        buildInfo.setY(600);
-        buildInfo.setFont(font);
-        buildInfo.add(spacer);
-        buildInfo.add(new TextOverlay("RenJava Build Version: " + getBuildVersion()));
-        buildInfo.add(spacer);
-        buildInfo.add(new TextOverlay("Game Version: " + getVersion()));
-        buildInfo.add(spacer);
-        buildInfo.add(new TextOverlay("Author: " + getAuthor()));
-        buildInfo.add(spacer);
-        buildInfo.add(spacer);
-        buildInfo.add(new TextOverlay("You can download and use RenJava"));
-        buildInfo.add(new HyperLinkOverlay("https://github.com/HackusatePvP/RenJava", "here"));
-        buildInfo.add(new TextOverlay("."));
-
-        menu.addOverlay(buildInfo);
-
-        return menu;
-    }
-
-    /**
      * Function used to create your story methods.
      * <p>
      * In the `createStory()` method, you can define and create your story methods.
@@ -833,7 +473,7 @@ public abstract class RenJava {
         Map<EventListener, Method> highestMethods = new HashMap<>();
 
         Collection<EventListener> eventListeners = new HashSet<>(getInstance().getRegisteredListeners());
-        for (Addon addon : getInstance().getAddonLoader().getAddons()) {
+        for (Addon addon : ADDONLOADER.getAddons()) {
             eventListeners.addAll(addon.getRegisteredListeners());
         }
 
@@ -908,15 +548,19 @@ public abstract class RenJava {
     }
 
     public static void writeStackTrace(Exception e) {
-
         if (lastErrorTimeStamp > 0) {
-            Date last = new Date(lastErrorTimeStamp);
-            Date current = new Date(System.currentTimeMillis());
-            long seconds = (current.getTime() - last.getTime()) / DateUtils.MILLIS_PER_SECOND;
-            if (seconds < 30) {
-                RenLogger.LOGGER.error("An error occurred within 30s of a previous error. To prevent spam this error has been silenced.");
-                return;
+            spamTrack++;
+            if (spamTrack > 5) {
+                Date last = new Date(lastErrorTimeStamp);
+                Date current = new Date(System.currentTimeMillis());
+                long seconds = (current.getTime() - last.getTime()) / DateUtils.MILLIS_PER_SECOND;
+                if (seconds < 30) {
+                    RenLogger.LOGGER.error("An error occurred within 30s of a previous error. To prevent spam this error has been silenced.");
+                    return;
+                }
             }
+        } else {
+            spamTrack = 0;
         }
 
         lastErrorTimeStamp = System.currentTimeMillis();

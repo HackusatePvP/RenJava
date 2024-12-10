@@ -2,6 +2,8 @@ package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APINote;
+import me.piitex.renjava.api.scenes.types.animation.VideoScene;
+import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
@@ -10,7 +12,6 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
-import me.piitex.renjava.events.exceptions.DuplicateSceneIdException;
 import me.piitex.renjava.events.types.SceneEndEvent;
 import org.slf4j.Logger;
 
@@ -53,7 +54,7 @@ import java.util.*;
  * @see RenScene
  * @see ImageScene
  * @see InteractableScene
- * @see AnimationScene
+ * @see VideoScene
  * @see ChoiceScene
  * @see InputScene
  */
@@ -68,8 +69,6 @@ public abstract class Story {
 
     private final Logger logger = RenLogger.LOGGER;
 
-    private final RenJava renJava;
-
     /**
      * Creates a base story line. This can also be referred to character events or even chapters.
      * @param id Used to get the scene later.
@@ -77,10 +76,9 @@ public abstract class Story {
     public Story(String id) {
         this.id = id;
         // Global var
-        renJava = RenJava.getInstance();
 
         RenLogger.LOGGER.info("Registering story '{}'", id);
-        renJava.getPlayer().addStory(this); // Registers the story.
+        RenJava.PLAYER.addStory(this); // Registers the story.
     }
 
     public Story onEnd(StoryEndInterface endInterface) {
@@ -112,12 +110,17 @@ public abstract class Story {
      */
     public void start() {
         // Update RenJava Player BEFORE the scenes are added
-        renJava.getPlayer().setCurrentStory(this.getId());
+        RenJava.PLAYER.setCurrentStory(this.getId());
 
         clear(); // Clear previous mappings (allows refreshing)
         init(); // Initialize when starting
 
         RenScene renScene = getScene(0); // Gets the first scene index.
+
+        if (renScene == null) {
+            RenLogger.LOGGER.error("Story has no scenes in index. Is the story empty?");
+            return;
+        }
 
         RenLogger.LOGGER.debug("Rendering first scene...");
         displayScene(renScene, false, true);
@@ -144,11 +147,6 @@ public abstract class Story {
      * @param scene Scene to add the story.
      */
     public void addScene(RenScene scene) {
-        if (scenes.containsKey(scene.getId())) {
-            logger.warn(new DuplicateSceneIdException(scene.getId()).getMessage());
-            scenes.replace(scene.getId(), scenes.get(id), scene);
-            return;
-        }
         scene.setStory(this);
         scenes.put(scene.getId(), scene);
         int index = sceneIndexMap.size();
@@ -216,11 +214,11 @@ public abstract class Story {
     }
 
     public RenScene getNextSceneFromCurrent() {
-        return getNextScene(renJava.getPlayer().getCurrentScene().getId());
+        return getNextScene(RenJava.PLAYER.getCurrentScene().getId());
     }
 
     public RenScene getCurrentScene() {
-        return renJava.getPlayer().getCurrentScene();
+        return RenJava.PLAYER.getCurrentScene();
     }
 
     /**
@@ -235,7 +233,7 @@ public abstract class Story {
     }
 
     public RenScene getPreviousSceneFromCurrent() {
-        return getPreviousSceneFromID(renJava.getPlayer().getCurrentScene().getId());
+        return getPreviousSceneFromID(RenJava.PLAYER.getCurrentScene().getId());
     }
 
     @APINote(description = "Scene indexes start at 0 which is the first scene. The second scene would be '1'.")
@@ -261,16 +259,22 @@ public abstract class Story {
     public void displayScene(RenScene scene, boolean rollback, boolean events) {
         RenLogger.LOGGER.info("Rendering scene {} in story {}", scene.getId(), scene.getStory().getId());
         if (events) {
-            SceneEndEvent event = new SceneEndEvent(getCurrentScene());
-            RenJava.callEvent(event);
+            SceneEndEvent endEvent = new SceneEndEvent(getCurrentScene());
+            RenJava.callEvent(endEvent);
+
+            SceneStartEvent startEvent = new SceneStartEvent(scene);
+            RenJava.callEvent(startEvent);
         }
-        RenJava.getInstance().getPlayer().updateScene(scene);
-        scene.render(renJava.getGameWindow(),true);
-        renJava.getPlayer().setCurrentStageType(scene.getStageType());
+
+        RenJava.PLAYER.updateScene(scene);
+
+        scene.render(RenJava.getInstance().getGameWindow(),true, events);
+
+        RenJava.PLAYER.setCurrentStageType(scene.getStageType());
         if (!rollback) {
             // 0,1,2,3,
-            renJava.getPlayer().getViewedScenes().put(renJava.getPlayer().getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
-            renJava.getPlayer().getRolledScenes().put(renJava.getPlayer().getRolledScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
+            RenJava.PLAYER.getViewedScenes().put(RenJava.PLAYER.getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
+            RenJava.PLAYER.getRolledScenes().put(RenJava.PLAYER.getRolledScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
         }
     }
 

@@ -42,11 +42,7 @@ import java.util.LinkedList;
  * <p>
  * Example usage:
  * <pre>{@code
- * Story story = new ExampleStory("example-story);
- * Character myCharacter = new Character("character-1", "John", Color.BLUE);
- * ImageLoader backgroundLoader = new ImageLoader("background.png");
- * ImageScene scene = new ImageScene("scene-1", myCharacter, "This is character text!", backgroundLoader);
- * story.addScene(scene);
+ * TODO
  * }</pre>
  * </p>
  *
@@ -81,7 +77,7 @@ public class ImageScene extends RenScene {
         this.dialogue = dialogue;
         if (backgroundImage != null) {
             this.backgroundImage = backgroundImage;
-            renJava.getPlayer().setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), backgroundImage));
+            RenJava.PLAYER.setLastDisplayedImage(new AbstractMap.SimpleEntry<>(getStory().getId(), backgroundImage));
         }
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();
@@ -94,7 +90,7 @@ public class ImageScene extends RenScene {
         super(id, null);
         this.character = character;
         this.dialogue = dialogue;
-        backgroundImage = renJava.getPlayer().getLastDisplayedImage().getValue();
+        backgroundImage = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
         configuration = renJava.getConfiguration();
         font = configuration.getDialogueFont();
@@ -157,7 +153,7 @@ public class ImageScene extends RenScene {
                     TextFlowOverlay textFlowOverlay;
                     if (texts.isEmpty()) {
                         TextOverlay text = new TextOverlay(dialogue);
-                        text.setFontLoader(renJava.getConfiguration().getDialogueFont());
+                        text.setFont(renJava.getConfiguration().getDialogueFont());
                         textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                     } else {
                         textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
@@ -194,21 +190,6 @@ public class ImageScene extends RenScene {
         RenJava.callEvent(event);
 
         return container;
-    }
-
-    @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        // Clear window
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-
-        SceneStartEvent event = new SceneStartEvent(this);
-        RenJava.callEvent(event);
     }
 
     @Override

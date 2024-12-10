@@ -46,6 +46,7 @@ public class EmptyContainer extends Container {
 
         buildBase(lowOrder, normalOrder, highOrder);
 
+        // Return loworder because the other orders are added onto the low order.
         return new AbstractMap.SimpleEntry<>(pane, lowOrder);
     }
 }

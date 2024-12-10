@@ -203,7 +203,6 @@ public class AddonLoader {
                     // Also be aware of the licence renjava uses. Authors are required to provide source to code per the GPL 3.0 license.
                     Class<?> clazz = cl.loadClass(clazzName);
                     if (Addon.class.isAssignableFrom(clazz)) {
-                        logger.info("Executing addon...");
                         Object object = clazz.getDeclaredConstructor().newInstance();
                         Addon addon = (Addon) object;
                         if (dependencies != null) {
@@ -211,8 +210,17 @@ public class AddonLoader {
                         }
                         addons.add(addon);
                         //clazz.getMethod("onLoad").invoke(object, null);
-                        addon.onLoad(); // Loads addon
+                        boolean failed = false;
+                        try {
+                            addon.onLoad(); // Loads addon
+                        } catch (Exception e) {
+                            RenJava.writeStackTrace(e);
+                            RenLogger.LOGGER.error("An error occurred while loading addon '{}'.", addon.getName());
+                            failed = true;
+                        }
+                        if (!failed) {addons.add(addon);
                         logger.info("Loaded: {}", addon.getName());
+                        }
                     }
                 }
             }

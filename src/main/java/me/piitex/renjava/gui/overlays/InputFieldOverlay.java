@@ -17,7 +17,6 @@ public class InputFieldOverlay extends Overlay implements Region {
 
     private IInputSetEvent iInputSetEvent;
 
-
     public InputFieldOverlay(String defaultInput, double x, double y, double width, double height) {
         this.defaultInput = defaultInput;
         this.width = width;
@@ -39,7 +38,7 @@ public class InputFieldOverlay extends Overlay implements Region {
         return fontLoader;
     }
 
-    public void setFontLoader(FontLoader fontLoader) {
+    public void setFont(FontLoader fontLoader) {
         this.fontLoader = fontLoader;
     }
 
@@ -124,7 +123,6 @@ public class InputFieldOverlay extends Overlay implements Region {
         TextField textField = new TextField();
         textField.setTranslateX(getX());
         textField.setTranslateY(getY());
-//        textField.setStyle("");
         if (fontLoader != null) {
             textField.setFont(getFontLoader().getFont());
         }

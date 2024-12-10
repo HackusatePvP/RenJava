@@ -101,7 +101,7 @@ public class ChoiceScene extends RenScene {
      */
     public ChoiceScene(String id) {
         super(id, null);
-        this.backgroundImage = RenJava.getInstance().getPlayer().getLastDisplayedImage().getValue();
+        this.backgroundImage = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
         this.configuration = RenJava.getInstance().getConfiguration();
     }
@@ -196,20 +196,6 @@ public class ChoiceScene extends RenScene {
             menu.addLayout(layout);
         }
         return menu;
-    }
-
-    @Override
-    public void render(Window window, boolean ui) {
-        Container container = build(ui);
-
-        window.clearContainers();
-
-        window.addContainer(container);
-
-        window.render();
-
-        SceneStartEvent event = new SceneStartEvent(this);
-        RenJava.callEvent(event);
     }
 
     private void buildImageButton(ButtonOverlay buttonOverlay, Choice choice, Image image) {

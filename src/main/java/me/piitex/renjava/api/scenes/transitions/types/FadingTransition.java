@@ -5,10 +5,10 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.events.types.FadingTransitionEndEvent;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.events.types.SceneEndTransitionFinishEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import org.slf4j.Logger;
 
 public class FadingTransition extends Transitions {
     private final double fromValue;
@@ -22,7 +22,7 @@ public class FadingTransition extends Transitions {
     private Color color = Color.BLACK;
 
     // Cheap hack
-    private static FadingTransition previousTranition = null;
+    private static FadingTransition previousTransition = null;
 
     public FadingTransition(double fromValue, double toValue, double duration, Color color) {
         super(duration);
@@ -40,7 +40,6 @@ public class FadingTransition extends Transitions {
         this.cycleCount = cycleCount;
         this.autoReverse = autoReverse;
     }
-
 
     public double getFromValue() {
         return fromValue;
@@ -68,7 +67,7 @@ public class FadingTransition extends Transitions {
     }
 
     @Override
-    public void play(Node node) {
+    public void play(RenScene scene, Node node) {
         fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));
         fadeTransition.setFromValue(getFromValue());
         fadeTransition.setToValue(getToValue());
@@ -82,22 +81,31 @@ public class FadingTransition extends Transitions {
             }
             playing = false;
 
-            FadingTransitionEndEvent endEvent = new FadingTransitionEndEvent(this);
+            SceneEndTransitionFinishEvent endEvent = new SceneEndTransitionFinishEvent(scene, this);
             RenJava.callEvent(endEvent);
+
+            RenJava.PLAYER.setTransitionPlaying(false);
         });
-        if (previousTranition != null) {
-            previousTranition.stop(); // Stop previous animation
+        if (previousTransition != null) {
+            previousTransition.stop(); // Stop previous animation
         }
-        playing = true;
+        RenJava.PLAYER.setTransitionPlaying(true);
         fadeTransition.play();
-        previousTranition = this;
+        previousTransition = this;
+        playing = true;
     }
 
     @Override
     public void stop() {
-        RenLogger.LOGGER.debug("Stopping transition...");
         if (fadeTransition != null) {
-            fadeTransition.stop();
+            RenLogger.LOGGER.debug("Stopping transition...");
+            fadeTransition.jumpTo(Duration.INDEFINITE);
+            try {
+                fadeTransition.stop();
+            } catch (Exception e) {
+                RenLogger.LOGGER.error("Error stopping transition!", e);
+                RenJava.writeStackTrace(e);
+            }
             playing = false;
         }
     }

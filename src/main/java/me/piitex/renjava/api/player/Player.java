@@ -1,6 +1,8 @@
 package me.piitex.renjava.api.player;
 
 import javafx.scene.Scene;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.gui.StageType;
@@ -25,6 +27,7 @@ public class Player implements PersistentData {
     @Data private String currentScene;
     @Data private String currentStory;
     private StageType currentStageType;
+    private MediaPlayer currentMedia;
 
     // Entry to map the story for the image
     private Map.Entry<String, ImageOverlay> lastDisplayedImage;
@@ -79,6 +82,7 @@ public class Player implements PersistentData {
 
     public void setCurrentStory(String currentStoryID) {
         this.currentStory = currentStoryID;
+        if (viewedStories.contains(currentStoryID)) return;
         viewedStories.add(currentStoryID); // When setting story update the viewedStory for rollback.
     }
 
@@ -193,6 +197,22 @@ public class Player implements PersistentData {
 
     public void setTransitionPlaying(boolean transitionPlaying) {
         this.transitionPlaying = transitionPlaying;
+    }
+
+    public MediaPlayer getCurrentMedia() {
+        return currentMedia;
+    }
+
+    public void setCurrentMedia(MediaPlayer currentMedia) {
+        this.currentMedia = currentMedia;
+    }
+
+    public void updatePlayingMedia(Media media) {
+        if (currentMedia != null) {
+            currentMedia.stop();
+            currentMedia.dispose();
+        }
+        currentMedia = new MediaPlayer(media);
     }
 
     public Scene getLastRenderedScene() {

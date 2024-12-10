@@ -1,8 +1,11 @@
 package me.piitex.renjava.api.saves;
 
 import javafx.scene.image.WritableImage;
+import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.addons.Addon;
+import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.saves.data.Data;
@@ -17,25 +20,54 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.time.*;
 import java.util.*;
 
 // Class which represents a save file.
 public class Save {
     private final File file;
-    private int slot;
+    private String name;
+    private final int slot;
+    private long updatedTime;
 
     // Some ghetto code
     // Map the scene when the load function is called. Easier way to get preview.
     private SectionKeyValue sceneSection;
 
-    public Save(File file) {
-        this.file = file;
-    }
-
     public Save(int slot) {
         this.slot = slot;
         File directory = new File(System.getProperty("user.dir") + "/game/saves/");
         this.file = new File(directory,"save-" + slot + ".dat");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLocalizedCreationDate() {
+        if (!(updatedTime > 0)) {
+            return "";
+        }
+
+        LocalDateTime localDate = LocalDateTime.ofInstant(new Date(updatedTime).toInstant(), ZoneId.systemDefault());
+        DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+        Month month = localDate.getMonth();
+        int year = localDate.getYear();
+        int day = localDate.getDayOfMonth();
+        int hour = localDate.getHour();
+        int minute = localDate.getMinute();
+
+        String minuteFix = String.valueOf(minute);
+        if (minuteFix.length() < 2) {
+            minuteFix = "0" + minute;
+        }
+
+        // Monday, December 09 2024, 12:45
+        return dayOfWeek.name() + ' ' + month.name() + ' ' + day + ' ' + year + ' ' + hour + ":" + minuteFix;
     }
 
     public boolean exists() {
@@ -44,6 +76,7 @@ public class Save {
 
     // Writes save file
     public void write() {
+        updatedTime = System.currentTimeMillis();
         // First get all PersistentData to write.
         // me.piitex.MyDataClass:
         //    field1: data1
@@ -52,8 +85,12 @@ public class Save {
         //        key2: value2
 
         StringBuilder appendString = new StringBuilder();
+        appendString.append("# Please do not modify the save file. Doing so, may cause unexpected errors and crashes.").append("\n");
+        appendString.append("name: ").append(name).append("\n"); // Appends slot name
+        appendString.append("updated: ").append(updatedTime).append("\n");
+
         Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
-        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+        for (Addon addon : RenJava.ADDONLOADER.getAddons()) {
             allData.addAll(addon.getRegisteredData());
         }
 
@@ -103,7 +140,8 @@ public class Save {
             fileWriter = new FileWriter(file);
             fileWriter.write(appendString.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            RenLogger.LOGGER.error("Failed to write to save file!", e);
+            RenJava.writeStackTrace(e);
         } finally {
             if (fileWriter != null) {
                 try {
@@ -135,6 +173,7 @@ public class Save {
         });
     }
 
+
     // Loads save file
     public void load(boolean process) {
         String fullData = null;
@@ -149,12 +188,25 @@ public class Save {
         }
 
         if (fullData == null) {
-            RenLogger.LOGGER.warn("Save file does not exist.");
             return;
         }
 
+        // Gather save data
+        String[] newLine = fullData.split("\n");
+        for (String section : newLine) {
+            if (section.startsWith("name: ")) {
+                name = section.split(":")[1].trim();
+            }
+            if (section.startsWith("updated: ")) {
+                updatedTime = Long.parseLong(section.split(":")[1].trim());
+            }
+        }
+
+        System.out.println("Name: " + name);
+        System.out.println("Updated: " + updatedTime);
+
         Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
-        for (Addon addon : RenJava.getInstance().getAddonLoader().getAddons()) {
+        for (Addon addon : RenJava.ADDONLOADER.getAddons()) {
             allData.addAll(addon.getRegisteredData());
         }
 
@@ -240,7 +292,7 @@ public class Save {
                         RenJava.writeStackTrace(e);
                     }
                 } else {
-                    RenLogger.LOGGER.error("Could not set key '" + field.getName() + "'");
+                    RenLogger.LOGGER.error("Could not set key '{}'", field.getName());
                 }
             }
         }
@@ -289,13 +341,13 @@ public class Save {
     }
 
     public ImageOverlay buildPreview(int page) {
-        ImageOverlay saveImage;
         if (file.exists()) {
-            Story story = RenJava.getInstance().getPlayer().getStory((String) sceneSection.get("currentStory"));
+            ImageOverlay saveImage;
+            Story story = RenJava.PLAYER.getStory((String) sceneSection.get("currentStory"));
 
             // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
             // Set the player to the current story (which is off to a horrible start)
-            RenJava.getInstance().getPlayer().setCurrentStory(story.getId());
+            RenJava.PLAYER.setCurrentStory(story.getId());
 
             // Initialize the story to process the scenes. (Used to execute the `addScene` functions which maps the scenes to the story.)
             story.init();
@@ -308,24 +360,29 @@ public class Save {
             }
 
             // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
-            currentScene.render(RenJava.getInstance().getGameWindow(), true);
+            // To prevent the white flash when loading preview use diff window.
+            // On slower machines the window may pop-up for a few seconds but if that's the case your pc doesn't meet spec requirements to begin with.
+            Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
 
-            WritableImage snapshot = RenJava.getInstance().getGameWindow().getStage().getScene().snapshot(null);
+//            hiddenWindow.clear(); // Required (This prevents white boxes from being rendered)
+            Container container = currentScene.build(true);
+            hiddenWindow.addContainers(container);
+            hiddenWindow.build(true);
+
+            WritableImage snapshot = hiddenWindow.getRoot().getScene().snapshot(null);
             saveImage = new ImageOverlay(snapshot);
+            hiddenWindow.close();
 
             saveImage.setWidth(384);
             saveImage.setHeight(216);
 
             // Since the Renpy assets account for Text they made a transparency space.
             // To circumvent this extra space we need to add the length of the space so everything is properly aligned.
-            saveImage.setX(15); // Position inside the button
             saveImage.setY(15); // Position inside the button
 
-             // Get whatever page they are on
             return saveImage;
         }
-        saveImage = new ImageOverlay("gui/button/slot_idle_background.png");
-        return saveImage;
+        return null;
     }
 
     public File getFile() {

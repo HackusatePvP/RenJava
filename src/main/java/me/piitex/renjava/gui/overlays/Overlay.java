@@ -68,19 +68,19 @@ public abstract class Overlay {
         this.order = order;
     }
 
-    public void setOnclick(IOverlayClick iOverlayClick) {
+    public void onClick(IOverlayClick iOverlayClick) {
         this.iOverlayClick = iOverlayClick;
     }
 
-    public void setOnHover(IOverlayHover iOverlayHover) {
+    public void onHover(IOverlayHover iOverlayHover) {
         this.iOverlayHover = iOverlayHover;
     }
 
-    public void setOnClickRelease(IOverlayClickRelease iOverlayClickRelease) {
+    public void onClickRelease(IOverlayClickRelease iOverlayClickRelease) {
         this.iOverlayClickRelease = iOverlayClickRelease;
     }
 
-    public void setOnHoverExit(IOverlayHoverExit iOverlayHoverExit) {
+    public void onHoverExit(IOverlayHoverExit iOverlayHoverExit) {
         this.iOverlayHoverExit = iOverlayHoverExit;
     }
 
@@ -113,7 +113,7 @@ public abstract class Overlay {
 
     public void renderTransitions(Node node) {
         for (Transitions transitions1 : getTransitions()) {
-            transitions1.play(node);
+            transitions1.play(null, node);
         }
     }
 

@@ -10,6 +10,8 @@ import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.gui.containers.EmptyContainer;
+import me.piitex.renjava.gui.menus.DefaultMainMenu;
+import me.piitex.renjava.gui.menus.MainMenu;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.FontLoader;
@@ -41,7 +43,7 @@ public class GuiLoader {
         RenLogger.LOGGER.info("Creating Splash screen...");
         stage.initStyle(StageStyle.UNDECORATED);
         // Update Stage
-        renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
+        RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 
         Window window = renJava.buildSplashScreen();
         if (window == null) {
@@ -97,6 +99,10 @@ public class GuiLoader {
             renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
         }
 
+        // Preset width and height
+        renJava.getConfiguration().setCurrentWindowWidth(renJava.getConfiguration().getWidth());
+        renJava.getConfiguration().setCurrentWindowHeight(renJava.getConfiguration().getHeight());
+
         RenLogger.LOGGER.info("Rendering main menu...");
         // When building title screen create a new window and eventually store the window for easy access
         Window window = new Window(renJava.getConfiguration().getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
@@ -105,7 +111,7 @@ public class GuiLoader {
             ShutdownEvent shutdownEvent = new ShutdownEvent();
             RenJava.callEvent(shutdownEvent);
 
-            renJava.getAddonLoader().disable();
+            RenJava.ADDONLOADER.disable();
 
             // Transfer saves to localsaves
             File localSaves = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/saves/");
@@ -136,44 +142,47 @@ public class GuiLoader {
 
         renJava.setGameWindow(window);
         // Next get the container for the main menu
-        Container menu = renJava.buildMainMenu(false);
-        MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
-        RenJava.callEvent(event);
+//        Container menu = renJava.buildMainMenu(false);
+//        MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
+//        RenJava.callEvent(event);
+
+        MainMenu menu = renJava.getMainMenu();
 
 
         // Check if the menu is null
         if (menu == null) {
             RenLogger.LOGGER.error("No title screen was found. Please customize your own title screen for better user experience.");
             RenLogger.LOGGER.warn("Building RenJava default title screen...");
-            menu = new EmptyContainer(0, 0, renJava.getConfiguration().getHeight(), renJava.getConfiguration().getWidth());
-            ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
-            imageOverlay.setOrder(DisplayOrder.LOW);
-            menu.addOverlay(imageOverlay);
+            menu = new DefaultMainMenu();
+            renJava.setMainMenu(menu);
         }
 
-        window.addContainer(menu);
+        // Render main menu
+        Container container = menu.mainMenu(false);
+        MainMenuBuildEvent event = new MainMenuBuildEvent(container);
+        RenJava.callEvent(event);
+        window.addContainer(container);
 
-        Container sideMenu = renJava.buildSideMenu(false);
-
+        Container sideMenu = menu.sideMenu(false);
 
         window.addContainers(sideMenu);
 
-        MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(menu);
+        MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(container);
         RenJava.callEvent(dispatchEvent);
 
         window.setMaximized(configuration.isMaximizedGameWindow());
 
         window.render(); // Renders the window
 
-        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu);
+        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(container);
         RenJava.callEvent(renderEvent);
 
-        renJava.getPlayer().setCurrentStageType(StageType.MAIN_MENU);
+        RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 
     }
 
 
     private void postProcess() {
-        renJava.getAddonLoader().load();
+        RenJava.ADDONLOADER.load();
     }
 }

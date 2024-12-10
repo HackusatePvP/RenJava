@@ -24,12 +24,12 @@ import java.util.HashSet;
  *         super("MyAddon");
  *     }
  *
- *     @literal @Override
+ *     @Override
  *     public void onLoad() {
  *         // Code to execute when the addon is loaded
  *     }
  *
- *     @literal @Override
+ *     @Override
  *     public void onDisable() {
  *         // Code to execute when the addon is disabled
  *     }

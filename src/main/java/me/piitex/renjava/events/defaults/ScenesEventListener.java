@@ -7,6 +7,8 @@ import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+import me.piitex.renjava.api.scenes.types.animation.VideoScene;
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.InputFieldOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -26,31 +28,13 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ScenesEventListener implements EventListener {
-    private RenScene lastRenderedScene;
 
     @Listener
-    public void onContainerRender(ContainerRenderEvent event) {
-        // When the render is called the scene should be already set.
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
-        if (RenJava.getInstance().getPlayer().isRightClickMenu()) return;
-        if (scene != null && scene != lastRenderedScene) {
+    public void fixBackground(SceneEndTransitionFinishEvent event) {
+        if (event.getTransitions() instanceof FadingTransition) {
             Window window = RenJava.getInstance().getGameWindow();
-            Transitions transitions = scene.getStartTransition();
-            if (transitions != null) {
-                RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
-                if (transitions instanceof FadingTransition fadingTransition) {
-                    window.updateBackground(fadingTransition.getColor());
-                }
-                transitions.play(event.getNode());
-            }
+            window.updateBackground(Color.BLACK);
         }
-        lastRenderedScene = scene;
-    }
-
-    @Listener
-    public void fixBackground(FadingTransitionEndEvent event) {
-        Window window = RenJava.getInstance().getGameWindow();
-        window.updateBackground(Color.BLACK);
     }
 
     @Listener(priority = Priority.HIGHEST)
@@ -67,12 +51,12 @@ public class ScenesEventListener implements EventListener {
                 @Override
                 public void run() {
                     if (renScene != null) {
-                        if (RenJava.getInstance().getPlayer().getCurrentScene().getId().equalsIgnoreCase(scene.getId())) {
+                        if (RenJava.PLAYER.getCurrentScene().getId().equalsIgnoreCase(scene.getId())) {
                             Platform.runLater(story::displayNextScene);
                         }
                     } else {
                         Platform.runLater(() -> {
-                            if (RenJava.getInstance().getPlayer().getCurrentStory().getId().equalsIgnoreCase(story.getId())) {
+                            if (RenJava.PLAYER.getCurrentStory().getId().equalsIgnoreCase(story.getId())) {
                                 // Call story end
                                 RenJava.callEvent(new StoryEndEvent(story));
                             }
@@ -84,9 +68,18 @@ public class ScenesEventListener implements EventListener {
     }
 
     @Listener(priority = Priority.HIGHEST)
+    public void onSceneEnd(SceneEndEvent event) {
+        // If the scene is playing media when it ends stop the media
+        RenScene scene = event.getScene();
+        if (scene instanceof VideoScene videoScene) {
+            videoScene.stop();
+        }
+    }
+
+    @Listener(priority = Priority.HIGHEST)
     public void onChoiceButtonClick(ButtonClickEvent event) {
         Button button = event.getButton();
-        RenScene scene = RenJava.getInstance().getPlayer().getCurrentScene();
+        RenScene scene = RenJava.PLAYER.getCurrentScene();
         if (scene instanceof ChoiceScene choiceScene) {
             Choice choice = choiceScene.getChoice(button.getId());
             if (choice != null) {
@@ -111,8 +104,23 @@ public class ScenesEventListener implements EventListener {
     public void onSceneRender(SceneRenderEvent event) {
         // Event used to save the preview for the save file.
         RenLogger.LOGGER.info("Updating tracker for {}", event.getRenScene().getId());
-        RenJava.getInstance().getPlayer().setLastRenderedScene(event.getScene()); // Update the player/tracker information
-        RenJava.getInstance().getPlayer().setLastRenderedRenScene(event.getRenScene());
+        RenJava.PLAYER.setLastRenderedScene(event.getScene()); // Update the player/tracker information
+        RenJava.PLAYER.setLastRenderedRenScene(event.getRenScene());
 
+
+        // When the render is called the scene should be already set.
+        RenScene scene = RenJava.PLAYER.getCurrentScene();
+        if (RenJava.PLAYER.isRightClickMenu()) return;
+        if (scene != null) {
+            Window window = RenJava.getInstance().getGameWindow();
+            Transitions transitions = scene.getStartTransition();
+            if (transitions != null) {
+                RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
+                if (transitions instanceof FadingTransition fadingTransition) {
+                    window.updateBackground(fadingTransition.getColor());
+                }
+                transitions.play(scene, event.getPane());
+            }
+        }
     }
 }

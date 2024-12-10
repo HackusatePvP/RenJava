@@ -12,6 +12,7 @@ public class TextOverlay extends Overlay implements Region {
     private FontLoader fontLoader;
     private double width, height;
     private double scaleWidth, scaleHeight;
+    private boolean strikeout;
 
     public TextOverlay(String text) {
         this.text = text;
@@ -48,9 +49,6 @@ public class TextOverlay extends Overlay implements Region {
         setY(y);
     }
 
-
-    //TODO: Set font
-
     @Override
     public Node render() {
         Text text = new Text(getText());
@@ -58,6 +56,7 @@ public class TextOverlay extends Overlay implements Region {
             Font font = fontLoader.getFont();
             text.setFont(font);
         }
+        text.setStrikethrough(strikeout);
         if (getTextFillColor() != null) {
             text.setFill(getTextFillColor());
         }
@@ -76,11 +75,19 @@ public class TextOverlay extends Overlay implements Region {
         this.text = text;
     }
 
+    public boolean isStrikeout() {
+        return strikeout;
+    }
+
+    public void setStrikeout(boolean strikeout) {
+        this.strikeout = strikeout;
+    }
+
     public FontLoader getFontLoader() {
         return fontLoader;
     }
 
-    public void setFontLoader(FontLoader fontLoader) {
+    public void setFont(FontLoader fontLoader) {
         this.fontLoader = fontLoader;
     }
 

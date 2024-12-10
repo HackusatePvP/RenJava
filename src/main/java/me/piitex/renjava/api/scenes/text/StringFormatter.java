@@ -73,20 +73,19 @@ public class StringFormatter {
             TextOverlay text1 = new TextOverlay(s);
             if (s.startsWith("bbbb: ")) {
                 s = s.replace("bbbb: ", "");
-                text1.setFontLoader(boldFont);
+                text1.setFont(boldFont);
                 texts.add(text1);
             } else if (s.startsWith("iiii: ")) {
                 s = s.replace("iiii: ", "");
-                text1.setFontLoader(italicFont);
+                text1.setFont(italicFont);
                 texts.add(text1);
             } else if (s.startsWith("ssss: ")) {
                 s = s.replace("ssss: ", "");
-                text1.setFontLoader(currentFont);
-                //FIXME Broke with new update
-//                text1.setStrikethrough(true);
+                text1.setFont(currentFont);
+                text1.setStrikeout(true);
                 texts.add(text1);
             } else {
-                text1.setFontLoader(currentFont);
+                text1.setFont(currentFont);
                 texts.add(text1);
             }
         }

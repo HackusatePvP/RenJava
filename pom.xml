@@ -6,7 +6,7 @@
 
     <groupId>me.piitex</groupId>
     <artifactId>RenJava</artifactId>
-    <version>0.1.195-beta</version>
+    <version>0.1.235-beta</version>
     <name>RenJava</name>
 
     <properties>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.6.1</version>
+            <version>6.6.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>

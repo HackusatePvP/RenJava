@@ -40,7 +40,7 @@ import me.piitex.renjava.RenJava;
  * In the example above, we create an instance of the `CustomEvent` class and pass it to the `RenJava.callEvent()` method to trigger the event. This will invoke all registered listeners for the `CustomEvent`.
  * <p>
  * You can pass your custom events in a listener class to handle the data.
- * <pre {@code
+ * <pre> {@code
  * public class MyListenerClass implements EventListener {
  *     @Listener
  *     public void onEvent(CustomEvent event) {
