@@ -43,7 +43,7 @@ public class MediaOverlay extends Overlay implements Region {
         Media media = new Media(file.toURI().toString());
 
         // Video should be on sound volune
-        SettingsProperties settings = RenJava.getInstance().getSettings();
+        SettingsProperties settings = RenJava.SETTINGS;
         double masterVolume = settings.getMasterVolume();
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
@@ -64,11 +64,12 @@ public class MediaOverlay extends Overlay implements Region {
         Media media = new Media(file.toURI().toString());
 
         // Video should be on sound volune
-        SettingsProperties settings = RenJava.getInstance().getSettings();
+        SettingsProperties settings = RenJava.SETTINGS;
         double masterVolume = settings.getMasterVolume();
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
         soundVolume = masterVolume * soundVolume;
+
         RenJava.PLAYER.updatePlayingMedia(media);
     }
 

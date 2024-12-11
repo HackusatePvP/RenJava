@@ -380,7 +380,7 @@ public class ButtonOverlay extends Overlay implements Region {
             button.setFont(font.getFont());
         } else {
             // Set default font
-            button.setFont(RenJava.getInstance().getConfiguration().getUiFont().getFont());
+            button.setFont(RenJava.CONFIGURATION.getUiFont().getFont());
         }
         if (textFill != null) {
             button.setTextFill(textFill);
