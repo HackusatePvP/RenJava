@@ -41,7 +41,7 @@ public class VideoScene extends RenScene {
         filePath = mediaFilePath;
         this.character = null;
         this.font = null;
-        configuration = RenJava.getInstance().getConfiguration();
+        configuration = RenJava.CONFIGURATION;
     }
 
     public VideoScene(String id, String mediaFilePath, boolean loop) {
@@ -50,7 +50,7 @@ public class VideoScene extends RenScene {
         this.character = null;
         this.font = null;
         this.loop = loop;
-        configuration = RenJava.getInstance().getConfiguration();
+        configuration = RenJava.CONFIGURATION;
     }
 
     public VideoScene(String id, String mediaFilePath, boolean loop, boolean fitVideoToContainer) {
@@ -60,7 +60,7 @@ public class VideoScene extends RenScene {
         this.character = null;
         this.font = null;
         this.loop = loop;
-        configuration = RenJava.getInstance().getConfiguration();
+        configuration = RenJava.CONFIGURATION;
     }
 
     public VideoScene(String id, String mediaFilePath, boolean loop, double videoWidth, double videoHeight) {
@@ -71,7 +71,7 @@ public class VideoScene extends RenScene {
         this.character = null;
         this.font = null;
         this.loop = loop;
-        configuration = RenJava.getInstance().getConfiguration();
+        configuration = RenJava.CONFIGURATION;
     }
 
     public double getVideoWidth() {
@@ -189,7 +189,7 @@ public class VideoScene extends RenScene {
                 TextFlowOverlay textFlowOverlay;
                 if (texts.isEmpty()) {
                     TextOverlay text = new TextOverlay(dialogue);
-                    text.setFont(renJava.getConfiguration().getDialogueFont());
+                    text.setFont(RenJava.CONFIGURATION.getDialogueFont());
                     textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                 } else {
                     textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());

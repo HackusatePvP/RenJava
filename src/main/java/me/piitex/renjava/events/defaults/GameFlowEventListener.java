@@ -117,7 +117,7 @@ public class GameFlowEventListener implements EventListener {
         KeyCode code = event.getEvent().getCode();
         Stage stage;
         if (code == KeyCode.F11) {
-            SettingsProperties properties = renJava.getSettings();
+            SettingsProperties properties = RenJava.SETTINGS;
             if (properties.isFullscreen()) {
                 properties.setFullscreen(false);
                 stage = renJava.getGameWindow().getStage();
@@ -139,7 +139,7 @@ public class GameFlowEventListener implements EventListener {
             RenScene currentScene = RenJava.PLAYER.getCurrentScene();
             if (currentScene != null && !inputScene(currentScene)) {
                 RenScene nextScene = currentScene.getStory().getNextScene(currentScene.getId());
-                if (nextScene != null && (RenJava.PLAYER.hasSeenScene(nextScene.getStory(), nextScene.getId()) || renJava.getSettings().isSkipUnseenText())) {
+                if (nextScene != null && (RenJava.PLAYER.hasSeenScene(nextScene.getStory(), nextScene.getId()) || RenJava.SETTINGS.isSkipUnseenText())) {
                     Tasks.runJavaFXThread(this::playNextScene);
                 } else {
                     if (nextScene == null) {
@@ -250,7 +250,7 @@ public class GameFlowEventListener implements EventListener {
 
             // If the scene is a InputScene check if the click was located inside of the textbox
             if (scene instanceof InputScene) {
-                double textBoxY = renJava.getConfiguration().getTextY();
+                double textBoxY = RenJava.CONFIGURATION.getTextY();
                 System.out.println("TextBox Y: " + textBoxY);
                 if (pressedY > 0) {
                     if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {

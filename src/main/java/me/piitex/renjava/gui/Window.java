@@ -118,8 +118,8 @@ public class Window {
     private boolean focused = true;
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
@@ -127,8 +127,8 @@ public class Window {
     }
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.captureInput = captureInput;
         this.title = title;
         this.stageStyle = stageStyle;
@@ -137,8 +137,8 @@ public class Window {
     }
 
     public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
@@ -148,8 +148,8 @@ public class Window {
     }
 
     public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, boolean captureInput, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.captureInput = captureInput;
         this.title = title;
         this.stageStyle = stageStyle;
@@ -179,8 +179,8 @@ public class Window {
     }
 
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.backgroundColor = backgroundColor;
         this.stageStyle = stageStyle;
@@ -189,8 +189,8 @@ public class Window {
     }
 
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.backgroundColor = backgroundColor;
         this.stageStyle = stageStyle;
@@ -463,8 +463,8 @@ public class Window {
 
     // Renders container on top of current window
     public void render(Container container) {
+        containers.add(container);
         renderContainer(container);
-        stage.show();
     }
 
     private void renderContainer(Container container) {
@@ -573,19 +573,19 @@ public class Window {
         });
 
         stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            RenJava.getInstance().getConfiguration().setCurrentWindowHeight(newValue.doubleValue());
+            RenJava.CONFIGURATION.setCurrentWindowHeight(newValue.doubleValue());
 
-            double scaleWidth = RenJava.getInstance().getConfiguration().getWidthScale();
-            double scaleHeight = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getHeight();
+            double scaleWidth = RenJava.CONFIGURATION.getWidthScale();
+            double scaleHeight = newValue.doubleValue() / RenJava.CONFIGURATION.getHeight();
 
             Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
             root.getTransforms().setAll(scale);
         });
         stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            RenJava.getInstance().getConfiguration().setCurrentWindowWidth(newValue.doubleValue());
+            RenJava.CONFIGURATION.setCurrentWindowWidth(newValue.doubleValue());
 
-            double scaleWidth = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getWidth();
-            double scaleHeight = RenJava.getInstance().getConfiguration().getHeightScale();
+            double scaleWidth = newValue.doubleValue() / RenJava.CONFIGURATION.getWidth();
+            double scaleHeight = RenJava.CONFIGURATION.getHeightScale();
 
             Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
             root.getTransforms().setAll(scale);

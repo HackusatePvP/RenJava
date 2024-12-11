@@ -103,7 +103,7 @@ public class InteractableScene extends RenScene {
 
     @Override
     public Container build(boolean ui) {
-        Container menu = new EmptyContainer(0, 0, renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight());
+        Container menu = new EmptyContainer(0, 0, RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
 
         backgroundImage.setOrder(DisplayOrder.LOW);
         menu.addOverlays(backgroundImage);

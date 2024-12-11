@@ -83,7 +83,7 @@ public class RenLoader {
             if (centralProcessor.getLogicalProcessorCount() <= 2) {
                 // If running 2 logical processes automatically disable multi-threading.
                 RenLogger.LOGGER.error("Your machine does not meet system requirements. Multi-threading has been automatically disabled.");
-                RenJava.getInstance().getSettings().setMultiThreading(false);
+                RenJava.SETTINGS.setMultiThreading(false);
             }
         });
     }

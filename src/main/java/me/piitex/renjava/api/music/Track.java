@@ -42,8 +42,8 @@ public class Track {
                 RenJava.TRACKS.setPlaying(false);
             });
         }
-        //RenLogger.LOGGER.warn("Volume: " + RenJava.getInstance().getSettings().getVolume() / 500d);
-        SettingsProperties settings = RenJava.getInstance().getSettings();
+        //RenLogger.LOGGER.warn("Volume: " + RenJava.SETTINGS.getVolume() / 500d);
+        SettingsProperties settings = RenJava.SETTINGS;
         double masterVolume = settings.getMasterVolume();
         masterVolume = masterVolume / 100;
         double musicVolume = settings.getMusicVolume();
@@ -83,7 +83,7 @@ public class Track {
                 RenJava.TRACKS.setPlaying(false);
             });
         }
-        SettingsProperties settings = RenJava.getInstance().getSettings();
+        SettingsProperties settings = RenJava.SETTINGS;
         double masterVolume = settings.getMasterVolume();
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
@@ -113,7 +113,7 @@ public class Track {
                 RenJava.TRACKS.setPlaying(false);
             });
         }
-        SettingsProperties settings = RenJava.getInstance().getSettings();
+        SettingsProperties settings = RenJava.SETTINGS;
         double masterVolume = settings.getMasterVolume();
         masterVolume = masterVolume / 100;
         double voiceVolume = settings.getVoiceVolume();
@@ -129,7 +129,7 @@ public class Track {
     }
 
     public void setVolume(double volume) {
-        double masterVolume = RenJava.getInstance().getSettings().getMasterVolume();
+        double masterVolume = RenJava.SETTINGS.getMasterVolume();
         masterVolume = masterVolume / 100;
         getPlayer().setVolume(volume * masterVolume / 500d);
     }

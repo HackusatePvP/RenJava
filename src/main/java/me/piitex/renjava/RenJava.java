@@ -75,18 +75,15 @@ public abstract class RenJava {
     protected String version;
     protected int id;
     public static Player PLAYER;
+    public static RenJavaConfiguration CONFIGURATION;
     // Audio Tracking
     public static Tracks TRACKS;
-
     public static AddonLoader ADDONLOADER;
+    // User settings
+    public static SettingsProperties SETTINGS;
 
     private Window gameWindow;
     private MainMenu mainMenu;
-
-    public static RenJavaConfiguration CONFIGURATION;
-
-    // User settings
-    private SettingsProperties settings;
 
     private HostServices hostServices;
 
@@ -179,27 +176,12 @@ public abstract class RenJava {
         this.mainMenu = mainMenu;
     }
 
-    /**
-     * The configuration is used to modify the design of the application. You can change the fonts and text positions, for example.
-     * @return The current configuration.
-     */
-    public RenJavaConfiguration getConfiguration() {
-        return CONFIGURATION;
-    }
-
     public void setConfiguration(RenJavaConfiguration config) {
         CONFIGURATION = config;
     }
 
-    /**
-     * @return The current players settings such as volume.
-     */
-    public SettingsProperties getSettings() {
-         return settings;
-     }
-
     public void setSettings(SettingsProperties settings) {
-         this.settings = settings;
+         SETTINGS = settings;
      }
 
     /**
@@ -582,7 +564,7 @@ public abstract class RenJava {
             RenJava.writeStackTrace(e);
         }
 
-        Window errorWindow = new Window("Error", StageStyle.DECORATED, getInstance().getConfiguration().getGameIcon(), 920, 650, false);
+        Window errorWindow = new Window("Error", StageStyle.DECORATED, CONFIGURATION.getGameIcon(), 920, 650, false);
         errorWindow.setFullscreen(false);
         errorWindow.setMaximized(false);
         errorWindow.updateBackground(Color.WHITE);

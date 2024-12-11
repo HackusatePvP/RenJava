@@ -49,7 +49,7 @@ public class InputScene extends RenScene {
     private InputFieldOverlay inputField;
     private IInputSetEvent setInterface;
 
-    private final RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
+    private final RenJavaConfiguration configuration = RenJava.CONFIGURATION;
 
     /**
      * Constructs an InputScene with the specified ID and image loader.
@@ -124,7 +124,7 @@ public class InputScene extends RenScene {
                 LinkedList<Overlay> texts = StringFormatter.formatText(text);
                 if (texts.isEmpty()) {
                     Text text1 = new Text(text);
-                    text1.setFont(RenJava.getInstance().getConfiguration().getDialogueFont().getFont());
+                    text1.setFont(RenJava.CONFIGURATION.getDialogueFont().getFont());
                     textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                 } else {
                     textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());

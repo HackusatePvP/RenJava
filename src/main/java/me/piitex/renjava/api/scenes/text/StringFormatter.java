@@ -64,7 +64,7 @@ public class StringFormatter {
 
         LinkedList<Overlay> texts = new LinkedList<>();
 
-        RenJavaConfiguration configuration = RenJava.getInstance().getConfiguration();
+        RenJavaConfiguration configuration = RenJava.CONFIGURATION;
         FontLoader currentFont = configuration.getDialogueFont();
         FontLoader italicFont = new FontLoader(currentFont.getFont(), FontWeight.NORMAL, FontPosture.ITALIC, currentFont.getSize());
         FontLoader boldFont = new FontLoader(currentFont.getFont(), FontWeight.BOLD, FontPosture.REGULAR, currentFont.getSize());

@@ -82,7 +82,7 @@ public class ImageScene extends RenScene {
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();
         }
-        configuration = renJava.getConfiguration();
+        configuration = RenJava.CONFIGURATION;
         font = configuration.getDialogueFont();
     }
 
@@ -92,7 +92,7 @@ public class ImageScene extends RenScene {
         this.dialogue = dialogue;
         backgroundImage = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
-        configuration = renJava.getConfiguration();
+        configuration = RenJava.CONFIGURATION;
         font = configuration.getDialogueFont();
     }
 
@@ -153,7 +153,7 @@ public class ImageScene extends RenScene {
                     TextFlowOverlay textFlowOverlay;
                     if (texts.isEmpty()) {
                         TextOverlay text = new TextOverlay(dialogue);
-                        text.setFont(renJava.getConfiguration().getDialogueFont());
+                        text.setFont(RenJava.CONFIGURATION.getDialogueFont());
                         textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                     } else {
                         textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());

@@ -245,33 +245,33 @@ public class DefaultMainMenu implements MainMenu {
 
         VerticalLayout masterBox = new VerticalLayout(1000, 100);
         TextOverlay masterVolumeText = new TextOverlay("Master Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay masterVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getMasterVolume(), 0,0, 200, 200);
+        SliderOverlay masterVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getMasterVolume(), 0,0, 200, 200);
         masterVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setMasterVolume(event.getValue());
+            RenJava.SETTINGS.setMasterVolume(event.getValue());
         });
         masterBox.addOverlays(masterVolumeText, masterVolumeSlider);
 
         VerticalLayout musicBox = new VerticalLayout(1000, 100);
         TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getMusicVolume(), 0,0, 200, 200);
+        SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getMusicVolume(), 0,0, 200, 200);
         musicVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setMusicVolume(event.getValue());
+            RenJava.SETTINGS.setMusicVolume(event.getValue());
         });
         musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
 
         VerticalLayout soundBox = new VerticalLayout(1000, 100);
         TextOverlay soundVolumeText = new TextOverlay("Sound Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay soundVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getSoundVolume(), 0,0, 200, 200);
+        SliderOverlay soundVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getSoundVolume(), 0,0, 200, 200);
         soundVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setSoundVolume(event.getValue());
+            RenJava.SETTINGS.setSoundVolume(event.getValue());
         });
         soundBox.addOverlays(soundVolumeText, soundVolumeSlider);
 
         VerticalLayout voiceBox = new VerticalLayout(1000, 100);
         TextOverlay voiceVolumeText = new TextOverlay("Voice Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getVoiceVolume(), 0,0, 200, 200);
+        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getVoiceVolume(), 0,0, 200, 200);
         voiceVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setVoiceVolume(event.getValue());
+            RenJava.SETTINGS.setVoiceVolume(event.getValue());
         });
         voiceBox.addOverlays(voiceVolumeText, voiceVolumeSlider);
 
