@@ -400,10 +400,7 @@ public class Window {
         if (focused) {
             stage.requestFocus();
         }
-        stage.setMaximized(maximized);
-        stage.setFullScreen(fullscreen);
         stage.show();
-
         // Force clear resources that are unused.
         // To those who feel like GC is bad practice or indicates broken code allow me to explain.
         // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
