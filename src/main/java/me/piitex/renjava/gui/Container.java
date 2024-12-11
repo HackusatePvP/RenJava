@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Container {
-    private final double x, y;
+    private double x, y;
     private final double width, height;
     private DisplayOrder order;
 
@@ -38,8 +38,16 @@ public abstract class Container {
         return x;
     }
 
+    public void setX(double x) {
+        this.x = x;
+    }
+
     public double getY() {
         return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
     }
 
     public double getWidth() {
@@ -64,6 +72,10 @@ public abstract class Container {
 
     public void addOverlays(Overlay... overlays) {
         this.overlays.addAll(List.of(overlays));
+    }
+
+    public void addOverlays(LinkedList<Overlay> overlays) {
+        this.overlays.addAll(overlays);
     }
 
     public LinkedList<Overlay> getOverlays() {
