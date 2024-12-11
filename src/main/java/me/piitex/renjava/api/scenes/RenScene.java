@@ -91,11 +91,13 @@ public abstract class RenScene {
 
 
     public RenScene setBeginningTransition(Transitions transition) {
+        transition.setScene(this);
         this.startTransition = transition;
         return this;
     }
 
     public RenScene setEndTransition(Transitions transition) {
+        transition.setScene(this);
         this.endTransition = transition;
         return this;
     }

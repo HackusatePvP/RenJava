@@ -5,6 +5,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APIChange;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -28,11 +29,11 @@ public class Player implements PersistentData {
     @Data private String currentStory;
     private StageType currentStageType;
     private MediaPlayer currentMedia;
+    private Transitions currentTransition;
 
     // Entry to map the story for the image
     private Map.Entry<String, ImageOverlay> lastDisplayedImage;
 
-    private boolean transitionPlaying = false;
     private boolean uiToggled = true;
 
     private boolean skipAutoScene = false;
@@ -191,12 +192,19 @@ public class Player implements PersistentData {
         this.skipAutoScene = skipAutoScene;
     }
 
-    public boolean isTransitionPlaying() {
-        return transitionPlaying;
+    public Transitions getCurrentTransition() {
+        return currentTransition;
     }
 
-    public void setTransitionPlaying(boolean transitionPlaying) {
-        this.transitionPlaying = transitionPlaying;
+    public void setCurrentTransition(Transitions currentTransition) {
+        this.currentTransition = currentTransition;
+    }
+
+    public boolean isTransitionPlaying() {
+        if (currentTransition == null) {
+            return false;
+        }
+        return currentTransition.isPlaying();
     }
 
     public MediaPlayer getCurrentMedia() {

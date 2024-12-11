@@ -84,12 +84,12 @@ public class FadingTransition extends Transitions {
             SceneEndTransitionFinishEvent endEvent = new SceneEndTransitionFinishEvent(scene, this);
             RenJava.callEvent(endEvent);
 
-            RenJava.PLAYER.setTransitionPlaying(false);
+            RenJava.PLAYER.setCurrentTransition(null);
         });
         if (previousTransition != null) {
             previousTransition.stop(); // Stop previous animation
         }
-        RenJava.PLAYER.setTransitionPlaying(true);
+        RenJava.PLAYER.setCurrentTransition(this);
         fadeTransition.play();
         previousTransition = this;
         playing = true;
@@ -97,7 +97,7 @@ public class FadingTransition extends Transitions {
 
     @Override
     public void stop() {
-        if (fadeTransition != null) {
+        if (fadeTransition != null && RenJava.PLAYER.getCurrentScene().getId().equalsIgnoreCase(getScene().getId())) {
             RenLogger.LOGGER.debug("Stopping transition...");
             fadeTransition.jumpTo(Duration.INDEFINITE);
             try {

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class Transitions {
     private TransitionFinishInterface finishInterface;
     private double duration;
+    private RenScene scene;
 
     public Transitions(double duration) {
         this.duration = duration;
@@ -30,6 +31,14 @@ public abstract class Transitions {
     }
 
     public abstract boolean isPlaying();
+
+    public RenScene getScene() {
+        return scene;
+    }
+
+    public void setScene(RenScene scene) {
+        this.scene = scene;
+    }
 
     public abstract void play(@Nullable RenScene scene, Node node);
 

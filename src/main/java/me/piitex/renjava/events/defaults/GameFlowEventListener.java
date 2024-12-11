@@ -67,11 +67,15 @@ public class GameFlowEventListener implements EventListener {
                     logger.info("Player is not in menu, opening menu...");
 
                     // When opening the right-clicked menu let's see if they are playing any media
-                    if (scene instanceof VideoScene videoScene) {
+                    if (scene instanceof VideoScene) {
                        // They are playing a video. Let's stop the video.
                         if (RenJava.PLAYER.getCurrentMedia() != null) {
                             RenJava.PLAYER.getCurrentMedia().stop();
                         }
+                    }
+
+                    if (player.isTransitionPlaying()) {
+                        player.getCurrentTransition().stop();
                     }
 
                     Container menu = renJava.getMainMenu().mainMenu(true);
@@ -87,6 +91,7 @@ public class GameFlowEventListener implements EventListener {
 
                     // Set flag before rendering. Important for engine checks.
                     player.setRightClickMenu(true);
+                    player.setCurrentStageType(StageType.MAIN_MENU);
 
                     window.render();
 
@@ -106,6 +111,7 @@ public class GameFlowEventListener implements EventListener {
                     window.render();
 
                     player.setRightClickMenu(false);
+                    player.setCurrentStageType(renScene.getStageType());
                 }
             }
         }
@@ -199,10 +205,10 @@ public class GameFlowEventListener implements EventListener {
         // If they scroll down it acts like skipping.
         if (event.isCancelled()) return;
         RenScene scene = RenJava.PLAYER.getCurrentScene();
-        if (RenJava.PLAYER.getRolledScenes().isEmpty()) {
-            RenLogger.LOGGER.warn("Rollback data is not present.");
-        }
         if (scene != null) {
+            if (RenJava.PLAYER.getRolledScenes().isEmpty()) {
+                RenLogger.LOGGER.warn("Rollback data is not present.");
+            }
             // Instead of playing the next, the mouse down will return to previous scene from roll back.
             // Example: Scroll up means you are going back to the previous scene. Scroll down you go back to the scene you were at.
 
@@ -236,6 +242,7 @@ public class GameFlowEventListener implements EventListener {
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
+        if (player.isRightClickMenu()) return;
         if (gameMenu) {
             if (scene == null) {
                 logger.error("The scene is null.");
@@ -289,14 +296,14 @@ public class GameFlowEventListener implements EventListener {
                     if (nextScene != null) {
                         story.displayScene(nextScene, false, false);
                     }
-                    player.setTransitionPlaying(false);
+                    player.setCurrentTransition(scene.getEndTransition());
                     return;
                 }
                 if (scene.getStartTransition() != null) {
                     // Force display scene
                     scene.getStartTransition().stop();
                     story.displayScene(scene, false, false);
-                    player.setTransitionPlaying(false);
+                    player.setCurrentTransition(scene.getStartTransition());
                     return;
                 }
             }
