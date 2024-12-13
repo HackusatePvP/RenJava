@@ -137,11 +137,15 @@ public class DefaultMainMenu implements MainMenu {
 
             FontLoader bottomFont = new FontLoader(RenJava.CONFIGURATION.getUiFont(), 12);
             TextOverlay createdTime = new TextOverlay(save.getLocalizedCreationDate(), bottomFont);
+            // Create same handling as main button
+            createdTime.onClick(loadButton.getOnClick());
+
             createdTime.setY(-80); // Moves the text up a little in the vbox
             createdTime.setX(120); // Moves over to the center hopefully
             buttonBox.addOverlay(createdTime);
             if (save.getName() != null && !save.getName().isEmpty() && !save.getName().equalsIgnoreCase("null")) {
                 TextOverlay saveName = new TextOverlay(save.getName(), bottomFont);
+                saveName.onClick(loadButton.getOnClick());
                 saveName.setY(-80);
                 saveName.setX(120);
                 buttonBox.addOverlay(saveName);
