@@ -29,13 +29,22 @@ public class Prompt {
 
     private boolean blockMainWindow = true;
 
+    private final TextFlowOverlay textFlowOverlay;
+
 
     public Prompt(String message) {
         this.message = message;
+
+        // Pre-set the textflow so it can be modified before rendering
+        this.textFlowOverlay = new TextFlowOverlay(message, RenJava.CONFIGURATION.getDefaultFont(), 850, 300);
     }
 
     public String getMessage() {
         return message;
+    }
+
+    public TextFlowOverlay getTextFlowOverlay() {
+        return textFlowOverlay;
     }
 
     public boolean isBlockMainWindow() {
@@ -44,6 +53,10 @@ public class Prompt {
 
     public void setBlockMainWindow(boolean blockMainWindow) {
         this.blockMainWindow = blockMainWindow;
+    }
+
+    public LinkedList<Overlay> getOverlays() {
+        return overlays;
     }
 
     public void addOverlay(Overlay overlay) {
@@ -57,7 +70,6 @@ public class Prompt {
         background.setOrder(DisplayOrder.LOW);
         container.addOverlay(background);
 
-        TextFlowOverlay textFlowOverlay = new TextFlowOverlay(message, RenJava.CONFIGURATION.getDefaultFont(), 850, 300);
         textFlowOverlay.setTextFillColor(Color.WHITE);
         textFlowOverlay.setY(50);
         textFlowOverlay.setX(50);

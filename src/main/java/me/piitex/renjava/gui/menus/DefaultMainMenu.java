@@ -15,6 +15,7 @@ import me.piitex.renjava.gui.layouts.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.prompts.Prompt;
 import me.piitex.renjava.tasks.Tasks;
 
 import java.util.LinkedList;
@@ -136,11 +137,13 @@ public class DefaultMainMenu implements MainMenu {
 
             FontLoader bottomFont = new FontLoader(RenJava.CONFIGURATION.getUiFont(), 12);
             TextOverlay createdTime = new TextOverlay(save.getLocalizedCreationDate(), bottomFont);
-            createdTime.setY(-50); // Moves the text up a little in the vbox
+            createdTime.setY(-80); // Moves the text up a little in the vbox
             createdTime.setX(120); // Moves over to the center hopefully
             buttonBox.addOverlay(createdTime);
             if (save.getName() != null && !save.getName().isEmpty() && !save.getName().equalsIgnoreCase("null")) {
                 TextOverlay saveName = new TextOverlay(save.getName(), bottomFont);
+                saveName.setY(-80);
+                saveName.setX(120);
                 buttonBox.addOverlay(saveName);
             }
 
@@ -382,31 +385,79 @@ public class DefaultMainMenu implements MainMenu {
                     RenLogger.LOGGER.warn("Save file does not  0-exist.");
                     return;
                 }
-                save.load(true);
-                String storyID = RenJava.PLAYER.getCurrentStoryID();
-                if (storyID == null) {
-                    RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
-                    return;
+
+                if (!event.isRightClicked()) {
+                    save.load(true);
+                    String storyID = RenJava.PLAYER.getCurrentStoryID();
+                    if (storyID == null) {
+                        RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
+                        return;
+                    }
+                    RenLogger.LOGGER.info("Processing save file...");
+
+                    RenLogger.LOGGER.debug("Reloading story...");
+                    RenJava.getInstance().createStory();
+
+                    // Force update fields
+                    RenLogger.LOGGER.debug("Setting current story: " + storyID);
+                    RenJava.PLAYER.setCurrentStory(storyID);
+                    RenLogger.LOGGER.debug("Initializing story...");
+                    RenJava.PLAYER.getCurrentStory().init(); // Re-initialize story
+
+                    RenLogger.LOGGER.debug("Setting current scene: " + RenJava.PLAYER.getCurrentSceneID());
+                    RenJava.PLAYER.setCurrentScene(RenJava.PLAYER.getCurrentSceneID());
+
+                    RenJava.PLAYER.setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
+
+                    RenLogger.LOGGER.debug("Rendering scene...");
+                    RenScene scene = RenJava.PLAYER.getCurrentScene();
+                    RenJava.PLAYER.getStory(storyID).displayScene(scene);
+                } else {
+                    // Rename the save file...
+                    Prompt prompt = new Prompt("Enter the name for the save file: ");
+
+                    TextFlowOverlay textFlowOverlay = prompt.getTextFlowOverlay();
+                    InputFieldOverlay inputFieldOverlay = new InputFieldOverlay("", 0, 0, 400, 50);
+
+                    textFlowOverlay.add(inputFieldOverlay);
+
+                    ButtonOverlay confirm = new ButtonOverlay("yes", "Confirm", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                    confirm.setX(10);
+                    confirm.setY(300);
+
+                    confirm.onClick(event1 -> {
+                        // Set the save file name and re-render.
+                        save.setName(inputFieldOverlay.getCurrentText());
+
+                        prompt.closeWindow();
+
+                        // Re-render the save menu to apply the changes
+                        Window gameWindow = RenJava.getInstance().getGameWindow();
+                        gameWindow.clearContainers();
+
+                        Container container = RenJava.getInstance().getMainMenu().loadMenu(RenJava.PLAYER.isRightClickMenu(), page, false);
+                        Container side = RenJava.getInstance().getMainMenu().sideMenu(RenJava.PLAYER.isRightClickMenu());
+                        container.addContainer(side);
+
+                        gameWindow.addContainer(container);
+
+                        gameWindow.render();
+                    });
+
+                    prompt.addOverlay(confirm);
+
+                    ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                    cancel.setX(700);
+                    cancel.setY(300);
+
+                    prompt.addOverlay(cancel);
+
+                    cancel.onClick(event1 -> {
+                        prompt.closeWindow();
+                    });
+
+                    prompt.render();
                 }
-                RenLogger.LOGGER.info("Processing save file...");
-
-                RenLogger.LOGGER.debug("Reloading story...");
-                RenJava.getInstance().createStory();
-
-                // Force update fields
-                RenLogger.LOGGER.debug("Setting current story: " + storyID);
-                RenJava.PLAYER.setCurrentStory(storyID);
-                RenLogger.LOGGER.debug("Initializing story...");
-                RenJava.PLAYER.getCurrentStory().init(); // Re-initialize story
-
-                RenLogger.LOGGER.debug("Setting current scene: " + RenJava.PLAYER.getCurrentSceneID());
-                RenJava.PLAYER.setCurrentScene(RenJava.PLAYER.getCurrentSceneID());
-
-                RenJava.PLAYER.setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
-
-                RenLogger.LOGGER.debug("Rendering scene...");
-                RenScene scene = RenJava.PLAYER.getCurrentScene();
-                RenJava.PLAYER.getStory(storyID).displayScene(scene);
 
             } else if (RenJava.PLAYER.getCurrentStageType() == StageType.SAVE_MENU) {
                 Tasks.runAsync(save::write);

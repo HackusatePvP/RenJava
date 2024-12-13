@@ -46,6 +46,9 @@ public class Save {
 
     public void setName(String name) {
         this.name = name;
+
+        // If the name was changed re-write save file.
+        update();
     }
 
     public String getLocalizedCreationDate() {
@@ -72,6 +75,47 @@ public class Save {
 
     public boolean exists() {
         return file.exists();
+    }
+
+    public void update() {
+        // Update the save file without re-writing the data.
+        // Only useful for applying name or creation time.
+        String data = retrieveCurrentData();
+        String otherName = data.split("name: ")[1].split("\n")[0];
+        data = data.replace("name: " + otherName, "name: " + name);
+        FileWriter fileWriter = null;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                RenLogger.LOGGER.error("Could not create save file: {}", e.getMessage());
+            }
+        }
+        try {
+            fileWriter = new FileWriter(file, false);
+            fileWriter.write(data);
+        } catch (IOException e) {
+            RenLogger.LOGGER.error("Failed to write to save file!", e);
+            RenJava.writeStackTrace(e);
+        } finally {
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public String retrieveCurrentData() {
+        try {
+            return new Scanner(file).useDelimiter("\\Z").next();
+        } catch (FileNotFoundException e) {
+            RenLogger.LOGGER.error("Could not pull data from save file '{}'!", getFile().getName(), e);
+            RenJava.writeStackTrace(e);
+        }
+        return null;
     }
 
     // Writes save file
