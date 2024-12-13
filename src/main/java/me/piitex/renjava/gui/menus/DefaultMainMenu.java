@@ -71,7 +71,7 @@ public class DefaultMainMenu implements MainMenu {
 
         ButtonOverlay returnButton;
 
-        if (RenJava.PLAYER.getCurrentStageType() == StageType.MAIN_MENU) {
+        if (!RenJava.PLAYER.isRightClickMenu()) {
             returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         } else {
             returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
