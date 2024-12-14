@@ -15,6 +15,8 @@ import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import me.piitex.renjava.events.types.SceneEndEvent;
 import org.slf4j.Logger;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -257,7 +259,7 @@ public abstract class Story {
     }
 
     public void displayScene(RenScene scene, boolean rollback, boolean events) {
-        RenLogger.LOGGER.info("Rendering scene {} in story {}", scene.getId(), scene.getStory().getId());
+        long estTime = System.currentTimeMillis();
         if (events) {
             SceneEndEvent endEvent = new SceneEndEvent(getCurrentScene());
             RenJava.callEvent(endEvent);
@@ -276,6 +278,10 @@ public abstract class Story {
             RenJava.PLAYER.getViewedScenes().put(RenJava.PLAYER.getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
             RenJava.PLAYER.getRolledScenes().put(RenJava.PLAYER.getRolledScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
         }
+
+        long endTime = System.currentTimeMillis();
+        DateFormat format = new SimpleDateFormat("SSSS");
+        RenLogger.LOGGER.debug("Rendered scene '{}' in {}ms", scene.getId(), format.format(endTime));
     }
 
     public void displayNextScene() {

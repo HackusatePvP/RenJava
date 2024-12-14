@@ -476,7 +476,6 @@ public class Window {
         node.setTranslateX(container.getX());
         node.setTranslateY(container.getY());
 
-
         for (Node n : entry.getValue()) {
             if (node instanceof Pane pane) {
                 pane.getChildren().add(n);
@@ -485,7 +484,6 @@ public class Window {
         }
 
         getRoot().getChildren().add(node);
-
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
         RenJava.callEvent(renderEvent);

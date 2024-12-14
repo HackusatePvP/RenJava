@@ -246,9 +246,6 @@ public class Save {
             }
         }
 
-        System.out.println("Name: " + name);
-        System.out.println("Updated: " + updatedTime);
-
         Collection<PersistentData> allData = RenJava.getInstance().getRegisteredData();
         for (Addon addon : RenJava.ADDONLOADER.getAddons()) {
             allData.addAll(addon.getRegisteredData());
