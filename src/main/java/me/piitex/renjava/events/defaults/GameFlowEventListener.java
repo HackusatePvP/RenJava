@@ -263,6 +263,7 @@ public class GameFlowEventListener implements EventListener {
             return;
         }
 
+
         // Lastly, don't process if they click inside the text-field area.
         if (currentScene instanceof InputScene) {
             double textBoxY = RenJava.CONFIGURATION.getTextY();
@@ -297,8 +298,13 @@ public class GameFlowEventListener implements EventListener {
         }
 
         if (nextScene != null) {
-            // First render the scene and play the starting transition if it exists.
-            story.displayScene(nextScene); // This will render the scene and play the starting transition (if one exists).
+            SceneEndEvent endEvent = new SceneEndEvent(currentScene);
+            RenJava.callEvent(endEvent);
+
+            if (endEvent.isAutoPlayNextScene()) {
+                // First render the scene and play the starting transition if it exists.
+                story.displayScene(nextScene); // This will render the scene and play the starting transition (if one exists).
+            }
         } else {
             // Check if the current scene is the last scene in the story.
             if (currentScene != null) {
