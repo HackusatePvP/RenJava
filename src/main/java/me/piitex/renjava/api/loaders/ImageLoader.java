@@ -4,7 +4,7 @@ import javafx.scene.image.*;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APIChange;
 import me.piitex.renjava.api.APINote;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.LimitedHashMap;
 

@@ -6,7 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.loggers.RenLogger;
 
 public class ImageOverlay extends Overlay implements Region {
