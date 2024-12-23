@@ -167,7 +167,6 @@ public class RenLoader {
             infoFile.write("id", renJava.id + "");
         }
 
-        loadRPAFiles();
         renJava.preEnabled();
 
         // Move Save files to APPDATA
@@ -191,10 +190,6 @@ public class RenLoader {
         // After this method jump to GuiLoader. Loading is a little confusing if you want an idea of how the loader works, check out the Launch class.
         // Essentially, the RenJava constructor is declared first which runs this (RenLoader). After the declaration of the RenJava class the GuiLoader is called in the start() function within
         // the Launch class. That was a mouth-full, but hopefully you figure it out!
-    }
-
-    private void loadRPAFiles() {
-        // load rpa files
     }
 
     public synchronized String getVersion() {
