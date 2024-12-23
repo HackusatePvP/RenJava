@@ -110,23 +110,27 @@ public abstract class Container {
     public void buildBase(LinkedList<Node> lowOrder, LinkedList<Node> normalOrder, LinkedList<Node> highOrder) {
         for (Overlay overlay : getOverlays()) {
             Node node = overlay.render();
-            if (overlay.getOrder() == DisplayOrder.LOW) {
-                lowOrder.add(node);
-            } else if (overlay.getOrder() == DisplayOrder.NORMAL) {
-                normalOrder.add(node);
-            } else if (overlay.getOrder() == DisplayOrder.HIGH) {
-                highOrder.add(node);
+            if (node != null) {
+                if (overlay.getOrder() == DisplayOrder.LOW) {
+                    lowOrder.add(node);
+                } else if (overlay.getOrder() == DisplayOrder.NORMAL) {
+                    normalOrder.add(node);
+                } else if (overlay.getOrder() == DisplayOrder.HIGH) {
+                    highOrder.add(node);
+                }
             }
         }
 
         for (Layout layout : getLayouts()) {
             Node node = layout.render(this);
-            if (layout.getOrder() == DisplayOrder.LOW) {
-                lowOrder.add(node);
-            } else if (layout.getOrder() == DisplayOrder.NORMAL) {
-                normalOrder.add(node);
-            } else if (layout.getOrder() == DisplayOrder.HIGH) {
-                highOrder.add(node);
+            if (node != null) {
+                if (layout.getOrder() == DisplayOrder.LOW) {
+                    lowOrder.add(node);
+                } else if (layout.getOrder() == DisplayOrder.NORMAL) {
+                    normalOrder.add(node);
+                } else if (layout.getOrder() == DisplayOrder.HIGH) {
+                    highOrder.add(node);
+                }
             }
         }
 
