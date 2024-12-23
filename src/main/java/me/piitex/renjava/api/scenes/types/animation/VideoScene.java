@@ -9,7 +9,6 @@ import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
@@ -29,8 +28,6 @@ public class VideoScene extends RenScene {
     private String characterDisplayName;
     private boolean loop = false;
     private boolean fitVideoToContainer = false;
-
-    private MediaPlayer mediaPlayer;
 
     private final RenJavaConfiguration configuration;
 
