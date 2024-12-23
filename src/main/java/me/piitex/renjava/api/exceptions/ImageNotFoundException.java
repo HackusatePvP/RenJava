@@ -1,4 +1,4 @@
-package me.piitex.renjava.gui.exceptions;
+package me.piitex.renjava.api.exceptions;
 
 import me.piitex.renjava.api.loaders.ImageLoader;
 

@@ -1,4 +1,4 @@
-package me.piitex.renjava.events.exceptions;
+package me.piitex.renjava.api.exceptions;
 
 public class DuplicateSceneIdException extends Exception {
 
