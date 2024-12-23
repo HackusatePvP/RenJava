@@ -1,6 +1,5 @@
 package me.piitex.renjava.api.scenes;
 
-import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
@@ -11,14 +10,11 @@ import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
 import me.piitex.renjava.events.types.SceneRenderEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.loggers.RenLogger;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Collection;
@@ -180,10 +176,6 @@ public abstract class RenScene {
             RenJava.callEvent(renderEvent);
         }
         window.render();
-        if (events) {
-            SceneStartEvent startEvent = new SceneStartEvent(this);
-            RenJava.callEvent(startEvent);
-        }
 
         if (this instanceof VideoScene videoScene) {
             videoScene.play();
