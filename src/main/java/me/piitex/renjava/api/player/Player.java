@@ -255,6 +255,12 @@ public class Player implements PersistentData {
         viewedStories.clear();
         rolledScenes.clear();
         lastDisplayedImage = null;
+        if (currentMedia != null) {
+            currentMedia.dispose();
+        }
+        if (currentTransition != null) {
+            currentTransition.stop();
+        }
     }
 
 }
