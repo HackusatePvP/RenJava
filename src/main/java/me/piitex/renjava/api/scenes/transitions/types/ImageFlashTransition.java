@@ -35,7 +35,7 @@ public class ImageFlashTransition extends Transitions {
     }
 
     @Override
-    public void play(RenScene scene, Node node) {
+    public void play(Node node) {
         for (ImageOverlay imageOverlay : images) {
             ImageView imageView = new ImageView(imageOverlay.getImage());
             imageView.setFitWidth(imageOverlay.getWidth());
@@ -43,8 +43,13 @@ public class ImageFlashTransition extends Transitions {
             imageView.setX(imageOverlay.getX());
             imageView.setY(imageOverlay.getY());
             FadingTransition fadingTransition = new FadingTransition(0, 1, getDuration(), transitionColor);
-            fadingTransition.play(scene, imageView);
+            fadingTransition.play(imageView);
         }
+    }
+
+    @Override
+    public void play(RenScene scene) {
+
     }
 
     @Override

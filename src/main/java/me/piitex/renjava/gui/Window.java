@@ -15,8 +15,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.*;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -364,6 +366,12 @@ public class Window {
         return containers;
     }
 
+    public void clean() {
+        root.getChildren().clear();
+        scene.setRoot(root);
+        stage.show();
+    }
+
     // Clears and resets current window.
     public void clear() {
         clear(false);
@@ -588,6 +596,11 @@ public class Window {
             Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
             root.getTransforms().setAll(scale);
         });
+    }
+
+    public void handleSceneTransition(RenScene scene, Transitions transitions) {
+        // Play transition on the current root
+        transitions.play(scene);
     }
 
 }

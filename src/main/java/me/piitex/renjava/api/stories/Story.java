@@ -2,8 +2,11 @@ package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.APINote;
+import me.piitex.renjava.api.scenes.transitions.TransitionFinishInterface;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.events.types.SceneStartEvent;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
@@ -216,7 +219,10 @@ public abstract class Story {
     }
 
     public RenScene getNextSceneFromCurrent() {
-        return getNextScene(RenJava.PLAYER.getCurrentScene().getId());
+        if (RenJava.PLAYER.getCurrentScene() != null) {
+            return getNextScene(RenJava.PLAYER.getCurrentScene().getId());
+        }
+        return null;
     }
 
     public RenScene getCurrentScene() {
@@ -235,7 +241,10 @@ public abstract class Story {
     }
 
     public RenScene getPreviousSceneFromCurrent() {
-        return getPreviousSceneFromID(RenJava.PLAYER.getCurrentScene().getId());
+        if (RenJava.PLAYER.getCurrentScene() != null) {
+            return getPreviousSceneFromID(RenJava.PLAYER.getCurrentScene().getId());
+        }
+        return null;
     }
 
     @APINote(description = "Scene indexes start at 0 which is the first scene. The second scene would be '1'.")
@@ -260,17 +269,15 @@ public abstract class Story {
 
     public void displayScene(RenScene scene, boolean rollback, boolean events) {
         long estTime = System.currentTimeMillis();
-        if (events) {
-            SceneEndEvent endEvent = new SceneEndEvent(getCurrentScene());
-            RenJava.callEvent(endEvent);
+        Window window = RenJava.getInstance().getGameWindow();
 
-            SceneStartEvent startEvent = new SceneStartEvent(scene);
-            RenJava.callEvent(startEvent);
+        scene.render(window, true, events);
+
+        // Next play the transition after the scene is set and rendered. (Should be fast enough to not flicker, depends on hardware.)
+        Transitions startTransition = scene.getStartTransition();
+        if (startTransition != null && !startTransition.isPlaying()) {
+            window.handleSceneTransition(scene, startTransition);
         }
-
-        RenJava.PLAYER.updateScene(scene);
-
-        scene.render(RenJava.getInstance().getGameWindow(),true, events);
 
         RenJava.PLAYER.setCurrentStageType(scene.getStageType());
         if (!rollback) {
@@ -279,7 +286,7 @@ public abstract class Story {
             RenJava.PLAYER.getRolledScenes().put(RenJava.PLAYER.getRolledScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
         }
 
-        long endTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis() - estTime;
         DateFormat format = new SimpleDateFormat("SSSS");
         RenLogger.LOGGER.debug("Rendered scene '{}' in {}ms", scene.getId(), format.format(endTime));
     }

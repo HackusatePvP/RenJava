@@ -1,8 +1,8 @@
 package me.piitex.renjava.api.scenes.transitions;
 
-import javafx.event.ActionEvent;
+import me.piitex.renjava.events.types.TransitionStopEvent;
 
 public interface TransitionFinishInterface {
 
-    void onEnd(ActionEvent event);
+    void onEnd(TransitionStopEvent event);
 }

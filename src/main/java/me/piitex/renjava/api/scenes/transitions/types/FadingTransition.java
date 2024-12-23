@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.events.types.SceneEndTransitionFinishEvent;
+import me.piitex.renjava.events.types.TransitionStopEvent;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 
@@ -21,8 +21,7 @@ public class FadingTransition extends Transitions {
 
     private Color color = Color.BLACK;
 
-    // Cheap hack
-    private static FadingTransition previousTransition = null;
+    private RenScene scene;
 
     public FadingTransition(double fromValue, double toValue, double duration, Color color) {
         super(duration);
@@ -67,46 +66,79 @@ public class FadingTransition extends Transitions {
     }
 
     @Override
-    public void play(RenScene scene, Node node) {
+    public void play(Node root) {
+        setPlayed(true);
         fadeTransition = new FadeTransition(Duration.valueOf(getDuration() + "ms"));
         fadeTransition.setFromValue(getFromValue());
         fadeTransition.setToValue(getToValue());
         fadeTransition.setCycleCount(getCycleCount());
         fadeTransition.setAutoReverse(isAutoReverse());
-        fadeTransition.setNode(node);
+        fadeTransition.setNode(root);
         fadeTransition.setDuration(Duration.seconds(getDuration()));
         fadeTransition.setOnFinished(actionEvent -> {
-            if (getOnFinish() != null) {
-                getOnFinish().onEnd(actionEvent);
-            }
+            RenLogger.LOGGER.info("Transition either stopped or finished, calling events...");
+            handleEvents(scene);
             playing = false;
-
-            SceneEndTransitionFinishEvent endEvent = new SceneEndTransitionFinishEvent(scene, this);
-            RenJava.callEvent(endEvent);
-
             RenJava.PLAYER.setCurrentTransition(null);
         });
-        if (previousTransition != null) {
-            previousTransition.stop(); // Stop previous animation
-        }
+        playing = true;
         RenJava.PLAYER.setCurrentTransition(this);
         fadeTransition.play();
-        previousTransition = this;
-        playing = true;
+    }
+
+    @Override
+    public void play(RenScene scene) {
+        this.scene = scene;
+        Node root = RenJava.getInstance().getGameWindow().getRoot();
+        play(root);
     }
 
     @Override
     public void stop() {
-        if (fadeTransition != null && RenJava.PLAYER.getCurrentScene().getId().equalsIgnoreCase(getScene().getId())) {
+        RenLogger.LOGGER.info("Stop has been called on transition...");
+        if (fadeTransition != null && playing) {
             RenLogger.LOGGER.debug("Stopping transition...");
-            fadeTransition.jumpTo(Duration.INDEFINITE);
+            // Check the from and to vaules.
+            // If its a fade-in jump to the end of the transition.
+            // If its a fade-out jump to the beginning
+            if (fromValue < toValue) {
+                RenLogger.LOGGER.info("Fade in.");
+                fadeTransition.jumpTo(Duration.INDEFINITE);
+            } else {
+                fadeTransition.jumpTo(Duration.ZERO);
+            }
             try {
                 fadeTransition.stop();
+                handleEvents(scene);
             } catch (Exception e) {
                 RenLogger.LOGGER.error("Error stopping transition!", e);
                 RenJava.writeStackTrace(e);
             }
+            RenJava.PLAYER.setCurrentTransition(null);
             playing = false;
+
         }
+    }
+
+    public void handleEvents(RenScene scene) {
+        TransitionStopEvent event = new TransitionStopEvent(this, scene);
+
+        if (this == scene.getStartTransition()) {
+            event.setStartTransition(true);
+        }
+
+        if (getEngineInterface() != null) {
+            // Interface for the engine to handle on.
+            // DO NOT modify this.
+            // ERROR: This is being called twice
+            RenLogger.LOGGER.info("Calling transition end engine events...");
+            getEngineInterface().onEnd(event);
+        }
+        if (getOnFinish() != null) {
+            RenLogger.LOGGER.info("Calling transition end events...");
+            getOnFinish().onEnd(event);
+        }
+
+        RenJava.callEvent(event);
     }
 }

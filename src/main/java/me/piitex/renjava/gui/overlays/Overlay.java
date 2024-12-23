@@ -113,7 +113,7 @@ public abstract class Overlay {
 
     public void renderTransitions(Node node) {
         for (Transitions transitions1 : getTransitions()) {
-            transitions1.play(null, node);
+            transitions1.play(node);
         }
     }
 

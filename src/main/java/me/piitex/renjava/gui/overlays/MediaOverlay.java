@@ -2,6 +2,7 @@ package me.piitex.renjava.gui.overlays;
 
 import javafx.scene.Node;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
@@ -30,7 +31,7 @@ public class MediaOverlay extends Overlay implements Region {
     private double width = -1, height = -1;
     private double scaleWidth, scaleHeight;
     private boolean loop = false;
-    private final RenJava renJava = RenJava.getInstance();
+    private final Media media;
 
     public MediaOverlay(String filePath, int x, int y) {
         this.filePath = filePath;
@@ -40,7 +41,7 @@ public class MediaOverlay extends Overlay implements Region {
         if (!file.exists()) {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }
-        Media media = new Media(file.toURI().toString());
+        media = new Media(file.toURI().toString());
 
         // Video should be on sound volune
         SettingsProperties settings = RenJava.SETTINGS;
@@ -61,7 +62,7 @@ public class MediaOverlay extends Overlay implements Region {
         if (!file.exists()) {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }
-        Media media = new Media(file.toURI().toString());
+        media = new Media(file.toURI().toString());
 
         // Video should be on sound volune
         SettingsProperties settings = RenJava.SETTINGS;
@@ -102,16 +103,21 @@ public class MediaOverlay extends Overlay implements Region {
 
     @Override
     public Node render() {
-        MediaView mediaView = new MediaView(RenJava.PLAYER.getCurrentMedia());
-        if (width != -1) {
-            mediaView.setFitWidth(width);
+        if (RenJava.PLAYER.getCurrentMedia() != null) {
+            MediaPlayer player = new MediaPlayer(media);
+            RenJava.PLAYER.setCurrentMedia(player);
+            MediaView mediaView = new MediaView(player);
+            if (width != -1) {
+                mediaView.setFitWidth(width);
+            }
+            if (height != -1) {
+                mediaView.setFitHeight(height);
+            }
+            RenLogger.LOGGER.info("Playing media '{}'", System.getProperty("user.dir") + "/" + filePath);
+            return mediaView;
         }
-        if (height != -1) {
-            mediaView.setFitHeight(height);
-        }
-        RenLogger.LOGGER.info("Playing media '{}'", System.getProperty("user.dir") + "/" + filePath);
-        RenJava.PLAYER.getCurrentMedia().play();
-        return mediaView;
+        RenLogger.LOGGER.warn("Could not get media player!");
+        return null;
     }
 
     @Override

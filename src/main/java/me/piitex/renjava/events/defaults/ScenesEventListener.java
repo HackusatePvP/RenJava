@@ -2,21 +2,14 @@ package me.piitex.renjava.events.defaults;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
-import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.Window;
-import me.piitex.renjava.gui.overlays.InputFieldOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AutoPlayScene;
 import me.piitex.renjava.api.scenes.types.choices.Choice;
 import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
-import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
@@ -29,11 +22,14 @@ import java.util.concurrent.TimeUnit;
 
 public class ScenesEventListener implements EventListener {
 
-    @Listener
-    public void fixBackground(SceneEndTransitionFinishEvent event) {
-        if (event.getTransitions() instanceof FadingTransition) {
-            Window window = RenJava.getInstance().getGameWindow();
-            window.updateBackground(Color.BLACK);
+    @Listener(priority = Priority.HIGHEST)
+    public void onTransitionEnd(TransitionStopEvent event) {
+        // When a transition stops or ends stop any media
+        RenScene scene = event.getScene();
+        if (!event.isStartTransition()) {
+            if (scene instanceof VideoScene videoScene) {
+                videoScene.stop();
+            }
         }
     }
 
@@ -42,7 +38,6 @@ public class ScenesEventListener implements EventListener {
         RenScene scene = event.getScene();
         if (scene instanceof AutoPlayScene autoPlayScene) {
             // Play the next scene after duration.
-
             int duration = autoPlayScene.getDuration();
             Story story = autoPlayScene.getStory();
             Timer timer = new Timer();
@@ -64,15 +59,6 @@ public class ScenesEventListener implements EventListener {
                     }
                 }
             }, TimeUnit.MILLISECONDS.toMillis(duration));
-        }
-    }
-
-    @Listener(priority = Priority.HIGHEST)
-    public void onSceneEnd(SceneEndEvent event) {
-        // If the scene is playing media when it ends stop the media
-        RenScene scene = event.getScene();
-        if (scene instanceof VideoScene videoScene) {
-            videoScene.stop();
         }
     }
 
@@ -105,22 +91,8 @@ public class ScenesEventListener implements EventListener {
         // Event used to save the preview for the save file.
         RenLogger.LOGGER.info("Updating tracker for {}", event.getRenScene().getId());
         RenJava.PLAYER.setLastRenderedScene(event.getScene()); // Update the player/tracker information
-        RenJava.PLAYER.setLastRenderedRenScene(event.getRenScene());
 
-
-        // When the render is called the scene should be already set.
-        RenScene scene = RenJava.PLAYER.getCurrentScene();
-        if (RenJava.PLAYER.isRightClickMenu()) return;
-        if (scene != null) {
-            Window window = RenJava.getInstance().getGameWindow();
-            Transitions transitions = scene.getStartTransition();
-            if (transitions != null) {
-                RenLogger.LOGGER.debug("Playing transition for scene '{}'", scene.getId());
-                if (transitions instanceof FadingTransition fadingTransition) {
-                    window.updateBackground(fadingTransition.getColor());
-                }
-                transitions.play(scene, event.getPane());
-            }
-        }
+        // Fix opacity issues caused by improperly applied transitions.
+        RenJava.getInstance().getGameWindow().getRoot().setOpacity(1);
     }
 }
