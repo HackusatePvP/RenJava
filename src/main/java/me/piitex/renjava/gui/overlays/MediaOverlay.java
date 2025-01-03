@@ -114,6 +114,7 @@ public class MediaOverlay extends Overlay implements Region {
                 mediaView.setFitHeight(height);
             }
             RenLogger.LOGGER.info("Playing media '{}'", System.getProperty("user.dir") + "/" + filePath);
+            setInputControls(mediaView);
             return mediaView;
         }
         RenLogger.LOGGER.warn("Could not get media player!");
