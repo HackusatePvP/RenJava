@@ -304,7 +304,10 @@ public class GameFlowEventListener implements EventListener {
 
         if (nextScene != null) {
             SceneEndEvent endEvent = new SceneEndEvent(currentScene);
-            RenJava.callEvent(endEvent);
+            if (currentScene.getEndInterface() != null) {
+                currentScene.getEndInterface().onEnd(endEvent);
+            }
+            RenJava.getEventHandler().callEvent(endEvent);
 
             if (endEvent.isAutoPlayNextScene()) {
                 // First render the scene and play the starting transition if it exists.
@@ -314,18 +317,17 @@ public class GameFlowEventListener implements EventListener {
             // Check if the current scene is the last scene in the story.
             if (currentScene != null) {
                 SceneEndEvent endEvent = new SceneEndEvent(currentScene);
-
                 if (currentScene.getEndInterface() != null) {
                     currentScene.getEndInterface().onEnd(endEvent);
                 }
-
-                RenJava.callEvent(endEvent);
-
-                story = currentScene.getStory();
-                if (currentScene.getIndex() == story.getLastIndex()) {
-                    // Handle story end events...
-                    StoryEndEvent event = new StoryEndEvent(story);
-                    RenJava.callEvent(event);
+                RenJava.getEventHandler().callEvent(endEvent);
+                if (endEvent.isAutoPlayNextScene()) {
+                    story = currentScene.getStory();
+                    if (currentScene.getIndex() == story.getLastIndex()) {
+                        // Handle story end events...
+                        StoryEndEvent event = new StoryEndEvent(story);
+                        RenJava.getEventHandler().callEvent(event);
+                    }
                 }
             }
         }
