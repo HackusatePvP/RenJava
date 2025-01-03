@@ -290,7 +290,7 @@ public abstract class Story {
 
         long endTime = System.currentTimeMillis() - estTime;
         DateFormat format = new SimpleDateFormat("SSSS");
-        RenLogger.LOGGER.debug("Rendered scene '{}' in {}ms", scene.getId(), format.format(endTime));
+        RenLogger.LOGGER.debug("Rendered scene '{}' in {}ms", scene.getId(), format.format(endTime).replaceFirst("^0*", ""));
     }
 
     public void displayNextScene() {

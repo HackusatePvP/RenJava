@@ -141,10 +141,6 @@ public class GuiLoader {
 
 
         renJava.setGameWindow(window);
-        // Next get the container for the main menu
-//        Container menu = renJava.buildMainMenu(false);
-//        MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
-//        RenJava.callEvent(event);
 
         MainMenu menu = renJava.getMainMenu();
 
