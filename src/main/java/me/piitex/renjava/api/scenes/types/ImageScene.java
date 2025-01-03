@@ -124,6 +124,10 @@ public class ImageScene extends RenScene {
         if (backgroundImage != null) {
             backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
             container.addOverlays(backgroundImage);
+        } else {
+            BoxOverlay boxOverlay = new BoxOverlay(container.getWidth(), configuration.getHeight(), Color.BLACK);
+            boxOverlay.setOrder(DisplayOrder.LOW);
+            container.addOverlay(boxOverlay);
         }
 
         if (ui) {
