@@ -498,10 +498,12 @@ public class Window {
     }
 
     private void handleStageInput(Stage stage) {
-        stage.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-            MouseClickEvent clickEvent = new MouseClickEvent(event);
-            RenJava.callEvent(clickEvent);
-        });
+        // This is causing issues with overriding overlay click events
+//        stage.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+//
+//            MouseClickEvent clickEvent = new MouseClickEvent(event);
+//            RenJava.getEventHandler().callEvent(clickEvent);
+//        });
         stage.addEventFilter(ScrollEvent.SCROLL, event -> {
             double y = event.getDeltaY();
             if (y > 0) {
