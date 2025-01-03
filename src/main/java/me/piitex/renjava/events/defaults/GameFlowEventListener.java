@@ -147,22 +147,15 @@ public class GameFlowEventListener implements EventListener {
             playNextScene();
         }
 
-        // Key-held is a little weird.
         if (code == KeyCode.CONTROL) {
             // Check to see if they viewed the scene first.
             RenScene currentScene = RenJava.PLAYER.getCurrentScene();
             if (currentScene != null && !inputScene(currentScene)) {
-                RenScene nextScene = currentScene.getStory().getNextScene(currentScene.getId());
-                if (nextScene != null && (RenJava.PLAYER.hasSeenScene(nextScene.getStory(), nextScene.getId()) || RenJava.SETTINGS.isSkipUnseenText())) {
-                    Tasks.runJavaFXThread(this::playNextScene);
-                } else {
-                    if (nextScene == null) {
-                        // If the next scene is null call the scene end event
-                        SceneEndEvent endEvent = new SceneEndEvent(currentScene);
-                        if (currentScene.getEndInterface() != null) {
-                            currentScene.getEndInterface().onEnd(endEvent);
-                        }
-                        RenJava.callEvent(endEvent);
+                Story story = currentScene.getStory();
+                if (story != null && story.getNextScene(currentScene.getId()) != null) {
+                    RenScene nextScene = story.getNextScene(currentScene.getId());
+                    if (RenJava.PLAYER.hasSeenScene(story, nextScene.getId())) {
+                        playNextScene();
                     }
                 }
             }
