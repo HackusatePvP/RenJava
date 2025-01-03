@@ -251,6 +251,7 @@ public class Player implements PersistentData {
     public void resetSession() {
         this.currentScene = null;
         this.currentStory = null;
+        this.rightClickMenu = false;
         viewedScenes.clear();
         viewedStories.clear();
         rolledScenes.clear();
