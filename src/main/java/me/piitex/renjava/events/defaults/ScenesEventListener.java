@@ -5,7 +5,6 @@ import javafx.scene.control.Button;
 import me.piitex.renjava.RenJava;
 
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
-import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.AutoPlayScene;
 import me.piitex.renjava.api.scenes.types.choices.Choice;
@@ -21,6 +20,17 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ScenesEventListener implements EventListener {
+
+    @Listener
+    public void onSceneEndEvent(SceneEndEvent endEvent) {
+        RenScene scene = endEvent.getScene();
+        if (scene instanceof VideoScene videoScene) {
+            videoScene.stop();
+        }
+
+        // Fix opacity issues caused by improperly applied transitions.
+        RenJava.getInstance().getGameWindow().getRoot().setOpacity(1);
+    }
 
     @Listener(priority = Priority.HIGHEST)
     public void onTransitionEnd(TransitionStopEvent event) {
@@ -88,11 +98,6 @@ public class ScenesEventListener implements EventListener {
 
     @Listener(priority = Priority.HIGHEST)
     public void onSceneRender(SceneRenderEvent event) {
-        // Event used to save the preview for the save file.
-        RenLogger.LOGGER.info("Updating tracker for {}", event.getRenScene().getId());
-        RenJava.PLAYER.setLastRenderedScene(event.getScene()); // Update the player/tracker information
-
-        // Fix opacity issues caused by improperly applied transitions.
-        RenJava.getInstance().getGameWindow().getRoot().setOpacity(1);
+        RenJava.PLAYER.setLastRenderedScene(event.getScene());
     }
 }
