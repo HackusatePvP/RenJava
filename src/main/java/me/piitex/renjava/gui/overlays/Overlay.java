@@ -3,10 +3,7 @@ package me.piitex.renjava.gui.overlays;
 import javafx.scene.Node;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.events.types.OverlayClickEvent;
-import me.piitex.renjava.events.types.OverlayClickReleaseEvent;
-import me.piitex.renjava.events.types.OverlayExitEvent;
-import me.piitex.renjava.events.types.OverlayHoverEvent;
+import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.overlays.events.IOverlayClick;
 import me.piitex.renjava.gui.overlays.events.IOverlayClickRelease;
@@ -125,7 +122,9 @@ public abstract class Overlay {
         }
         if (node.getOnMouseClicked() == null) {
             node.setOnMouseClicked(event -> {
-                RenJava.callEvent(new OverlayClickEvent(this, event));
+                MouseClickEvent clickEvent = new MouseClickEvent(event);
+                OverlayClickEvent overlayClickEvent = new OverlayClickEvent(this, event);
+                RenJava.getEventHandler().callEventChain(clickEvent, overlayClickEvent);
             });
         }
         if (node.getOnMouseExited() == null) {
