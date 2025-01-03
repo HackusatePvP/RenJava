@@ -5,6 +5,8 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.events.Event;
+import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.events.types.SideMenuBuildEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
@@ -82,7 +84,7 @@ public class DefaultMainMenu implements MainMenu {
         menu.addOverlay(returnButton);
 
         SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(menu);
-        RenJava.callEvent(sideMenuBuildEvent);
+        RenJava.getEventHandler().callEvent(sideMenuBuildEvent);
 
         return menu;
     }
@@ -417,6 +419,16 @@ public class DefaultMainMenu implements MainMenu {
                     RenScene scene = RenJava.PLAYER.getCurrentScene();
                     RenJava.PLAYER.getStory(storyID).displayScene(scene);
                 } else {
+                    // Prevents the right-clicked menu from opening or closing.
+                    if (event.getLinkedEvents().size() > 1) {
+                        for (Event e : event.getLinkedEvents()) {
+                            if (e instanceof MouseClickEvent clickEvent) {
+                                clickEvent.setCancelled(true);
+                            }
+                        }
+                    }
+                    event.setHandleMouseEvent(false);
+
                     // Rename the save file...
                     Prompt prompt = new Prompt("Enter the name for the save file: ");
 
@@ -464,14 +476,56 @@ public class DefaultMainMenu implements MainMenu {
                 }
 
             } else if (RenJava.PLAYER.getCurrentStageType() == StageType.SAVE_MENU) {
-                Tasks.runAsync(save::write);
-                // Re-render
-                RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
-                Container menu = loadMenu(false, 1, false); // Builds first page
-                menu.addContainers(sideMenu(true));
-                RenJava.getInstance().getGameWindow().clearContainers();
-                RenJava.getInstance().getGameWindow().addContainer(menu);
-                RenJava.getInstance().getGameWindow().render();
+                // Prevents the right-clicked menu from opening or closing.
+                if (event.getLinkedEvents().size() > 1) {
+                    for (Event e : event.getLinkedEvents()) {
+                        if (e instanceof MouseClickEvent clickEvent) {
+                            clickEvent.setCancelled(true);
+                        }
+                    }
+                }
+                event.setHandleMouseEvent(false);
+
+                if (save.getFile().exists()) {
+                 Prompt prompt = new Prompt("Do you want to overwrite the current save file?");
+                 ButtonOverlay confirm = new ButtonOverlay("confirm", "Confirm", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                 confirm.setX(10);
+                 confirm.setY(300);
+                 confirm.onClick(event1 -> {
+                     // Write the save file
+                     Tasks.runAsync(save::write);
+                     prompt.closeWindow();
+
+                     // Re-render
+                     RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
+                     Container menu = loadMenu(false, 1, false); // Builds first page
+                     menu.addContainers(sideMenu(true));
+                     RenJava.getInstance().getGameWindow().clearContainers();
+                     RenJava.getInstance().getGameWindow().addContainer(menu);
+                     RenJava.getInstance().getGameWindow().render();
+                 });
+                 prompt.addOverlay(confirm);
+
+                 ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                 cancel.setX(700);
+                 cancel.setY(300);
+                 cancel.onClick(event1 -> {
+                     prompt.closeWindow();
+                 });
+                 prompt.addOverlay(cancel);
+
+                 prompt.render();
+                } else {
+                    Tasks.runAsync(save::write);
+
+                    // Re-render
+                    RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
+                    Container menu = loadMenu(false, 1, false); // Builds first page
+                    menu.addContainers(sideMenu(true));
+                    RenJava.getInstance().getGameWindow().clearContainers();
+                    RenJava.getInstance().getGameWindow().addContainer(menu);
+                    RenJava.getInstance().getGameWindow().render();
+                }
             }
         });
 

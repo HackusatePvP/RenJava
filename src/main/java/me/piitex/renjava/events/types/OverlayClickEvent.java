@@ -8,7 +8,7 @@ import me.piitex.renjava.gui.overlays.Overlay;
 public class OverlayClickEvent extends Event {
     private final Overlay overlay;
     private final MouseEvent event;
-
+    private boolean handleMouseEvent = true;
 
     public OverlayClickEvent(Overlay overlay, MouseEvent event) {
         this.overlay = overlay;
@@ -29,5 +29,13 @@ public class OverlayClickEvent extends Event {
 
     public boolean isMiddleButton() {
         return event.getButton() == MouseButton.MIDDLE;
+    }
+
+    public boolean isHandleMouseEvent() {
+        return handleMouseEvent;
+    }
+
+    public void setHandleMouseEvent(boolean handleMouseEvent) {
+        this.handleMouseEvent = handleMouseEvent;
     }
 }

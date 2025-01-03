@@ -1,6 +1,5 @@
 package me.piitex.renjava.events.defaults;
 
-import javafx.geometry.Insets;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
@@ -8,6 +7,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
+import me.piitex.renjava.events.Event;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
@@ -22,15 +22,13 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.tasks.Tasks;
 import org.slf4j.Logger;
 import java.util.Map;
 
 public class GameFlowEventListener implements EventListener {
     private static final RenJava renJava = RenJava.getInstance();
 
-
-    @Listener(priority = Priority.HIGHEST)
+    @Listener(priority = Priority.LOWEST)
     public void onMouseClick(MouseClickEvent event) {
         // RenJa keeps track of current Stages and other stuff
         Window window = renJava.getGameWindow();
@@ -40,6 +38,18 @@ public class GameFlowEventListener implements EventListener {
         MouseButton button = event.getEvent().getButton();
         Logger logger = RenLogger.LOGGER;
 
+        if (event.isCancelled()) {
+            return;
+        }
+
+        // Check if the overlay event was called
+        for (Event e : event.getLinkedEvents()) {
+            if (e instanceof OverlayClickEvent overlayClickEvent) {
+                if (!overlayClickEvent.isHandleMouseEvent()) {
+                    return;
+                }
+            }
+        }
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
