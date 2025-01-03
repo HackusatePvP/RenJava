@@ -100,15 +100,49 @@ public class MenuClickEventListener implements EventListener {
         if (button.getId().equalsIgnoreCase("menu-return-button")) {
 
             // Prompt them before quitting to main menu.
-            Prompt prompt = new Prompt("Are you sure you want to exit to main menu?");
 
-            Window window = prompt.getPromptWindow();
+            // Only prompt if they are in a save.
+            if (RenJava.PLAYER.getCurrentScene() != null) {
 
-            ButtonOverlay confirm = new ButtonOverlay("yes", "Confirm", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
-            confirm.setX(10);
-            confirm.setY(300);
+                Prompt prompt = new Prompt("Are you sure you want to exit to main menu?");
 
-            confirm.onClick(event1 -> {
+                Window window = prompt.getPromptWindow();
+
+                ButtonOverlay confirm = new ButtonOverlay("yes", "Confirm", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                confirm.setX(10);
+                confirm.setY(300);
+
+                confirm.onClick(event1 -> {
+                    // Exit to the main menu
+                    RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
+                    Container menu = mainMenu.mainMenu(false);
+                    Container side = mainMenu.sideMenu(false);
+                    RenJava.PLAYER.resetSession();
+                    side.setOrder(DisplayOrder.HIGH);
+                    menu.addContainer(side);
+                    gameWindow.clearContainers();
+                    gameWindow.addContainers(menu);
+                    gameWindow.render();
+
+                    // Close the prompt
+                    prompt.closeWindow();
+                });
+
+                prompt.addOverlay(confirm);
+
+                ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                cancel.setX(700);
+                cancel.setY(300);
+
+                cancel.onClick(event1 -> {
+                    // Executes when they cancel the prompt
+                    window.close();
+                });
+
+                prompt.addOverlay(cancel);
+
+                prompt.render();
+            } else {
                 // Exit to the main menu
                 RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
                 Container menu = mainMenu.mainMenu(false);
@@ -119,25 +153,7 @@ public class MenuClickEventListener implements EventListener {
                 gameWindow.clearContainers();
                 gameWindow.addContainers(menu);
                 gameWindow.render();
-
-                // Close the prompt
-                prompt.closeWindow();
-            });
-
-            prompt.addOverlay(confirm);
-
-            ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
-            cancel.setX(700);
-            cancel.setY(300);
-
-            cancel.onClick(event1 -> {
-                // Executes when they cancel the prompt
-                window.close();
-            });
-
-            prompt.addOverlay(cancel);
-
-            prompt.render();
+            }
         }
     }
 
