@@ -1,6 +1,6 @@
 package me.piitex.renjava.events;
 
-import me.piitex.renjava.RenJava;
+import java.util.LinkedList;
 
 /**
  * Events are an extension of "actions" during the game. For example, if a player clicks on a button or closes the game, those are actions.
@@ -13,7 +13,7 @@ import me.piitex.renjava.RenJava;
  * <p>
  * The event system supports different event priorities, allowing you to control the order in which listeners are invoked for a particular event.
  * <p>
- * To trigger an event, you can use the {@link RenJava#callEvent(Event)} method, which will invoke all registered listeners for that event.
+ * To trigger an event, you can use the {@link EventHandler#callEvent(Event)} method, which will invoke all registered listeners for that event.
  * <p>
  * Custom events can be created by extending this class and adding event-specific logic. Here's an example of how to create a custom event:
  * <pre>{@code
@@ -32,12 +32,12 @@ import me.piitex.renjava.RenJava;
  * In the example above, we create a custom event called `CustomEvent` that extends the `Event` class. We add a `String` property called `eventData` and provide a constructor to set its value.
  * We also provide a getter method to retrieve the `eventData` property.
  * <p>
- * Once the custom event is created, you can add your own logic and call the event using the {@link RenJava#callEvent(Event)} method. For example:
+ * Once the custom event is created, you can add your own logic and call the event using the {@link EventHandler#callEvent(Event)} method. For example:
  * <pre>{@code
  * CustomEvent customEvent = new CustomEvent("Some event data");
- * RenJava.callEvent(customEvent);
+ * RenJava.getEventHandler().callEvent(customEvent);
  * }</pre>
- * In the example above, we create an instance of the `CustomEvent` class and pass it to the `RenJava.callEvent()` method to trigger the event. This will invoke all registered listeners for the `CustomEvent`.
+ * In the example above, we create an instance of the `CustomEvent` class and pass it to the `RenJava.getEventHandler().callEvent()` method to trigger the event. This will invoke all registered listeners for the `CustomEvent`.
  * <p>
  * You can pass your custom events in a listener class to handle the data.
  * <pre> {@code
@@ -53,6 +53,7 @@ import me.piitex.renjava.RenJava;
  */
 public abstract class Event {
     private boolean sync = true;
+    private final LinkedList<Event> linkedEvents = new LinkedList<>();
 
     public void setSync(boolean sync) {
         this.sync = sync;
@@ -60,5 +61,9 @@ public abstract class Event {
 
     public boolean isSync() {
         return sync;
+    }
+
+    public LinkedList<Event> getLinkedEvents() {
+        return linkedEvents;
     }
 }

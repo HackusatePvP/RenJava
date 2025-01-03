@@ -109,7 +109,7 @@ public class GuiLoader {
         // Specifically for the gameWindow it is needed to setup the shutdown events.
         window.getStage().setOnHiding(windowEvent -> {
             ShutdownEvent shutdownEvent = new ShutdownEvent();
-            RenJava.callEvent(shutdownEvent);
+            RenJava.getEventHandler().callEvent(shutdownEvent);
 
             RenJava.ADDONLOADER.disable();
 
@@ -160,7 +160,7 @@ public class GuiLoader {
         // Render main menu
         Container container = menu.mainMenu(false);
         MainMenuBuildEvent event = new MainMenuBuildEvent(container);
-        RenJava.callEvent(event);
+        RenJava.getEventHandler().callEvent(event);
         window.addContainer(container);
 
         Container sideMenu = menu.sideMenu(false);
@@ -168,14 +168,14 @@ public class GuiLoader {
         window.addContainers(sideMenu);
 
         MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(container);
-        RenJava.callEvent(dispatchEvent);
+        RenJava.getEventHandler().callEvent(dispatchEvent);
 
         window.setMaximized(configuration.isMaximizedGameWindow());
 
         window.render(); // Renders the window
 
-        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(container);
-        RenJava.callEvent(renderEvent);
+        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(container, false);
+        RenJava.getEventHandler().callEvent(renderEvent);
 
         RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 

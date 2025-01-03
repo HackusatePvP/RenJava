@@ -109,7 +109,7 @@ public class InteractableScene extends RenScene {
         }
 
         SceneBuildEvent event = new SceneBuildEvent(this, container);
-        RenJava.callEvent(event);
+        RenJava.getEventHandler().callEvent(event);
 
         return container;
     }

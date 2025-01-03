@@ -78,7 +78,7 @@ public class GameFlowEventListener implements EventListener {
                     menu.addContainers(renJava.getMainMenu().sideMenu(true));
 
                     MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
-                    RenJava.callEvent(buildEvent);
+                    RenJava.getEventHandler().callEvent(buildEvent);
 
                     // Clear current window
                     window.clearContainers();
@@ -92,7 +92,7 @@ public class GameFlowEventListener implements EventListener {
                     window.render();
 
                     MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu, true);
-                    RenJava.callEvent(renderEvent);
+                    RenJava.getEventHandler().callEvent(renderEvent);
 
                 } else {
                     // Return to previous screen
@@ -100,7 +100,7 @@ public class GameFlowEventListener implements EventListener {
                     if (renScene == null) return;
                     Container menu = renScene.build(true);
                     SceneBuildEvent sceneBuildEvent = new SceneBuildEvent(renScene, menu);
-                    RenJava.callEvent(sceneBuildEvent);
+                    RenJava.getEventHandler().callEvent(sceneBuildEvent);
 
                     window.clearContainers();
                     window.addContainers(menu);
@@ -168,10 +168,10 @@ public class GameFlowEventListener implements EventListener {
 
         if (y > 0) {
             ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
-            RenJava.callEvent(scrollUpEvent);
+            RenJava.getEventHandler().callEvent(scrollUpEvent);
         } else {
             ScrollDownEvent scrollDownEvent = new ScrollDownEvent();
-            RenJava.callEvent(scrollDownEvent);
+            RenJava.getEventHandler().callEvent(scrollDownEvent);
         }
 
     }
@@ -194,7 +194,7 @@ public class GameFlowEventListener implements EventListener {
                     // Call SceneRollBackEvent
                     RenScene currentScene = RenJava.PLAYER.getCurrentScene();
                     SceneRollbackEvent rollbackEvent = new SceneRollbackEvent(previousScene, currentScene);
-                    RenJava.callEvent(rollbackEvent);
+                    RenJava.getEventHandler().callEvent(rollbackEvent);
                     previousScene.getStory().displayScene(previousScene, true);
                 }
             }

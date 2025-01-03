@@ -55,7 +55,7 @@ public class InputFieldOverlay extends Overlay implements Region {
             // If there is content manually call set event
             InputSetEvent event = new InputSetEvent(this, defaultInput);
             getiInputSetEvent().onInputSet(event);
-            RenJava.callEvent(event);
+            RenJava.getEventHandler().callEvent(event);
         }
 
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -63,7 +63,7 @@ public class InputFieldOverlay extends Overlay implements Region {
             if (getiInputSetEvent() != null) {
                 getiInputSetEvent().onInputSet(event);
             }
-            RenJava.callEvent(event);
+            RenJava.getEventHandler().callEvent(event);
             currentText = newValue;
         });
         setInputControls(textField);

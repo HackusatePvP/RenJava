@@ -137,7 +137,7 @@ public class InputScene extends RenScene {
 
                 inputField.onInputSetEvent(event -> {
                     getSetInterface().onInputSet(event);
-                    RenJava.callEvent(event);
+                    RenJava.getEventHandler().callEvent(event);
                 });
 
                 inputField.setOrder(DisplayOrder.HIGH);

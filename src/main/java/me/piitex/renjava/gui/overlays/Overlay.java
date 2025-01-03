@@ -120,7 +120,7 @@ public abstract class Overlay {
     public void setInputControls(Node node) {
         if (node.getOnDragEntered() == null) {
             node.setOnMouseEntered(event -> {
-                RenJava.callEvent(new OverlayHoverEvent(this, event));
+                RenJava.getEventHandler().callEvent(new OverlayHoverEvent(this, event));
             });
         }
         if (node.getOnMouseClicked() == null) {
@@ -130,12 +130,12 @@ public abstract class Overlay {
         }
         if (node.getOnMouseExited() == null) {
             node.setOnMouseExited(event -> {
-                RenJava.callEvent(new OverlayExitEvent(this, event));
+                RenJava.getEventHandler().callEvent(new OverlayExitEvent(this, event));
             });
         }
         if (node.getOnMouseReleased() == null) {
             node.setOnMouseReleased(event -> {
-                RenJava.callEvent(new OverlayClickReleaseEvent(this, event));
+                RenJava.getEventHandler().callEvent(new OverlayClickReleaseEvent(this, event));
             });
         }
     }

@@ -87,9 +87,9 @@ public class SliderOverlay extends Overlay implements Region {
         slider.setOnMouseDragged(event -> {
             SliderChangeEvent changeEvent = new SliderChangeEvent(this, slider.getValue());
             getSliderChange().onSliderChange(changeEvent);
-            RenJava.callEvent(changeEvent);
+            RenJava.getEventHandler().callEvent(changeEvent);
 
-            RenJava.callEvent(new OverlayClickReleaseEvent(this, event));
+            RenJava.getEventHandler().callEvent(new OverlayClickReleaseEvent(this, event));
         });
 
         setInputControls(slider);

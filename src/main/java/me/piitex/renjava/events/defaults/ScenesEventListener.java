@@ -53,7 +53,7 @@ public class ScenesEventListener implements EventListener {
                         Platform.runLater(() -> {
                             if (RenJava.PLAYER.getCurrentStory().getId().equalsIgnoreCase(story.getId())) {
                                 // Call story end
-                                RenJava.callEvent(new StoryEndEvent(story));
+                                RenJava.getEventHandler().callEvent(new StoryEndEvent(story));
                             }
                         });
                     }
@@ -70,7 +70,7 @@ public class ScenesEventListener implements EventListener {
             Choice choice = choiceScene.getChoice(button.getId());
             if (choice != null) {
                 ChoiceSelectEvent selectEvent = new ChoiceSelectEvent(choice, scene.getStory(), scene);
-                RenJava.callEvent(selectEvent);
+                RenJava.getEventHandler().callEvent(selectEvent);
                 if (choiceScene.getSelectInterface() != null) {
                     choiceScene.getSelectInterface().onChoiceSelect(selectEvent);
                 }

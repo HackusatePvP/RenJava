@@ -3,45 +3,29 @@ package me.piitex.renjava;
 import javafx.application.HostServices;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.api.Game;
-import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.exceptions.InvalidCharacterException;
 import me.piitex.renjava.api.music.Tracks;
-import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.player.Player;
-import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
-import me.piitex.renjava.events.Event;
-import me.piitex.renjava.events.EventListener;
-import me.piitex.renjava.events.Listener;
+import me.piitex.renjava.events.EventHandler;
 import me.piitex.renjava.events.defaults.*;
-
-import me.piitex.renjava.events.types.SideMenuBuildEvent;
-import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
-import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.containers.ScrollContainer;
-import me.piitex.renjava.gui.layouts.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
-import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.menus.MainMenu;
 import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.tasks.Tasks;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -81,8 +65,10 @@ public abstract class RenJava {
     public static AddonLoader ADDONLOADER;
     // User settings
     public static SettingsProperties SETTINGS;
+    public static EventHandler EVENTHANDLER;
 
     private Window gameWindow;
+    private static Window errorWindow;
     private MainMenu mainMenu;
 
     private HostServices hostServices;
@@ -90,7 +76,6 @@ public abstract class RenJava {
     private Logger logger;
 
     private final Map<String, Character> registeredCharacters = new HashMap<>();
-    private final Collection<EventListener> registeredListeners = new HashSet<>();
     private final Collection<PersistentData> registeredData = new HashSet<>();
 
     protected String buildVersion;
@@ -111,12 +96,13 @@ public abstract class RenJava {
         // Run after super
         PLAYER = new Player();
         TRACKS = new Tracks();
+        EVENTHANDLER = new EventHandler();
 
-        this.registerListener(new MenuClickEventListener());
-        this.registerListener(new GameFlowEventListener());
-        this.registerListener(new StoryHandlerEventListener());
-        this.registerListener(new ScenesEventListener());
-        this.registerListener(new OverlayEventListener());
+        EVENTHANDLER.registerListener(new MenuClickEventListener());
+        EVENTHANDLER.registerListener(new GameFlowEventListener());
+        EVENTHANDLER.registerListener(new StoryHandlerEventListener());
+        EVENTHANDLER.registerListener(new ScenesEventListener());
+        EVENTHANDLER.registerListener(new OverlayEventListener());
         this.registerData(PLAYER);
         this.registerData(TRACKS);
         new RenLoader(this);
@@ -273,28 +259,6 @@ public abstract class RenJava {
     }
 
     /**
-     * Registers an {@link EventListener} to handle game events.
-     * <p>
-     * This method is used to register an {@link EventListener} that handles game events.
-     * Event listeners can listen for specific events and perform actions in response to those events.
-     * <p>
-     * To register an event listener, pass an instance of the event listener class that implements the {@link EventListener} interface
-     * as the parameter to this method.
-     *
-     * @param listener The event listener implementing the {@link EventListener} interface to be registered for handling game events.
-     *
-     * @see EventListener
-     * @see Listener
-     */
-    public void registerListener(EventListener listener) {
-        this.registeredListeners.add(listener);
-    }
-
-    public Collection<EventListener> getRegisteredListeners() {
-        return registeredListeners;
-    }
-
-    /**
      * This method is called before the game's title screen is shown. It is recommended to implement this method to perform any necessary setup or initialization tasks before the game starts.
      * <p>
      * In the `preEnabled()` method, you can create player data, initialize global variables, or perform any other actions that need to be done before the game begins.
@@ -404,6 +368,10 @@ public abstract class RenJava {
         return instance;
     }
 
+    public static EventHandler getEventHandler() {
+        return EVENTHANDLER;
+    }
+
     /**
      * Opens the provided link in the players default browser.
      * <p>
@@ -418,115 +386,6 @@ public abstract class RenJava {
      */
     public static void openLink(String url) {
         getInstance().getHost().showDocument(url);
-    }
-
-    /**
-     * The event system in RenJava allows for the handling of various game events and actions. Events are an extension of "actions" during the game, such as player clicks or game flow changes.
-     * <p>
-     * The event system follows a listener-based architecture, where event listeners can register to listen for specific events and perform actions in response to those events.
-     * <p>
-     * To create a custom event, you can extend the {@link Event} class and define your own event-specific properties and methods.
-     * <p>
-     * To handle events, you can implement the {@link EventListener} interface and register your listener with the RenJava framework.
-     * <p>
-     * The event system supports different event priorities, allowing you to control the order in which listeners are invoked for a particular event.
-     * <p>
-     * To trigger an event, you can use the {@link RenJava#callEvent(Event)} method, which will invoke all registered listeners for that event.
-     * <p>
-     * To handle events, annotate a method with the {@link Listener} annotation and provide the event type as the parameter. For example:
-     * <pre>{@code
-     *     @Listener
-     *     public void onMouseClickEvent(MouseClickEvent event) {
-     *         // Code to handle the mouse click event
-     *     }
-     * }</pre>
-     *
-     * @see Event
-     * @see EventListener
-     * @see Listener
-     *
-     * @param event Event to be executed.
-     */
-    public static void callEvent(Event event) {
-        Map<EventListener, Method> lowestMethods = new HashMap<>();
-        Map<EventListener, Method> lowMethods = new HashMap<>();
-        Map<EventListener, Method> normalMethods = new HashMap<>();
-        Map<EventListener, Method> highMethods = new HashMap<>();
-        Map<EventListener, Method> highestMethods = new HashMap<>();
-
-        Collection<EventListener> eventListeners = new HashSet<>(getInstance().getRegisteredListeners());
-        for (Addon addon : ADDONLOADER.getAddons()) {
-            eventListeners.addAll(addon.getRegisteredListeners());
-        }
-
-        for (EventListener listener : eventListeners) {
-            for (Method method : listener.getClass().getMethods()) {
-                if (method.isAnnotationPresent(Listener.class)) {
-                    Class<?>[] params = method.getParameterTypes();
-                    boolean scan = false;
-                    for (Class<?> param : params) {
-                        if (param.isInstance(event)) {
-                            scan = true;
-                            break;
-                        }
-                    }
-                    if (scan) {
-                        Listener listener1 = method.getAnnotation(Listener.class);
-                        switch (listener1.priority()) {
-                            case HIGHEST -> highestMethods.put(listener, method);
-                            case HIGH -> highMethods.put(listener,method);
-                            case NORMAL -> normalMethods.put(listener,method);
-                            case LOW -> lowMethods.put(listener,method);
-                            case LOWEST -> lowestMethods.put(listener,method);
-                        }
-                    }
-                }
-            }
-        }
-
-        highestMethods.forEach((listener, method) -> {
-            invokeMethod(listener, method, event);
-        });
-        highMethods.forEach((listener, method) -> {
-            invokeMethod(listener, method, event);
-        });
-        normalMethods.forEach((listener, method) -> {
-            invokeMethod(listener, method, event);
-        });
-        lowMethods.forEach((listener, method) -> {
-            invokeMethod(listener, method, event);
-        });
-        lowestMethods.forEach((listener, method) -> {
-            invokeMethod(listener, method, event);
-        });
-
-        // Clear resource usage
-        lowestMethods.clear();
-        lowMethods.clear();
-        normalMethods.clear();
-        highMethods.clear();
-        highestMethods.clear();
-        eventListeners.clear();
-    }
-
-    private static void invokeMethod(EventListener listener, Method method, Event event) {
-        try {
-            if (event.isSync()) {
-                method.invoke(listener, event);
-            } else {
-                Tasks.runAsync(() -> {
-                    try {
-                        method.invoke(listener, event);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        RenLogger.LOGGER.error("Could not invoke event method for '" + method.getName() + "'", e);
-                        writeStackTrace(e);
-                    }
-                });
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            RenLogger.LOGGER.error("Could not invoke event method for '" + method.getName() + "'", e);
-            writeStackTrace(e);
-        }
     }
 
     public static void writeStackTrace(Exception e) {
@@ -564,7 +423,11 @@ public abstract class RenJava {
             RenJava.writeStackTrace(e);
         }
 
-        Window errorWindow = new Window("Error", StageStyle.DECORATED, CONFIGURATION.getGameIcon(), 920, 650, false);
+        if (errorWindow == null) {
+            errorWindow = new Window("Error", StageStyle.DECORATED, CONFIGURATION.getGameIcon(), 920, 650, false);
+        } else {
+            errorWindow.clearContainers();
+        }
         errorWindow.setFullscreen(false);
         errorWindow.setMaximized(false);
         errorWindow.updateBackground(Color.WHITE);
@@ -587,12 +450,10 @@ public abstract class RenJava {
         TextFlowOverlay textFlowOverlay = new TextFlowOverlay(texts, 900, 600);
         rootLayout.addOverlay(textFlowOverlay);
 
+        container.addLayout(rootLayout);
+
         errorWindow.addContainers(container);
 
         errorWindow.render();
-
-        // Clear resource usage
-        texts.clear();
-
     }
 }

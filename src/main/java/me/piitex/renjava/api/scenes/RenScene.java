@@ -10,6 +10,7 @@ import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
 import me.piitex.renjava.events.types.SceneRenderEvent;
+import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
@@ -22,7 +23,7 @@ import java.util.HashSet;
 
 
 /**
- * The RenScene class represents a scene in the RenJava framework.
+ * The RenScene class represents a scene in the RenJava framework.  q
  * It serves as a base class for different types of scenes, such as image scenes and interactable scenes.
  * Scenes are used to display visuals and interact with the player during the gameplay or narrative progression.
  *
@@ -173,8 +174,12 @@ public abstract class RenScene {
 
         if (events) {
             SceneRenderEvent renderEvent = new SceneRenderEvent(this, window.getScene(), window.getRoot());
-            RenJava.callEvent(renderEvent);
+            RenJava.getEventHandler().callEvent(renderEvent);
+
+            SceneStartEvent startEvent = new SceneStartEvent(this);
+            RenJava.getEventHandler().callEvent(startEvent);
         }
+
         window.render();
 
         if (this instanceof VideoScene videoScene) {

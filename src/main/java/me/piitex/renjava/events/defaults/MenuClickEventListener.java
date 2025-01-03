@@ -36,7 +36,7 @@ public class MenuClickEventListener implements EventListener {
 
             // Call GameStartEvent
             GameStartEvent event1 = new GameStartEvent(renJava);
-            RenJava.callEvent(event1);
+            RenJava.getEventHandler().callEvent(event1);
 
             renJava.start();
         }

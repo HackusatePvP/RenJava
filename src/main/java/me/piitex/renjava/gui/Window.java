@@ -494,7 +494,7 @@ public class Window {
         getRoot().getChildren().add(node);
 
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
-        RenJava.callEvent(renderEvent);
+        RenJava.getEventHandler().callEvent(renderEvent);
     }
 
     private void handleStageInput(Stage stage) {
@@ -507,10 +507,10 @@ public class Window {
             if (y > 0) {
                 // Scroll up
                 ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
-                RenJava.callEvent(scrollUpEvent);
+                RenJava.getEventHandler().callEvent(scrollUpEvent);
             } else {
                 ScrollDownEvent downEvent = new ScrollDownEvent();
-                RenJava.callEvent(downEvent);
+                RenJava.getEventHandler().callEvent(downEvent);
             }
         });
         stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -534,7 +534,7 @@ public class Window {
                             if (lastRun == null) {
                                 Tasks.runJavaFXThread(() -> {
                                     KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
-                                    RenJava.callEvent(event1);
+                                    RenJava.getEventHandler().callEvent(event1);
                                 });
                                 lastRun = current;
                             } else {
@@ -548,7 +548,7 @@ public class Window {
                                 if (diff > 75) {
                                     Tasks.runJavaFXThread(() -> {
                                         KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
-                                        RenJava.callEvent(event1);
+                                        RenJava.getEventHandler().callEvent(event1);
                                     });
                                     lastRun = current;
                                 }
@@ -558,7 +558,7 @@ public class Window {
                 }
             } else {
                 KeyPressEvent pressEvent = new KeyPressEvent(event);
-                RenJava.callEvent(pressEvent);
+                RenJava.getEventHandler().callEvent(pressEvent);
             }
         });
 
@@ -570,11 +570,11 @@ public class Window {
                 if (KeyUtils.getCurrentKeyDown() != null) {
                     KeyUtils.setModifierDown(event.getCode(), false);
                     KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
-                    RenJava.callEvent(releaseEvent);
+                    RenJava.getEventHandler().callEvent(releaseEvent);
                 }
             } else {
                 KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
-                RenJava.callEvent(releaseEvent);
+                RenJava.getEventHandler().callEvent(releaseEvent);
             }
         });
 

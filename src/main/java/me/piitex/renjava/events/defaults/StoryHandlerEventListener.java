@@ -27,7 +27,7 @@ public class StoryHandlerEventListener implements EventListener {
             // Update the story tracker
             //RenJava.getInstance().getPlayer().setCurrentStory(story);
             StoryStartEvent startEvent = new StoryStartEvent(story);
-            RenJava.callEvent(startEvent);
+            RenJava.getEventHandler().callEvent(startEvent);
         }
     }
 

@@ -1,26 +1,20 @@
 package me.piitex.renjava.api.scenes.types;
 
-import javafx.scene.text.*;
+import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.SceneBuildEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
 
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
-import me.piitex.renjava.gui.overlays.ImageOverlay;
-import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.gui.overlays.TextFlowOverlay;
-import me.piitex.renjava.gui.overlays.TextOverlay;
-import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.gui.overlays.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -187,7 +181,7 @@ public class ImageScene extends RenScene {
 
         // Call SceneBuild event.
         SceneBuildEvent event = new SceneBuildEvent(this, container);
-        RenJava.callEvent(event);
+        RenJava.getEventHandler().callEvent(event);
 
         return container;
     }

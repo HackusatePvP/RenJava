@@ -128,6 +128,8 @@ public abstract class Story {
         }
 
         RenLogger.LOGGER.debug("Rendering first scene...");
+        SceneStartEvent startEvent = new SceneStartEvent(renScene);
+        RenJava.getEventHandler().callEvent(startEvent);
         displayScene(renScene, false, true);
     }
 

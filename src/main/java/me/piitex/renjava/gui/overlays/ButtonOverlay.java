@@ -417,7 +417,7 @@ public class ButtonOverlay extends Overlay implements Region {
 
         button.setOnAction(actionEvent -> {
             ButtonClickEvent event = new ButtonClickEvent(button);
-            RenJava.callEvent(event);
+            RenJava.getEventHandler().callEvent(event);
         });
 
         this.button = button;

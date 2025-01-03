@@ -76,7 +76,6 @@ public class FadingTransition extends Transitions {
         fadeTransition.setNode(root);
         fadeTransition.setDuration(Duration.seconds(getDuration()));
         fadeTransition.setOnFinished(actionEvent -> {
-            RenLogger.LOGGER.info("Transition either stopped or finished, calling events...");
             handleEvents(scene);
             playing = false;
             RenJava.PLAYER.setCurrentTransition(null);
@@ -95,20 +94,18 @@ public class FadingTransition extends Transitions {
 
     @Override
     public void stop() {
-        RenLogger.LOGGER.info("Stop has been called on transition...");
         if (fadeTransition != null && playing) {
-            RenLogger.LOGGER.debug("Stopping transition...");
             // Check the from and to vaules.
             // If its a fade-in jump to the end of the transition.
             // If its a fade-out jump to the beginning
             if (fromValue < toValue) {
-                RenLogger.LOGGER.info("Fade in.");
                 fadeTransition.jumpTo(Duration.INDEFINITE);
             } else {
                 fadeTransition.jumpTo(Duration.ZERO);
             }
             try {
                 fadeTransition.stop();
+                fadeTransition.getNode().setOpacity(1); // Resets opacity
                 handleEvents(scene);
             } catch (Exception e) {
                 RenLogger.LOGGER.error("Error stopping transition!", e);
@@ -130,15 +127,12 @@ public class FadingTransition extends Transitions {
         if (getEngineInterface() != null) {
             // Interface for the engine to handle on.
             // DO NOT modify this.
-            // ERROR: This is being called twice
-            RenLogger.LOGGER.info("Calling transition end engine events...");
             getEngineInterface().onEnd(event);
         }
         if (getOnFinish() != null) {
-            RenLogger.LOGGER.info("Calling transition end events...");
             getOnFinish().onEnd(event);
         }
 
-        RenJava.callEvent(event);
+        RenJava.getEventHandler().callEvent(event);
     }
 }
