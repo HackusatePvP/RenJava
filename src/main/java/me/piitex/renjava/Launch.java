@@ -38,6 +38,10 @@ public class Launch extends Application {
         // Initializes the Ren logger which is separated from the application logger.
         RenLogger.init();
 
+        // Prevent renjava folder error
+        File renJavaDir = new File(System.getProperty("user.dir") + "/renjava/");
+        renJavaDir.mkdir();
+
         InfoFile buildInfo = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), true);
         if (buildInfo.containsKey("main")) {
             String mainClass = buildInfo.getString("main");
