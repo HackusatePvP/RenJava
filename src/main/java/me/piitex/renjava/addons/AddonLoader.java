@@ -105,6 +105,8 @@ public class AddonLoader {
                 // Delete after
                 buildFile.delete();
 
+                extractResources(zipFile);
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -222,6 +224,31 @@ public class AddonLoader {
                         logger.info("Loaded: {}", addon.getName());
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private void extractResources(ZipFile zipFile) {
+        // Extract game content from jar file resources to game folder.
+        RenLogger.LOGGER.info("Extracting addon contents...");
+        Enumeration<?> enumeration = zipFile.entries();
+        while (enumeration.hasMoreElements()) {
+            ZipEntry zipEntry = (ZipEntry) enumeration.nextElement();
+            String nanme = zipEntry.getName();
+            if (nanme.startsWith("game/")) {
+                File file = new File(nanme);
+                if (nanme.endsWith("/")) {
+                    file.mkdirs();
+                    continue;
+                }
+
+                try {
+                    Files.copy(zipFile.getInputStream(zipEntry), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    RenLogger.LOGGER.info("Extracted '{}' to '{}'", nanme, file.getAbsolutePath());
+                } catch (IOException e) {
+                    RenLogger.LOGGER.error(e.getMessage(), e);
+                    RenJava.writeStackTrace(e);
                 }
             }
         }
