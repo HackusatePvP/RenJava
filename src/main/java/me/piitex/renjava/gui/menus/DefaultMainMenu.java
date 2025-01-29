@@ -2,6 +2,7 @@ package me.piitex.renjava.gui.menus;
 
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.ButtonID;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.api.scenes.RenScene;
@@ -52,11 +53,11 @@ public class DefaultMainMenu implements MainMenu {
 
         Color hoverColor = RenJava.CONFIGURATION.getHoverColor();
 
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay startButton = new ButtonOverlay(ButtonID.START.getId(), "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay loadButton = new ButtonOverlay(ButtonID.LOAD.getId(),"Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay saveButton = new ButtonOverlay(ButtonID.SAVE.getId(),"Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay optionsButton = new ButtonOverlay(ButtonID.SETTINGS.getId(),"Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay aboutButton = new ButtonOverlay(ButtonID.ABOUT.getId(),"About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(400, 500);
         layout.setOrder(DisplayOrder.HIGH);
@@ -75,9 +76,9 @@ public class DefaultMainMenu implements MainMenu {
         ButtonOverlay returnButton;
 
         if (!RenJava.PLAYER.isRightClickMenu()) {
-            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+            returnButton = new ButtonOverlay(ButtonID.QUIT.getId(),"Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         } else {
-            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+            returnButton = new ButtonOverlay(ButtonID.RETURN.getId(),"Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         }
         returnButton.setX(25);
         returnButton.setY(980);
@@ -129,7 +130,6 @@ public class DefaultMainMenu implements MainMenu {
         LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers());
         while (index <=  maxSavesPerPage) {
             Save save = new Save(index);
-            save.load(false);
             // Create a button box
             VerticalLayout buttonBox = new VerticalLayout(414, 320);
 
@@ -388,12 +388,17 @@ public class DefaultMainMenu implements MainMenu {
         loadButton.onClick(event -> {
             if (RenJava.PLAYER.getCurrentStageType() == StageType.LOAD_MENU) {
                 if (!save.exists()) {
-                    RenLogger.LOGGER.warn("Save file does not  0-exist.");
+                    RenLogger.LOGGER.warn("Save file '{}' does not exist.", index);
                     return;
                 }
 
                 if (!event.isRightClicked()) {
-                    save.load(true);
+
+                    // Decrypt file if needed
+                    if (RenJava.CONFIGURATION.isEncryptSaves())
+                        save.decrypt();
+
+                    save.getSaveManager().load(true);
                     String storyID = RenJava.PLAYER.getCurrentStoryID();
                     if (storyID == null) {
                         RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
@@ -493,7 +498,9 @@ public class DefaultMainMenu implements MainMenu {
                  confirm.setY(300);
                  confirm.onClick(event1 -> {
                      // Write the save file
-                     Tasks.runAsync(save::write);
+                     Tasks.runAsync(() -> {
+                         save.getSaveManager().write();
+                     });
                      prompt.closeWindow();
 
                      // Re-render
@@ -516,7 +523,9 @@ public class DefaultMainMenu implements MainMenu {
 
                  prompt.render();
                 } else {
-                    Tasks.runAsync(save::write);
+                    Tasks.runAsync(() -> {
+                        save.getSaveManager().write();
+                    });
 
                     // Re-render
                     RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
