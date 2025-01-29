@@ -4,12 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.layouts.Layout;
-import me.piitex.renjava.gui.overlays.ImageOverlay;
-import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.AbstractMap;
 import java.util.LinkedList;
@@ -18,10 +13,27 @@ import java.util.Map;
 public class ScrollContainer extends Container {
     private final Layout layout;
     private ScrollPane scrollPane;
+    private double xOffset, yOffset;
 
     public ScrollContainer(Layout layout, double x, double y, double width, double height) {
         super(x, y, width, height);
         this.layout = layout;
+    }
+
+    public double getXOffset() {
+        return xOffset;
+    }
+
+    public void setXOffset(double xOffset) {
+        this.xOffset = xOffset;
+    }
+
+    public double getYOffset() {
+        return yOffset;
+    }
+
+    public void setYOffset(double yOffset) {
+        this.yOffset = yOffset;
     }
 
     @Override
@@ -44,6 +56,14 @@ public class ScrollContainer extends Container {
         lowOrder.add(layout.render(this));
 
         buildBase(lowOrder, normalOrder, highOrder);
+
+        // Offset overlays by 10
+        if (xOffset > 0 || yOffset > 0) {
+            lowOrder.forEach(node -> {
+                node.setTranslateX(node.getTranslateX() + xOffset);
+                node.setTranslateY(node.getTranslateX() + yOffset);
+            });
+        }
 
         return new AbstractMap.SimpleEntry<>(scrollPane, lowOrder);
     }

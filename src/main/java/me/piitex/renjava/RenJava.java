@@ -428,6 +428,8 @@ public abstract class RenJava {
         } else {
             errorWindow.clearContainers();
         }
+        errorWindow.build(true);
+
         errorWindow.setFullscreen(false);
         errorWindow.setMaximized(false);
         errorWindow.updateBackground(Color.WHITE);
