@@ -205,6 +205,15 @@ public abstract class RenJava {
     }
 
     /**
+     * Retrieves the running directory, where the jar file is located.
+     *
+     * @return The running directory.
+     */
+    public File getBaseDirectory() {
+        return new File(System.getProperty("user.dir") + "/");
+    }
+
+    /**
      * Retrieves a character by its ID.
      * <p>
      * The getCharacter() method is used to retrieve a character object based on its ID.
