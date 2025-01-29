@@ -89,6 +89,8 @@ public class RenLoader {
     }
 
     private void setupMain() {
+        extractResourcesToGame();
+
         RenLogger.LOGGER.info("Checking game environment...");
         File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
         if (gameDirectory.mkdir()) {
@@ -190,6 +192,27 @@ public class RenLoader {
         // After this method jump to GuiLoader. Loading is a little confusing if you want an idea of how the loader works, check out the Launch class.
         // Essentially, the RenJava constructor is declared first which runs this (RenLoader). After the declaration of the RenJava class the GuiLoader is called in the start() function within
         // the Launch class. That was a mouth-full, but hopefully you figure it out!
+    }
+
+    private void extractResourcesToGame() {
+        RenLogger.LOGGER.info("Checking game path...");
+        int extraction = 0;
+        // Check if the game even exists
+        try {
+            if (getClass().getClassLoader().getResources("game/").hasMoreElements()) {
+
+                // Get all in the /game/ directory
+                RenLogger.LOGGER.info("Extracting files...");
+                extraction = ResourceUtil.extractFromResources("game", renJava.getBaseDirectory());
+            }
+        } catch (IOException e) {
+            RenLogger.LOGGER.error("Could not read resources!", e);
+            // Not printing stack trace for this. Shouldn't matter unless it's first time launch.
+            // Debug your game before publishing.
+        }
+
+        RenLogger.LOGGER.info("Extracted '{}' files.", extraction);
+
     }
 
     public synchronized String getVersion() {
