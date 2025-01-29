@@ -12,6 +12,7 @@ import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.MDUtils;
 import me.piitex.renjava.tasks.Tasks;
+import me.piitex.renjava.utils.ResourceUtil;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -161,7 +162,7 @@ public class RenLoader {
         RenLogger.LOGGER.info("Generating pre-load data...");
         RenLogger.LOGGER.info("Checking Game ID...");
 
-        InfoFile infoFile = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), true);
+        InfoFile infoFile = new InfoFile(new File(renJava.getBaseDirectory(), "/renjava/build.info"), true);
         if (infoFile.containsKey("id")) {
             renJava.id = infoFile.getInt("id");
         } else {
@@ -179,7 +180,7 @@ public class RenLoader {
 
         // Transfer local saves to game saves if the slot doesn't exist.
         for (File file : localSaves.listFiles()) {
-            File currentSaveFile = new File(System.getProperty("user.dir") + "/game/saves/" + file.getName());
+            File currentSaveFile = new File(renJava.getBaseDirectory(),"/game/saves/" + file.getName());
             if (currentSaveFile.exists()) continue;
             try {
                 Files.copy(Path.of(file.getPath()), Path.of(currentSaveFile.getPath()));

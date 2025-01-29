@@ -140,7 +140,7 @@ public class ImageLoader {
 
         //converting the IntBuffer to an Image, read more about it here: https://openjfx.io/javadoc/13/javafx.graphics/javafx/scene/image/PixelBuffer.html
         PixelFormat<IntBuffer> pixelFormat = PixelFormat.getIntArgbPreInstance();
-        PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer(newImg.getWidth(), newImg.getHeight(), buffer, pixelFormat);
+        PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(newImg.getWidth(), newImg.getHeight(), buffer, pixelFormat);
         return new WritableImage(pixelBuffer);
     }
 }

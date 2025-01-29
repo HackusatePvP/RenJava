@@ -149,6 +149,14 @@ public class Launch extends Application {
         long end = System.currentTimeMillis();
         long time = end - start;
         DateFormat format = new SimpleDateFormat("ss.SS");
-        RenJava.getInstance().getLogger().info("Loaded in " + format.format(time) + "s");
+
+        String s = format.format(time);
+        // I hate that it displays the leading 0: 01.26s
+        // Fix
+        if (s.startsWith("0")) {
+            s = s.replaceFirst("0", "");
+        }
+
+        RenJava.getInstance().getLogger().info("Loaded in " + s + "s");
     }
 }

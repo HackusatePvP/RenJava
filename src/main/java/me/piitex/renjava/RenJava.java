@@ -85,6 +85,9 @@ public abstract class RenJava {
     private static long lastErrorTimeStamp;
     private static int spamTrack = 0;
 
+    // The gameDir cannot change so make it final
+    private final File baseDir = new File(System.getProperty("user.dir"));
+
     private static RenJava instance;
 
     protected RenJava() {
@@ -182,8 +185,17 @@ public abstract class RenJava {
      }
 
      public Collection<File> getSaves() {
-         return new LinkedHashSet<>(Arrays.asList(new File(System.getProperty("user.dir") + "/game/saves/").listFiles()));
+         return new LinkedHashSet<>(Arrays.asList(new File(baseDir, "/game/saves/").listFiles()));
      }
+
+    /**
+     * Retrieves the running directory, where the jar file is located.
+     *
+     * @return The running directory.
+     */
+    public File getBaseDirectory() {
+        return baseDir;
+    }
 
      /**
      * Registers a character in the RenJava framework.
@@ -202,15 +214,6 @@ public abstract class RenJava {
 
     public Collection<Character> getCharacters() {
         return registeredCharacters.values();
-    }
-
-    /**
-     * Retrieves the running directory, where the jar file is located.
-     *
-     * @return The running directory.
-     */
-    public File getBaseDirectory() {
-        return new File(System.getProperty("user.dir") + "/");
     }
 
     /**
