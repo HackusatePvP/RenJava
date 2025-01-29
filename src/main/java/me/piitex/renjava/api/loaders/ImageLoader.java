@@ -7,15 +7,13 @@ import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.LimitedHashMap;
+import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.IntBuffer;
 import java.util.Map;
 
@@ -33,12 +31,63 @@ public class ImageLoader {
      */
     public ImageLoader(String name) {
         File directory = new File(System.getProperty("user.dir") + "/game/images/");
-        this.file = new File(directory, name);
+
+        File f = new File(directory, name);
+
+        // If the file does not exist check to see if its in the class path
+        if (!f.exists()) {
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(name);
+            try {
+                if (inputStream != null) {
+                    // This will copy the file from the jar file into the game folder.
+                    // When loading from class path there is a performance impact.
+                    // Copying the file prevents further performance impacts.
+                    IOUtils.copy(inputStream, new FileOutputStream(f));
+                    inputStream.close();
+
+                    RenLogger.LOGGER.info("Copied '{}' to '{}'", name, f.getAbsolutePath());
+                } else {
+                    // Debug purposes
+                    RenLogger.LOGGER.error("Could not find resource: '{}'", name);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+        // Can return null. The build function can handle a null value.
+        this.file = f;
     }
 
     public ImageLoader(String directory, String name) {
         File fileDirectory = new File(System.getProperty("user.dir") + "/" + directory + "/");
-        this.file = new File(fileDirectory, name);
+        File f = new File(fileDirectory, name);
+
+        // If the file does not exist check to see if its in the class path
+        if (!f.exists()) {
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(directory + "/" + name);
+            try {
+                if (inputStream != null) {
+                    // This will copy the file from the jar file into the game folder.
+                    // When loading from class path there is a performance impact.
+                    // Copying the file prevents further performance impacts.
+                    IOUtils.copy(inputStream, new FileOutputStream(f));
+                    inputStream.close();
+
+                    RenLogger.LOGGER.info("Copied '{}' to '{}'", name, f.getAbsolutePath());
+                } else {
+                    // Debug purposes
+                    RenLogger.LOGGER.error("Could not find resource: '{}'", name);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+        // Can return null. The build function can handle a null value.
+        this.file = f;
     }
 
     @APIChange(description = "Images will now be added to a cache.", changedVersion = "0.1.141")
