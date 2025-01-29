@@ -68,15 +68,15 @@ public class FontLoader {
         File directory = new File(System.getProperty("user.dir") + "/game/fonts/");
         File file = new File(directory, name);
         this.name = name;
+        this.size = 24;
         try {
             if (!cachedFonts.containsKey(name)) {
-                this.font = Font.loadFont(new FileInputStream(file), 24);
+                this.font = Font.loadFont(new FileInputStream(file), size);
                 cachedFonts.put(name, font);
             }
         } catch (FileNotFoundException e) {
             this.font = Font.font(name, size);
         }
-        this.size = 24;
     }
 
     public String getName() {
