@@ -1,6 +1,8 @@
 # RenJava
 Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with [JavaFX](https://openjfx.io/).
 
+This is a passion project, which means I'm learning as I go. There are a lot of mistakes and bugs which will be addressed eventually. This is not meant for production.
+
 **Community**
 - [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
 - [renjava-template](https://github.com/HackusatePvP/renjava-template) This is the maven template to get started.
@@ -26,15 +28,15 @@ As an author you must have expressed consent to use any copyrighted material lik
 - Dual Core CPU
 
 ## Compile from source
-There are different branches you can clone from; Master, Development, Experimental. Master is the stable branch, this is the recommended branch for cloning.
+There are different branches you can clone from; Master, Experimental. Master is the stable branch, this is the recommended branch for cloning.
 
-Development A.K.A. Experimental is the branch that has the latest untested features and bug fixes. Once the development branch is tested, it is merged with Master and a new build is released.
+Experimental is the branch that has the latest untested features and bug fixes. Once the development branch is tested, it is merged with Master and a new build is released.
 - Download RenJava via clone or file.
 - Extract file and open RenJava with any IDE that supports Maven.
 - Run `mvn clean install` from the IDE or command line inside the root directory.
 
 ## Getting started
-~~Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start.~~ You can use the [renjava-template](https://github.com/HackusatePvP/renjava-template) to get started or use [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure). ~~Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about the framework and all of its features.~~ Wiki is out of date and will be updated soon.
+Follow this [guide](https://github.com/HackusatePvP/RenJava/wiki/Getting-Started) to get an easy start. You can use the [renjava-template](https://github.com/HackusatePvP/renjava-template) to get started or use [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure). Also explore our [wiki](https://github.com/HackusatePvP/RenJava/wiki) to learn more about the framework and all of its features.
 
 ## Notice
 As of build 0.1.x, the project is just a demo. You will not be able to create a fully functional game with the current state of the framework.
@@ -78,10 +80,6 @@ Hero-Adventure-1.0
   start.bat
   start.sh
 ```
-
-## Updating Application
-If a game has an update please delete the previous version. Make sure to transfer your saves before doing so. This is to prevent malicious attacks that come with having an old JDK installed onto your pc.
-Alternative you can just delete the jdk folder in the old version. As an author you should post this warning to your community for every update.
 
 ## Developers
 - View our api changes [here]().
