@@ -220,8 +220,9 @@ public class AddonLoader {
                             RenLogger.LOGGER.error("An error occurred while loading addon '{}'.", addon.getName());
                             failed = true;
                         }
-                        if (!failed) {addons.add(addon);
-                        logger.info("Loaded: {}", addon.getName());
+                        if (!failed) {
+                            addons.add(addon);
+                            logger.info("Loaded: {}", addon.getName());
                         }
                     }
                 }
@@ -260,7 +261,13 @@ public class AddonLoader {
         }
     }
 
+
     public List<Addon> getAddons() {
         return addons;
     }
+
+    public Addon getAddon(String name, String version) {
+        return addons.stream().filter(addon -> addon.getName().equalsIgnoreCase(name) && addon.getVersion().equalsIgnoreCase(version)).findAny().orElse(null);
+    }
+
 }
