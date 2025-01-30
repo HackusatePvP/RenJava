@@ -2,8 +2,6 @@ package me.piitex.renjava.api.loaders;
 
 import javafx.scene.image.*;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
-import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.LimitedHashMap;
@@ -90,7 +88,6 @@ public class ImageLoader {
         this.file = f;
     }
 
-    @APIChange(description = "Images will now be added to a cache.", changedVersion = "0.1.141")
     public Image build() throws ImageNotFoundException {
         if (imageCache.containsKey(file.getPath())) {
             return imageCache.get(file.getPath());
@@ -111,7 +108,6 @@ public class ImageLoader {
         }
     }
 
-    @APINote(description = "If loading a file using the regular build function does not display an image trying using this function instead. Keep in mind this has limited support for file formats.")
     public Image buildRaw() throws ImageNotFoundException {
         try {
             return new Image(new FileInputStream(file));

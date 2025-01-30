@@ -1,8 +1,6 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APINote;
-import me.piitex.renjava.api.scenes.transitions.TransitionFinishInterface;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.events.types.SceneStartEvent;
@@ -15,7 +13,6 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
-import me.piitex.renjava.events.types.SceneEndEvent;
 import org.slf4j.Logger;
 
 import java.text.DateFormat;
@@ -249,7 +246,6 @@ public abstract class Story {
         return null;
     }
 
-    @APINote(description = "Scene indexes start at 0 which is the first scene. The second scene would be '1'.")
     public void displayScene(int index) {
         RenScene scene = getScene(index);
         displayScene(scene);
