@@ -3,16 +3,12 @@ package me.piitex.renjava.api.saves;
 import javafx.scene.image.WritableImage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.api.saves.exceptions.SaveFileEncryptedState;
-import me.piitex.renjava.api.saves.file.FileState;
+import me.piitex.renjava.api.saves.file.SaveFileState;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.api.saves.data.Data;
-import me.piitex.renjava.api.saves.data.PersistentData;
-import me.piitex.renjava.api.saves.file.SectionKeyValue;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.tasks.Tasks;
@@ -20,13 +16,9 @@ import me.piitex.renjava.utils.FileCrypter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileAttribute;
 import java.time.*;
 import java.util.*;
 
@@ -39,7 +31,7 @@ public class Save {
     private final SaveManager saveManager;
 
     // Keeps track if the file is encrypted or decrypted
-    private FileState fileState = FileState.ENCRYPTED;
+    private SaveFileState fileState = SaveFileState.ENCRYPTED;
 
     public Save(int slot) {
         this.slot = slot;
@@ -58,11 +50,11 @@ public class Save {
         saveManager.update();
     }
 
-    public FileState getFileState() {
+    public SaveFileState getFileState() {
         return fileState;
     }
 
-    public void setFileState(FileState fileState) {
+    public void setFileState(SaveFileState fileState) {
         this.fileState = fileState;
     }
 
@@ -108,8 +100,11 @@ public class Save {
         return file.exists();
     }
 
-    public boolean canModify() {
-        return fileState == FileState.DECRYPTED || !file.exists() || !RenJava.CONFIGURATION.isEncryptSaves();
+    public void canModify() throws SaveFileEncryptedState {
+        if (fileState == SaveFileState.ENCRYPTED && RenJava.CONFIGURATION.isEncryptSaves()) {
+            throw new SaveFileEncryptedState(file);
+        }
+//        return fileState == FileState.DECRYPTED || !file.exists() || !RenJava.CONFIGURATION.isEncryptSaves();
     }
 
     public String retrieveCurrentData() {
@@ -124,75 +119,79 @@ public class Save {
 
 
     public ImageOverlay buildPreview(int page) {
-        if (file.exists()) {
+        if (!file.exists()) {
+            return null;
+        }
 
-            if (RenJava.CONFIGURATION.isEncryptSaves()) {
-                if (!canModify()) {
-                    RenLogger.LOGGER.info("Decrypting save...");
-                    decrypt(); // attempt a decrypt
-                }
-
-                if (!canModify()) {
-                    RenLogger.LOGGER.error("Could not get image preview! Unable to decrypt file.");
-                    return null;
-                }
+        if (RenJava.CONFIGURATION.isEncryptSaves()) {
+            try {
+                canModify();
+            } catch (SaveFileEncryptedState e) {
+                decrypt(); // attempt a decrypt
             }
+        }
 
-            saveManager.load(false);
+        // Secondary check after a decrypt.
+        try {
+            canModify();
+        } catch (SaveFileEncryptedState e) {
+            RenLogger.LOGGER.error("Could not get image preview! Unable to decrypt file.");
+            return null;
+        }
 
-            ImageOverlay saveImage;
-            Object o = saveManager.getSceneSection().get("currentStory");
-            if (o == null) {
-                RenLogger.LOGGER.error("Invalid or corrupt save file!");
-                return null;
-            }
+        saveManager.load(false);
 
-            Story story = RenJava.PLAYER.getStory((String) o);
+        ImageOverlay saveImage;
+        Object o = saveManager.getSceneSection().get("currentStory");
+        if (o == null) {
+            RenLogger.LOGGER.error("Invalid or corrupt save file!");
+            return null;
+        }
 
-            // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
-            // Set the player to the current story (which is off to a horrible start)
-            RenJava.PLAYER.setCurrentStory(story.getId());
+        Story story = RenJava.PLAYER.getStory((String) o);
 
-            // Initialize the story to process the scenes. (Used to execute the `addScene` functions which maps the scenes to the story.)
-            story.init();
+        // FIXME: This will produce a lot of programming debt. This is an extremely cheap unoptimized hack.
+        // Set the player to the current story (which is off to a horrible start)
+        RenJava.PLAYER.setCurrentStory(story.getId());
 
-            // Render the scene to the load button.
-            RenScene currentScene = story.getScene((String) saveManager.getSceneSection().get("currentScene"));
-            if (currentScene == null) {
-                RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or has missing information. Unable to render save preview for the file. '" + saveManager.getSceneSection().get("currentScene") + "'");
-                return new ImageOverlay("gui/button/slot_idle_background.png");
-            }
+        // Initialize the story to process the scenes. (Used to execute the `addScene` functions which maps the scenes to the story.)
+        story.init();
 
-            // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
-            // To prevent the white flash when loading preview use diff window.
-            // On slower machines the window may pop-up for a few seconds but if that's the case your pc doesn't meet spec requirements to begin with.
-            Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
+        // Render the scene to the load button.
+        RenScene currentScene = story.getScene((String) saveManager.getSceneSection().get("currentScene"));
+        if (currentScene == null) {
+            RenLogger.LOGGER.error("Save slot '" + slot + "' appears to be corrupt or has missing information. Unable to render save preview for the file. '" + saveManager.getSceneSection().get("currentScene") + "'");
+            return new ImageOverlay("gui/button/slot_idle_background.png");
+        }
+
+        // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
+        // To prevent the white flash when loading preview use diff window.
+        // On slower machines the window may pop-up for a few seconds but if that's the case your pc doesn't meet spec requirements to begin with.
+        Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
 
 //            hiddenWindow.clear(); // Required (This prevents white boxes from being rendered)
-            Container container = currentScene.build(true);
-            hiddenWindow.addContainers(container);
-            hiddenWindow.build(true);
+        Container container = currentScene.build(true);
+        hiddenWindow.addContainers(container);
+        hiddenWindow.build(true);
 
-            WritableImage snapshot = hiddenWindow.getRoot().getScene().snapshot(null);
-            saveImage = new ImageOverlay(snapshot);
-            hiddenWindow.close();
+        WritableImage snapshot = hiddenWindow.getRoot().getScene().snapshot(null);
+        saveImage = new ImageOverlay(snapshot);
+        hiddenWindow.close();
 
-            saveImage.setWidth(384);
-            saveImage.setHeight(216);
+        saveImage.setWidth(384);
+        saveImage.setHeight(216);
 
-            // Since the Renpy assets account for Text they made a transparency space.
-            // To circumvent this extra space we need to add the length of the space so everything is properly aligned.
-            saveImage.setY(15); // Position inside the button
+        // Since the Renpy assets account for Text they made a transparency space.
+        // To circumvent this extra space we need to add the length of the space so everything is properly aligned.
+        saveImage.setY(15); // Position inside the button
 
-            // Re-encrypt file in async
-            Tasks.runAsync(() -> {
-                if (RenJava.CONFIGURATION.isEncryptSaves())
-                    encrypt();
-            });
+        // Re-encrypt file in async
+        Tasks.runAsync(() -> {
+            if (RenJava.CONFIGURATION.isEncryptSaves())
+                encrypt();
+        });
 
-            return saveImage;
-        }
-        return null;
+        return saveImage;
     }
 
     public void encrypt() {
@@ -205,9 +204,9 @@ public class Save {
             RenLogger.LOGGER.error("Failed to create placeholder file for encryption!", e);
         }
 
-        if (fileState == FileState.DECRYPTED || !file.exists()) {
+        if (fileState == SaveFileState.DECRYPTED || !file.exists()) {
             FileCrypter.encryptFile(file, encrypt);
-            fileState = FileState.ENCRYPTED;
+            fileState = SaveFileState.ENCRYPTED;
 
             // Copy encrypted file and replace
             try {
@@ -218,7 +217,6 @@ public class Save {
 
         } else {
             RenLogger.LOGGER.error("Could not encrypt file '{}'. The file is already encrypted.", file.getAbsolutePath());
-            new RuntimeException().printStackTrace();
         }
 
         encrypt.delete();
@@ -238,12 +236,12 @@ public class Save {
             RenLogger.LOGGER.error("Failed to create placeholder file for decryption!", e);
         }
 
-        if (fileState == FileState.ENCRYPTED) {
+        if (fileState == SaveFileState.ENCRYPTED) {
             FileCrypter.decryptFile(file, decrypt);
             try {
                 Files.copy(decrypt.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 decrypt.delete();
-                fileState = FileState.DECRYPTED;
+                fileState = SaveFileState.DECRYPTED;
             } catch (IOException e) {
                 RenLogger.LOGGER.error("Failed to copy save file!", e);
             }

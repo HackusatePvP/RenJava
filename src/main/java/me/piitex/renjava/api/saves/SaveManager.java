@@ -4,7 +4,8 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.addons.Addon;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
-import me.piitex.renjava.api.saves.file.FileState;
+import me.piitex.renjava.api.saves.exceptions.SaveFileEncryptedState;
+import me.piitex.renjava.api.saves.file.SaveFileState;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
 import me.piitex.renjava.loggers.RenLogger;
 
@@ -26,8 +27,10 @@ public class SaveManager {
 
     // Loads save file
     public void load(boolean process) {
-        if (!save.canModify()) {
-            RenLogger.LOGGER.error("Unable to load save file!");
+        try {
+            save.canModify();
+        } catch (SaveFileEncryptedState e) {
+            RenLogger.LOGGER.error("Unable to load save file!", e);
             return;
         }
 
@@ -195,9 +198,12 @@ public class SaveManager {
     }
 
     public void update() {
-
-        if (!save.canModify())
+        try {
+            save.canModify();
+        } catch (SaveFileEncryptedState e) {
+            RenLogger.LOGGER.error("Unable to update save file!", e);
             return;
+        }
 
         // Update the save file without re-writing the data.
         // Only useful for applying name or creation time.
@@ -223,7 +229,7 @@ public class SaveManager {
                 try {
                     fileWriter.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    RenLogger.LOGGER.error("Failed to write to close stream!", e);
                 }
             }
         }
@@ -231,13 +237,15 @@ public class SaveManager {
 
     // Writes save file
     public void write() {
-        if (!save.canModify()) {
-            RenLogger.LOGGER.error("Unable to write save file!");
+        // Set to decrypted state when writing. The new values will be unencrypted.
+        save.setFileState(SaveFileState.DECRYPTED);
+
+        try {
+            save.canModify();
+        } catch (SaveFileEncryptedState e) {
+            RenLogger.LOGGER.error("Unable to write save file!", e);
             return;
         }
-
-        // This probably isn't smart
-        save.setFileState(FileState.DECRYPTED);
 
         save.setUpdatedTime(System.currentTimeMillis());
         // First get all PersistentData to write.
@@ -297,6 +305,7 @@ public class SaveManager {
                 save.getFile().createNewFile();
             } catch (IOException e) {
                 RenLogger.LOGGER.error("Could not create save file: {}", e.getMessage());
+                return;
             }
         }
         try {
@@ -312,7 +321,7 @@ public class SaveManager {
                     if (RenJava.CONFIGURATION.isEncryptSaves())
                         save.encrypt();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    RenLogger.LOGGER.error("Failed to write to close stream!", e);
                 }
             }
         }
