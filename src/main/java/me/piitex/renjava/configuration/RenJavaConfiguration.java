@@ -56,6 +56,9 @@ public class RenJavaConfiguration {
     // View the FileEcnrypter utility for a detailed look.
     private boolean encryptSaves = false;
 
+    // Should the application store saves locally on the pc
+    private boolean storeLocalSaves = true;
+
     /**
      * Used to create your own customized configuration easily.
      *
@@ -387,5 +390,13 @@ public class RenJavaConfiguration {
 
     public boolean isEncryptSaves() {
         return encryptSaves;
+    }
+
+    public boolean isStoreLocalSaves() {
+        return storeLocalSaves;
+    }
+
+    public void setStoreLocalSaves(boolean storeLocalSaves) {
+        this.storeLocalSaves = storeLocalSaves;
     }
 }

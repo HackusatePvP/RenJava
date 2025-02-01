@@ -173,20 +173,22 @@ public class RenLoader {
         renJava.preEnabled();
 
         // Move Save files to APPDATA
-        if (renJava.getName().equalsIgnoreCase("error") && renJava.getAuthor().equalsIgnoreCase("error")) return;
-        File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/");
-        File localSaves = new File(directory, "saves/");
-        localSaves.mkdirs();
+        if (RenJava.CONFIGURATION.isStoreLocalSaves()) {
+            if (renJava.getName().equalsIgnoreCase("error") && renJava.getAuthor().equalsIgnoreCase("error")) return;
+            File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/");
+            File localSaves = new File(directory, "saves/");
+            localSaves.mkdirs();
 
-        // Transfer local saves to game saves if the slot doesn't exist.
-        for (File file : localSaves.listFiles()) {
-            File currentSaveFile = new File(renJava.getBaseDirectory(),"/game/saves/" + file.getName());
-            if (currentSaveFile.exists()) continue;
-            try {
-                Files.copy(Path.of(file.getPath()), Path.of(currentSaveFile.getPath()));
-            } catch (IOException e) {
-                RenLogger.LOGGER.error("Could not copy local saves!", e);
-                RenJava.writeStackTrace(e);
+            // Transfer local saves to game saves if the slot doesn't exists
+            for (File file : localSaves.listFiles()) {
+                File currentSaveFile = new File(renJava.getBaseDirectory(), "/game/saves/" + file.getName());
+                if (currentSaveFile.exists()) continue;
+                try {
+                    Files.copy(file.toPath(), currentSaveFile.toPath());
+                } catch (IOException e) {
+                    RenLogger.LOGGER.error("Could not copy local saves!", e);
+                    RenJava.writeStackTrace(e);
+                }
             }
         }
 
@@ -196,7 +198,7 @@ public class RenLoader {
     }
 
     private void extractResourcesToGame() {
-        RenLogger.LOGGER.info("Checking game path...");
+        RenLogger.LOGGER.info("Checking resources path...");
         int extraction = 0;
         // Check if the game even exists
         try {
@@ -208,8 +210,6 @@ public class RenLoader {
             }
         } catch (IOException e) {
             RenLogger.LOGGER.error("Could not read resources!", e);
-            // Not printing stack trace for this. Shouldn't matter unless it's first time launch.
-            // Debug your game before publishing.
         }
 
         RenLogger.LOGGER.info("Extracted '{}' files.", extraction);
