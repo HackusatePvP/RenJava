@@ -4,9 +4,9 @@ Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with
 This is a passion project, which means I'm learning as I go. There are a lot of mistakes and bugs which will be addressed eventually. This is not meant for production.
 
 **Community**
-- [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube](https://www.youtube.com/channel/UC4iv_X0Pi8FoHFMUHBkHw1A)
+- [Website]() (Not yet created), [Discord]() (Not yet created), [YouTube]()
+- [RSDK-GUI](https://github.com/HackusatePvP/rsdk-gui) All-in-one utility for creating RenJava projects.
 - [renjava-template](https://github.com/HackusatePvP/renjava-template) This is the maven template to get started.
-- [HeroAdventure](https://github.com/HackusatePvP/HeroAdventure) This an example project that is used for testing the framework.
 
 ## Disclaimer
 RenJava does not claim ownership over any copyrighted material such as music, video, or assets. RenJava is only the framework not the game made by an author.
