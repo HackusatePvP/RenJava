@@ -58,6 +58,7 @@ public class HyperLinkOverlay extends Overlay {
         hyperlink.setTranslateY(getY());
         hyperlink.setOnMouseClicked(event -> {
             RenJava.openLink(link);
+            hyperlink.setVisited(false); // This is just kind of stupid. Turns the text transparent.
         });
         setInputControls(hyperlink);
         renderTransitions(hyperlink);
