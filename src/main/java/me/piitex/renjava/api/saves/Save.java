@@ -26,16 +26,17 @@ import java.util.*;
 public class Save {
     private final File file;
     private String name;
-    private final int slot;
+    private final int page, slot;
     private long updatedTime;
     private final SaveManager saveManager;
 
     // Keeps track if the file is encrypted or decrypted
     private SaveFileState fileState = SaveFileState.ENCRYPTED;
 
-    public Save(int slot) {
+    public Save(int page, int slot) {
+        this.page = page;
         this.slot = slot;
-        this.file = new File(RenJava.getInstance().getBaseDirectory(), "/game/saves/save-" + slot + ".dat");
+        this.file = new File(RenJava.getInstance().getBaseDirectory(), "/game/saves/save-" + page + "-" + slot + ".dat");
         this.saveManager = new SaveManager(this);
     }
 
@@ -123,22 +124,6 @@ public class Save {
             return null;
         }
 
-        if (RenJava.CONFIGURATION.isEncryptSaves()) {
-            try {
-                canModify();
-            } catch (SaveFileEncryptedState e) {
-                decrypt(); // attempt a decrypt
-            }
-        }
-
-        // Secondary check after a decrypt.
-        try {
-            canModify();
-        } catch (SaveFileEncryptedState e) {
-            RenLogger.LOGGER.error("Could not get image preview! Unable to decrypt file.");
-            return null;
-        }
-
         saveManager.load(false);
 
         ImageOverlay saveImage;
@@ -186,10 +171,8 @@ public class Save {
         saveImage.setY(15); // Position inside the button
 
         // Re-encrypt file in async
-        Tasks.runAsync(() -> {
-            if (RenJava.CONFIGURATION.isEncryptSaves())
-                encrypt();
-        });
+        if (RenJava.CONFIGURATION.isEncryptSaves())
+            encrypt();
 
         return saveImage;
     }

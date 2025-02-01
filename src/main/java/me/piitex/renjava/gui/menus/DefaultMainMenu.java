@@ -99,9 +99,9 @@ public class DefaultMainMenu implements MainMenu {
 
         TextOverlay menuText;
         if (loadMenu) {
-            menuText = new TextOverlay("LOAD", RenJava.CONFIGURATION.getUiFont());
+            menuText = new TextOverlay("Load Page " + page, RenJava.CONFIGURATION.getUiFont());
         } else {
-            menuText = new TextOverlay("SAVE", RenJava.CONFIGURATION.getUiFont());
+            menuText = new TextOverlay("Save Page " + page, RenJava.CONFIGURATION.getUiFont());
         }
         menuText.setX(RenJava.CONFIGURATION.getMidPoint().getKey());
         menuText.setY(50);
@@ -116,7 +116,7 @@ public class DefaultMainMenu implements MainMenu {
 
         int maxSavesPerPage = 6;
 
-        int index = ((maxSavesPerPage * page) - maxSavesPerPage) + 1;
+        int index = 1;
         VerticalLayout rootLayout = new VerticalLayout(1000, 800); // The root is a vertical which stacks the two horizontal layouts.
         rootLayout.setSpacing(10);
         HorizontalLayout topLayout = new HorizontalLayout(1000, 350);
@@ -129,7 +129,7 @@ public class DefaultMainMenu implements MainMenu {
 
         LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers());
         while (index <=  maxSavesPerPage) {
-            Save save = new Save(index);
+            Save save = new Save(page, index);
             // Create a button box
             VerticalLayout buttonBox = new VerticalLayout(414, 320);
 
@@ -185,9 +185,27 @@ public class DefaultMainMenu implements MainMenu {
             pageButton.setBackgroundColor(Color.TRANSPARENT);
             pageButton.setBorderColor(Color.TRANSPARENT);
             if (page == pageIndex) {
-                pageButton.setTextFill(Color.BLACK);
+                pageButton.setTextFill(Color.WHITE);
             }
             pageButton.setHoverColor(RenJava.CONFIGURATION.getHoverColor());
+
+            // Page click handler
+            pageButton.onClick(event -> {
+
+                int newPage = Integer.parseInt(pageButton.getText());
+
+                RenLogger.LOGGER.info("Rendering page '{}'", newPage);
+
+                Container load = RenJava.getInstance().getMainMenu().loadMenu(rightClicked, newPage, true); //TODO: Pages
+                Container side = RenJava.getInstance().getMainMenu().sideMenu(rightClicked);
+                side.setOrder(DisplayOrder.HIGH);
+                load.addContainers(side);
+
+                gameWindow.clearContainers();
+                gameWindow.addContainer(load);
+                gameWindow.render();
+            });
+
             pageLayout.addOverlay(pageButton);
         }
         pageLayout.setX(1000);
@@ -393,12 +411,8 @@ public class DefaultMainMenu implements MainMenu {
                 }
 
                 if (!event.isRightClicked()) {
-
-                    // Decrypt file if needed
-                    if (RenJava.CONFIGURATION.isEncryptSaves())
-                        save.decrypt();
-
                     save.getSaveManager().load(true);
+
                     String storyID = RenJava.PLAYER.getCurrentStoryID();
                     if (storyID == null) {
                         RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
@@ -523,13 +537,11 @@ public class DefaultMainMenu implements MainMenu {
 
                  prompt.render();
                 } else {
-                    Tasks.runAsync(() -> {
-                        save.getSaveManager().write();
-                    });
+                    save.getSaveManager().write();
 
                     // Re-render
                     RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
-                    Container menu = loadMenu(false, 1, false); // Builds first page
+                    Container menu = loadMenu(false, page, false); // Builds first page
                     menu.addContainers(sideMenu(true));
                     RenJava.getInstance().getGameWindow().clearContainers();
                     RenJava.getInstance().getGameWindow().addContainer(menu);

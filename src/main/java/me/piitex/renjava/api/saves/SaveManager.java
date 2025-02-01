@@ -8,6 +8,7 @@ import me.piitex.renjava.api.saves.exceptions.SaveFileEncryptedState;
 import me.piitex.renjava.api.saves.file.SaveFileState;
 import me.piitex.renjava.api.saves.file.SectionKeyValue;
 import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.tasks.Tasks;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -27,6 +28,10 @@ public class SaveManager {
 
     // Loads save file
     public void load(boolean process) {
+
+        if (RenJava.CONFIGURATION.isEncryptSaves())
+            save.decrypt(); // Decrypts the save so it can load
+
         try {
             save.canModify();
         } catch (SaveFileEncryptedState e) {
@@ -118,10 +123,19 @@ public class SaveManager {
                 }
             }
         }
+
+        RenLogger.LOGGER.info("Loaded save '{}", save.getName());
+
+        // Re-encrypt the save if necessary
+        Tasks.runJavaFXThread(() -> {
+            // Necessary to run on JavaFX to prevent rendering issues.
+            if (RenJava.CONFIGURATION.isEncryptSaves())
+                save.encrypt();
+        });
     }
 
 
-    public void processSection(PersistentData persistentData, SectionKeyValue rootSection) {
+    private void processSection(PersistentData persistentData, SectionKeyValue rootSection) {
         List<Field> fields = new ArrayList<>(List.of(persistentData.getClass().getDeclaredFields()));
         fields.addAll(List.of(persistentData.getClass().getFields()));
         for (Field field : fields) {
