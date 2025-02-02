@@ -37,7 +37,7 @@ public abstract class Character {
      * <p>
      * The character's color, specified using the `javafx.scene.paint.Color` class, is used to color the display name.
      * <p>
-     * Upon instantiation, the Character object automatically registers itself with the RenJava framework using the `renJava.registerCharacter(this)` method.
+     * Upon instantiation, the Character object needs to be registered with the RenJava framework using the `renJava.registerCharacter(Character character)` method.
      * This allows the character to be accessed and managed by other parts of the framework.
      * <p>
      * This class is abstract and serves as a base class for creating specific character implementations by extending it and providing additional functionality.

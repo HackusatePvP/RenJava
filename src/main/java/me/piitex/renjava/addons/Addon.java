@@ -21,7 +21,7 @@ import java.util.HashSet;
  * <pre>{@code
  * public class MyAddon extends Addon {
  *     public MyAddon() {
- *         super("MyAddon");
+ *         super("MyAddon", "1.0.0");
  *     }
  *
  *     @Override
