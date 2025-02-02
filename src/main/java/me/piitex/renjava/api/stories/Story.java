@@ -114,8 +114,7 @@ public abstract class Story {
         // Update RenJava Player BEFORE the scenes are added
         RenJava.PLAYER.setCurrentStory(this.getId());
 
-        clear(); // Clear previous mappings (allows refreshing)
-        init(); // Initialize when starting
+        refresh();
 
         RenScene renScene = getScene(0); // Gets the first scene index.
 
@@ -136,8 +135,7 @@ public abstract class Story {
      * Every time a story starts, it is refreshed.
      */
     public void refresh() {
-        scenes.clear();
-        sceneIndexMap.clear();
+        clear();
         init();
     }
 

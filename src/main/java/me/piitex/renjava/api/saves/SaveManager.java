@@ -212,14 +212,12 @@ public class SaveManager {
     }
 
     public void update() {
-        System.out.println("Checking encryption state...");
-        if (RenJava.CONFIGURATION.isEncryptSaves())
-            System.out.println("Encryption needed.");
+        if (RenJava.CONFIGURATION.isEncryptSaves()) {
             // Assume file is encrypted
             save.decrypt();
+        }
 
         try {
-            System.out.println("Checking if modifiable...");
             save.canModify();
         } catch (SaveFileEncryptedState e) {
             RenLogger.LOGGER.error("Unable to update save file!", e);
@@ -228,20 +226,18 @@ public class SaveManager {
 
         // Update the save file without re-writing the data.
         // Only useful for applying name or creation time.
-        System.out.println("Pulling data...");
         String data = save.retrieveCurrentData();
         String otherName = data.split("name: ")[1].split("\n")[0];
         data = data.replace("name: " + otherName, "name: " + save.getName());
         FileWriter fileWriter = null;
         if (!save.exists()) {
             try {
-                System.out.println("Creating new file...");
                 save.getFile().createNewFile();
             } catch (IOException e) {
                 RenLogger.LOGGER.error("Could not create save file: {}", e.getMessage());
+                return;
             }
         }
-        System.out.println("Writing file...");
         try {
             fileWriter = new FileWriter(save.getFile(), false);
             fileWriter.write(data);
@@ -257,8 +253,6 @@ public class SaveManager {
                 }
             }
         }
-
-        System.out.println("Finished update!");
     }
 
     // Writes save file
