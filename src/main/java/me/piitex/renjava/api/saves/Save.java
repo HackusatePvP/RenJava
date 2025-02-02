@@ -33,11 +33,16 @@ public class Save {
     // Keeps track if the file is encrypted or decrypted
     private SaveFileState fileState = SaveFileState.ENCRYPTED;
 
-    public Save(int page, int slot) {
+    // Cache saves for the file states
+    private static final Map<String, Save> saveCache = new HashMap<>();
+
+    protected Save(int page, int slot) {
         this.page = page;
         this.slot = slot;
         this.file = new File(RenJava.getInstance().getBaseDirectory(), "/game/saves/save-" + page + "-" + slot + ".dat");
         this.saveManager = new SaveManager(this);
+
+        saveCache.put(page + "-" + slot, this);
     }
 
     public String getName() {
@@ -48,6 +53,7 @@ public class Save {
         this.name = name;
 
         // If the name was changed re-write save file.
+        System.out.println("Updating...");
         saveManager.update();
     }
 
@@ -199,7 +205,7 @@ public class Save {
             }
 
         } else {
-            RenLogger.LOGGER.error("Could not encrypt file '{}'. The file is already encrypted.", file.getAbsolutePath());
+            RenLogger.LOGGER.warn("Could not encrypt file '{}'. The file is already encrypted.", file.getAbsolutePath());
         }
 
         encrypt.delete();
@@ -235,5 +241,18 @@ public class Save {
 
     public File getFile() {
         return file;
+    }
+
+    /* Static methods */
+    public static Save createSave(int page, int slot) {
+        if (saveCache.containsKey(page + "-" + slot)) {
+            return saveCache.get(page + "-" + slot);
+        }
+
+        return new Save(page, slot);
+    }
+
+    public static Save getSave(int page, int slot) {
+        return saveCache.get(page + "-" + slot);
     }
 }

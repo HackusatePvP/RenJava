@@ -129,7 +129,7 @@ public class DefaultMainMenu implements MainMenu {
 
         LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers());
         while (index <=  maxSavesPerPage) {
-            Save save = new Save(page, index);
+            Save save = Save.createSave(page, index);
             // Create a button box
             VerticalLayout buttonBox = new VerticalLayout(414, 320);
 
@@ -512,9 +512,7 @@ public class DefaultMainMenu implements MainMenu {
                  confirm.setY(300);
                  confirm.onClick(event1 -> {
                      // Write the save file
-                     Tasks.runAsync(() -> {
-                         save.getSaveManager().write();
-                     });
+                     save.getSaveManager().write();
                      prompt.closeWindow();
 
                      // Re-render
