@@ -15,7 +15,7 @@ import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.prompts.Prompt;
+import me.piitex.renjava.gui.prompts.Prompt;
 
 public class MenuClickEventListener implements EventListener {
     private static final RenJava renJava = RenJava.getInstance();

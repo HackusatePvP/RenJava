@@ -1,4 +1,4 @@
-package me.piitex.renjava.prompts;
+package me.piitex.renjava.gui.prompts;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;

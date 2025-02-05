@@ -18,8 +18,7 @@ import me.piitex.renjava.gui.layouts.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.prompts.Prompt;
-import me.piitex.renjava.tasks.Tasks;
+import me.piitex.renjava.gui.prompts.Prompt;
 
 import java.util.LinkedList;
 
