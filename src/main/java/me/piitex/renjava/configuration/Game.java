@@ -1,4 +1,4 @@
-package me.piitex.renjava.api;
+package me.piitex.renjava.configuration;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

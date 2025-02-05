@@ -4,7 +4,7 @@ import javafx.application.HostServices;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.AddonLoader;
-import me.piitex.renjava.api.Game;
+import me.piitex.renjava.configuration.Game;
 import me.piitex.renjava.api.exceptions.InvalidCharacterException;
 import me.piitex.renjava.api.music.Tracks;
 import me.piitex.renjava.api.saves.data.Data;

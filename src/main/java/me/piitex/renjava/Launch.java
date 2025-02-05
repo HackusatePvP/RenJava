@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 
-import me.piitex.renjava.api.Game;
+import me.piitex.renjava.configuration.Game;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.InfoFile;
@@ -25,7 +25,6 @@ import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Launch extends Application {
