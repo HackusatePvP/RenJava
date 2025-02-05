@@ -19,13 +19,16 @@ module RenJava {
     exports me.piitex.renjava;
     exports me.piitex.renjava.configuration;
     exports me.piitex.renjava.gui;
-    exports me.piitex.renjava.utils;
-    exports me.piitex.renjava.api.characters;
-    exports me.piitex.renjava.api.loaders;
+    exports me.piitex.renjava.gui.overlays.events;
     exports me.piitex.renjava.gui.overlays;
     exports me.piitex.renjava.gui.layouts;
     exports me.piitex.renjava.events;
     exports me.piitex.renjava.events.types;
+    exports me.piitex.renjava.api;
+    exports me.piitex.renjava.api.characters;
+    exports me.piitex.renjava.api.loaders;
+    exports me.piitex.renjava.api.saves;
+    exports me.piitex.renjava.api.exceptions;
     exports me.piitex.renjava.api.scenes;
     exports me.piitex.renjava.api.stories;
     exports me.piitex.renjava.api.music;
@@ -41,13 +44,11 @@ module RenJava {
     exports me.piitex.renjava.api.scenes.types.animation;
     exports me.piitex.renjava.addons;
     exports me.piitex.renjava.loggers;
-    exports me.piitex.renjava.gui.overlays.events;
-    exports me.piitex.renjava.api;
     exports me.piitex.renjava.tasks;
+    exports me.piitex.renjava.utils;
     exports me.piitex.renjava.gui.menus;
-    exports me.piitex.renjava.api.saves;
-    exports me.piitex.renjava.api.exceptions;
     opens me.piitex.renjava.loggers;
     opens me.piitex.renjava;
     opens me.piitex.renjava.api;
+    opens me.piitex.renjava.configuration;
 }
