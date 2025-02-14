@@ -331,6 +331,5 @@ public class GameFlowEventListener implements EventListener {
                 }
             }
         }
-
     }
 }

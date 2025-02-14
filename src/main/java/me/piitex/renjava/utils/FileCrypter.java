@@ -58,7 +58,7 @@ public class FileCrypter {
     }
 
     public static void decryptFile(File file, File outputFile) {
-        SecretKeyFactory factory = null;
+        SecretKeyFactory factory;
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
         try {

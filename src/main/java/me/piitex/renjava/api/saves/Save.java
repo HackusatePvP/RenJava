@@ -53,7 +53,6 @@ public class Save {
         this.name = name;
 
         // If the name was changed re-write save file.
-        System.out.println("Updating...");
         saveManager.update();
     }
 

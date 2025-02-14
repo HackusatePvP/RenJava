@@ -20,7 +20,6 @@ import java.io.File;
  * Supported types that may work are
  *     1. H.264 AVC (.mp4)
  *     2. H.265 HEVC (.mp4)
- *     3. VP6 (.vp6, .zzz)
  * </pre>
  * <p>
  * Make sure the video resolution is set the resolution of the game. If your game is configured to be 1080p then the video must also be 1080p.
@@ -113,7 +112,7 @@ public class MediaOverlay extends Overlay implements Region {
             if (height != -1) {
                 mediaView.setFitHeight(height);
             }
-            RenLogger.LOGGER.info("Playing media '{}'", System.getProperty("user.dir") + "/" + filePath);
+            RenLogger.LOGGER.info("Playing media '{}'", filePath);
             setInputControls(mediaView);
             return mediaView;
         }
