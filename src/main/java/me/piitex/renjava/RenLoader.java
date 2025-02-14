@@ -93,7 +93,7 @@ public class RenLoader {
         extractResourcesToGame();
 
         RenLogger.LOGGER.info("Checking game environment...");
-        File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
+        File gameDirectory = new File(renJava.getBaseDirectory(), "game/");
         if (gameDirectory.mkdir()) {
             RenLogger.LOGGER.error("Game assets do not exist. Please download default assets and place them inside the 'game/images/gui' folder.");
             shutdown = true;
@@ -107,14 +107,14 @@ public class RenLoader {
             shutdown = true;
         }
 
-        File renJavaDirectory = new File(System.getProperty("user.dir") + "/renjava/");
+        File renJavaDirectory = new File(renJava.getBaseDirectory(),"renjava/");
         if (renJavaDirectory.mkdir()) {
             RenLogger.LOGGER.warn("RenJava folder does not exist. User settings will be reset to defaults.");
         }
     }
 
     private void setupGame() {
-        File directory = new File(System.getProperty("user.dir") + "/game/");
+        File directory = new File(renJava.getBaseDirectory(), "game/");
         File audioDirectory = new File(directory, "/audio/");
         audioDirectory.mkdir();
 
@@ -152,7 +152,7 @@ public class RenLoader {
         renJava.setSettings(new SettingsProperties());
 
         // Delete old stacktrace
-        File file = new File(System.getProperty("user.dir") + "/stacktrace.txt");
+        File file = new File(renJava.getBaseDirectory(), "stacktrace.txt");
         if (file.exists()) {
             file.delete();
         }
@@ -181,7 +181,7 @@ public class RenLoader {
 
             // Transfer local saves to game saves if the slot doesn't exists
             for (File file : localSaves.listFiles()) {
-                File currentSaveFile = new File(renJava.getBaseDirectory(), "/game/saves/" + file.getName());
+                File currentSaveFile = new File(renJava.getBaseDirectory(), "game/saves/" + file.getName());
                 if (currentSaveFile.exists()) continue;
                 try {
                     Files.copy(file.toPath(), currentSaveFile.toPath());

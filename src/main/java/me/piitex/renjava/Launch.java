@@ -18,13 +18,14 @@ import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.ApplicationLogger;
 import me.piitex.renjava.loggers.RenLogger;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
-
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Launch extends Application {
@@ -37,11 +38,7 @@ public class Launch extends Application {
         // Initializes the Ren logger which is separated from the application logger.
         RenLogger.init();
 
-        // Prevent renjava folder error
-        File renJavaDir = new File(System.getProperty("user.dir") + "/renjava/");
-        renJavaDir.mkdir();
-
-        InfoFile buildInfo = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), true);
+        InfoFile buildInfo = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), false);
         if (buildInfo.containsKey("main")) {
             String mainClass = buildInfo.getString("main");
             Class<?> clazz;
@@ -66,44 +63,102 @@ public class Launch extends Application {
             Reflections reflections = new Reflections(config);
 
             // Detect any classes that extend RenJava
-            for (Class<?> c : reflections.getSubTypesOf(RenJava.class)) {
-                allPackagePrefixes.clear();
-                loadClass(c, args, buildInfo);
-                break;
-            }
+            // Get last execution class
+            // Yea this makes no sense. Why can't you call a 'get' on a set??? What's the point of a set being a set if I can't get what's inside the set?
+            Set<Class<? extends RenJava>> c1 = reflections.getSubTypesOf(RenJava.class);
+            RenLogger.LOGGER.info("Possible executes: " + c1.size());
+
+            // A subclass is compiled as a separate class with a '$'. In this example it would be 'me.pittex.renjava.Launch$1'.
+            // It will try to find a class which isn't a subclass else it will load a subclass.
+            Class<?> c = c1.stream().filter(aClass -> !aClass.getName().contains("$")).findAny().orElse(c1.stream().findFirst().orElse(null));
+            loadClass(c, args, buildInfo);
+
+            // This is for testing purposes only.
+            // Makes it easier for me to debug the code if I can just run the 'main(args)' function straight from the ide.
+            // If the wrong class is being called, manually create a build.info and point it to the right class
+
+            RenLogger.LOGGER.error("No game execute was found. Creating a default testing execute...");
+
+            new RenJava() {
+                @Override
+                public void preEnabled() {
+
+                }
+
+                @Override
+                public void createBaseData() {
+
+                }
+
+                @Override
+                public Window buildSplashScreen() {
+                    return null;
+                }
+
+                @Override
+                public void createStory() {
+
+                }
+
+                @Override
+                public void start() {
+
+                }
+
+                @Override
+                public File getBaseDirectory() {
+                    File testingDir = new File(System.getProperty("user.dir") + "/test/");
+                    testingDir.mkdir();
+                    return testingDir;
+                }
+            };
         }
     }
 
     private static void loadClass(Class<?> clazz, String[] args, InfoFile infoFile) {
-        try {
-            if (!infoFile.exists()) {
-                RenLogger.LOGGER.error("Could not create the 'build.info' file. This might be a first time setup. Once the application opens please exit and relaunch.");
-                return; // This will exit the application.
-            }
-            String jarPath = Launch.class
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .toURI()
-                    .getPath();
-
-            RenLogger.LOGGER.info("Jar path: {}", jarPath);
-
-            String[] split = jarPath.split("/");
-            String fileName = split[split.length - 1];
-
-            infoFile.write("main", clazz.getName());
-            infoFile.write("file", fileName);
-
-        } catch (URISyntaxException e) {
-            RenLogger.LOGGER.error("Could retrieve runtime information.", e);
-        }
-
+        RenLogger.LOGGER.info("Running: '{}'", clazz.getName());
         try {
 
             // Creates a new instance of the application and executes the constructor.
             Object o = clazz.getDeclaredConstructor().newInstance();
             RenJava renJava = (RenJava) o;
+
+            // Double check base dir
+            renJava.getBaseDirectory().mkdirs();
+            File file = new File(renJava.getBaseDirectory(), "/renjava/");
+            file.mkdirs();
+
+            // Try to create info file if it didn't exist.
+            if (!infoFile.exists()) {
+
+                // Try to re-create
+                infoFile = new InfoFile(new File(renJava.getBaseDirectory(), "/renjava/build.info"), true);
+                if (!infoFile.exists()) {
+                    RenLogger.LOGGER.error("Could not create the 'build.info' file. This might be a first time setup. Once the application opens please exit and relaunch.");
+                    return; // This will exit the application.
+                }
+            }
+
+            try {
+                String jarPath = Launch.class
+                        .getProtectionDomain()
+                        .getCodeSource()
+                        .getLocation()
+                        .toURI()
+                        .getPath();
+
+                RenLogger.LOGGER.info("Jar path: {}", jarPath);
+
+                String[] split = jarPath.split("/");
+                String fileName = split[split.length - 1];
+
+                infoFile.write("main", clazz.getName());
+                infoFile.write("file", fileName);
+
+            } catch (URISyntaxException e) {
+                RenLogger.LOGGER.error("Could retrieve runtime information.", e);
+            }
+
             if (renJava.getClass().isAnnotationPresent(Game.class)) {
                 Game game = renJava.getClass().getAnnotation(Game.class);
                 renJava.name = game.name();

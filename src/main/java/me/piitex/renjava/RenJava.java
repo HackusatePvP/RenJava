@@ -185,7 +185,13 @@ public abstract class RenJava {
      }
 
      public Collection<File> getSaves() {
-         return new LinkedHashSet<>(Arrays.asList(new File(baseDir, "/game/saves/").listFiles()));
+         File saveDir = new File(baseDir, "/game/saves/");
+         if (saveDir.listFiles() != null) {
+             return new LinkedHashSet<>(Arrays.asList(saveDir.listFiles()));
+         } else {
+             RenLogger.LOGGER.info("No saves were fetched.");
+             return new LinkedHashSet<>(); // Empty.
+         }
      }
 
     /**
@@ -197,7 +203,16 @@ public abstract class RenJava {
         return baseDir;
     }
 
-     /**
+    /**
+     * Used for testing purposes. Changes the running directory for the game. The directory must exist.
+     *
+     * @param baseDir - {@link File} location of the new directory.
+     */
+    public void setBaseDir(File baseDir) {
+        this.baseDir = baseDir;
+    }
+
+    /**
      * Registers a character in the RenJava framework.
      * <p>
      * The registerCharacter() method is used to register a character in the RenJava framework.
@@ -418,7 +433,7 @@ public abstract class RenJava {
 
         lastErrorTimeStamp = System.currentTimeMillis();
 
-        File file = new File(System.getProperty("user.dir") + "/stacktrace.txt");
+        File file = new File(RenJava.getInstance().getBaseDirectory(),"stacktrace.txt");
         try {
             file.createNewFile();
         } catch (IOException ex) {

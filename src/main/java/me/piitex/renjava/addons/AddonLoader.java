@@ -29,7 +29,7 @@ public class AddonLoader {
     }
 
     public void load() {
-        File directory = new File(System.getProperty("user.dir") + "/addons/");
+        File directory = new File(RenJava.getInstance().getBaseDirectory(), "addons/");
         if (directory.mkdir()) {
             logger.warn("Created directory '" + "addons" + "'.");
         }
@@ -65,7 +65,7 @@ public class AddonLoader {
 
             // Convert entry to file then load info file
             try {
-                File buildFile = new File(System.getProperty("user.dir") + "/addons/build.info");
+                File buildFile = new File(RenJava.getInstance().getBaseDirectory(), "addons/build.info");
                 Files.copy(zipFile.getInputStream(entry), Path.of(buildFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
 
                 InfoFile build = new InfoFile(buildFile, false);

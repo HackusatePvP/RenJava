@@ -54,7 +54,7 @@ public class FontLoader {
 
     public FontLoader(String name, double size) {
         this.name = name;
-        File directory = new File(System.getProperty("user.dir") + "/game/fonts/");
+        File directory = new File(RenJava.getInstance().getBaseDirectory(), "game/fonts/");
         File file = new File(directory, name);
         this.size = size;
         try {
@@ -65,7 +65,7 @@ public class FontLoader {
     }
 
     public FontLoader(String name) {
-        File directory = new File(System.getProperty("user.dir") + "/game/fonts/");
+        File directory = new File(RenJava.getInstance().getBaseDirectory(), "game/fonts/");
         File file = new File(directory, name);
         this.name = name;
         this.size = 24;

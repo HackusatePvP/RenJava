@@ -39,7 +39,7 @@ public class Save {
     protected Save(int page, int slot) {
         this.page = page;
         this.slot = slot;
-        this.file = new File(RenJava.getInstance().getBaseDirectory(), "/game/saves/save-" + page + "-" + slot + ".dat");
+        this.file = new File(RenJava.getInstance().getBaseDirectory(), "game/saves/save-" + page + "-" + slot + ".dat");
         this.saveManager = new SaveManager(this);
 
         saveCache.put(page + "-" + slot, this);
@@ -184,7 +184,7 @@ public class Save {
     }
 
     public void encrypt() {
-        File encrypt = new File(RenJava.getInstance().getBaseDirectory(), "/game/saves/" + "save-" + slot + "-enc.dat");
+        File encrypt = new File(RenJava.getInstance().getBaseDirectory(), "game/saves/" + "save-" + slot + "-enc.dat");
 
         // Create the file
         try {

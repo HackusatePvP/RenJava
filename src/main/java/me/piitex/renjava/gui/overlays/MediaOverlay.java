@@ -37,7 +37,7 @@ public class MediaOverlay extends Overlay implements Region {
         this.filePath = filePath;
         setX(x);
         setY(y);
-        File file = new File(System.getProperty("user.dir") + "/game/" + filePath);
+        File file = new File(RenJava.getInstance().getBaseDirectory(), "game/" + filePath);
         if (!file.exists()) {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }
@@ -58,7 +58,7 @@ public class MediaOverlay extends Overlay implements Region {
         setY(y);
         this.width = width;
         this.height = height;
-        File file = new File(System.getProperty("user.dir") + "/game/" + filePath);
+        File file = new File(RenJava.getInstance().getBaseDirectory(), "game/" + filePath);
         if (!file.exists()) {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }

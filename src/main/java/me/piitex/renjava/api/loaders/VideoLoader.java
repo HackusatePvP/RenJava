@@ -13,7 +13,7 @@ public class VideoLoader {
     private MediaPlayer player;
 
     public VideoLoader(String name) {
-        this.file = new File(System.getProperty("user.dir") + "/images/" + name);
+        this.file = new File(RenJava.getInstance().getBaseDirectory(), "images/" + name);
         media = new Media(file.toURI().toString());
     }
 

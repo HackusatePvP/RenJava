@@ -20,7 +20,7 @@ public class SettingsProperties {
     private final Properties properties = new Properties();
 
     public SettingsProperties() {
-        File directory = new File(System.getProperty("user.dir") + "/renjava/");
+        File directory = RenJava.getInstance().getBaseDirectory();
         this.file = new File(directory, "settings.properties");
         if (!file.exists()) {
             try {

@@ -28,7 +28,7 @@ public class ImageLoader {
      * @param name Name of the image file.
      */
     public ImageLoader(String name) {
-        File directory = new File(System.getProperty("user.dir") + "/game/images/");
+        File directory = new File(RenJava.getInstance().getBaseDirectory(), "game/images/");
 
         File f = new File(directory, name);
 
@@ -59,7 +59,7 @@ public class ImageLoader {
     }
 
     public ImageLoader(String directory, String name) {
-        File fileDirectory = new File(System.getProperty("user.dir") + "/" + directory + "/");
+        File fileDirectory = new File(RenJava.getInstance().getBaseDirectory(), directory + "/");
         File f = new File(fileDirectory, name);
 
         // If the file does not exist check to see if its in the class path
