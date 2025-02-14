@@ -9,9 +9,51 @@ import javafx.scene.paint.Paint;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.events.types.ButtonClickEvent;
+import me.piitex.renjava.gui.overlays.events.IOverlayClick;
+import me.piitex.renjava.loggers.RenLogger;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 
+/**
+ * The ButtonOverlay is a visual element that displays a button. A button can contain text or an image, and stylized borders and backgrounds.
+ * To handle a button use the generic {@link #onClick(IOverlayClick)} method.
+ * <p>
+ * <pre>
+ *     {@code
+ *       ButtonOverlay button = new ButtonOverlay("button-id", "Button", Color.BLACK);
+ *       button.onClick(event -> {
+ *           // Handle click action.
+ *           System.out.println("Clicked on 'button-id'");
+ *       });
+ *     }
+ * </pre>
+ * <p>
+ * A button is also a {@link Region} which means it has a shape. The shape for an image is a box around the button. The specific can have a specified width and height. A bigger width and height will enlarge the button.
+ * <pre>
+ *     {@code
+ *       ButtonOverlay button = new ButtonOverlay("button-id", "Button");
+ *       button.setWidth(width);
+ *       button.setHeight(height);
+ *     }
+ * </pre>
+ * <p>
+ * A button can display an {@link ImageOverlay} rather than text. The positioning and rendering of the image can also be modified. The {@link #isAlignGraphicToBox()} controls if the images should automatically align within the button.
+ * The {@link #getTopImage()} will track the last displayed image on the button.
+ * <pre>
+ *     {@code
+ *       ButtonOverlay button = new ButtonOverlay("button-id", new ImageOverlay("path/to/image.png");
+ *
+ *       // You can also add mulitiple images to a button
+ *       button.addImage(new ImageOverlay("path/to/image.png");
+ *     }
+ * </pre>
+ *
+ * @see Overlay
+ * @see Region
+ * @see ImageOverlay
+ */
 public class ButtonOverlay extends Overlay implements Region {
     private Button button;
     private final String id;
@@ -36,6 +78,13 @@ public class ButtonOverlay extends Overlay implements Region {
     private double width, height;
     private double scaleWidth, scaleHeight;
 
+    /**
+     * Creates a text button with a specified text color.
+     * @param id The id of the button.
+     * @param text The text to be displayed.
+     * @param textFill The color of the display text.
+     * @see Color
+     */
     public ButtonOverlay(String id, String text, Color textFill) {
         this.id = id;
         this.text = text;
@@ -43,13 +92,26 @@ public class ButtonOverlay extends Overlay implements Region {
     }
 
     /**
-     * Create a button with only text.
-     *
-     * @param id     Identifier for the button.
-     * @param text   Text that will be displayed inside the button.
-     * @param textFill  Color of the text.
-     * @param x      X-Axis position of the button.
-     * @param y      Y-Axis position of the button.
+     * Creates a text button with specified text color and font.
+     * @param id The id of the button.
+     * @param text The text to be displayed.
+     * @param textFill The color of the display text.
+     * @param font The font of the text.
+     */
+    public ButtonOverlay(String id, String text, Color textFill, FontLoader font) {
+        this.id = id;
+        this.text = text;
+        this.font = font;
+        this.textFill = textFill;
+    }
+
+    /**
+     * Creates a text button with specified text color and positioning.
+     * @param id The id of the button.
+     * @param text The text to be displayed.
+     * @param textFill The color of the display text.
+     * @param x The x position of the button.
+     * @param y The y position of the button.
      */
     public ButtonOverlay(String id, String text, Color textFill, double x, double y) {
         this.id = id;
@@ -60,14 +122,13 @@ public class ButtonOverlay extends Overlay implements Region {
     }
 
     /**
-     * Create a button with only text with a specific font.
-     *
-     * @param id     Identifier for the button.
-     * @param text   Text that will be displayed inside the button.
-     * @param font   Font to be used for the text.
-     * @param textFill  Color of the text.
-     * @param x      X-Axis position of the button.
-     * @param y      Y-Axis position of the button.
+     * Creates a text button with specified text color, text font, and positioning.
+     * @param id The id of the button.
+     * @param text The text to be displayed.
+     * @param textFill The color of the display text.
+     * @param font The font of the text.
+     * @param x The x position of the button.
+     * @param y The y position of the button.
      */
     public ButtonOverlay(String id, String text, Color textFill, FontLoader font, double x, double y) {
         this.id = id;
@@ -79,20 +140,14 @@ public class ButtonOverlay extends Overlay implements Region {
     }
 
     /**
-     * Create a button with only text with a specific font.
-     *
-     * @param id     Identifier for the button.
-     * @param text   Text that will be displayed inside the button.
-     * @param font   Font to be used for the text.
-     * @param textFill  Color of the text.
+     * Creates a text button with specified text color, text font, background color, and border color.
+     * @param id The id of the button.
+     * @param text The text to be displayed.
+     * @param textFill The color of the display text.
+     * @param font The font of the text.
+     * @param backgroundColor The color of the border box.
+     * @param borderColor The fill color of the box.
      */
-    public ButtonOverlay(String id, String text, Color textFill, FontLoader font) {
-        this.id = id;
-        this.text = text;
-        this.font = font;
-        this.textFill = textFill;
-    }
-
     public ButtonOverlay(String id, String text, Color textFill, FontLoader font, Color backgroundColor, Color borderColor) {
         this.id = id;
         this.text = text;
@@ -102,16 +157,16 @@ public class ButtonOverlay extends Overlay implements Region {
         this.borderColor = borderColor;
     }
 
-    public ButtonOverlay(String id, String text, Color textFill, FontLoader font, Color backgroundColor, Color borderColor, boolean hover) {
-        this.id = id;
-        this.text = text;
-        this.font = font;
-        this.textFill = textFill;
-        this.backgroundColor = backgroundColor;
-        this.borderColor = borderColor;
-        this.hover = hover;
-    }
-
+    /**
+     * Creates a text button with specified text color, text font, background color, and border color.
+     * @param id The id of the button.
+     * @param text The text to be displayed.
+     * @param textFill The color of the display text.
+     * @param font The font of the text.
+     * @param backgroundColor The color of the border box.
+     * @param borderColor The fill color of the box.
+     * @param hoverColor The color of the text when you hover over the button.
+     */
     public ButtonOverlay(String id, String text, Color textFill, FontLoader font, Color backgroundColor, Color borderColor, Color hoverColor) {
         this.id = id;
         this.text = text;
@@ -123,12 +178,11 @@ public class ButtonOverlay extends Overlay implements Region {
     }
 
     /**
-     * Create a button with only an image.
-     *
-     * @param id          Identifier for the button.
-     * @param imageLoader Image to be displayed inside the button.
-     * @param x           X-Axis position of the button.
-     * @param y           Y-Axis position of the button.
+     * Creates an image button with specified positioning.
+     * @param id The id of the button.
+     * @param imageLoader The background image of the button.
+     * @param x The x position of the button.
+     * @param y The y position of the button.
      */
     public ButtonOverlay(String id, ImageOverlay imageLoader, double x, double y) {
         this.id = id;
@@ -137,6 +191,16 @@ public class ButtonOverlay extends Overlay implements Region {
         setY(y);
     }
 
+    /**
+     * Creates an image button with specified positioning.
+     * @param id The id of the button.
+     * @param imageLoader The background image of the button.
+     * @param x The x position of the button.
+     * @param y The y position of the button.
+     * @param width The width of the button box.
+     * @param height The height of the button box.
+     * @see Region
+     */
     public ButtonOverlay(String id, ImageOverlay imageLoader, double x, double y, int width, int height) {
         this.id = id;
         this.images.add(imageLoader);
@@ -147,13 +211,12 @@ public class ButtonOverlay extends Overlay implements Region {
     }
 
     /**
-     * Create a button with image and text
-     *
-     * @param id          Identifier for the button.
-     * @param imageLoader Image to be displayed inside the button.
-     * @param text        Text to be displayed inside the button.
-     * @param x           X-Axis position of the button.
-     * @param y           Y-Axis position of the button.
+     * Creates a button with both text and an image.
+     * @param id The id of the button.
+     * @param imageLoader The background image of the button.
+     * @param text The text to be displayed.
+     * @param x The x position of the button.
+     * @param y The y position of the button.
      */
     public ButtonOverlay(String id, ImageOverlay imageLoader, String text, double x, double y) {
         this.id = id;
@@ -164,6 +227,10 @@ public class ButtonOverlay extends Overlay implements Region {
         this.button = build();
     }
 
+    /**
+     * Creates a button with a given JavaFX {@link Button}
+     * @param button The JavaFX button.
+     */
     public ButtonOverlay(Button button) {
         this.button = button;
         this.id = button.getId();

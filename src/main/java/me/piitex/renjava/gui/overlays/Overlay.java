@@ -4,15 +4,60 @@ import javafx.scene.Node;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.*;
+import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.events.IOverlayClick;
 import me.piitex.renjava.gui.overlays.events.IOverlayClickRelease;
 import me.piitex.renjava.gui.overlays.events.IOverlayHover;
 import me.piitex.renjava.gui.overlays.events.IOverlayHoverExit;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
+/**
+ * An overlay is a visual element which can be rendered. The overlay class is the JavaFX equivalent of a {@link Node}.
+ * All overlays have generic events that are fired. For example, the {@link OverlayClickEvent} is fired if the overlay is clicked.
+ *
+ * <p>
+ * To render an overlay you first need to add it to a {@link Container}. The container will have to be managed to a {@link Window}.
+ * The window is used to render the screen.
+ * <pre>
+ *     {@code
+ *       // Create the overlay
+ *       TextOverlay overlay = new TextOverlay("Text");
+ *
+ *       // Create or fetch the container.
+ *       Container container = new EmptyContainer(x, y, width, height, displayOrder);
+ *
+ *       // Add the overlay to the container.
+ *       container.addOverlay(overlay);
+ *
+ *       // Add the container to the window if needed.
+ *       window.addContainer(container);
+ *
+ *       // Render the screen
+ *       window.render();
+ *     }
+ * </pre>
+ *
+ * Handling overlay events are key to creation a functional game. During the rendering process, logical programming must be executed with events.
+ * <pre>
+ *     {@code
+ *       // Create the overlay
+ *       TextOverlay overlay = new TextOverlay("Text");
+ *
+ *       // Handle code when the overlay is clicked.
+ *       overlay.onClick(event -> {
+ *          // Handle logic
+ *          System.out.println("The overlay was clicked!");
+ *       });
+ *     }
+ * </pre>
+ */
 public abstract class Overlay {
     private double x,y;
     private double scaleX, scaleY;
@@ -24,6 +69,8 @@ public abstract class Overlay {
     private IOverlayClickRelease iOverlayClickRelease;
 
     private final Collection<Transitions> transitions = new HashSet<>();
+
+    private final List<File> styleSheets = new ArrayList<>();
 
     public double getX() {
         return x;
@@ -101,11 +148,23 @@ public abstract class Overlay {
         return transitions;
     }
 
+    public List<File> getStyleSheets() {
+        return styleSheets;
+    }
+
+    public void addStyleSheet(File file) {
+        this.styleSheets.add(file);
+    }
+
     public Overlay addTransition(Transitions transitions) {
         this.transitions.add(transitions);
         return this;
     }
 
+    /**
+     * Converts the overlay into a {@link Node} which is used for the JavaFX API.
+     * @return The converted {@link Node} for the overlay.
+     */
     public abstract Node render();
 
     public void renderTransitions(Node node) {
