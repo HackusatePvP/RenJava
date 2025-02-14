@@ -461,21 +461,33 @@ public class ButtonOverlay extends Overlay implements Region {
             button.setMaxWidth(width);
             button.setPrefWidth(width);
         }
-        String inLine = "";
-        if (backgroundColor != null) {
-            inLine += "-fx-background-color: " + cssColor(backgroundColor) + "; ";
-        } else {
-            inLine += "-fx-background-color: transparent; ";
-        }
-        if (borderColor != null) {
-            inLine += "-fx-border-color: " + cssColor(borderColor) + "; ";
-        } else {
-            inLine += "-fx-border-color: transparent; ";
-        }
-        inLine += "-fx-border-width: " + borderWidth + "; ";
-        inLine += "-fx-background-radius: " + backgroundRadius + ";";
 
-        button.setStyle(inLine);
+        if (getStyleSheets().isEmpty()) {
+            String inLine = "";
+            if (backgroundColor != null) {
+                inLine += "-fx-background-color: " + cssColor(backgroundColor) + "; ";
+            } else {
+                inLine += "-fx-background-color: transparent; ";
+            }
+            if (borderColor != null) {
+                inLine += "-fx-border-color: " + cssColor(borderColor) + "; ";
+            } else {
+                inLine += "-fx-border-color: transparent; ";
+            }
+            inLine += "-fx-border-width: " + borderWidth + "; ";
+            inLine += "-fx-background-radius: " + backgroundRadius + ";";
+
+            button.setStyle(inLine);
+        } else {
+            for (File file : getStyleSheets()) {
+                try {
+                    button.getStylesheets().add(file.toURI().toURL().toExternalForm());
+                } catch (MalformedURLException e) {
+                    RenLogger.LOGGER.error(e.getMessage(), e);
+                    RenJava.writeStackTrace(e);
+                }
+            }
+        }
 
         if (getX() != 0 && getY() != 0) {
             button.setTranslateX(getX());
