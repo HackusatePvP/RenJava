@@ -86,7 +86,7 @@ public abstract class RenJava {
     private static int spamTrack = 0;
 
     // The gameDir cannot change so make it final
-    private final File baseDir = new File(System.getProperty("user.dir"));
+    private File baseDir = new File(System.getProperty("user.dir"));
 
     private static RenJava instance;
 
@@ -397,6 +397,22 @@ public abstract class RenJava {
 
     public static EventHandler getEventHandler() {
         return EVENTHANDLER;
+    }
+
+    public static AddonLoader getAddonLoader() {
+        return ADDONLOADER;
+    }
+
+    public static RenJavaConfiguration getConfiguration() {
+        return CONFIGURATION;
+    }
+
+    public static SettingsProperties getSettings() {
+        return SETTINGS;
+    }
+
+    public static Tracks getTracks() {
+        return TRACKS;
     }
 
     /**
