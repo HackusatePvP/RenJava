@@ -60,6 +60,15 @@ public class ImageScene extends RenScene {
      * An image scene is used to display an image and text associated with a character.
      * Image scenes are typically used to present visuals and dialogue during gameplay or narrative progression.
      *
+     * <p>
+     *     <pre>
+     *         {@code
+     *           ImageScene scene = new ImageScene("1", null, null, null); // This is just an empty black scene
+     *           ImageScene scene = new ImageScene("2", character, "This is dialogue", new ImageOverlay("image.png"); // This is a basic scene with an image and dialogue.
+     *         }
+     *     </pre>
+     * </p>
+     *
      * @param id        The ID used to identify the scene.
      * @param character The character who is talking. Pass null if no character is talking in the scene.
      * @param dialogue  The dialogue of the character. Pass null or an empty string if no one is talking.

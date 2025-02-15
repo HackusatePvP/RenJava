@@ -16,7 +16,18 @@ import java.nio.IntBuffer;
 import java.util.Map;
 
 /**
- * Used for loading images. When loading an image insert it inside the cache.
+ * The ImageLoader is used to load an image from a file into the runtime. Once an image is loaded it is added to a cache. The cache contains at most 50 images.
+ * <p>
+ * When loading an image from a file, it is recommended to place the file into `~/games/images/~.
+ * <pre>
+ *     {@code
+ *       ImageLoader image = new ImageLoader("image.png"); // The file would be located in '~/games/images/image.png'
+ *       ImageLoader image = new ImageLoader("directory/image.png"); // The file would be located in '~/games/images/directory/image.png'
+ *     }
+ * </pre>
+ *
+ * An image can be loaded from the class-path (A.K.A jar file). This only occurs when the image cannot be located from the class-path.
+ * Images are extracted from the class-path in the games pre-initialization stage.
  */
 public class ImageLoader {
     private final File file;
@@ -24,7 +35,13 @@ public class ImageLoader {
     private static final Map<String, Image> imageCache = new LimitedHashMap<>(50);
 
     /**
-     * Loads an image via a filename from the base directory.
+     * Loads an image via a filename from the base directory or defaults to class-path.
+     * <pre>
+     *     {@code
+     *       ImageLoader image = new ImageLoader("image.png"); // ~/game/image.png
+     *       ImageLoader image = new ImageLoader("directory/image.png"); ~/game/directory/image.png
+     *     }
+     * </pre>
      * @param name Name of the image file.
      */
     public ImageLoader(String name) {
@@ -58,6 +75,19 @@ public class ImageLoader {
         this.file = f;
     }
 
+    /**
+     * Loads an image from a specified root directory.
+     * <pre>
+     *     {@code
+     *       ImageLoader image = new ImageLoader("C:\Test\", "image.png"); // C:\Test\image.png
+     *       ImageLoader image = new ImageLoader(System.getProperty("user.dir"), "image.png"); ~/image.png
+     *       ImageLoader image = new ImageLoader(System.getProperty("user.dir") + "/game/, "image.png"); ~/game/image.png
+     *       ImageLoader image = new ImageLoader(System.getProperty("user.home"), "image.png"); ~%APPDATA%/Roaming/image.png
+     *     }
+     * </pre>
+     * @param directory
+     * @param name
+     */
     public ImageLoader(String directory, String name) {
         File fileDirectory = new File(RenJava.getInstance().getBaseDirectory(), directory + "/");
         File f = new File(fileDirectory, name);
