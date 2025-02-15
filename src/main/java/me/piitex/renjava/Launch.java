@@ -66,7 +66,9 @@ public class Launch extends Application {
             // Get last execution class
             // Yea this makes no sense. Why can't you call a 'get' on a set??? What's the point of a set being a set if I can't get what's inside the set?
             Set<Class<? extends RenJava>> c1 = reflections.getSubTypesOf(RenJava.class);
-            RenLogger.LOGGER.info("Possible executes: " + c1.size());
+            c1.forEach(aClass -> {
+                RenLogger.LOGGER.info("Possible execute: " + aClass.getName());
+            });
 
             // A subclass is compiled as a separate class with a '$'. In this example it would be 'me.pittex.renjava.Launch$1'.
             // It will try to find a class which isn't a subclass else it will load a subclass.
@@ -78,40 +80,6 @@ public class Launch extends Application {
             // If the wrong class is being called, manually create a build.info and point it to the right class
 
             RenLogger.LOGGER.error("No game execute was found. Creating a default testing execute...");
-
-            new RenJava() {
-                @Override
-                public void preEnabled() {
-
-                }
-
-                @Override
-                public void createBaseData() {
-
-                }
-
-                @Override
-                public Window buildSplashScreen() {
-                    return null;
-                }
-
-                @Override
-                public void createStory() {
-
-                }
-
-                @Override
-                public void start() {
-
-                }
-
-                @Override
-                public File getBaseDirectory() {
-                    File testingDir = new File(System.getProperty("user.dir") + "/test/");
-                    testingDir.mkdir();
-                    return testingDir;
-                }
-            };
         }
     }
 
@@ -212,5 +180,46 @@ public class Launch extends Application {
         }
 
         RenJava.getInstance().getLogger().info("Loaded in " + s + "s");
+    }
+
+    /**
+     * This is just a default execute for testing purposes only.
+     */
+    @Game(name = "Default Execute", author = "piitex", version = "0.0.0")
+    @Configuration(title = "{name}", width = 1920, height = 1080)
+    private static class DefaultExecute extends RenJava {
+
+        public DefaultExecute() {
+            RenLogger.LOGGER.error("Default ");
+            File dir = new File(System.getProperty("user.dir") + "/test/");
+            dir.mkdirs();
+            setBaseDir(dir);
+        }
+
+        @Override
+        public void preEnabled() {
+            RenJavaConfiguration configuration = getConfiguration();
+            configuration.setStoreLocalSaves(false);
+        }
+
+        @Override
+        public void createBaseData() {
+
+        }
+
+        @Override
+        public Window buildSplashScreen() {
+            return null;
+        }
+
+        @Override
+        public void createStory() {
+
+        }
+
+        @Override
+        public void start() {
+
+        }
     }
 }
