@@ -73,13 +73,8 @@ public class Launch extends Application {
             // A subclass is compiled as a separate class with a '$'. In this example it would be 'me.pittex.renjava.Launch$1'.
             // It will try to find a class which isn't a subclass else it will load a subclass.
             Class<?> c = c1.stream().filter(aClass -> !aClass.getName().contains("$")).findAny().orElse(c1.stream().findFirst().orElse(null));
+            // Should never be null because of the default execute.
             loadClass(c, args, buildInfo);
-
-            // This is for testing purposes only.
-            // Makes it easier for me to debug the code if I can just run the 'main(args)' function straight from the ide.
-            // If the wrong class is being called, manually create a build.info and point it to the right class
-
-            RenLogger.LOGGER.error("No game execute was found. Creating a default testing execute...");
         }
     }
 
@@ -190,7 +185,7 @@ public class Launch extends Application {
     private static class DefaultExecute extends RenJava {
 
         public DefaultExecute() {
-            RenLogger.LOGGER.error("Default ");
+            RenLogger.LOGGER.error("No game execute was found. Creating a default testing execute...");
             File dir = new File(System.getProperty("user.dir") + "/test/");
             dir.mkdirs();
             setBaseDir(dir);
