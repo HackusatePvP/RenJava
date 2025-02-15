@@ -1,17 +1,13 @@
 package me.piitex.renjava.events.defaults;
 
-import javafx.geometry.Insets;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
-import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
+import me.piitex.renjava.events.Event;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
@@ -26,15 +22,13 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.tasks.Tasks;
 import org.slf4j.Logger;
 import java.util.Map;
 
 public class GameFlowEventListener implements EventListener {
     private static final RenJava renJava = RenJava.getInstance();
 
-
-    @Listener(priority = Priority.HIGHEST)
+    @Listener(priority = Priority.LOWEST)
     public void onMouseClick(MouseClickEvent event) {
         // RenJa keeps track of current Stages and other stuff
         Window window = renJava.getGameWindow();
@@ -44,6 +38,18 @@ public class GameFlowEventListener implements EventListener {
         MouseButton button = event.getEvent().getButton();
         Logger logger = RenLogger.LOGGER;
 
+        if (event.isCancelled()) {
+            return;
+        }
+
+        // Check if the overlay event was called
+        for (Event e : event.getLinkedEvents()) {
+            if (e instanceof OverlayClickEvent overlayClickEvent) {
+                if (!overlayClickEvent.isHandleMouseEvent()) {
+                    return;
+                }
+            }
+        }
 
         // Only do this if it's not the title screen or any other menu screen
         boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
@@ -67,18 +73,22 @@ public class GameFlowEventListener implements EventListener {
                     logger.info("Player is not in menu, opening menu...");
 
                     // When opening the right-clicked menu let's see if they are playing any media
-                    if (scene instanceof VideoScene videoScene) {
+                    if (scene instanceof VideoScene) {
                        // They are playing a video. Let's stop the video.
                         if (RenJava.PLAYER.getCurrentMedia() != null) {
                             RenJava.PLAYER.getCurrentMedia().stop();
                         }
                     }
 
+                    if (player.isTransitionPlaying()) {
+                        player.getCurrentTransition().stop();
+                    }
+
                     Container menu = renJava.getMainMenu().mainMenu(true);
                     menu.addContainers(renJava.getMainMenu().sideMenu(true));
 
                     MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
-                    RenJava.callEvent(buildEvent);
+                    RenJava.getEventHandler().callEvent(buildEvent);
 
                     // Clear current window
                     window.clearContainers();
@@ -87,25 +97,29 @@ public class GameFlowEventListener implements EventListener {
 
                     // Set flag before rendering. Important for engine checks.
                     player.setRightClickMenu(true);
+                    player.setCurrentStageType(StageType.MAIN_MENU);
 
                     window.render();
 
                     MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(menu, true);
-                    RenJava.callEvent(renderEvent);
+                    RenJava.getEventHandler().callEvent(renderEvent);
 
                 } else {
                     // Return to previous screen
                     RenScene renScene = player.getCurrentScene();
                     if (renScene == null) return;
+                    MainMenuExitEvent exitEvent = new MainMenuExitEvent();
+                    RenJava.getEventHandler().callEvent(exitEvent);
                     Container menu = renScene.build(true);
                     SceneBuildEvent sceneBuildEvent = new SceneBuildEvent(renScene, menu);
-                    RenJava.callEvent(sceneBuildEvent);
+                    RenJava.getEventHandler().callEvent(sceneBuildEvent);
 
                     window.clearContainers();
                     window.addContainers(menu);
                     window.render();
 
                     player.setRightClickMenu(false);
+                    player.setCurrentStageType(renScene.getStageType());
                 }
             }
         }
@@ -117,7 +131,7 @@ public class GameFlowEventListener implements EventListener {
         KeyCode code = event.getEvent().getCode();
         Stage stage;
         if (code == KeyCode.F11) {
-            SettingsProperties properties = renJava.getSettings();
+            SettingsProperties properties = RenJava.SETTINGS;
             if (properties.isFullscreen()) {
                 properties.setFullscreen(false);
                 stage = renJava.getGameWindow().getStage();
@@ -133,22 +147,15 @@ public class GameFlowEventListener implements EventListener {
             playNextScene();
         }
 
-        // Key-held is a little weird.
         if (code == KeyCode.CONTROL) {
             // Check to see if they viewed the scene first.
             RenScene currentScene = RenJava.PLAYER.getCurrentScene();
             if (currentScene != null && !inputScene(currentScene)) {
-                RenScene nextScene = currentScene.getStory().getNextScene(currentScene.getId());
-                if (nextScene != null && (RenJava.PLAYER.hasSeenScene(nextScene.getStory(), nextScene.getId()) || renJava.getSettings().isSkipUnseenText())) {
-                    Tasks.runJavaFXThread(this::playNextScene);
-                } else {
-                    if (nextScene == null) {
-                        // If the next scene is null call the scene end event
-                        SceneEndEvent endEvent = new SceneEndEvent(currentScene);
-                        if (currentScene.getEndInterface() != null) {
-                            currentScene.getEndInterface().onEnd(endEvent);
-                        }
-                        RenJava.callEvent(endEvent);
+                Story story = currentScene.getStory();
+                if (story != null && story.getNextScene(currentScene.getId()) != null) {
+                    RenScene nextScene = story.getNextScene(currentScene.getId());
+                    if (RenJava.PLAYER.hasSeenScene(story, nextScene.getId())) {
+                        playNextScene();
                     }
                 }
             }
@@ -166,10 +173,10 @@ public class GameFlowEventListener implements EventListener {
 
         if (y > 0) {
             ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
-            RenJava.callEvent(scrollUpEvent);
+            RenJava.getEventHandler().callEvent(scrollUpEvent);
         } else {
             ScrollDownEvent scrollDownEvent = new ScrollDownEvent();
-            RenJava.callEvent(scrollDownEvent);
+            RenJava.getEventHandler().callEvent(scrollDownEvent);
         }
 
     }
@@ -180,6 +187,11 @@ public class GameFlowEventListener implements EventListener {
         Window window = renJava.getGameWindow();
         if (event.isCancelled()) return; // If the event is canceled, do not roll back.
         // Instead of rendering the previous scene in the story, use the Player class instead
+
+        if (RenJava.PLAYER.getCurrentTransition() != null && RenJava.PLAYER.getCurrentTransition().isPlaying()) {
+            RenJava.PLAYER.getCurrentTransition().stop();
+        }
+
         if (RenJava.PLAYER.getCurrentScene() != null) {
             if (event.isDisplayPreviousScene()) {
                 RenScene previousScene = RenJava.PLAYER.getLastViewedScene();
@@ -187,7 +199,7 @@ public class GameFlowEventListener implements EventListener {
                     // Call SceneRollBackEvent
                     RenScene currentScene = RenJava.PLAYER.getCurrentScene();
                     SceneRollbackEvent rollbackEvent = new SceneRollbackEvent(previousScene, currentScene);
-                    RenJava.callEvent(rollbackEvent);
+                    RenJava.getEventHandler().callEvent(rollbackEvent);
                     previousScene.getStory().displayScene(previousScene, true);
                 }
             }
@@ -199,10 +211,10 @@ public class GameFlowEventListener implements EventListener {
         // If they scroll down it acts like skipping.
         if (event.isCancelled()) return;
         RenScene scene = RenJava.PLAYER.getCurrentScene();
-        if (RenJava.PLAYER.getRolledScenes().isEmpty()) {
-            RenLogger.LOGGER.warn("Rollback data is not present.");
-        }
         if (scene != null) {
+            if (RenJava.PLAYER.getRolledScenes().isEmpty()) {
+                RenLogger.LOGGER.warn("Rollback data is not present.");
+            }
             // Instead of playing the next, the mouse down will return to previous scene from roll back.
             // Example: Scroll up means you are going back to the previous scene. Scroll down you go back to the scene you were at.
 
@@ -229,109 +241,94 @@ public class GameFlowEventListener implements EventListener {
     }
 
     private void playNextScene(double pressedY) {
-        StageType stageType = RenJava.PLAYER.getCurrentStageType();
-        RenScene scene = RenJava.PLAYER.getCurrentScene();
+        Window window = RenJava.getInstance().getGameWindow();
         Player player = RenJava.PLAYER;
-        Logger logger = RenLogger.LOGGER;
+        RenScene currentScene = player.getCurrentScene();
 
-        // Only do this if it's not the title screen or any other menu screen
-        boolean gameMenu = stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.ANIMATION_SCENE;
-        if (gameMenu) {
-            if (scene == null) {
-                logger.error("The scene is null.");
-                return;
-            }
-            // Go to the next scene map
+        // Check to make sure they are in game and on a scene.
+        StageType stageType = player.getCurrentStageType();
+        boolean inGame = stageType == StageType.ANIMATION_SCENE || stageType == StageType.INTERACTABLE_SCENE || stageType == StageType.CHOICE_SCENE || stageType == StageType.IMAGE_SCENE || stageType == StageType.INPUT_SCENE;
+        if (!inGame) return; // Do not handle if they are not on a scene.
 
-            // Some scenes can't end with a click or space.
-            if (scene instanceof InteractableScene || scene instanceof ChoiceScene) {
-                return;
-            }
+        // Current scene may be null, especially if the player starts a new game. This function handles the rendering of the 'nextScene'
+        // Check if the current scene is not null and if it has an end transition
+        RenScene nextScene = null;
+        Story story;
 
-            // If the scene is a InputScene check if the click was located inside of the textbox
-            if (scene instanceof InputScene) {
-                double textBoxY = renJava.getConfiguration().getTextY();
-                System.out.println("TextBox Y: " + textBoxY);
-                if (pressedY > 0) {
-                    if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {
-                        return;
-                    }
-                }
-            }
+        // We need to pass some checks. First, if a transition is already playing stop it.
+        Transitions transitions = player.getCurrentTransition();
+        if (transitions != null && transitions.isPlaying()) {
+            RenLogger.LOGGER.info("Skipping transition...");
+            transitions.stop();
+            return; // Don't process scene when stopping the transition.
+        }
 
-            // Handle endScene first
-            SceneEndEvent endEvent = new SceneEndEvent(scene);
-            if (scene.getEndInterface() != null) {
-                scene.getEndInterface().onEnd(endEvent);
-            }
-            RenJava.callEvent(endEvent);
-
-            Story story = scene.getStory();
-            if (story == null) {
-                return;
-            }
-
-            if (scene.getIndex() == story.getLastIndex()) {
-                StoryEndEvent storyEndEvent = new StoryEndEvent(story);
-                RenJava.callEvent(storyEndEvent);
-                return;
-            }
+        // Next if the scene is an interactable or choice don't process next scene.
+        if (currentScene instanceof InteractableScene || currentScene instanceof ChoiceScene) {
+            return;
+        }
 
 
-            RenScene nextScene = null;
-            if (endEvent.isAutoPlayNextScene()) {
-                nextScene = story.getNextScene(scene.getId());
-            }
-
-            if (player.isTransitionPlaying()) {
-                if (scene.getEndTransition() != null) {
-                    scene.getEndTransition().stop();
-                    if (nextScene != null) {
-                        story.displayScene(nextScene, false, false);
-                    }
-                    player.setTransitionPlaying(false);
+        // Lastly, don't process if they click inside the text-field area.
+        if (currentScene instanceof InputScene) {
+            double textBoxY = RenJava.CONFIGURATION.getTextY();
+            if (pressedY > 0) {
+                if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {
                     return;
                 }
-                if (scene.getStartTransition() != null) {
-                    // Force display scene
-                    scene.getStartTransition().stop();
-                    story.displayScene(scene, false, false);
-                    player.setTransitionPlaying(false);
-                    return;
-                }
-            }
-
-            Pane pane = renJava.getGameWindow().getRoot();
-            if (scene.getEndTransition() != null && !player.isTransitionPlaying()) {
-                // Fix pane coloring for fade transitions
-                if (scene.getEndTransition() instanceof FadingTransition fadingTransition) {
-                    BackgroundFill backgroundFill = new BackgroundFill(fadingTransition.getColor(), new CornerRadii(1), new Insets(0, 0, 0, 0));
-                    pane.setBackground(new Background(backgroundFill));
-                    pane.getScene().setFill(fadingTransition.getColor());
-                    renJava.getGameWindow().getStage().getScene().setFill(fadingTransition.getColor());
-                }
-
-                // Play transition
-                scene.getEndTransition().play(scene, pane);
-
-                return; // When the transition is playing prevent insta displaying the next scene
-            }
-
-            if (nextScene != null && !player.isTransitionPlaying()) {
-                story.displayScene(nextScene, false, true);
             }
         }
-    }
 
-    @Listener
-    public void onEndTransitionEnd(SceneEndTransitionFinishEvent event) {
-        // Called when the scenes end transition finishes playing
+        if (currentScene != null) {
+            story = currentScene.getStory();
+            nextScene = story.getNextScene(currentScene.getId());
 
-        RenScene scene = event.getScene();
-        RenScene nextScene = scene.getStory().getNextScene(scene.getId());
-        if (!event.isSkipped()) {
-            if (nextScene != null) {
-                scene.getStory().displayScene(nextScene);
+            // Check if the end transition exists.
+            Transitions endTransition = currentScene.getEndTransition();
+            // Check if the transition has played, if so don't play it again. The played tag can reset if the story is refreshed. Global tags could be applied but the same issue would persist with sessions instead stories.
+            if (endTransition != null && !endTransition.isPlayed() && !endTransition.isPlaying()) {
+                // Run the end transition
+                window.handleSceneTransition(currentScene, endTransition);
+                return; // Let the transition play.
+            }
+        } else {
+            // If the current scene is null then play the first scene of the story
+            story = player.getCurrentStory();
+            if (story != null) {
+                story.start();
+                return;
+            } else {
+                RenLogger.LOGGER.error("No further route! Engine is unable to progress the game.");
+            }
+        }
+
+        if (nextScene != null) {
+            SceneEndEvent endEvent = new SceneEndEvent(currentScene);
+            if (currentScene.getEndInterface() != null) {
+                currentScene.getEndInterface().onEnd(endEvent);
+            }
+            RenJava.getEventHandler().callEvent(endEvent);
+
+            if (endEvent.isAutoPlayNextScene()) {
+                // First render the scene and play the starting transition if it exists.
+                story.displayScene(nextScene); // This will render the scene and play the starting transition (if one exists).
+            }
+        } else {
+            // Check if the current scene is the last scene in the story.
+            if (currentScene != null) {
+                SceneEndEvent endEvent = new SceneEndEvent(currentScene);
+                if (currentScene.getEndInterface() != null) {
+                    currentScene.getEndInterface().onEnd(endEvent);
+                }
+                RenJava.getEventHandler().callEvent(endEvent);
+                if (endEvent.isAutoPlayNextScene()) {
+                    story = currentScene.getStory();
+                    if (currentScene.getIndex() == story.getLastIndex()) {
+                        // Handle story end events...
+                        StoryEndEvent event = new StoryEndEvent(story);
+                        RenJava.getEventHandler().callEvent(event);
+                    }
+                }
             }
         }
     }

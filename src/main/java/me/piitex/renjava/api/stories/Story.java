@@ -1,9 +1,10 @@
 package me.piitex.renjava.api.stories;
 
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APINote;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.events.types.SceneStartEvent;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.types.ImageScene;
@@ -12,9 +13,10 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
-import me.piitex.renjava.events.types.SceneEndEvent;
 import org.slf4j.Logger;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -81,11 +83,21 @@ public abstract class Story {
         RenJava.PLAYER.addStory(this); // Registers the story.
     }
 
+    /**
+     * Sets a handler for when the story ends.
+     * @param endInterface Handler for the event.
+     * @return The modified Story.
+     */
     public Story onEnd(StoryEndInterface endInterface) {
         this.endInterface = endInterface;
         return this;
     }
 
+    /**
+     * Sets a handler for when the story starts.
+     * @param storyStartInterface Handler for the event.
+     * @return The modified Story.
+     */
     public Story onStart(StoryStartInterface storyStartInterface) {
         this.startInterface = storyStartInterface;
         return this;
@@ -99,6 +111,9 @@ public abstract class Story {
         return endInterface;
     }
 
+    /**
+     * Abstracted initialization method. Used for adding scenes to the story.
+     */
     public abstract void init();
 
     public String getId() {
@@ -112,8 +127,7 @@ public abstract class Story {
         // Update RenJava Player BEFORE the scenes are added
         RenJava.PLAYER.setCurrentStory(this.getId());
 
-        clear(); // Clear previous mappings (allows refreshing)
-        init(); // Initialize when starting
+        refresh();
 
         RenScene renScene = getScene(0); // Gets the first scene index.
 
@@ -123,6 +137,8 @@ public abstract class Story {
         }
 
         RenLogger.LOGGER.debug("Rendering first scene...");
+        SceneStartEvent startEvent = new SceneStartEvent(renScene);
+        RenJava.getEventHandler().callEvent(startEvent);
         displayScene(renScene, false, true);
     }
 
@@ -132,11 +148,13 @@ public abstract class Story {
      * Every time a story starts, it is refreshed.
      */
     public void refresh() {
-        scenes.clear();
-        sceneIndexMap.clear();
+        clear();
         init();
     }
 
+    /**
+     * Clears all {@link RenScene} mappings.
+     */
     public void clear() {
         scenes.clear();
         sceneIndexMap.clear();
@@ -193,7 +211,7 @@ public abstract class Story {
     /**
      * Gets a scene by its string id.
      * @param id of the Scene
-     * @return the scene of the id or null if none found.
+     * @return the {@link RenScene} of the id or null if none found.
      */
     public RenScene getScene(String id) {
         return scenes.get(id);
@@ -202,7 +220,7 @@ public abstract class Story {
     /**
      * Gets the next scene based on the current scene id.
      * @param id ID of the next scene.
-     * @return Returns the next RenScene or null.
+     * @return Returns the next {@link RenScene} or null.
      */
     public RenScene getNextScene(String id) {
         RenScene scene = scenes.get(id);
@@ -213,10 +231,20 @@ public abstract class Story {
         return sceneIndexMap.get(index);
     }
 
+    /**
+     * Gets the next from the current scene.
+     * @return Returns the next {@link RenScene} or null.
+     */
     public RenScene getNextSceneFromCurrent() {
-        return getNextScene(RenJava.PLAYER.getCurrentScene().getId());
+        if (RenJava.PLAYER.getCurrentScene() != null) {
+            return getNextScene(RenJava.PLAYER.getCurrentScene().getId());
+        }
+        return null;
     }
 
+    /**
+     * @return The current tracked {@link RenScene} or null.
+     */
     public RenScene getCurrentScene() {
         return RenJava.PLAYER.getCurrentScene();
     }
@@ -224,7 +252,7 @@ public abstract class Story {
     /**
      * Gets the next scene based on the current scene id.
      * @param id ID of the previous scene.
-     * @return Returns the previous RenScene or null.
+     * @return Returns the previous {@link RenScene} or null.
      */
     public RenScene getPreviousSceneFromID(String id) {
         RenScene scene = scenes.get(id);
@@ -232,43 +260,70 @@ public abstract class Story {
         return sceneIndexMap.get(index);
     }
 
+    /**
+     * Gets the previous scene from the current scene.
+     * @return Returns the previous {@link RenScene} or null.
+     */
     public RenScene getPreviousSceneFromCurrent() {
-        return getPreviousSceneFromID(RenJava.PLAYER.getCurrentScene().getId());
+        if (RenJava.PLAYER.getCurrentScene() != null) {
+            return getPreviousSceneFromID(RenJava.PLAYER.getCurrentScene().getId());
+        }
+        return null;
     }
 
-    @APINote(description = "Scene indexes start at 0 which is the first scene. The second scene would be '1'.")
+    /**
+     * Renders the scene at the index.
+     * @param index Index of the {@link RenScene}
+     */
     public void displayScene(int index) {
         RenScene scene = getScene(index);
         displayScene(scene);
     }
 
+    /**
+     * Renders the scene from the id.
+     * @param id Of the {@link RenScene}.
+     */
     public void displayScene(String id) {
         RenScene scene = getScene(id);
         displayScene(scene);
     }
 
 
+    /**
+     * Renders the set scene.
+     * @param scene The {@link RenScene} to be rendered.
+     */
     public void displayScene(RenScene scene) {
         displayScene(scene, false);
     }
 
+    /**
+     * Renders the set scene.
+     * @param scene The {@link RenScene} to be rendered.
+     * @param rollback If the event was being roll backed.
+     */
     public void displayScene(RenScene scene, boolean rollback) {
         displayScene(scene, rollback, true);
     }
 
+    /**
+     * Renders the set scene.
+     * @param scene The {@link RenScene} to be rendered.
+     * @param rollback If the event was being roll backed.
+     * @param events If the scene events should be called.
+     */
     public void displayScene(RenScene scene, boolean rollback, boolean events) {
-        RenLogger.LOGGER.info("Rendering scene {} in story {}", scene.getId(), scene.getStory().getId());
-        if (events) {
-            SceneEndEvent endEvent = new SceneEndEvent(getCurrentScene());
-            RenJava.callEvent(endEvent);
+        long estTime = System.currentTimeMillis();
+        Window window = RenJava.getInstance().getGameWindow();
 
-            SceneStartEvent startEvent = new SceneStartEvent(scene);
-            RenJava.callEvent(startEvent);
+        scene.render(window, true, events);
+
+        // Next play the transition after the scene is set and rendered. (Should be fast enough to not flicker, depends on hardware.)
+        Transitions startTransition = scene.getStartTransition();
+        if (startTransition != null && !startTransition.isPlaying()) {
+            window.handleSceneTransition(scene, startTransition);
         }
-
-        RenJava.PLAYER.updateScene(scene);
-
-        scene.render(RenJava.getInstance().getGameWindow(),true, events);
 
         RenJava.PLAYER.setCurrentStageType(scene.getStageType());
         if (!rollback) {
@@ -276,8 +331,15 @@ public abstract class Story {
             RenJava.PLAYER.getViewedScenes().put(RenJava.PLAYER.getViewedScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
             RenJava.PLAYER.getRolledScenes().put(RenJava.PLAYER.getRolledScenes().size() + 1, Map.entry(scene.getId(), this.getId()));
         }
+
+        long endTime = System.currentTimeMillis() - estTime;
+        DateFormat format = new SimpleDateFormat("SSSS");
+        RenLogger.LOGGER.debug("Rendered scene '{}' in {}ms", scene.getId(), format.format(endTime).replaceFirst("^0*", ""));
     }
 
+    /**
+     * Renders the next {@link RenScene} from the current.
+     */
     public void displayNextScene() {
         RenScene renScene = getNextSceneFromCurrent();
         displayScene(renScene);

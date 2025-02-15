@@ -2,9 +2,12 @@ package me.piitex.renjava.gui.menus;
 
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.ButtonID;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.events.Event;
+import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.events.types.SideMenuBuildEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
@@ -15,7 +18,7 @@ import me.piitex.renjava.gui.layouts.HorizontalLayout;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.tasks.Tasks;
+import me.piitex.renjava.gui.prompts.Prompt;
 
 import java.util.LinkedList;
 
@@ -49,11 +52,11 @@ public class DefaultMainMenu implements MainMenu {
 
         Color hoverColor = RenJava.CONFIGURATION.getHoverColor();
 
-        ButtonOverlay startButton = new ButtonOverlay("menu-start-button", "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay loadButton = new ButtonOverlay("menu-load-button", "Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay saveButton = new ButtonOverlay("menu-save-button", "Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay optionsButton = new ButtonOverlay("menu-preference-button", "Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
-        ButtonOverlay aboutButton = new ButtonOverlay("menu-about-button", "About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay startButton = new ButtonOverlay(ButtonID.START.getId(), "Start", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay loadButton = new ButtonOverlay(ButtonID.LOAD.getId(),"Load", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay saveButton = new ButtonOverlay(ButtonID.SAVE.getId(),"Save", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay optionsButton = new ButtonOverlay(ButtonID.SETTINGS.getId(),"Preferences", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        ButtonOverlay aboutButton = new ButtonOverlay(ButtonID.ABOUT.getId(),"About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(400, 500);
         layout.setOrder(DisplayOrder.HIGH);
@@ -71,17 +74,17 @@ public class DefaultMainMenu implements MainMenu {
 
         ButtonOverlay returnButton;
 
-        if (RenJava.PLAYER.getCurrentStageType() == StageType.MAIN_MENU) {
-            returnButton = new ButtonOverlay("menu-quit-button", "Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+        if (!RenJava.PLAYER.isRightClickMenu()) {
+            returnButton = new ButtonOverlay(ButtonID.QUIT.getId(),"Quit", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         } else {
-            returnButton = new ButtonOverlay("menu-return-button", "Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
+            returnButton = new ButtonOverlay(ButtonID.RETURN.getId(),"Return", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         }
         returnButton.setX(25);
         returnButton.setY(980);
         menu.addOverlay(returnButton);
 
         SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(menu);
-        RenJava.callEvent(sideMenuBuildEvent);
+        RenJava.getEventHandler().callEvent(sideMenuBuildEvent);
 
         return menu;
     }
@@ -95,9 +98,9 @@ public class DefaultMainMenu implements MainMenu {
 
         TextOverlay menuText;
         if (loadMenu) {
-            menuText = new TextOverlay("LOAD", RenJava.CONFIGURATION.getUiFont());
+            menuText = new TextOverlay("Load Page " + page, RenJava.CONFIGURATION.getUiFont());
         } else {
-            menuText = new TextOverlay("SAVE", RenJava.CONFIGURATION.getUiFont());
+            menuText = new TextOverlay("Save Page " + page, RenJava.CONFIGURATION.getUiFont());
         }
         menuText.setX(RenJava.CONFIGURATION.getMidPoint().getKey());
         menuText.setY(50);
@@ -112,7 +115,7 @@ public class DefaultMainMenu implements MainMenu {
 
         int maxSavesPerPage = 6;
 
-        int index = ((maxSavesPerPage * page) - maxSavesPerPage) + 1;
+        int index = 1;
         VerticalLayout rootLayout = new VerticalLayout(1000, 800); // The root is a vertical which stacks the two horizontal layouts.
         rootLayout.setSpacing(10);
         HorizontalLayout topLayout = new HorizontalLayout(1000, 350);
@@ -125,8 +128,7 @@ public class DefaultMainMenu implements MainMenu {
 
         LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers());
         while (index <=  maxSavesPerPage) {
-            Save save = new Save(index);
-            save.load(false);
+            Save save = Save.createSave(page, index);
             // Create a button box
             VerticalLayout buttonBox = new VerticalLayout(414, 320);
 
@@ -136,11 +138,17 @@ public class DefaultMainMenu implements MainMenu {
 
             FontLoader bottomFont = new FontLoader(RenJava.CONFIGURATION.getUiFont(), 12);
             TextOverlay createdTime = new TextOverlay(save.getLocalizedCreationDate(), bottomFont);
-            createdTime.setY(-50); // Moves the text up a little in the vbox
+            // Create same handling as main button
+            createdTime.onClick(loadButton.getOnClick());
+
+            createdTime.setY(-80); // Moves the text up a little in the vbox
             createdTime.setX(120); // Moves over to the center hopefully
             buttonBox.addOverlay(createdTime);
             if (save.getName() != null && !save.getName().isEmpty() && !save.getName().equalsIgnoreCase("null")) {
                 TextOverlay saveName = new TextOverlay(save.getName(), bottomFont);
+                saveName.onClick(loadButton.getOnClick());
+                saveName.setY(-80);
+                saveName.setX(120);
                 buttonBox.addOverlay(saveName);
             }
 
@@ -176,9 +184,27 @@ public class DefaultMainMenu implements MainMenu {
             pageButton.setBackgroundColor(Color.TRANSPARENT);
             pageButton.setBorderColor(Color.TRANSPARENT);
             if (page == pageIndex) {
-                pageButton.setTextFill(Color.BLACK);
+                pageButton.setTextFill(Color.WHITE);
             }
             pageButton.setHoverColor(RenJava.CONFIGURATION.getHoverColor());
+
+            // Page click handler
+            pageButton.onClick(event -> {
+
+                int newPage = Integer.parseInt(pageButton.getText());
+
+                RenLogger.LOGGER.info("Rendering page '{}'", newPage);
+
+                Container load = RenJava.getInstance().getMainMenu().loadMenu(rightClicked, newPage, true); //TODO: Pages
+                Container side = RenJava.getInstance().getMainMenu().sideMenu(rightClicked);
+                side.setOrder(DisplayOrder.HIGH);
+                load.addContainers(side);
+
+                gameWindow.clearContainers();
+                gameWindow.addContainer(load);
+                gameWindow.render();
+            });
+
             pageLayout.addOverlay(pageButton);
         }
         pageLayout.setX(1000);
@@ -245,33 +271,33 @@ public class DefaultMainMenu implements MainMenu {
 
         VerticalLayout masterBox = new VerticalLayout(1000, 100);
         TextOverlay masterVolumeText = new TextOverlay("Master Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay masterVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getMasterVolume(), 0,0, 200, 200);
+        SliderOverlay masterVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getMasterVolume(), 0,0, 200, 200);
         masterVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setMasterVolume(event.getValue());
+            RenJava.SETTINGS.setMasterVolume(event.getValue());
         });
         masterBox.addOverlays(masterVolumeText, masterVolumeSlider);
 
         VerticalLayout musicBox = new VerticalLayout(1000, 100);
         TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getMusicVolume(), 0,0, 200, 200);
+        SliderOverlay musicVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getMusicVolume(), 0,0, 200, 200);
         musicVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setMusicVolume(event.getValue());
+            RenJava.SETTINGS.setMusicVolume(event.getValue());
         });
         musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
 
         VerticalLayout soundBox = new VerticalLayout(1000, 100);
         TextOverlay soundVolumeText = new TextOverlay("Sound Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay soundVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getSoundVolume(), 0,0, 200, 200);
+        SliderOverlay soundVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getSoundVolume(), 0,0, 200, 200);
         soundVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setSoundVolume(event.getValue());
+            RenJava.SETTINGS.setSoundVolume(event.getValue());
         });
         soundBox.addOverlays(soundVolumeText, soundVolumeSlider);
 
         VerticalLayout voiceBox = new VerticalLayout(1000, 100);
         TextOverlay voiceVolumeText = new TextOverlay("Voice Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
-        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, RenJava.getInstance().getSettings().getVoiceVolume(), 0,0, 200, 200);
+        SliderOverlay voiceVolumeSlider = new SliderOverlay(0, 100, RenJava.SETTINGS.getVoiceVolume(), 0,0, 200, 200);
         voiceVolumeSlider.onSliderMove(event -> {
-            RenJava.getInstance().getSettings().setVoiceVolume(event.getValue());
+            RenJava.SETTINGS.setVoiceVolume(event.getValue());
         });
         voiceBox.addOverlays(voiceVolumeText, voiceVolumeSlider);
 
@@ -379,44 +405,145 @@ public class DefaultMainMenu implements MainMenu {
         loadButton.onClick(event -> {
             if (RenJava.PLAYER.getCurrentStageType() == StageType.LOAD_MENU) {
                 if (!save.exists()) {
-                    RenLogger.LOGGER.warn("Save file does not  0-exist.");
+                    RenLogger.LOGGER.warn("Save file '{}' does not exist.", index);
                     return;
                 }
-                save.load(true);
-                String storyID = RenJava.PLAYER.getCurrentStoryID();
-                if (storyID == null) {
-                    RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
-                    return;
+
+                if (!event.isRightClicked()) {
+                    save.getSaveManager().load(true);
+
+                    String storyID = RenJava.PLAYER.getCurrentStoryID();
+                    if (storyID == null) {
+                        RenLogger.LOGGER.error("Save file could not be loaded. The data is either not formatted or corrupted.");
+                        return;
+                    }
+                    RenLogger.LOGGER.info("Processing save file...");
+
+                    RenLogger.LOGGER.debug("Reloading story...");
+                    RenJava.getInstance().createStory();
+
+                    // Force update fields
+                    RenLogger.LOGGER.debug("Setting current story: " + storyID);
+                    RenJava.PLAYER.setCurrentStory(storyID);
+                    RenLogger.LOGGER.debug("Initializing story...");
+                    RenJava.PLAYER.getCurrentStory().init(); // Re-initialize story
+
+                    RenLogger.LOGGER.debug("Setting current scene: " + RenJava.PLAYER.getCurrentSceneID());
+                    RenJava.PLAYER.setCurrentScene(RenJava.PLAYER.getCurrentSceneID());
+
+                    RenJava.PLAYER.setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
+
+                    RenLogger.LOGGER.debug("Rendering scene...");
+                    RenScene scene = RenJava.PLAYER.getCurrentScene();
+                    RenJava.PLAYER.getStory(storyID).displayScene(scene);
+                } else {
+                    // Prevents the right-clicked menu from opening or closing.
+                    if (event.getLinkedEvents().size() > 1) {
+                        for (Event e : event.getLinkedEvents()) {
+                            if (e instanceof MouseClickEvent clickEvent) {
+                                clickEvent.setCancelled(true);
+                            }
+                        }
+                    }
+                    event.setHandleMouseEvent(false);
+
+                    // Rename the save file...
+                    Prompt prompt = new Prompt("Enter the name for the save file: ");
+
+                    TextFlowOverlay textFlowOverlay = prompt.getTextFlowOverlay();
+                    InputFieldOverlay inputFieldOverlay = new InputFieldOverlay("", 0, 0, 400, 50);
+
+                    textFlowOverlay.add(inputFieldOverlay);
+
+                    ButtonOverlay confirm = new ButtonOverlay("yes", "Confirm", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                    confirm.setX(10);
+                    confirm.setY(300);
+
+                    confirm.onClick(event1 -> {
+                        // Set the save file name and re-render.
+                        save.setName(inputFieldOverlay.getCurrentText());
+
+                        prompt.closeWindow();
+
+                        // Re-render the save menu to apply the changes
+                        Window gameWindow = RenJava.getInstance().getGameWindow();
+                        gameWindow.clearContainers();
+
+                        Container container = RenJava.getInstance().getMainMenu().loadMenu(RenJava.PLAYER.isRightClickMenu(), page, false);
+                        Container side = RenJava.getInstance().getMainMenu().sideMenu(RenJava.PLAYER.isRightClickMenu());
+                        container.addContainer(side);
+
+                        gameWindow.addContainer(container);
+
+                        gameWindow.render();
+                    });
+
+                    prompt.addOverlay(confirm);
+
+                    ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                    cancel.setX(700);
+                    cancel.setY(300);
+
+                    prompt.addOverlay(cancel);
+
+                    cancel.onClick(event1 -> {
+                        prompt.closeWindow();
+                    });
+
+                    prompt.render();
                 }
-                RenLogger.LOGGER.info("Processing save file...");
-
-                RenLogger.LOGGER.debug("Reloading story...");
-                RenJava.getInstance().createStory();
-
-                // Force update fields
-                RenLogger.LOGGER.debug("Setting current story: " + storyID);
-                RenJava.PLAYER.setCurrentStory(storyID);
-                RenLogger.LOGGER.debug("Initializing story...");
-                RenJava.PLAYER.getCurrentStory().init(); // Re-initialize story
-
-                RenLogger.LOGGER.debug("Setting current scene: " + RenJava.PLAYER.getCurrentSceneID());
-                RenJava.PLAYER.setCurrentScene(RenJava.PLAYER.getCurrentSceneID());
-
-                RenJava.PLAYER.setRightClickMenu(false); // When the save is loaded it will render the scene leaving the main menu.
-
-                RenLogger.LOGGER.debug("Rendering scene...");
-                RenScene scene = RenJava.PLAYER.getCurrentScene();
-                RenJava.PLAYER.getStory(storyID).displayScene(scene);
 
             } else if (RenJava.PLAYER.getCurrentStageType() == StageType.SAVE_MENU) {
-                Tasks.runAsync(save::write);
-                // Re-render
-                RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
-                Container menu = loadMenu(false, 1, false); // Builds first page
-                menu.addContainers(sideMenu(true));
-                RenJava.getInstance().getGameWindow().clearContainers();
-                RenJava.getInstance().getGameWindow().addContainer(menu);
-                RenJava.getInstance().getGameWindow().render();
+                // Prevents the right-clicked menu from opening or closing.
+                if (event.getLinkedEvents().size() > 1) {
+                    for (Event e : event.getLinkedEvents()) {
+                        if (e instanceof MouseClickEvent clickEvent) {
+                            clickEvent.setCancelled(true);
+                        }
+                    }
+                }
+                event.setHandleMouseEvent(false);
+
+                if (save.getFile().exists()) {
+                 Prompt prompt = new Prompt("Do you want to overwrite the current save file?");
+                 ButtonOverlay confirm = new ButtonOverlay("confirm", "Confirm", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                 confirm.setX(10);
+                 confirm.setY(300);
+                 confirm.onClick(event1 -> {
+                     // Write the save file
+                     save.getSaveManager().write();
+                     prompt.closeWindow();
+
+                     // Re-render
+                     RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
+                     Container menu = loadMenu(false, 1, false); // Builds first page
+                     menu.addContainers(sideMenu(true));
+                     RenJava.getInstance().getGameWindow().clearContainers();
+                     RenJava.getInstance().getGameWindow().addContainer(menu);
+                     RenJava.getInstance().getGameWindow().render();
+                 });
+                 prompt.addOverlay(confirm);
+
+                 ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                 cancel.setX(700);
+                 cancel.setY(300);
+                 cancel.onClick(event1 -> {
+                     prompt.closeWindow();
+                 });
+                 prompt.addOverlay(cancel);
+
+                 prompt.render();
+                } else {
+                    save.getSaveManager().write();
+
+                    // Re-render
+                    RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
+                    Container menu = loadMenu(false, page, false); // Builds first page
+                    menu.addContainers(sideMenu(true));
+                    RenJava.getInstance().getGameWindow().clearContainers();
+                    RenJava.getInstance().getGameWindow().addContainer(menu);
+                    RenJava.getInstance().getGameWindow().render();
+                }
             }
         });
 

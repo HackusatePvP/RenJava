@@ -66,10 +66,7 @@ public class LimitedHashMap<K, V> implements Map<K, V> {
             if (size() < limit) {
                 map.put(k, v);
             } else {
-                Entry<K, V> remove = map.entrySet().stream().findFirst().orElse(null);
-                if (remove != null) {
-                    map.remove(remove.getKey());
-                }
+                map.entrySet().stream().findFirst().ifPresent(remove -> map.remove(remove.getKey()));
             }
         });
     }

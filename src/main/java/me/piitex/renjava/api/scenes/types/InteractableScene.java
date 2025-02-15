@@ -8,7 +8,6 @@ import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
@@ -103,14 +102,15 @@ public class InteractableScene extends RenScene {
 
     @Override
     public Container build(boolean ui) {
-        Container menu = new EmptyContainer(0, 0, renJava.getConfiguration().getWidth(), renJava.getConfiguration().getHeight());
+        Container container = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
+        if (backgroundImage != null) {
+            backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
+            container.addOverlays(backgroundImage);
+        }
 
-        backgroundImage.setOrder(DisplayOrder.LOW);
-        menu.addOverlays(backgroundImage);
+        SceneBuildEvent event = new SceneBuildEvent(this, container);
+        RenJava.getEventHandler().callEvent(event);
 
-        SceneBuildEvent event = new SceneBuildEvent(this, menu);
-        RenJava.callEvent(event);
-
-        return menu;
+        return container;
     }
 }

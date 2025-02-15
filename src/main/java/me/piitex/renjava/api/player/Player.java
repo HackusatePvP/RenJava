@@ -4,11 +4,10 @@ import javafx.scene.Scene;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.APIChange;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.api.APINote;
 import me.piitex.renjava.api.exceptions.InvalidStoryException;
 import me.piitex.renjava.api.saves.data.Data;
 import me.piitex.renjava.api.saves.data.PersistentData;
@@ -17,7 +16,6 @@ import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.utils.LimitedTreeMap;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class that stores player data such as game progress and what scenes they have viewed. Some of the information stored is only useful to the framework but feel free to explore.
@@ -28,11 +26,11 @@ public class Player implements PersistentData {
     @Data private String currentStory;
     private StageType currentStageType;
     private MediaPlayer currentMedia;
+    private Transitions currentTransition;
 
     // Entry to map the story for the image
     private Map.Entry<String, ImageOverlay> lastDisplayedImage;
 
-    private boolean transitionPlaying = false;
     private boolean uiToggled = true;
 
     private boolean skipAutoScene = false;
@@ -98,14 +96,10 @@ public class Player implements PersistentData {
         return storyIdMap.get(id);
     }
 
-    @APINote(description = "There is no method to get the next Story as story routes and dictated by the choices the player makes. Meaning it's impossible to predict with accuracy where the player will go.")
     public Story getPreviousStory() {
         return getStory(viewedStories.getLast());
     }
 
-    @APINote(description = "Gets the last viewed scene in the current session. " +
-            "Sessions are reset when you close the game or start a new save." +
-            "This can return null if the session resets.")
     public RenScene getLastViewedScene() {
         // Get the last viewed scene that was rendered. Not the last scene that was indexed.
         RenScene scene = getCurrentStory().getScene(currentScene);
@@ -124,7 +118,6 @@ public class Player implements PersistentData {
         return story.getScene(entry.getKey());
     }
 
-    @APIChange(changedVersion = "0.1.164", description = "Changed from being a linked hash set to linked list.")
     public LinkedList<String> getViewedStories() {
         return viewedStories;
     }
@@ -191,12 +184,19 @@ public class Player implements PersistentData {
         this.skipAutoScene = skipAutoScene;
     }
 
-    public boolean isTransitionPlaying() {
-        return transitionPlaying;
+    public Transitions getCurrentTransition() {
+        return currentTransition;
     }
 
-    public void setTransitionPlaying(boolean transitionPlaying) {
-        this.transitionPlaying = transitionPlaying;
+    public void setCurrentTransition(Transitions currentTransition) {
+        this.currentTransition = currentTransition;
+    }
+
+    public boolean isTransitionPlaying() {
+        if (currentTransition == null) {
+            return false;
+        }
+        return currentTransition.isPlaying();
     }
 
     public MediaPlayer getCurrentMedia() {
@@ -243,10 +243,17 @@ public class Player implements PersistentData {
     public void resetSession() {
         this.currentScene = null;
         this.currentStory = null;
+        this.rightClickMenu = false;
         viewedScenes.clear();
         viewedStories.clear();
         rolledScenes.clear();
         lastDisplayedImage = null;
+        if (currentMedia != null) {
+            currentMedia.dispose();
+        }
+        if (currentTransition != null) {
+            currentTransition.stop();
+        }
     }
 
 }

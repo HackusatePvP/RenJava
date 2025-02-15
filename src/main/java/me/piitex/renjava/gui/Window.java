@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -15,8 +14,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.api.scenes.RenScene;
+import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.*;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
@@ -118,8 +119,8 @@ public class Window {
     private boolean focused = true;
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
@@ -127,8 +128,8 @@ public class Window {
     }
 
     public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.captureInput = captureInput;
         this.title = title;
         this.stageStyle = stageStyle;
@@ -137,8 +138,8 @@ public class Window {
     }
 
     public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.stageStyle = stageStyle;
         this.icon = icon;
@@ -148,8 +149,8 @@ public class Window {
     }
 
     public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, boolean captureInput, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.captureInput = captureInput;
         this.title = title;
         this.stageStyle = stageStyle;
@@ -179,8 +180,8 @@ public class Window {
     }
 
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.backgroundColor = backgroundColor;
         this.stageStyle = stageStyle;
@@ -189,8 +190,8 @@ public class Window {
     }
 
     public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
-        this.width = RenJava.getInstance().getConfiguration().getWidth();
-        this.height = RenJava.getInstance().getConfiguration().getHeight();
+        this.width = RenJava.CONFIGURATION.getWidth();
+        this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
         this.backgroundColor = backgroundColor;
         this.stageStyle = stageStyle;
@@ -364,6 +365,12 @@ public class Window {
         return containers;
     }
 
+    public void clean() {
+        root.getChildren().clear();
+        scene.setRoot(root);
+        stage.show();
+    }
+
     // Clears and resets current window.
     public void clear() {
         clear(false);
@@ -400,10 +407,7 @@ public class Window {
         if (focused) {
             stage.requestFocus();
         }
-        stage.setMaximized(maximized);
-        stage.setFullScreen(fullscreen);
         stage.show();
-
         // Force clear resources that are unused.
         // To those who feel like GC is bad practice or indicates broken code allow me to explain.
         // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
@@ -466,8 +470,8 @@ public class Window {
 
     // Renders container on top of current window
     public void render(Container container) {
+        containers.add(container);
         renderContainer(container);
-        stage.show();
     }
 
     private void renderContainer(Container container) {
@@ -479,7 +483,6 @@ public class Window {
         node.setTranslateX(container.getX());
         node.setTranslateY(container.getY());
 
-
         for (Node n : entry.getValue()) {
             if (node instanceof Pane pane) {
                 pane.getChildren().add(n);
@@ -489,25 +492,20 @@ public class Window {
 
         getRoot().getChildren().add(node);
 
-
         ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
-        RenJava.callEvent(renderEvent);
+        RenJava.getEventHandler().callEvent(renderEvent);
     }
 
     private void handleStageInput(Stage stage) {
-        stage.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-            MouseClickEvent clickEvent = new MouseClickEvent(event);
-            RenJava.callEvent(clickEvent);
-        });
         stage.addEventFilter(ScrollEvent.SCROLL, event -> {
             double y = event.getDeltaY();
             if (y > 0) {
                 // Scroll up
                 ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
-                RenJava.callEvent(scrollUpEvent);
+                RenJava.getEventHandler().callEvent(scrollUpEvent);
             } else {
                 ScrollDownEvent downEvent = new ScrollDownEvent();
-                RenJava.callEvent(downEvent);
+                RenJava.getEventHandler().callEvent(downEvent);
             }
         });
         stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -531,7 +529,7 @@ public class Window {
                             if (lastRun == null) {
                                 Tasks.runJavaFXThread(() -> {
                                     KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
-                                    RenJava.callEvent(event1);
+                                    RenJava.getEventHandler().callEvent(event1);
                                 });
                                 lastRun = current;
                             } else {
@@ -545,7 +543,7 @@ public class Window {
                                 if (diff > 75) {
                                     Tasks.runJavaFXThread(() -> {
                                         KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
-                                        RenJava.callEvent(event1);
+                                        RenJava.getEventHandler().callEvent(event1);
                                     });
                                     lastRun = current;
                                 }
@@ -555,7 +553,7 @@ public class Window {
                 }
             } else {
                 KeyPressEvent pressEvent = new KeyPressEvent(event);
-                RenJava.callEvent(pressEvent);
+                RenJava.getEventHandler().callEvent(pressEvent);
             }
         });
 
@@ -567,32 +565,37 @@ public class Window {
                 if (KeyUtils.getCurrentKeyDown() != null) {
                     KeyUtils.setModifierDown(event.getCode(), false);
                     KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
-                    RenJava.callEvent(releaseEvent);
+                    RenJava.getEventHandler().callEvent(releaseEvent);
                 }
             } else {
                 KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
-                RenJava.callEvent(releaseEvent);
+                RenJava.getEventHandler().callEvent(releaseEvent);
             }
         });
 
         stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            RenJava.getInstance().getConfiguration().setCurrentWindowHeight(newValue.doubleValue());
+            RenJava.CONFIGURATION.setCurrentWindowHeight(newValue.doubleValue());
 
-            double scaleWidth = RenJava.getInstance().getConfiguration().getWidthScale();
-            double scaleHeight = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getHeight();
+            double scaleWidth = RenJava.CONFIGURATION.getWidthScale();
+            double scaleHeight = newValue.doubleValue() / RenJava.CONFIGURATION.getHeight();
 
             Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
             root.getTransforms().setAll(scale);
         });
         stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            RenJava.getInstance().getConfiguration().setCurrentWindowWidth(newValue.doubleValue());
+            RenJava.CONFIGURATION.setCurrentWindowWidth(newValue.doubleValue());
 
-            double scaleWidth = newValue.doubleValue() / RenJava.getInstance().getConfiguration().getWidth();
-            double scaleHeight = RenJava.getInstance().getConfiguration().getHeightScale();
+            double scaleWidth = newValue.doubleValue() / RenJava.CONFIGURATION.getWidth();
+            double scaleHeight = RenJava.CONFIGURATION.getHeightScale();
 
             Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
             root.getTransforms().setAll(scale);
         });
+    }
+
+    public void handleSceneTransition(RenScene scene, Transitions transitions) {
+        // Play transition on the current root
+        transitions.play(scene);
     }
 
 }

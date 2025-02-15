@@ -9,7 +9,6 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
@@ -18,10 +17,9 @@ import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ChoiceButtonBuildEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.gui.exceptions.ImageNotFoundException;
+import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -91,7 +89,7 @@ public class ChoiceScene extends RenScene {
     public ChoiceScene(String id, ImageOverlay backgroundImage) {
         super(id, backgroundImage);
         this.backgroundImage = backgroundImage;
-        this.configuration = RenJava.getInstance().getConfiguration();
+        this.configuration = RenJava.CONFIGURATION;
     }
 
     /**
@@ -103,7 +101,7 @@ public class ChoiceScene extends RenScene {
         super(id, null);
         this.backgroundImage = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
-        this.configuration = RenJava.getInstance().getConfiguration();
+        this.configuration = RenJava.CONFIGURATION;
     }
 
     public ChoiceScene addChoice(Choice choice) {
@@ -161,7 +159,7 @@ public class ChoiceScene extends RenScene {
 
         if (ui) {
             VerticalLayout layout = new VerticalLayout(500, 500);
-            Map.Entry<Integer, Integer> midPoint = RenJava.getInstance().getConfiguration().getMidPoint();
+            Map.Entry<Integer, Integer> midPoint = RenJava.CONFIGURATION.getMidPoint();
 
             int scrollStart = 5;
             if (choices.size() > scrollStart) {
@@ -178,11 +176,11 @@ public class ChoiceScene extends RenScene {
             for (Choice choice : choices) {
                 ButtonOverlay buttonOverlay;
                 try {
-                    buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.getInstance().getConfiguration().getChoiceButtonFont(), 0, 0);
+                    buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.CONFIGURATION.getChoiceButtonFont(), 0, 0);
                     buttonOverlay.setBorderColor(Color.TRANSPARENT);
                     buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
                     buttonOverlay.setHover(true);
-                    buttonOverlay.setTextFill(RenJava.getInstance().getConfiguration().getChoiceButtonColor());
+                    buttonOverlay.setTextFill(RenJava.CONFIGURATION.getChoiceButtonColor());
                     buttonOverlay.build(); // Sets all the parameters for text
                     buildImageButton(buttonOverlay, choice, choiceBoxImage.build()); // Sets all the parameters for the image.
                     layout.addOverlays(buttonOverlay);

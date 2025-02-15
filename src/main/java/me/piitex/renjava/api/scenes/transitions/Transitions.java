@@ -5,8 +5,12 @@ import me.piitex.renjava.api.scenes.RenScene;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class Transitions {
+    private TransitionFinishInterface engineInterface;
     private TransitionFinishInterface finishInterface;
     private double duration;
+    private RenScene scene;
+
+    private boolean played;
 
     public Transitions(double duration) {
         this.duration = duration;
@@ -15,6 +19,15 @@ public abstract class Transitions {
     public Transitions onFinish(TransitionFinishInterface finishInterface) {
         this.finishInterface = finishInterface;
         return this;
+    }
+
+    public Transitions onEngineFinish(TransitionFinishInterface finishInterface) {
+        this.engineInterface = finishInterface;
+        return this;
+    }
+
+    public TransitionFinishInterface getEngineInterface() {
+        return engineInterface;
     }
 
     public TransitionFinishInterface getOnFinish() {
@@ -31,7 +44,25 @@ public abstract class Transitions {
 
     public abstract boolean isPlaying();
 
-    public abstract void play(@Nullable RenScene scene, Node node);
+    public boolean isPlayed() {
+        return played;
+    }
+
+    public void setPlayed(boolean played) {
+        this.played = played;
+    }
+
+    public RenScene getScene() {
+        return scene;
+    }
+
+    public void setScene(RenScene scene) {
+        this.scene = scene;
+    }
+
+    public abstract void play(Node node);
+
+    public abstract void play(RenScene scene);
 
     public abstract void stop();
 

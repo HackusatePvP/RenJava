@@ -72,7 +72,7 @@ public class SliderOverlay extends Overlay implements Region {
         // Hopefully the slider gets improvements in JavaFX.
 
         // Check if they have css files
-        File sliderCss = new File(System.getProperty("user.dir") + "/game/css/slider.css");
+        File sliderCss = new File(RenJava.getInstance().getBaseDirectory(), "game/css/slider.css");
         if (!sliderCss.exists()) {
             RenLogger.LOGGER.error("Slider css file does not exist. Please run or copy the css files from RSDK. Without a slider css file, the sliders won't properly be designed.");
         } else {
@@ -87,9 +87,9 @@ public class SliderOverlay extends Overlay implements Region {
         slider.setOnMouseDragged(event -> {
             SliderChangeEvent changeEvent = new SliderChangeEvent(this, slider.getValue());
             getSliderChange().onSliderChange(changeEvent);
-            RenJava.callEvent(changeEvent);
+            RenJava.getEventHandler().callEvent(changeEvent);
 
-            RenJava.callEvent(new OverlayClickReleaseEvent(this, event));
+            RenJava.getEventHandler().callEvent(new OverlayClickReleaseEvent(this, event));
         });
 
         setInputControls(slider);

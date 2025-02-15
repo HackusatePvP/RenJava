@@ -21,7 +21,7 @@ import java.util.HashSet;
  * <pre>{@code
  * public class MyAddon extends Addon {
  *     public MyAddon() {
- *         super("MyAddon");
+ *         super("MyAddon", "1.0.0");
  *     }
  *
  *     @Override
@@ -38,6 +38,7 @@ import java.util.HashSet;
  */
 public abstract class Addon {
     private final String name;
+    private final String version;
     private final Collection<EventListener> registeredListeners = new HashSet<>();
     private final Collection<PersistentData> registeredData = new HashSet<>();
     private final Collection<Addon> dependencies = new HashSet<>();
@@ -47,9 +48,11 @@ public abstract class Addon {
      * Constructs a new Addon with the specified name.
      *
      * @param name The name of the addon.
+     * @param version The version of the addon.
      */
-    public Addon(String name) {
+    public Addon(String name, String version) {
         this.name = name;
+        this.version = version;
         logger = new ApplicationLogger(name).LOGGER;
     }
 
@@ -72,6 +75,15 @@ public abstract class Addon {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the version of the addon.
+     *
+     * @return The version of the addon.
+     */
+    public String getVersion() {
+        return version;
     }
 
     /**

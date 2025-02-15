@@ -39,7 +39,7 @@ public class OverlayEventListener implements EventListener {
                     buttonOverlay.setTextFill(button.getTextFill());
                     button.setTextFill(buttonOverlay.getHoverColor());
                 } else {
-                    button.setTextFill(RenJava.getInstance().getConfiguration().getHoverColor());
+                    button.setTextFill(RenJava.CONFIGURATION.getHoverColor());
                 }
                 if (buttonOverlay.getHoverImage() != null) {
                     Image bg = buttonOverlay.getHoverImage().getImage();

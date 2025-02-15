@@ -27,27 +27,30 @@ public class InfoFile {
                     file.createNewFile();
                 }
             } catch (IOException e) {
-                RenLogger.LOGGER.error("Could not create file '" + file.getName() + "'", e);
+                RenLogger.LOGGER.error("Could not create file '{}'", file.getName(), e);
                 RenJava.writeStackTrace(e);
             }
         }
-        try {
-            Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                if (line.contains("=")) {
-                    String[] entry = line.split("=");
-                    if (entry.length == 1) {
-                        entryMap.put(entry[0], "");
-                    } else {
-                        entryMap.put(entry[0], entry[1].replace("\"", "").trim());
+
+        if (file.exists()) {
+            try {
+                Scanner scanner = new Scanner(file);
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    if (line.contains("=")) {
+                        String[] entry = line.split("=");
+                        if (entry.length == 1) {
+                            entryMap.put(entry[0], "");
+                        } else {
+                            entryMap.put(entry[0], entry[1].replace("\"", "").trim());
+                        }
                     }
                 }
+                scanner.close();
+            } catch (FileNotFoundException e) {
+                RenLogger.LOGGER.error("Could not process {}", file.getName(), e);
+                RenJava.writeStackTrace(e);
             }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            RenLogger.LOGGER.error("Could not process " + file.getName(), e);
-            RenJava.writeStackTrace(e);
         }
     }
 

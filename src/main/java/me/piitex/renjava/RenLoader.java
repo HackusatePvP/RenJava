@@ -12,6 +12,7 @@ import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.MDUtils;
 import me.piitex.renjava.tasks.Tasks;
+import me.piitex.renjava.utils.ResourceUtil;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -83,14 +84,16 @@ public class RenLoader {
             if (centralProcessor.getLogicalProcessorCount() <= 2) {
                 // If running 2 logical processes automatically disable multi-threading.
                 RenLogger.LOGGER.error("Your machine does not meet system requirements. Multi-threading has been automatically disabled.");
-                RenJava.getInstance().getSettings().setMultiThreading(false);
+                RenJava.SETTINGS.setMultiThreading(false);
             }
         });
     }
 
     private void setupMain() {
+        extractResourcesToGame();
+
         RenLogger.LOGGER.info("Checking game environment...");
-        File gameDirectory = new File(System.getProperty("user.dir") + "/game/");
+        File gameDirectory = new File(renJava.getBaseDirectory(), "game/");
         if (gameDirectory.mkdir()) {
             RenLogger.LOGGER.error("Game assets do not exist. Please download default assets and place them inside the 'game/images/gui' folder.");
             shutdown = true;
@@ -104,14 +107,14 @@ public class RenLoader {
             shutdown = true;
         }
 
-        File renJavaDirectory = new File(System.getProperty("user.dir") + "/renjava/");
+        File renJavaDirectory = new File(renJava.getBaseDirectory(),"renjava/");
         if (renJavaDirectory.mkdir()) {
             RenLogger.LOGGER.warn("RenJava folder does not exist. User settings will be reset to defaults.");
         }
     }
 
     private void setupGame() {
-        File directory = new File(System.getProperty("user.dir") + "/game/");
+        File directory = new File(renJava.getBaseDirectory(), "game/");
         File audioDirectory = new File(directory, "/audio/");
         audioDirectory.mkdir();
 
@@ -149,7 +152,7 @@ public class RenLoader {
         renJava.setSettings(new SettingsProperties());
 
         // Delete old stacktrace
-        File file = new File(System.getProperty("user.dir") + "/stacktrace.txt");
+        File file = new File(renJava.getBaseDirectory(), "stacktrace.txt");
         if (file.exists()) {
             file.delete();
         }
@@ -159,7 +162,7 @@ public class RenLoader {
         RenLogger.LOGGER.info("Generating pre-load data...");
         RenLogger.LOGGER.info("Checking Game ID...");
 
-        InfoFile infoFile = new InfoFile(new File(System.getProperty("user.dir") + "/renjava/build.info"), true);
+        InfoFile infoFile = new InfoFile(new File(renJava.getBaseDirectory(), "/renjava/build.info"), true);
         if (infoFile.containsKey("id")) {
             renJava.id = infoFile.getInt("id");
         } else {
@@ -167,24 +170,25 @@ public class RenLoader {
             infoFile.write("id", renJava.id + "");
         }
 
-        loadRPAFiles();
         renJava.preEnabled();
 
         // Move Save files to APPDATA
-        if (renJava.getName().equalsIgnoreCase("error") && renJava.getAuthor().equalsIgnoreCase("error")) return;
-        File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/");
-        File localSaves = new File(directory, "saves/");
-        localSaves.mkdirs();
+        if (RenJava.CONFIGURATION.isStoreLocalSaves()) {
+            if (renJava.getName().equalsIgnoreCase("error") && renJava.getAuthor().equalsIgnoreCase("error")) return;
+            File directory = new File(System.getenv("APPDATA") + "/RenJava/" + renJava.getID() + "/");
+            File localSaves = new File(directory, "saves/");
+            localSaves.mkdirs();
 
-        // Transfer local saves to game saves if the slot doesn't exist.
-        for (File file : localSaves.listFiles()) {
-            File currentSaveFile = new File(System.getProperty("user.dir") + "/game/saves/" + file.getName());
-            if (currentSaveFile.exists()) continue;
-            try {
-                Files.copy(Path.of(file.getPath()), Path.of(currentSaveFile.getPath()));
-            } catch (IOException e) {
-                RenLogger.LOGGER.error("Could not copy local saves!", e);
-                RenJava.writeStackTrace(e);
+            // Transfer local saves to game saves if the slot doesn't exists
+            for (File file : localSaves.listFiles()) {
+                File currentSaveFile = new File(renJava.getBaseDirectory(), "game/saves/" + file.getName());
+                if (currentSaveFile.exists()) continue;
+                try {
+                    Files.copy(file.toPath(), currentSaveFile.toPath());
+                } catch (IOException e) {
+                    RenLogger.LOGGER.error("Could not copy local saves!", e);
+                    RenJava.writeStackTrace(e);
+                }
             }
         }
 
@@ -193,8 +197,23 @@ public class RenLoader {
         // the Launch class. That was a mouth-full, but hopefully you figure it out!
     }
 
-    private void loadRPAFiles() {
-        // load rpa files
+    private void extractResourcesToGame() {
+        RenLogger.LOGGER.info("Checking resources path...");
+        int extraction = 0;
+        // Check if the game even exists
+        try {
+            if (getClass().getClassLoader().getResources("game/").hasMoreElements()) {
+
+                // Get all in the /game/ directory
+                RenLogger.LOGGER.info("Extracting files...");
+                extraction = ResourceUtil.extractFromResources("game", renJava.getBaseDirectory());
+            }
+        } catch (IOException e) {
+            RenLogger.LOGGER.error("Could not read resources!", e);
+        }
+
+        RenLogger.LOGGER.info("Extracted '{}' files.", extraction);
+
     }
 
     public synchronized String getVersion() {

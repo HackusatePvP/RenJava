@@ -3,7 +3,6 @@ package me.piitex.renjava.addons;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.loggers.RenLogger;
-import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +29,7 @@ public class AddonLoader {
     }
 
     public void load() {
-        File directory = new File(System.getProperty("user.dir") + "/addons/");
+        File directory = new File(RenJava.getInstance().getBaseDirectory(), "addons/");
         if (directory.mkdir()) {
             logger.warn("Created directory '" + "addons" + "'.");
         }
@@ -66,7 +65,7 @@ public class AddonLoader {
 
             // Convert entry to file then load info file
             try {
-                File buildFile = new File(System.getProperty("user.dir") + "/addons/build.info");
+                File buildFile = new File(RenJava.getInstance().getBaseDirectory(), "addons/build.info");
                 Files.copy(zipFile.getInputStream(entry), Path.of(buildFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
 
                 InfoFile build = new InfoFile(buildFile, false);
@@ -77,33 +76,41 @@ public class AddonLoader {
                     String ver = build.getString("ren.version");
                     logger.info("Addon Ren Version: {}", ver);
 
-                    ComparableVersion requiredVersion = new ComparableVersion(ver);
-                    ComparableVersion currentVersion = new ComparableVersion(RenJava.getInstance().getBuildVersion());
-                    if (requiredVersion.compareTo(currentVersion) < 0) {
+                    // The Java API does not allow leading 0
+                    // This manually adds a 1 to prevent errors with pre-releases (0.1.x)
+                    ver = "1." + ver;
+                    String buildVer = "1." + RenJava.getInstance().getBuildVersion();
+
+                    Runtime.Version requiredVer = Runtime.Version.parse(ver);
+                    Runtime.Version currentVer = Runtime.Version.parse(buildVer);
+                    if (requiredVer.compareToIgnoreOptional(currentVer) < 0) {
                         logger.error(file.getName() + " was built with an older RenJava version. Please advise author to update the addon to support the current running version. The addon will not load until it is upgraded to the proper version.");
                         invalidVersion = true;
-                    } else if (requiredVersion.compareTo(currentVersion) > 0) {
+                    } else if (requiredVer.compareToIgnoreOptional(currentVer) > 0) {
                         logger.error(file.getName() + " was built with a new version of RenJava than the application. Please advise author to downgrade the addon to support the current running version or download a newly updated version of the game. The addon will not load until it the issue is fixed.");
                         invalidVersion = true;
                     }
+
                 } else {
                     logger.error("Addon does not have a provided RenJava version. In future releases the addon will not load without a proper version.");
+                }
+
+                if (invalidVersion) {
+                    continue;
                 }
 
 
                 if (build.containsKey("dependencies") && !build.getString("dependencies").isEmpty()) {
                     String dep = build.getString("dependencies");
-                    if (!invalidVersion) {
-                        lateLoaders.put(file, dep);
-                    }
+                    lateLoaders.put(file, dep);
                 } else {
-                    if (!invalidVersion) {
-                        nonDependants.add(file);
-                    }
-                }
+                    nonDependants.add(file);
 
+                }
                 // Delete after
                 buildFile.delete();
+
+                extractResources(zipFile);
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -218,10 +225,36 @@ public class AddonLoader {
                             RenLogger.LOGGER.error("An error occurred while loading addon '{}'.", addon.getName());
                             failed = true;
                         }
-                        if (!failed) {addons.add(addon);
-                        logger.info("Loaded: {}", addon.getName());
+                        if (!failed) {
+                            addons.add(addon);
+                            logger.info("Loaded: {}", addon.getName());
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private void extractResources(ZipFile zipFile) {
+        // Extract game content from jar file resources to game folder.
+        RenLogger.LOGGER.info("Extracting addon contents...");
+        Enumeration<?> enumeration = zipFile.entries();
+        while (enumeration.hasMoreElements()) {
+            ZipEntry zipEntry = (ZipEntry) enumeration.nextElement();
+            String nanme = zipEntry.getName();
+            if (nanme.startsWith("game/")) {
+                File file = new File(nanme);
+                if (nanme.endsWith("/")) {
+                    file.mkdirs();
+                    continue;
+                }
+
+                try {
+                    Files.copy(zipFile.getInputStream(zipEntry), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    RenLogger.LOGGER.info("Extracted '{}' to '{}'", nanme, file.getAbsolutePath());
+                } catch (IOException e) {
+                    RenLogger.LOGGER.error(e.getMessage(), e);
+                    RenJava.writeStackTrace(e);
                 }
             }
         }
@@ -233,7 +266,13 @@ public class AddonLoader {
         }
     }
 
+
     public List<Addon> getAddons() {
         return addons;
     }
+
+    public Addon getAddon(String name, String version) {
+        return addons.stream().filter(addon -> addon.getName().equalsIgnoreCase(name) && addon.getVersion().equalsIgnoreCase(version)).findAny().orElse(null);
+    }
+
 }

@@ -2,6 +2,7 @@ package me.piitex.renjava.events.defaults;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
+import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 
 import me.piitex.renjava.events.types.*;
@@ -9,10 +10,12 @@ import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.menus.MainMenu;
+import me.piitex.renjava.gui.overlays.ButtonOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.gui.StageType;
+import me.piitex.renjava.gui.prompts.Prompt;
 
 public class MenuClickEventListener implements EventListener {
     private static final RenJava renJava = RenJava.getInstance();
@@ -32,7 +35,7 @@ public class MenuClickEventListener implements EventListener {
 
             // Call GameStartEvent
             GameStartEvent event1 = new GameStartEvent(renJava);
-            RenJava.callEvent(event1);
+            RenJava.getEventHandler().callEvent(event1);
 
             renJava.start();
         }
@@ -87,25 +90,69 @@ public class MenuClickEventListener implements EventListener {
             gameWindow.render();
         }
         if (button.getId().equalsIgnoreCase("menu-quit-button")) {
+            // Prompt before exiting...
             RenJava.ADDONLOADER.disable();
             Platform.exit();
+
         }
 
         if (button.getId().equalsIgnoreCase("menu-return-button")) {
-            if (RenJava.PLAYER.getCurrentStageType() == StageType.MAIN_MENU) {
-                RenJava.ADDONLOADER.disable();
-                Platform.exit();
-                return;
+
+            // Prompt them before quitting to main menu.
+
+            // Only prompt if they are in a save.
+            if (RenJava.PLAYER.getCurrentScene() != null) {
+
+                Prompt prompt = new Prompt("Are you sure you want to exit to main menu?");
+
+                Window window = prompt.getPromptWindow();
+
+                ButtonOverlay confirm = new ButtonOverlay("yes", "Confirm", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                confirm.setX(10);
+                confirm.setY(300);
+
+                confirm.onClick(event1 -> {
+                    // Exit to the main menu
+                    RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
+                    Container menu = mainMenu.mainMenu(false);
+                    Container side = mainMenu.sideMenu(false);
+                    RenJava.PLAYER.resetSession();
+                    side.setOrder(DisplayOrder.HIGH);
+                    menu.addContainer(side);
+                    gameWindow.clearContainers();
+                    gameWindow.addContainers(menu);
+                    gameWindow.render();
+
+                    // Close the prompt
+                    prompt.closeWindow();
+                });
+
+                prompt.addOverlay(confirm);
+
+                ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
+                cancel.setX(700);
+                cancel.setY(300);
+
+                cancel.onClick(event1 -> {
+                    // Executes when they cancel the prompt
+                    window.close();
+                });
+
+                prompt.addOverlay(cancel);
+
+                prompt.render();
+            } else {
+                // Exit to the main menu
+                RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
+                Container menu = mainMenu.mainMenu(false);
+                Container side = mainMenu.sideMenu(false);
+                RenJava.PLAYER.resetSession();
+                side.setOrder(DisplayOrder.HIGH);
+                menu.addContainer(side);
+                gameWindow.clearContainers();
+                gameWindow.addContainers(menu);
+                gameWindow.render();
             }
-            RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
-            Container menu = mainMenu.mainMenu(false);
-            Container side = mainMenu.sideMenu(false);
-            RenJava.PLAYER.resetSession();
-            side.setOrder(DisplayOrder.HIGH);
-            menu.addContainer(side);
-            gameWindow.clearContainers();
-            gameWindow.addContainers(menu);
-            gameWindow.render();
         }
     }
 

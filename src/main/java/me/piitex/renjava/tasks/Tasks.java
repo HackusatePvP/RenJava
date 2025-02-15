@@ -14,7 +14,7 @@ public class Tasks {
     // If your application is freezing use this function to run the code which causes the freezing.
     // Note you cannot access the javafx-api or Menu api using this call (aka overlays or rendering).
     public static void runAsync(Runnable runnable) {
-        if (RenJava.getInstance().getSettings().isMultiThreading()) {
+        if (RenJava.SETTINGS.isMultiThreading()) {
             Thread thread = new Thread(runnable);
             thread.start();
         } else {

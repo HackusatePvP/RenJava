@@ -1,6 +1,8 @@
 package me.piitex.renjava.api.scenes;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
+import me.piitex.renjava.api.scenes.transitions.types.ImageFlashTransition;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.api.scenes.types.*;
@@ -10,6 +12,7 @@ import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
 import me.piitex.renjava.events.types.SceneRenderEvent;
+import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
@@ -90,20 +93,46 @@ public abstract class RenScene {
     }
 
 
+    /**
+     * Sets the beginning {@link Transitions} for the scene. The transition is played and handled by the engine automatically.
+     *
+     * @param transition The transition to be played at the beginning the of scene.
+     * @return The modified RenScene.
+     *
+     * @see FadingTransition
+     * @see ImageFlashTransition
+     */
     public RenScene setBeginningTransition(Transitions transition) {
+        transition.setScene(this);
         this.startTransition = transition;
         return this;
     }
 
+    /**
+     * Sets the ending transition for the scene. The transition is played and handled by the engine automatically.
+     *
+     * @param transition The transition to be played at the end the of scene.
+     * @return The modified RenScene.
+     *
+     * @see FadingTransition
+     * @see ImageFlashTransition
+     */
     public RenScene setEndTransition(Transitions transition) {
+        transition.setScene(this);
         this.endTransition = transition;
         return this;
     }
 
+    /**
+     * @return The beginning {@link Transitions}.
+     */
     public Transitions getStartTransition() {
         return startTransition;
     }
 
+    /**
+     * @return The ending {@link Transitions}
+     */
     public Transitions getEndTransition() {
         return endTransition;
     }
@@ -112,10 +141,17 @@ public abstract class RenScene {
         return id;
     }
 
+    /**
+     * @return The {@link ImageOverlay} used for the background of the scene.
+     */
     public ImageOverlay getBackgroundImage() {
         return backgroundImage;
     }
 
+    /**
+     * Sets the background image for the scene.
+     * @param backgroundImage The {@link ImageOverlay} to be used as the background.
+     */
     public void setBackgroundImage(ImageOverlay backgroundImage) {
         this.backgroundImage = backgroundImage;
     }
@@ -132,14 +168,24 @@ public abstract class RenScene {
         return buildInterface;
     }
 
+    /**
+     * Adds an overlay to the scene.
+     * @param overlay The {@link Overlay} to be added.
+     */
     public void addOverlay(Overlay overlay) {
         additionalOverlays.add(overlay);
     }
 
+    /**
+     * @return All added overlays for the scene. This excludes the mandatory ones, like the background image and text-box.
+     */
     public Collection<Overlay> getAdditionalOverlays() {
         return additionalOverlays;
     }
 
+    /**
+     * @return The {@link Story} index of the scene.
+     */
     public int getIndex() {
         return index;
     }
@@ -148,6 +194,9 @@ public abstract class RenScene {
         this.index = index;
     }
 
+    /**
+     * @return The {@link Story} the scene is in.
+     */
     public Story getStory() {
         return story;
     }
@@ -156,30 +205,59 @@ public abstract class RenScene {
         this.story = story;
     }
 
+    /**
+     * Assembles the scene as a {@link Container}. This does not render anything it only builds the necessary components. Call before any rendering.
+     * @param ui If the ui elements should be displayed.
+     * @return {@link Container} of the assembled components in the scene.
+     */
     public abstract Container build(boolean ui);
 
+    /**
+     * Renders the scene to a {@link Window}.
+     * @param window The {@link Window} to be rendered too.
+     * @param ui If the ui elements should be displayed.
+     */
     public void render(Window window, boolean ui) {
         render(window, ui, true);
     }
 
+    /**
+     * Renders the scene to a {@link Window}
+     * @param window The {@link Window} to be rendered too.
+     * @param ui If the ui elements should be displayed.
+     * @param events If the engine events should be handled.
+     */
     public void render(Window window, boolean ui, boolean events) {
+        RenJava.PLAYER.updateScene(this);
         Container container = build(ui);
-
         // Clear window
         window.clearContainers();
-
         window.addContainer(container);
 
-        if (events) { // This is kind of stupid but a temporary fix for transitions.
+        if (events) {
             SceneRenderEvent renderEvent = new SceneRenderEvent(this, window.getScene(), window.getRoot());
-            RenJava.callEvent(renderEvent);
+            RenJava.getEventHandler().callEvent(renderEvent);
+
+            SceneStartEvent startEvent = new SceneStartEvent(this);
+            RenJava.getEventHandler().callEvent(startEvent);
         }
 
         window.render();
+
+        if (this instanceof VideoScene videoScene) {
+            videoScene.play();
+        }
     }
 
+    /**
+     * @return The scene type.
+     */
     public abstract StageType getStageType();
 
+    /**
+     * Add a .css style sheet to design the scene.
+     * @param file The .css file.
+     */
     public void addStyleSheets(File file) {
         styleSheets.add(file);
     }

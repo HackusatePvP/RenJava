@@ -7,6 +7,7 @@ import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.SceneEndTransitionFinishEvent;
+import me.piitex.renjava.events.types.TransitionStopEvent;
 
 public class TranslationTransition extends Transitions {
     private final double byX;
@@ -63,7 +64,7 @@ public class TranslationTransition extends Transitions {
     }
 
     @Override
-    public void play(RenScene scene, Node node) {
+    public void play(Node node) {
         TranslateTransition transition = new TranslateTransition();
         transition.setByX(byX);
         transition.setByY(byY);
@@ -75,14 +76,17 @@ public class TranslationTransition extends Transitions {
         transition.setDuration(Duration.seconds(getDuration()));
         transition.setOnFinished(actionEvent -> {
             if (getOnFinish() != null) {
-                getOnFinish().onEnd(actionEvent);
+                getOnFinish().onEnd(new TransitionStopEvent(this));
                 playing = false;
             }
-            SceneEndTransitionFinishEvent event = new SceneEndTransitionFinishEvent(scene, this);
-            RenJava.callEvent(event);
         });
         playing = true;
         transition.play();
+    }
+
+    @Override
+    public void play(RenScene scene) {
+
     }
 
     @Override

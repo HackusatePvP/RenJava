@@ -1,26 +1,20 @@
 package me.piitex.renjava.api.scenes.types;
 
-import javafx.scene.text.*;
+import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.characters.Character;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.SceneBuildEvent;
-import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
 
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
-import me.piitex.renjava.gui.overlays.ImageOverlay;
-import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.gui.overlays.TextFlowOverlay;
-import me.piitex.renjava.gui.overlays.TextOverlay;
-import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.renjava.gui.overlays.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -66,6 +60,15 @@ public class ImageScene extends RenScene {
      * An image scene is used to display an image and text associated with a character.
      * Image scenes are typically used to present visuals and dialogue during gameplay or narrative progression.
      *
+     * <p>
+     *     <pre>
+     *         {@code
+     *           ImageScene scene = new ImageScene("1", null, null, null); // This is just an empty black scene
+     *           ImageScene scene = new ImageScene("2", character, "This is dialogue", new ImageOverlay("image.png"); // This is a basic scene with an image and dialogue.
+     *         }
+     *     </pre>
+     * </p>
+     *
      * @param id        The ID used to identify the scene.
      * @param character The character who is talking. Pass null if no character is talking in the scene.
      * @param dialogue  The dialogue of the character. Pass null or an empty string if no one is talking.
@@ -82,7 +85,7 @@ public class ImageScene extends RenScene {
         if (character != null) {
             this.characterDisplayName = character.getDisplayName();
         }
-        configuration = renJava.getConfiguration();
+        configuration = RenJava.CONFIGURATION;
         font = configuration.getDialogueFont();
     }
 
@@ -92,7 +95,7 @@ public class ImageScene extends RenScene {
         this.dialogue = dialogue;
         backgroundImage = RenJava.PLAYER.getLastDisplayedImage().getValue();
         setBackgroundImage(backgroundImage);
-        configuration = renJava.getConfiguration();
+        configuration = RenJava.CONFIGURATION;
         font = configuration.getDialogueFont();
     }
 
@@ -130,6 +133,10 @@ public class ImageScene extends RenScene {
         if (backgroundImage != null) {
             backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
             container.addOverlays(backgroundImage);
+        } else {
+            BoxOverlay boxOverlay = new BoxOverlay(container.getWidth(), configuration.getHeight(), Color.BLACK);
+            boxOverlay.setOrder(DisplayOrder.LOW);
+            container.addOverlay(boxOverlay);
         }
 
         if (ui) {
@@ -153,7 +160,7 @@ public class ImageScene extends RenScene {
                     TextFlowOverlay textFlowOverlay;
                     if (texts.isEmpty()) {
                         TextOverlay text = new TextOverlay(dialogue);
-                        text.setFont(renJava.getConfiguration().getDialogueFont());
+                        text.setFont(RenJava.CONFIGURATION.getDialogueFont());
                         textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
                     } else {
                         textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
@@ -187,7 +194,7 @@ public class ImageScene extends RenScene {
 
         // Call SceneBuild event.
         SceneBuildEvent event = new SceneBuildEvent(this, container);
-        RenJava.callEvent(event);
+        RenJava.getEventHandler().callEvent(event);
 
         return container;
     }

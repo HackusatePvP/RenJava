@@ -13,7 +13,7 @@ public class VideoLoader {
     private MediaPlayer player;
 
     public VideoLoader(String name) {
-        this.file = new File(System.getProperty("user.dir") + "/images/" + name);
+        this.file = new File(RenJava.getInstance().getBaseDirectory(), "images/" + name);
         media = new Media(file.toURI().toString());
     }
 
@@ -32,7 +32,7 @@ public class VideoLoader {
     public void play(boolean loop) {
         player = new MediaPlayer(media);
         //TODO: Master volume needs to be calculated.
-        player.setVolume(RenJava.getInstance().getSettings().getSoundVolume() / 500d);
+        player.setVolume(RenJava.SETTINGS.getSoundVolume() / 500d);
         player.play();
         if (loop) {
             player.setCycleCount(MediaPlayer.INDEFINITE);

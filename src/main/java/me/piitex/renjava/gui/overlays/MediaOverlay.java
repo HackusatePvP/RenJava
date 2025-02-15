@@ -2,6 +2,7 @@ package me.piitex.renjava.gui.overlays;
 
 import javafx.scene.Node;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
@@ -19,7 +20,6 @@ import java.io.File;
  * Supported types that may work are
  *     1. H.264 AVC (.mp4)
  *     2. H.265 HEVC (.mp4)
- *     3. VP6 (.vp6, .zzz)
  * </pre>
  * <p>
  * Make sure the video resolution is set the resolution of the game. If your game is configured to be 1080p then the video must also be 1080p.
@@ -30,20 +30,20 @@ public class MediaOverlay extends Overlay implements Region {
     private double width = -1, height = -1;
     private double scaleWidth, scaleHeight;
     private boolean loop = false;
-    private final RenJava renJava = RenJava.getInstance();
+    private final Media media;
 
     public MediaOverlay(String filePath, int x, int y) {
         this.filePath = filePath;
         setX(x);
         setY(y);
-        File file = new File(System.getProperty("user.dir") + "/game/" + filePath);
+        File file = new File(RenJava.getInstance().getBaseDirectory(), "game/" + filePath);
         if (!file.exists()) {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }
-        Media media = new Media(file.toURI().toString());
+        media = new Media(file.toURI().toString());
 
         // Video should be on sound volune
-        SettingsProperties settings = RenJava.getInstance().getSettings();
+        SettingsProperties settings = RenJava.SETTINGS;
         double masterVolume = settings.getMasterVolume();
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
@@ -57,18 +57,19 @@ public class MediaOverlay extends Overlay implements Region {
         setY(y);
         this.width = width;
         this.height = height;
-        File file = new File(System.getProperty("user.dir") + "/game/" + filePath);
+        File file = new File(RenJava.getInstance().getBaseDirectory(), "game/" + filePath);
         if (!file.exists()) {
             RenLogger.LOGGER.error("Could not load media: {}", file.getPath());
         }
-        Media media = new Media(file.toURI().toString());
+        media = new Media(file.toURI().toString());
 
         // Video should be on sound volune
-        SettingsProperties settings = RenJava.getInstance().getSettings();
+        SettingsProperties settings = RenJava.SETTINGS;
         double masterVolume = settings.getMasterVolume();
         masterVolume = masterVolume / 100;
         double soundVolume = settings.getSoundVolume();
         soundVolume = masterVolume * soundVolume;
+
         RenJava.PLAYER.updatePlayingMedia(media);
     }
 
@@ -101,16 +102,22 @@ public class MediaOverlay extends Overlay implements Region {
 
     @Override
     public Node render() {
-        MediaView mediaView = new MediaView(RenJava.PLAYER.getCurrentMedia());
-        if (width != -1) {
-            mediaView.setFitWidth(width);
+        if (RenJava.PLAYER.getCurrentMedia() != null) {
+            MediaPlayer player = new MediaPlayer(media);
+            RenJava.PLAYER.setCurrentMedia(player);
+            MediaView mediaView = new MediaView(player);
+            if (width != -1) {
+                mediaView.setFitWidth(width);
+            }
+            if (height != -1) {
+                mediaView.setFitHeight(height);
+            }
+            RenLogger.LOGGER.info("Playing media '{}'", filePath);
+            setInputControls(mediaView);
+            return mediaView;
         }
-        if (height != -1) {
-            mediaView.setFitHeight(height);
-        }
-        RenLogger.LOGGER.info("Playing media '{}'", System.getProperty("user.dir") + "/" + filePath);
-        RenJava.PLAYER.getCurrentMedia().play();
-        return mediaView;
+        RenLogger.LOGGER.warn("Could not get media player!");
+        return null;
     }
 
     @Override

@@ -77,39 +77,39 @@ public class GuiLoader {
     private void buildMainMenu() {
         // Gonna put some default checks here.
 
-        RenJavaConfiguration configuration = renJava.getConfiguration();
+        RenJavaConfiguration configuration = RenJava.CONFIGURATION;
         if (configuration.getDefaultFont() == null) {
             RenLogger.LOGGER.error("Default font not set.");
-            renJava.getConfiguration().setDefaultFont(new FontLoader("Arial", 24));
+            RenJava.CONFIGURATION.setDefaultFont(new FontLoader("Arial", 24));
         }
         if (configuration.getUiFont() == null) {
             RenLogger.LOGGER.error("UI font not set.");
-            renJava.getConfiguration().setUiFont(new FontLoader("Arial", 26));
+            RenJava.CONFIGURATION.setUiFont(new FontLoader("Arial", 26));
         }
         if (configuration.getCharacterDisplayFont() == null) {
             RenLogger.LOGGER.warn("Character display font not set.");
-            renJava.getConfiguration().setCharacterDisplayFont(new FontLoader("Arial", 26));
+            RenJava.CONFIGURATION.setCharacterDisplayFont(new FontLoader("Arial", 26));
         }
         if (configuration.getDialogueFont() == null) {
             RenLogger.LOGGER.warn("Dialogue font not set.");
-            renJava.getConfiguration().setDialogueFont(new FontLoader("Arial", 26));
+            RenJava.CONFIGURATION.setDialogueFont(new FontLoader("Arial", 26));
         }
         if (configuration.getChoiceButtonFont() == null) {
             RenLogger.LOGGER.warn("Choice button font not set.");
-            renJava.getConfiguration().setChoiceButtonFont(new FontLoader("Arial", 28));
+            RenJava.CONFIGURATION.setChoiceButtonFont(new FontLoader("Arial", 28));
         }
 
         // Preset width and height
-        renJava.getConfiguration().setCurrentWindowWidth(renJava.getConfiguration().getWidth());
-        renJava.getConfiguration().setCurrentWindowHeight(renJava.getConfiguration().getHeight());
+        RenJava.CONFIGURATION.setCurrentWindowWidth(RenJava.CONFIGURATION.getWidth());
+        RenJava.CONFIGURATION.setCurrentWindowHeight(RenJava.CONFIGURATION.getHeight());
 
         RenLogger.LOGGER.info("Rendering main menu...");
         // When building title screen create a new window and eventually store the window for easy access
-        Window window = new Window(renJava.getConfiguration().getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
+        Window window = new Window(RenJava.CONFIGURATION.getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
         // Specifically for the gameWindow it is needed to setup the shutdown events.
         window.getStage().setOnHiding(windowEvent -> {
             ShutdownEvent shutdownEvent = new ShutdownEvent();
-            RenJava.callEvent(shutdownEvent);
+            RenJava.getEventHandler().callEvent(shutdownEvent);
 
             RenJava.ADDONLOADER.disable();
 
@@ -141,10 +141,6 @@ public class GuiLoader {
 
 
         renJava.setGameWindow(window);
-        // Next get the container for the main menu
-//        Container menu = renJava.buildMainMenu(false);
-//        MainMenuBuildEvent event = new MainMenuBuildEvent(menu);
-//        RenJava.callEvent(event);
 
         MainMenu menu = renJava.getMainMenu();
 
@@ -160,7 +156,7 @@ public class GuiLoader {
         // Render main menu
         Container container = menu.mainMenu(false);
         MainMenuBuildEvent event = new MainMenuBuildEvent(container);
-        RenJava.callEvent(event);
+        RenJava.getEventHandler().callEvent(event);
         window.addContainer(container);
 
         Container sideMenu = menu.sideMenu(false);
@@ -168,14 +164,14 @@ public class GuiLoader {
         window.addContainers(sideMenu);
 
         MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(container);
-        RenJava.callEvent(dispatchEvent);
+        RenJava.getEventHandler().callEvent(dispatchEvent);
 
         window.setMaximized(configuration.isMaximizedGameWindow());
 
         window.render(); // Renders the window
 
-        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(container);
-        RenJava.callEvent(renderEvent);
+        MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(container, false);
+        RenJava.getEventHandler().callEvent(renderEvent);
 
         RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 

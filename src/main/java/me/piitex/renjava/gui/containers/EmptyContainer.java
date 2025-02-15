@@ -5,6 +5,7 @@ import javafx.scene.layout.Pane;
 
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.DisplayOrder;
+import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
@@ -14,7 +15,21 @@ import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-// A default container which contains no special layout. Completely normal container.
+/**
+ * The EmptyContainer is a default {@link Container} which houses {@link Overlay}s, {@link Layout}s, and sub-containers.
+ * The container must be added to a {@link Window} to be rendered.
+ * <pre>
+ *     {@code
+ *       EmptyContainer container = new EmptyContainer(x, y, width, height, displayOrder);
+ *       window.addContainer(container);
+ *       window.render();
+ *     }
+ * </pre>
+ * @see Container
+ * @see Layout
+ * @see Overlay
+ * @see Window
+ */
 public class EmptyContainer extends Container {
 
     public EmptyContainer(double x, double y, double width, double height) {

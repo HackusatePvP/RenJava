@@ -51,6 +51,14 @@ public class RenJavaConfiguration {
     private int characterTextOffsetX = 0;
     private int characterTextOffsetY = 0;
 
+    // You can encrypt the save files to deter players from 'cheating'.
+    // All files are encrypted with AES using the password encrypted1234.
+    // View the FileEcnrypter utility for a detailed look.
+    private boolean encryptSaves = false;
+
+    // Should the application store saves locally on the pc
+    private boolean storeLocalSaves = true;
+
     /**
      * Used to create your own customized configuration easily.
      *
@@ -374,5 +382,21 @@ public class RenJavaConfiguration {
 
     public void setCurrentWindowHeight(double currentWindowHeight) {
         this.currentWindowHeight = currentWindowHeight;
+    }
+
+    public void setEncryptSaves(boolean encryptSaves) {
+        this.encryptSaves = encryptSaves;
+    }
+
+    public boolean isEncryptSaves() {
+        return encryptSaves;
+    }
+
+    public boolean isStoreLocalSaves() {
+        return storeLocalSaves;
+    }
+
+    public void setStoreLocalSaves(boolean storeLocalSaves) {
+        this.storeLocalSaves = storeLocalSaves;
     }
 }

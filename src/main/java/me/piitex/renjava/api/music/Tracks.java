@@ -107,7 +107,11 @@ public class Tracks implements PersistentData {
     }
 
     public void setCurrentTrack(Track currentTrack) {
-        this.currentTrack = currentTrack.getId();
+        if (currentTrack == null) {
+            this.currentTrack = null;
+        } else {
+            this.currentTrack = currentTrack.getId();
+        }
     }
 
     public Collection<Track> getTracks() {
