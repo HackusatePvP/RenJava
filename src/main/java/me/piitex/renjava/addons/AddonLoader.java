@@ -96,6 +96,8 @@ public class AddonLoader {
                 }
 
                 if (invalidVersion) {
+                    // Delete the build.info
+                    buildFile.delete();
                     continue;
                 }
 
