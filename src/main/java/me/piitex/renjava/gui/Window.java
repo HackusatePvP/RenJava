@@ -349,6 +349,10 @@ public class Window {
         this.containers = containers;
     }
 
+    public void removeContainer(Container container) {
+        this.containers.remove(container);
+    }
+
     public void clearContainers() {
         containers.clear();
         System.gc();
