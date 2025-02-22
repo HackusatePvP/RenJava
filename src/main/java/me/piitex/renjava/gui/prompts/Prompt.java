@@ -25,11 +25,19 @@ public class Prompt {
 
     private final LinkedList<Overlay> overlays = new LinkedList<>();
 
-    private final Window promptWindow = new Window("", StageStyle.UNDECORATED, null, 900, 375, false);
+    private Window promptWindow = new Window("", StageStyle.UNDECORATED, null, 900, 375, false);
+
+    private double x= 900, y = 400;
+
+    private int width, height;
 
     private boolean blockMainWindow = true;
 
+    private boolean anchorToGame = true;
+
     private final TextFlowOverlay textFlowOverlay;
+
+    private Container cachedContainer;
 
 
     public Prompt(String message) {
@@ -41,6 +49,38 @@ public class Prompt {
 
     public String getMessage() {
         return message;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     public TextFlowOverlay getTextFlowOverlay() {
@@ -55,6 +95,14 @@ public class Prompt {
         this.blockMainWindow = blockMainWindow;
     }
 
+    public boolean isAnchorToGame() {
+        return anchorToGame;
+    }
+
+    public void setAnchorToGame(boolean anchorToGame) {
+        this.anchorToGame = anchorToGame;
+    }
+
     public LinkedList<Overlay> getOverlays() {
         return overlays;
     }
@@ -65,41 +113,68 @@ public class Prompt {
 
 
     public Container build() {
-        Container container = new EmptyContainer(900, 375);
-        ImageOverlay background = new ImageOverlay("gui/frame.png");
-        background.setOrder(DisplayOrder.LOW);
-        container.addOverlay(background);
+        if (cachedContainer == null) {
+            Container container = new EmptyContainer(width, height);
+            container.setOrder(DisplayOrder.HIGH);
 
-        textFlowOverlay.setTextFillColor(Color.WHITE);
-        textFlowOverlay.setY(50);
-        textFlowOverlay.setX(50);
+            container.setX(x);
+            container.setY(y);
+            ImageOverlay background = new ImageOverlay("gui/frame.png");
+            background.setOrder(DisplayOrder.LOW);
+            container.addOverlay(background);
 
-        container.addOverlay(textFlowOverlay);
+            textFlowOverlay.setTextFillColor(Color.WHITE);
+            textFlowOverlay.setY(50);
+            textFlowOverlay.setX(50);
 
-        container.addOverlays(overlays);
+            container.addOverlay(textFlowOverlay);
 
-        return container;
+            container.addOverlays(overlays);
+
+            this.cachedContainer = container;
+        }
+
+        return cachedContainer;
     }
 
     public void render() {
         // Prompts create a new window which blocks input on the game window.
-        promptWindow.addContainers(build());
+        if (!isAnchorToGame()) {
+            promptWindow.addContainers(build());
 
-        if (blockMainWindow) {
-            promptWindow.getStage().initModality(Modality.WINDOW_MODAL);
             promptWindow.getStage().initOwner(RenJava.getInstance().getGameWindow().getStage());
-        }
-        handleInput();
 
-        promptWindow.render();
+            if (blockMainWindow) {
+                promptWindow.getStage().initModality(Modality.APPLICATION_MODAL);
+            }
+
+            handleInput();
+            promptWindow.render();
+        } else {
+            // Add to current window
+            Window window = RenJava.getInstance().getGameWindow();
+            window.addContainer(build());
+            window.render();
+        }
     }
 
     public Window getPromptWindow() {
         return promptWindow;
     }
 
+    public void setPromptWindow(Window promptWindow) {
+        this.promptWindow = promptWindow;
+    }
+
     public void closeWindow() {
-        promptWindow.close();
+        if (anchorToGame) {
+            // Can throw null error.
+            Window window = RenJava.getInstance().getGameWindow();
+            window.removeContainer(cachedContainer);
+            window.render();
+        } else {
+            promptWindow.close();
+        }
     }
 
     private void handleInput() {
