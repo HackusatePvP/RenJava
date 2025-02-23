@@ -3,6 +3,7 @@ package me.piitex.renjava.addons;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.loggers.RenLogger;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -65,10 +65,18 @@ public class AddonLoader {
 
             // Convert entry to file then load info file
             try {
-                File buildFile = new File(RenJava.getInstance().getBaseDirectory(), "addons/build.info");
-                Files.copy(zipFile.getInputStream(entry), Path.of(buildFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
+                File buildFile = File.createTempFile("build", ".info");
+                buildFile.deleteOnExit();
 
-                InfoFile build = new InfoFile(buildFile, false);
+                InfoFile build;
+                try (FileOutputStream outputStream = new FileOutputStream(buildFile)) {
+                    IOUtils.copy(zipFile.getInputStream(entry), outputStream);
+                    build = new InfoFile(buildFile, false);
+                } catch (IOException e) {
+                    RenLogger.LOGGER.error("Could not create temp-file for '{}'.", file.getName());
+                    RenJava.writeStackTrace(e);
+                    continue;
+                }
 
                 boolean invalidVersion = false;
 
@@ -96,8 +104,6 @@ public class AddonLoader {
                 }
 
                 if (invalidVersion) {
-                    // Delete the build.info
-                    buildFile.delete();
                     continue;
                 }
 
@@ -109,9 +115,6 @@ public class AddonLoader {
                     nonDependants.add(file);
 
                 }
-                // Delete after
-                buildFile.delete();
-
                 extractResources(zipFile);
 
             } catch (IOException e) {
@@ -147,9 +150,13 @@ public class AddonLoader {
                     return;
                 }
                 String dependency = string.trim();
+
+                // Dependencies are configured; dependencies=test1,test2
+                // If it contains a ',' it is likely to have multiple dependencies.
                 if (dependency.contains(",")) {
                     boolean canExecute = true;
                     Collection<Addon> dep = new HashSet<>();
+                    // Loop the dependencies by its comma. test1,test2
                     for (String depend : dependency.split(",")) {
                         Addon addon = addons.stream().filter(addon1 -> addon1.getName().equalsIgnoreCase(depend)).findAny().orElse(null);
                         if (addon == null) {
