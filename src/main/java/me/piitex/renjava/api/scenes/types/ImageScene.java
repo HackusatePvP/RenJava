@@ -36,13 +36,10 @@ import java.util.LinkedList;
  * <p>
  * Example usage:
  * <pre>{@code
- * TODO
+ *   ImageScene scene = new ImageScene("id", character, "Dialogue", new ImageOverlay("image.png");
  * }</pre>
  * </p>
  *
- * <p>
- * Note: The ImageScene class is used to create image scenes in the RenJava framework.
- * </p>
  */
 public class ImageScene extends RenScene {
     private Character character;

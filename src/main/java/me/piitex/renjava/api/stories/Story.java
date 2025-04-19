@@ -49,9 +49,6 @@ import java.util.*;
  * }</pre>
  * </p>
  *
- * <p>
- * Note: The Story class is now abstract and should be extended to create custom stories.
- * </p>
  *
  * @see RenScene
  * @see ImageScene
@@ -145,6 +142,18 @@ public abstract class Story {
     /**
      * Clears the existing scenes and initializes the story again by calling the `init()` method.
      * This method is useful when you want to reset and update variables.
+     *
+     * <pre>
+     *     {@code
+     *       ImageScene scene = new ImageScene("scene", character, "I'll give you 5$");
+     *       scene.onEnd(event -> {
+     *          character.addMoney(5);
+     *          this.refresh(); // Required to update the 'money' variable for the next scene.
+     *       });
+     *       ImageScene nextScene = new ImageScene("scene2", character, "Great! I have " + character.getMoney() + " now.");
+     *     }
+     * </pre>
+     *
      * Every time a story starts, it is refreshed.
      */
     public void refresh() {

@@ -179,6 +179,10 @@ public class Launch extends Application {
 
     /**
      * This is just a default execute for testing purposes only.
+     * To make this execute work in your own environment, create a 'test' folder.
+     * The folder should be in the root directory of this project.
+     * Place gui default assets inside /~test/game/
+     * Run {@link Main#main(String[])}
      */
     @Game(name = "Default Execute", author = "piitex", version = "0.0.0")
     @Configuration(title = "{name}", width = 1920, height = 1080)

@@ -11,9 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-// Custom file that works similar to Properties
-// key=value
-// All string base
+/**
+ * The InfoFile is very similar to {@link java.util.Properties}. It is a very simple and adaptable configuration file.
+ * Does not support nested configurations, maps, or arrays.
+ */
 public class InfoFile {
     private final File file;
 
@@ -35,6 +36,11 @@ public class InfoFile {
         if (file.exists()) {
             try {
                 Scanner scanner = new Scanner(file);
+                // key=value
+                // dependencies=test1,test2
+                // k = dependencies
+                // v = test1,test2
+
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
                     if (line.contains("=")) {

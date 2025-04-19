@@ -59,12 +59,19 @@ import java.util.Map;
  * To change or render a different container, you must remove the current containers and re-render the window.
  * <pre>
  * {@code
+ *  // Render different container
  *  Window window = application.getWindow();
  *  window.clearContainers(); // Clear existing containers
  *
  *  window.addContainer(newContainer);
  *
  *  window.render(); // Process newly added container
+ *
+ *  // Re-render modified container
+ *  Container container;
+ *  container.addOverlay(overlay); // Example addition.
+ *  window.replaceContainer(container.getIndex(), container);
+ *  window.render();
  * }
  * </pre>
  * <p>
@@ -118,6 +125,29 @@ public class Window {
 
     private boolean focused = true;
 
+    /**
+     * Creates a stylized window with a title, and icon. The stage style changes the style of the window.
+     * You only need to create a window if you want to add a sub-window. The game window should be managed with {@link RenJava#getGameWindow()}.
+     * <p>
+     * The common style is {@link StageStyle#DECORATED} which adds the basic buttons like exit, minimize, and maximize.
+     * You can explore with other styles that suit your needs with the deisred window.
+     * </p>
+     * <p>
+     *     Example usage:
+     *     <pre>
+     *         {@code
+     *           Window window = new Window("Window Title", StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
+     *
+     *           // Add containers
+     *           window.addContainer(Container container);
+     *           window.render();
+     *         }
+     *     </pre>
+     * </p>
+     * @param title Title of the window.
+     * @param stageStyle Style of the window.
+     * @param icon Image for the icon.
+     */
     public Window(String title, StageStyle stageStyle, ImageLoader icon) {
         this.width = RenJava.CONFIGURATION.getWidth();
         this.height = RenJava.CONFIGURATION.getHeight();
@@ -127,6 +157,34 @@ public class Window {
         buildStage();
     }
 
+    /**
+     * Creates a stylized window with a title, and icon. The stage style changes the style of the window.
+     * You only need to create a window if you want to add a sub-window. The game window should be managed with {@link RenJava#getGameWindow()}.
+     * <p>
+     * The common style is {@link StageStyle#DECORATED} which adds the basic buttons like exit, minimize, and maximize.
+     * You can explore with other styles that suit your needs with the deisred window.
+     * </p>
+     * <p>
+     * The 'captureInput' is used to capture user input like {@link MouseClickEvent}. There are cases where you do not want to capture input, like a splash screen.
+     * </p>
+     * <p>
+     *     Example usage:
+     *     <pre>
+     *         {@code
+     *           // Will capture input.
+     *           Window window = new Window("Window Title", StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"), ture);
+     *
+     *           // Add containers
+     *           window.addContainer(Container container);
+     *           window.render();
+     *         }
+     *     </pre>
+     * </p>
+     * @param title Title of the window.
+     * @param stageStyle Style of the window.
+     * @param icon Image for the icon.
+     * @param captureInput If the window should capture user input.
+     */
     public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
         this.width = RenJava.CONFIGURATION.getWidth();
         this.height = RenJava.CONFIGURATION.getHeight();

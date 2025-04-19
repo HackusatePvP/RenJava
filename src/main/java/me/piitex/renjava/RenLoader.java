@@ -244,8 +244,11 @@ public class RenLoader {
         }
 
         if (version == null) {
-            // we could not compute the version so use a blank
-            version = "";
+            // Please read and understand the RenJava license.
+            // Any modifications to RenJava that are sold for commercial use must be available.
+            // Any person can request source and all authors/developers must abide by that request.
+            // Sources must be disclosed this ensures safety and security of the application.
+            version = "Unknown (Request author for source)";
         }
 
         return version;

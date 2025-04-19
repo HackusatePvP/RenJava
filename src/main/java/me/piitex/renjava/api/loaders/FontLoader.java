@@ -41,7 +41,7 @@ public class FontLoader {
      * <p>
      *     <pre>
      *         {@code
-     *           FontLoader existingFont = new FontLoader("arial, 17"); // Font has a size of 17
+     *           FontLoader existingFont = new FontLoader("arial", 17); // Font has a size of 17
      *           FontLoader newFont = new FontLoader(existingFont, 21); // Font has a size of 21.
      *         }
      *     </pre>
@@ -58,6 +58,13 @@ public class FontLoader {
 
     /**
      * Adjusts the size of a JavaFX font.
+     *
+     * <pre>
+     *     {@code
+     *       Font fxFont;
+     *       FontLoader font = new Font(fxFont, 21);
+     *     }
+     * </pre>
      *
      * @param font The JavaFX {@link Font}.
      * @param size The new size of the font.
@@ -139,7 +146,7 @@ public class FontLoader {
 
     /**
      * Loads a system font or a file font. The file location must be inside '~game/fonts/~'.
-     * The system must be installed onto the system for it too work.
+     * The system font must be installed onto the system for it too work. A file font does not need to be installed.
      *
      * <p>
      *     <pre>
@@ -168,7 +175,7 @@ public class FontLoader {
 
     /**
      * Loads a system font or a file font. The file location must be inside '~game/fonts/~'.
-     * The system must be installed onto the system for it too work.
+     * The system font must be installed onto the system for it too work. A file font does not need to be installed.
      *
      * <p>
      *     <pre>

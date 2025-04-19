@@ -46,7 +46,6 @@ public class ImageLoader {
      */
     public ImageLoader(String name) {
         File directory = new File(RenJava.getInstance().getBaseDirectory(), "game/images/");
-
         File f = new File(directory, name);
 
         // If the file does not exist check to see if its in the class path
@@ -118,6 +117,16 @@ public class ImageLoader {
         this.file = f;
     }
 
+    /**
+     * Builds the specified image file into an image object that can be rendered.
+     * The function will attempt to build into a {@link BufferedImage} first.
+     * The WebP-Image-IO library hooks into a buffered image allowing more support for image formats.
+     * If the file cannot be rendered into a BufferedImage it will try to be rendered as a base {@link Image}.
+     * The JavaFX image has limited formats and slower loading.
+     *
+     * @return A loaded {@link BufferedImage} or {@link Image}.
+     * @throws ImageNotFoundException If the image file does not exist.
+     */
     public Image build() throws ImageNotFoundException {
         if (imageCache.containsKey(file.getPath())) {
             return imageCache.get(file.getPath());
@@ -154,7 +163,7 @@ public class ImageLoader {
     }
 
 
-    // Credit: https://stackoverflow.com/questions/30970005/bufferedimage-to-javafx-image
+    // Credit: https://stackoverflow.com/a/75703543
     private Image getImage(BufferedImage img) {
         //converting to a good type, read about types here: https://openjfx.io/javadoc/13/javafx.graphics/javafx/scene/image/PixelBuffer.html
         BufferedImage newImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
