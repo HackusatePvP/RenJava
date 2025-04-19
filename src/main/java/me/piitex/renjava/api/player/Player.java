@@ -240,6 +240,15 @@ public class Player implements PersistentData {
         setCurrentStory(renScene.getStory());
     }
 
+    public boolean inGame() {
+        return (currentStageType == StageType.IMAGE_SCENE || currentStageType == StageType.ANIMATION_SCENE || currentStageType == StageType.CHOICE_SCENE ||
+                currentStageType == StageType.INPUT_SCENE || currentStageType == StageType.INTERACTABLE_SCENE);
+    }
+
+    public boolean inMenu() {
+        return !inGame();
+    }
+
     public void resetSession() {
         this.currentScene = null;
         this.currentStory = null;

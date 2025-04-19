@@ -4,9 +4,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
@@ -31,6 +29,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 /**
  * Window is the main GUI component which handle the rendering process for the engine. There are three components to windows which are {@link Container}, {@link Overlay}, {@link Layout}.
@@ -572,8 +571,11 @@ public class Window {
         });
         stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
+
+                // Modifier key is being held
                 KeyCode keyCode = KeyUtils.getCurrentKeyDown();
                 if (keyCode != event.getCode()) {
+                    // Set the modifier
                     KeyUtils.setModifierDown(keyCode, false);
                 }
 
@@ -582,41 +584,49 @@ public class Window {
                     // Update engine
                     KeyUtils.setModifierDown(event.getCode(), true); // So far it is down.
 
-                    // Start Sub-thread for continuous event
-                    Tasks.runAsync(() -> {
-                        firstRun = Instant.now();
-                        while (KeyUtils.getCurrentKeyDown() != null) {
-                            // Add delay threshold
-                            Instant current = Instant.now();
-                            if (lastRun == null) {
-                                Tasks.runJavaFXThread(() -> {
-                                    KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
-                                    RenJava.getEventHandler().callEvent(event1);
-                                });
-                                lastRun = current;
-                            } else {
-                                long diff = Duration.between(lastRun, current).toMillis();
-                                long firstDiff = Duration.between(firstRun, current).toMinutes();
-                                if (firstDiff > 20) { // This broke randomly???
-                                    RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
-                                    KeyUtils.setModifierDown(event.getCode(), false);
-                                    return; // Kill after 2min
-                                }
-                                if (diff > 75) {
+                    // Control key.
+                    if (event.getCode() == KeyCode.CONTROL && RenJava.PLAYER.inGame()) {
+                        // Start Sub-thread for continuous event
+                        Tasks.runAsync(() -> {
+                            firstRun = Instant.now();
+                            while (KeyUtils.getCurrentKeyDown() != null) {
+                                // Add delay threshold
+                                Instant current = Instant.now();
+                                if (lastRun == null) {
                                     Tasks.runJavaFXThread(() -> {
                                         KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
                                         RenJava.getEventHandler().callEvent(event1);
                                     });
                                     lastRun = current;
+                                } else {
+                                    long diff = Duration.between(lastRun, current).toMillis();
+                                    long firstDiff = Duration.between(firstRun, current).toMinutes();
+                                    if (firstDiff > 20) { // This broke randomly???
+                                        RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
+                                        KeyUtils.setModifierDown(event.getCode(), false);
+                                        return; // Kill after 2min
+                                    }
+                                    if (diff > 75) {
+                                        Tasks.runJavaFXThread(() -> {
+                                            KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
+                                            RenJava.getEventHandler().callEvent(event1);
+                                        });
+                                        lastRun = current;
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             } else {
                 KeyPressEvent pressEvent = new KeyPressEvent(event);
                 RenJava.getEventHandler().callEvent(pressEvent);
             }
+        });
+
+        stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            KeyCodeCombination debug = new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN, KeyCodeCombination.SHIFT_DOWN);
+
         });
 
 
