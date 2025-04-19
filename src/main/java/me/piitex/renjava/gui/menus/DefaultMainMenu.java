@@ -20,6 +20,7 @@ import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.gui.prompts.Prompt;
 
+import java.io.File;
 import java.util.LinkedList;
 
 public class DefaultMainMenu implements MainMenu {
@@ -29,7 +30,8 @@ public class DefaultMainMenu implements MainMenu {
         // Empty container behaves like the old menu system.
         // It is essentially an empty box which you add overlays to.
         Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
-        menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
+
+        menu.addOverlay(new ImageOverlay("/gui/main_menu.png"));
 
         // Basic text overlay
         TextOverlay gameText = new TextOverlay(RenJava.getInstance().getName() + ' ' + RenJava.getInstance().getVersion(), new FontLoader(RenJava.CONFIGURATION.getUiFont(), 36), 1500, 975);

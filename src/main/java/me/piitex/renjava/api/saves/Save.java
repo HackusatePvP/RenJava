@@ -159,7 +159,6 @@ public class Save {
         // On slower machines the window may pop-up for a few seconds but if that's the case your pc doesn't meet spec requirements to begin with.
         Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
 
-//            hiddenWindow.clear(); // Required (This prevents white boxes from being rendered)
         Container container = currentScene.build(true);
         hiddenWindow.addContainers(container);
         hiddenWindow.build(true);

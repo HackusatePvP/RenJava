@@ -24,6 +24,7 @@ public class AddonLoader {
     private final List<Addon> addons = new ArrayList<>();
 
     private final Logger logger;
+
     public AddonLoader() {
         logger = RenLogger.LOGGER;
     }

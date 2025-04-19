@@ -2,6 +2,7 @@ package me.piitex.renjava;
 
 import javafx.application.HostServices;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.configuration.Game;
@@ -16,6 +17,7 @@ import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.EventHandler;
 import me.piitex.renjava.events.defaults.*;
+import me.piitex.renjava.gui.GuiLoader;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
@@ -99,6 +101,7 @@ public abstract class RenJava {
         // Run after super
         PLAYER = new Player();
         TRACKS = new Tracks();
+        ADDONLOADER = new AddonLoader();
         EVENTHANDLER = new EventHandler();
 
         EVENTHANDLER.registerListener(new MenuClickEventListener());
@@ -236,8 +239,6 @@ public abstract class RenJava {
 
     /**
      * Registers a character in the RenJava framework.
-     * <p>
-     * The registerCharacter() method is used to register a character in the RenJava framework.
      * Registered characters can be accessed and managed by other parts of the framework using their unique ID.
      *
      * @param character The character object to be registered.
@@ -255,8 +256,6 @@ public abstract class RenJava {
 
     /**
      * Retrieves a character by its ID.
-     * <p>
-     * The getCharacter() method is used to retrieve a character object based on its ID.
      * Characters are registered using the registerCharacter() method and can be accessed using their unique ID.
      *
      * @param id The ID of the character to retrieve.
