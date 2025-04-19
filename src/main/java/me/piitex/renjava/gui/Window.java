@@ -194,7 +194,7 @@ public class Window {
         buildStage();
     }
 
-    public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, ImageLoader icon) {
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean fullscreen, boolean maximized) {
         this.width = RenJava.CONFIGURATION.getWidth();
         this.height = RenJava.CONFIGURATION.getHeight();
         this.title = title;
@@ -205,7 +205,7 @@ public class Window {
         buildStage();
     }
 
-    public Window(String title, StageStyle stageStyle, boolean fullscreen, boolean maximized, boolean captureInput, ImageLoader icon) {
+    public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean fullscreen, boolean maximized, boolean captureInput) {
         this.width = RenJava.CONFIGURATION.getWidth();
         this.height = RenJava.CONFIGURATION.getHeight();
         this.captureInput = captureInput;
