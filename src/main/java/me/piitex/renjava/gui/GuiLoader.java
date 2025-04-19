@@ -41,7 +41,9 @@ public class GuiLoader {
 
     private void buildSplashScreen() {
         RenLogger.LOGGER.info("Creating Splash screen...");
-        stage.initStyle(StageStyle.UNDECORATED);
+        try {
+            stage.initStyle(StageStyle.UNDECORATED);
+        } catch (IllegalStateException ignored) {}
         // Update Stage
         RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 
