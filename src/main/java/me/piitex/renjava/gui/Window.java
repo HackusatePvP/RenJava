@@ -355,9 +355,16 @@ public class Window {
     public Scene getScene() {
         return scene;
     }
-
     public Pane getRoot() {
         return root;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     public boolean hasCaptureInput() {
@@ -406,6 +413,24 @@ public class Window {
         this.containers = containers;
     }
 
+    public void replaceContainer(Container oldContainer, Container newContainer) {
+        if (containers.contains(oldContainer)) {
+            int index = containers.indexOf(oldContainer);
+            containers.remove(oldContainer);
+            containers.add(index, newContainer);
+            render();
+        } else {
+            RenLogger.LOGGER.warn("Could not find value to replace.");
+        }
+    }
+
+    public void replaceContainer(int index, Container container) {
+        // Remove current index
+        containers.remove(index);
+        containers.add(index, container);
+        render();
+    }
+
     public void removeContainer(Container container) {
         this.containers.remove(container);
     }
@@ -452,6 +477,16 @@ public class Window {
             stage.close();
             System.gc(); // Force garbage collection once the window is closed.
         }
+    }
+
+    public void resetStage() {
+        root.getChildren().clear();
+        stage = new Stage();
+        stage.hide();
+    }
+
+    public void hide() {
+        stage.show();
     }
 
     public void buildAndRender() {
