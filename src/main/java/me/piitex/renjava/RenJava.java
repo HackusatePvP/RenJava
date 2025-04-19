@@ -109,7 +109,29 @@ public abstract class RenJava {
         this.registerData(PLAYER);
         this.registerData(TRACKS);
         new RenLoader(this);
-        ADDONLOADER = new AddonLoader();
+    }
+
+    public void reload(boolean resetGraphics) {
+        // Reloads the game. Do not call unless you know what you are doing.
+        PLAYER = null;
+        TRACKS = null;
+        EVENTHANDLER.getRegisteredListeners().clear();
+        registeredCharacters.clear();
+        registeredData.clear();
+        ADDONLOADER.disable();
+        ADDONLOADER = null;
+
+        gameWindow.clear();
+        gameWindow.render();
+
+        // Re-initialize.
+        init();
+
+        if (resetGraphics) {
+            gameWindow.getStage().setOnHiding(null);
+            gameWindow.getStage().hide();
+            new GuiLoader(gameWindow.getStage(), this, hostServices);
+        }
     }
 
     public String getName() {
