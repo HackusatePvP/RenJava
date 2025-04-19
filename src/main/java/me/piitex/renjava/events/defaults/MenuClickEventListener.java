@@ -2,6 +2,8 @@ package me.piitex.renjava.events.defaults;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 
@@ -28,11 +30,7 @@ public class MenuClickEventListener implements EventListener {
         MainMenu mainMenu = renJava.getMainMenu();
 
         if (button.getId().equalsIgnoreCase("menu-start-button")) {
-            RenLogger.LOGGER.info("Creating new game...");
             RenJava.PLAYER.resetSession();
-            renJava.createBaseData();
-            renJava.createStory();
-
             // Call GameStartEvent
             GameStartEvent event1 = new GameStartEvent(renJava);
             RenJava.getEventHandler().callEvent(event1);
@@ -153,6 +151,15 @@ public class MenuClickEventListener implements EventListener {
                 gameWindow.addContainers(menu);
                 gameWindow.render();
             }
+        }
+    }
+
+    @Listener
+    public void onDebugControl(KeyPressEvent event) {
+        KeyEvent keyEvent = event.getEvent();
+        if (keyEvent.isControlDown() && keyEvent.isShiftDown() && keyEvent.getCode() == KeyCode.R) {
+            RenLogger.LOGGER.info("Reloading game...");
+            renJava.reload(RenJava.PLAYER.inMenu()); // Reload graphics if they are in the main menu.
         }
     }
 
