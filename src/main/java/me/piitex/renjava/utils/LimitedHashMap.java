@@ -47,10 +47,7 @@ public class LimitedHashMap<K, V> implements Map<K, V> {
         if (map.size() < limit) {
             map.put(key, value);
         } else {
-            Entry<K, V> remove = map.entrySet().stream().findFirst().orElse(null);
-            if (remove != null) {
-                map.remove(remove.getKey());
-            }
+            map.entrySet().stream().findFirst().ifPresent(remove -> map.remove(remove.getKey()));
         }
         return value;
     }
@@ -63,7 +60,7 @@ public class LimitedHashMap<K, V> implements Map<K, V> {
     @Override
     public void putAll(@NotNull Map<? extends K, ? extends V> m) {
         m.forEach((k, v) -> {
-            if (size() < limit) {
+            if (map.size() < limit) {
                 map.put(k, v);
             } else {
                 map.entrySet().stream().findFirst().ifPresent(remove -> map.remove(remove.getKey()));
