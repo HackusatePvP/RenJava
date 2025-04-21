@@ -137,22 +137,46 @@ public abstract class RenJava {
         }
     }
 
+    /**
+     * Used when displaying game information.
+     *
+     * @return The name of the project.
+     */
     public String getName() {
          return name;
      }
 
+    /**
+     * Used when displaying game information.
+     *
+     * @return The author of the project.
+     */
     public String getAuthor() {
         return author;
     }
 
+    /**
+     * Used when displaying game information.
+     *
+     * @return The version of the project.
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * The engine will automatically create a unique id for every project. See {@link me.piitex.renjava.utils.MDUtils#getGameID(String)}
+     * <p>
+     * The id is used as a unique game folder stored on the local system. Used for storing global data that can transfer between different save versions.
+     * @return The generated game id.
+     */
     public Integer getID() {
         return id;
     }
 
+    /**
+     * @return The applications logger.
+     */
     public Logger getLogger() {
         return logger;
     }
@@ -516,9 +540,9 @@ public abstract class RenJava {
         TextFlowOverlay textFlowOverlay = new TextFlowOverlay(texts, 900, 600);
         rootLayout.addOverlay(textFlowOverlay);
 
-        container.addLayout(rootLayout);
+        container.addElement(rootLayout);
 
-        errorWindow.addContainers(container);
+        errorWindow.addContainer(container);
 
         errorWindow.render();
     }

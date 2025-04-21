@@ -30,6 +30,22 @@ public class MDUtils {
         }
     }
 
+    /**
+     * Generates a game id by converting the projects name and author into an integer.
+     * Every character in the string is converted to a number. The number is then multiplied by the position in the string and the added to a sum.
+     * <pre>
+     *     String
+     *     s = 239 * 1
+     *     t = 241 * 2
+     *     r = 228 * 3
+     *     i = 138 * 4
+     *     n = 184 * 5
+     *     g = 116 * 6
+     *     sum = s + t + r + i + n + g
+     * </pre>
+     * @param fullLength
+     * @return
+     */
     public static int getGameID(String fullLength) {
         // The game id is a sort of unique id given to each game.
         // This method takes the characters of the name and author and converts them to numbers.
