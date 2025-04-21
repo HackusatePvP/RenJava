@@ -160,7 +160,7 @@ public class Save {
         Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
 
         Container container = currentScene.build(true);
-        hiddenWindow.addContainers(container);
+        hiddenWindow.addContainer(container);
         hiddenWindow.build(true);
 
         WritableImage snapshot = hiddenWindow.getRoot().getScene().snapshot(null);
