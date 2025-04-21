@@ -48,23 +48,17 @@ public class ScrollContainer extends Container {
         Pane pane = layout.getPane();
         scrollPane.setContent(pane);
 
-
-        LinkedList<Node> lowOrder = new LinkedList<>();
-        LinkedList<Node> normalOrder = new LinkedList<>();
-        LinkedList<Node> highOrder = new LinkedList<>();
-
-        lowOrder.add(layout.render(this));
-
-        buildBase(lowOrder, normalOrder, highOrder);
+        LinkedList<Node> order = buildBase();
+        order.add(layout.render(this));
 
         // Offset overlays by 10
         if (xOffset > 0 || yOffset > 0) {
-            lowOrder.forEach(node -> {
+            order.forEach(node -> {
                 node.setTranslateX(node.getTranslateX() + xOffset);
                 node.setTranslateY(node.getTranslateX() + yOffset);
             });
         }
 
-        return new AbstractMap.SimpleEntry<>(scrollPane, lowOrder);
+        return new AbstractMap.SimpleEntry<>(scrollPane, order);
     }
 }

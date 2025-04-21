@@ -4,10 +4,9 @@ import javafx.scene.Node;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.Overlay;
+import me.piitex.renjava.loggers.RenLogger;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The container houses all the elements that render onto the {@link Window}. The class can be extended to support different containers that can handle rendering differently.
@@ -31,30 +30,28 @@ import java.util.Map;
  * }
  * </pre>
  */
-public abstract class Container {
+public abstract class Container extends Element {
     private double x, y;
     private final double width, height;
-    private DisplayOrder order;
 
-    // Might be better to index that way someone can modify the index and move overlays around.
-    private final LinkedList<Overlay> overlays = new LinkedList<>();
-    private final LinkedList<Layout> layouts = new LinkedList<>();
-    private final LinkedList<Container> containers = new LinkedList<>();
+    // Set container to a debug state. This will output the rendering process.
+    public boolean debug = false;
+
+    private final LinkedHashMap<Integer, Element> elements = new LinkedHashMap<>();
 
     public Container(double x, double y, double width, double height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.order = DisplayOrder.NORMAL;
     }
 
-    public Container(double x, double y, double width, double height, DisplayOrder order) {
+    public Container(double x, double y, double width, double height, int index) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.order = order;
+        setIndex(index);
     }
 
     /**
@@ -102,52 +99,120 @@ public abstract class Container {
     }
 
     /**
-     * {@link DisplayOrder} is used to order the stacking of elements or containers.
-     * @return The display order of the container.
+     * Retrieves the current element at the specific index. If the element is not present this will return null.
+     * @param index Position of the desired element.
+     * @return The {@link Element}
      */
-    public DisplayOrder getOrder() {
-        return order;
+    public Element getElementAt(int index) {
+        return elements.get(index);
     }
 
     /**
-     * Sets the {@link DisplayOrder} for the container.
-     * @param order The {@link DisplayOrder}.
+     * Adds an element to the container. The added element will be indexed to the front of the container.
+     * @param element The {@link Element} to be added.
      */
-    public void setOrder(DisplayOrder order) {
-        this.order = order;
+    public void addElement(Element element) {
+        int index = element.getIndex();
+        if (index == 0) {
+            index = elements.size();
+        }
+
+        addElement(element, index);
     }
 
     /**
-     * Adds a singular {@link Overlay} to the container.
+     * Adds the element to the specific index. If there is an element already bound to that index it is shuffled forward.
+     *
+     * @param element The {@link Element} to add to the container.
+     * @param index The index/order of the element.
+     */
+    public void addElement(Element element, int index) {
+        Element current = elements.get(index);
+        if (current != null) {
+            int i = index + 1;
+            addElement(getElementAt(index), i);
+        }
+        elements.put(index, element);
+    }
+
+    /**
+     * Adds an array of elements to the container. The elements are positioned by the order of the array.
+     * The added elements will be indexed to the front of the container.
+     * @param elements The array of {@link Element}s to be added.
+     */
+    public void addElements(Element... elements) {
+        for (Element element : elements) {
+            addElement(element);
+        }
+    }
+
+    /**
+     * Adds a {@link LinkedList<Element>} of elements to the container. The elements are position by the order of the list.
+     * @param elements The list of elements to be added.
+     */
+    public void addElements(LinkedList<Element> elements) {
+        for (Element element : elements) {
+            addElement(element);
+        }
+    }
+
+    /**
+     * Adds an overlay to the container. The added overlay will be indexed to the front of the container.
+     * @deprecated Use {@link #addElement(Element)} instead.
      * @param overlay The {@link Overlay} to be added.
+     *
      */
+    @Deprecated
     public void addOverlay(Overlay overlay) {
-        this.overlays.add(overlay);
+        addElement(overlay);
+    }
+
+    /**
+     * Adds the overlay to the specific index. If there is an element already bound to that index it is shuffled forward.
+     * @deprecated Use {@link #addElement(Element, int)} instead.
+     * @param overlay The {@link Overlay} to add to the container.
+     * @param index The index/order of the element.
+     */
+    @Deprecated
+    public void addOverlay(Overlay overlay, int index) {
+        addElement(overlay, index);
     }
 
     /**
      * Adds an array of {@link Overlay}s to the container. The overlays are positioned by the order of the array.
      * The first overlay of the array is the first to be added.
+     * @deprecated Use {@link #addElements(Element...)} instead.
      * @param overlays An array of {@link Overlay}s to be added.
      */
+    @Deprecated
     public void addOverlays(Overlay... overlays) {
-        this.overlays.addAll(List.of(overlays));
+        for (Overlay overlay : overlays) {
+            addElement(overlay);
+        }
     }
 
     /**
-     * Adds a linked list of {@link Overlay}s to the container.
-     * @param overlays The list of {@link Overlay}s to be added.
+     * Adds {@link LinkedList<Overlay>} of overlays to the container.
+     * @param overlays The list of {@link Overlay} to be added
      */
     public void addOverlays(LinkedList<Overlay> overlays) {
-        this.overlays.addAll(overlays);
+        for (Overlay overlay : overlays) {
+            addElement(overlay, elements.size());
+        }
     }
+
 
     /**
      * Gets all {@link Overlay}s added to the container.
      * @return The current linked list of {@link Overlay}s.
      */
     public LinkedList<Overlay> getOverlays() {
-        return overlays;
+        LinkedList<Overlay> toReturn = new LinkedList<>();
+        elements.values().stream().filter(element -> element instanceof Overlay).forEach(element -> {
+            Overlay overlay = (Overlay) element;
+            toReturn.add(overlay);
+        });
+        return toReturn;
     }
 
     /**
@@ -155,24 +220,46 @@ public abstract class Container {
      * @return The current linked list of sub-containers.
      */
     public LinkedList<Container> getContainers() {
-        return containers;
+        LinkedList<Container> toReturn = new LinkedList<>();
+        elements.values().stream().filter(element -> element instanceof Container).forEach(element -> {
+            Container container = (Container) element;
+            toReturn.add(container);
+        });
+        return toReturn;
     }
 
     /**
-     * Adds a container as a sub-container to this container.
-     * @param container The sub-container to be added.
+     * Adds the sub-container to the specific index. If there is an element already bound to that index it is shuffled forward.
+     * @deprecated Use {@link #addElement(Element)} instead.
+     * @param container The {@link Container} to add to the container.
+     * @param index The index/order of the element.
      */
+    @Deprecated
+    public void addContainer(Container container, int index) {
+        addElement(container, index);
+    }
+
+    /**
+     * Adds a sub-container to the container. The added container will be indexed to the front of the view.
+     * @deprecated Use {@link #addElement(Element)} instead.
+     * @param container The {@link Container} to be added.
+     */
+    @Deprecated
     public void addContainer(Container container) {
-        this.containers.add(container);
+        addElement(container);
     }
 
     /**
      * Adds an array of sub-containers to be added. The containers are positioned by the order of the array.
      * The first container of the array is the first to be added.
+     * @deprecated Use {@link #addElements(Element...)} instead.
      * @param containers An array of containers to be added.
      */
+    @Deprecated
     public void addContainers(Container... containers) {
-        this.containers.addAll(List.of(containers));
+        for (Container container : containers) {
+            addElement(container);
+        }
     }
 
     /**
@@ -180,67 +267,73 @@ public abstract class Container {
      * @return The current linked list of {@link Layout}s
      */
     public LinkedList<Layout> getLayouts() {
-        return layouts;
+        LinkedList<Layout> toReturn = new LinkedList<>();
+        elements.values().stream().filter(element -> element instanceof Layout).forEach(element -> {
+            Layout layout = (Layout) element;
+            toReturn.add(layout);
+        });
+        return toReturn;
     }
 
     /**
-     * Adds a {@link Layout} to be added to the container.
+     * Adds a layout to the container. The added layout will be indexed to the front of the view.
+     * @deprecated Use {@link #addElement(Element)} instead.
      * @param layout The {@link Layout} to be added.
      */
+    @Deprecated
     public void addLayout(Layout layout) {
-        this.layouts.add(layout);
+        addElement(layout);
+    }
+
+    /**
+     * Adds the layout to the specific index. If there is an element already bound to that index it is shuffled forward.
+     * @deprecated Use {@link #addElement(Element, int)} instead.
+     * @param layout The {@link Layout} to add to the container.
+     * @param index The index/order of the element.
+     */
+    @Deprecated
+    public void addLayout(Layout layout, int index) {
+        addElement(layout, index);
     }
 
     /**
      * Adds an array of {@link Layout}s to be added. The layouts are positioned by the order of the array.
      * The first layout of the array is the first to be added.
+     * @deprecated Use {@link #addElements(Element...)} instead.
      * @param layouts An array {@link Layout}s to be added.
      */
+    @Deprecated
     public void addLayouts(Layout... layouts) {
-        this.layouts.addAll(List.of(layouts));
+        for (Layout layout : layouts) {
+            addElement(layout);
+        }
     }
 
-    /**
-     * This should only be used by the engine. This builds the overlays, layouts, and containers.
-     * It translates the RenJava API into JavaFX by converting the gui components into {@link Node}s.
-     * @param lowOrder The list of low order nodes.
-     * @param normalOrder The list of normal order nodes.
-     * @param highOrder The list of high order nodes.
-     */
-    public void buildBase(LinkedList<Node> lowOrder, LinkedList<Node> normalOrder, LinkedList<Node> highOrder) {
-        for (Overlay overlay : getOverlays()) {
-            Node node = overlay.render();
-            if (node != null) {
-                if (overlay.getOrder() == DisplayOrder.LOW) {
-                    lowOrder.add(node);
-                } else if (overlay.getOrder() == DisplayOrder.NORMAL) {
-                    normalOrder.add(node);
-                } else if (overlay.getOrder() == DisplayOrder.HIGH) {
-                    highOrder.add(node);
-                }
+    public LinkedList<Node> buildBase() {
+        LinkedList<Node> toReturn = new LinkedList<>();
+        int i = 0;
+        for (Element element : elements.values()) {
+            if (debug)
+                RenLogger.LOGGER.info("{}: {}", i, element.toString());
+            Node node = null;
+            if (element instanceof Overlay overlay) {
+                node = overlay.render();
             }
-        }
-
-        for (Layout layout : getLayouts()) {
-            Node node = layout.render(this);
-            if (node != null) {
-                if (layout.getOrder() == DisplayOrder.LOW) {
-                    lowOrder.add(node);
-                } else if (layout.getOrder() == DisplayOrder.NORMAL) {
-                    normalOrder.add(node);
-                } else if (layout.getOrder() == DisplayOrder.HIGH) {
-                    highOrder.add(node);
-                }
+            if (element instanceof Layout layout) {
+                node = layout.render(this);
             }
+            if (node != null) {
+                toReturn.add(node);
+            }
+
+            // Render sub-containers last
+            if (element instanceof Container container) {
+                toReturn.addAll(container.build().getValue());
+            }
+            i++;
         }
 
-        lowOrder.addAll(normalOrder);
-        lowOrder.addAll(highOrder);
-
-        // Render sub containers
-        for (Container container : getContainers()) {
-            lowOrder.addAll(container.build().getValue()); // Might not work
-        }
+        return toReturn;
     }
 
     /**

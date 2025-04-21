@@ -7,7 +7,6 @@ import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
@@ -115,19 +114,18 @@ public class Prompt {
     public Container build() {
         if (cachedContainer == null) {
             Container container = new EmptyContainer(width, height);
-            container.setOrder(DisplayOrder.HIGH);
 
             container.setX(x);
             container.setY(y);
             ImageOverlay background = new ImageOverlay("gui/frame.png");
-            background.setOrder(DisplayOrder.LOW);
-            container.addOverlay(background);
+            background.setIndex(0);
+            container.addElement(background);
 
             textFlowOverlay.setTextFillColor(Color.WHITE);
             textFlowOverlay.setY(50);
             textFlowOverlay.setX(50);
 
-            container.addOverlay(textFlowOverlay);
+            container.addElement(textFlowOverlay);
 
             container.addOverlays(overlays);
 
@@ -140,7 +138,7 @@ public class Prompt {
     public void render() {
         // Prompts create a new window which blocks input on the game window.
         if (!isAnchorToGame()) {
-            promptWindow.addContainers(build());
+            promptWindow.addContainer(build());
 
             promptWindow.getStage().initOwner(RenJava.getInstance().getGameWindow().getStage());
 

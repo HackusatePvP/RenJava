@@ -10,7 +10,6 @@ import me.piitex.renjava.events.Event;
 import me.piitex.renjava.events.types.MouseClickEvent;
 import me.piitex.renjava.events.types.SideMenuBuildEvent;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
@@ -20,8 +19,7 @@ import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.gui.prompts.Prompt;
 
-import java.io.File;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 
 public class DefaultMainMenu implements MainMenu {
 
@@ -29,26 +27,27 @@ public class DefaultMainMenu implements MainMenu {
     public Container mainMenu(boolean rightClicked) {
         // Empty container behaves like the old menu system.
         // It is essentially an empty box which you add overlays to.
-        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
+        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight(), 0);
 
-        menu.addOverlay(new ImageOverlay("/gui/main_menu.png"));
+        menu.addElement(new ImageOverlay("/gui/main_menu.png"));
 
         // Basic text overlay
         TextOverlay gameText = new TextOverlay(RenJava.getInstance().getName() + ' ' + RenJava.getInstance().getVersion(), new FontLoader(RenJava.CONFIGURATION.getUiFont(), 36), 1500, 975);
+        gameText.setTextFill(Color.WHITE);
 
         // Add the overlay to the container
-        menu.addOverlay(gameText);
+        menu.addElement(gameText);
 
         return menu;
     }
 
     @Override
     public Container sideMenu(boolean rightClick) {
-        Container menu = new EmptyContainer(1920, 1080, DisplayOrder.HIGH);
+        Container menu = new EmptyContainer(1920, 1080, 2);
 
         ImageOverlay imageOverlay = new ImageOverlay("gui/overlay/main_menu.png");
-        imageOverlay.setOrder(DisplayOrder.LOW);
-        menu.addOverlay(imageOverlay);
+        imageOverlay.setIndex(0);
+        menu.addElement(imageOverlay);
 
         FontLoader uiFont = RenJava.CONFIGURATION.getUiFont();
 
@@ -61,7 +60,7 @@ public class DefaultMainMenu implements MainMenu {
         ButtonOverlay aboutButton = new ButtonOverlay(ButtonID.ABOUT.getId(),"About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(400, 500);
-        layout.setOrder(DisplayOrder.HIGH);
+        layout.setIndex(1);
         layout.setX(50);
         layout.setY(250);
         layout.setSpacing(20);
@@ -72,7 +71,7 @@ public class DefaultMainMenu implements MainMenu {
         layout.addOverlays(optionsButton, aboutButton);
 
         // You don't have to add the button overlays just add the layout which already contains the overlays.
-        menu.addLayout(layout);
+        menu.addElement(layout);
 
         ButtonOverlay returnButton;
 
@@ -83,7 +82,7 @@ public class DefaultMainMenu implements MainMenu {
         }
         returnButton.setX(25);
         returnButton.setY(980);
-        menu.addOverlay(returnButton);
+        menu.addElement(returnButton);
 
         SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(menu);
         RenJava.getEventHandler().callEvent(sideMenuBuildEvent);
@@ -93,10 +92,9 @@ public class DefaultMainMenu implements MainMenu {
 
     @Override
     public Container loadMenu(boolean rightClicked, int page, boolean loadMenu) {
-        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight(), DisplayOrder.NORMAL);
+        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight(), 1);
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
-        imageOverlay.setOrder(DisplayOrder.LOW);
-        menu.addOverlay(imageOverlay);
+        menu.addElement(imageOverlay);
 
         TextOverlay menuText;
         if (loadMenu) {
@@ -107,7 +105,7 @@ public class DefaultMainMenu implements MainMenu {
         menuText.setX(RenJava.CONFIGURATION.getMidPoint().getKey());
         menuText.setY(50);
 
-        menu.addOverlay(menuText);
+        menu.addElement(menuText);
 
         // Setup pagination.
         // 6 save slots per page
@@ -128,14 +126,15 @@ public class DefaultMainMenu implements MainMenu {
 
         Window gameWindow = RenJava.getInstance().getGameWindow();
 
-        LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers());
+        //LinkedList<Container> containers = new LinkedList<>(gameWindow.getContainers().values());
+        LinkedHashMap<Integer, Container> containers = new LinkedHashMap<>(gameWindow.getContainers());
         while (index <=  maxSavesPerPage) {
             Save save = Save.createSave(page, index);
             // Create a button box
             VerticalLayout buttonBox = new VerticalLayout(414, 320);
 
             ButtonOverlay loadButton = savePreview(save, page, index);
-            loadButton.setOrder(DisplayOrder.HIGH);
+            loadButton.setIndex(1);
             buttonBox.addOverlay(loadButton);
 
             FontLoader bottomFont = new FontLoader(RenJava.CONFIGURATION.getUiFont(), 12);
@@ -173,7 +172,7 @@ public class DefaultMainMenu implements MainMenu {
         rootLayout.setY(250);
 
 
-        menu.addLayout(rootLayout);
+        menu.addElement(rootLayout);
 
         // Add Page buttons below.
         // There should be 8 per view.
@@ -199,8 +198,7 @@ public class DefaultMainMenu implements MainMenu {
 
                 Container load = RenJava.getInstance().getMainMenu().loadMenu(rightClicked, newPage, true); //TODO: Pages
                 Container side = RenJava.getInstance().getMainMenu().sideMenu(rightClicked);
-                side.setOrder(DisplayOrder.HIGH);
-                load.addContainers(side);
+                load.addElement(side, 2);
 
                 gameWindow.clearContainers();
                 gameWindow.addContainer(load);
@@ -212,7 +210,7 @@ public class DefaultMainMenu implements MainMenu {
         pageLayout.setX(1000);
         pageLayout.setY(950);
 
-        menu.addLayout(pageLayout);
+        menu.addElement(pageLayout);
 
         return menu;
     }
@@ -221,8 +219,8 @@ public class DefaultMainMenu implements MainMenu {
     public Container settingMenu(boolean rightClicked) {
         Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
-        imageOverlay.setOrder(DisplayOrder.LOW);
-        menu.addOverlay(imageOverlay);
+        imageOverlay.setIndex(0);
+        menu.addElement(imageOverlay);
 
         Color themeColor = RenJava.CONFIGURATION.getThemeColor();
         Color subColor = RenJava.CONFIGURATION.getSubColor();
@@ -263,7 +261,7 @@ public class DefaultMainMenu implements MainMenu {
         // Add all to root layout
         rootLayout.addChildLayouts(displayBox, rollbackBox, skipBox);
 
-        menu.addLayout(rootLayout);
+        menu.addElement(rootLayout);
 
         // Music sliders
         VerticalLayout soundRoot = new VerticalLayout(1000, 1000);
@@ -306,7 +304,7 @@ public class DefaultMainMenu implements MainMenu {
 
         soundRoot.addChildLayouts(masterBox, musicBox, soundBox, voiceBox);
 
-        menu.addLayout(soundRoot);
+        menu.addElement(soundRoot);
 
         return menu;
     }
@@ -314,8 +312,9 @@ public class DefaultMainMenu implements MainMenu {
     @Override
     public Container aboutMenu(boolean rightClicked) {
         Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
+
         TextOverlay spacer = new TextOverlay("\n");
-        menu.addOverlay(new ImageOverlay("gui/main_menu.png"));
+        menu.addElement(new ImageOverlay("gui/main_menu.png"));
 
         FontLoader font = new FontLoader(RenJava.CONFIGURATION.getDefaultFont().getFont(), 24);
         TextFlowOverlay aboutText = new TextFlowOverlay("", 1300, 500);
@@ -324,7 +323,7 @@ public class DefaultMainMenu implements MainMenu {
         aboutText.setFont(font);
         aboutText.setX(500);
         aboutText.setY(150);
-        menu.addOverlay(aboutText);
+        menu.addElement(aboutText);
 
         // If you modify the about you must include the license information.
         TextFlowOverlay licenseText = new TextFlowOverlay("License Information. Some of the licenses below are required to be disclosed. Modify the below only to include additional required licenses.", 1300, 700);
@@ -359,16 +358,10 @@ public class DefaultMainMenu implements MainMenu {
         licenseText.add(new TextOverlay("\tOshi is licensed under MIT: "));
         licenseText.add(new HyperLinkOverlay("https://github.com/oshi/oshi/blob/master/LICENSE"));
 
-        menu.addOverlay(licenseText);
+        menu.addElement(licenseText);
 
 
-        TextFlowOverlay buildInfo = new TextFlowOverlay("Just because the software this game uses may be free for use does not mean you have any right to re-distribute. " +
-                "The author holds and retrains rights to distribute and sell their game as they wish. " +
-                "Consumers hold no rights when re-distributing or publishing this game without explicit permission from the author. " +
-                "Consumers also have no ownership over this digital product and must follow the terms provided by the author. " +
-                "If no terms were provided then you must use the following. You are not allowed to re-sell or re-distribute this game. " +
-                "If you paid for this game you did not pay for ownership but rather permission to use this game. This permission can be revoked at any time for any reason." +
-                "These terms also apply to any addons that may come with the game.",1300, 800);
+        TextFlowOverlay buildInfo = new TextFlowOverlay("You must comply with any user agreement set by the seller and or developer. Within the license set by RenJava, developers can revoke your ownership of this product if any agreement is breached. Do not re-distribute this game without expressed consent of the rightful owner.",1300, 800);
         buildInfo.setX(500);
         buildInfo.setY(600);
         buildInfo.setFont(new FontLoader(font, 20));
@@ -381,7 +374,7 @@ public class DefaultMainMenu implements MainMenu {
         buildInfo.add(new TextOverlay("Author: " + RenJava.getInstance().getAuthor()));
         buildInfo.add(spacer);
 
-        menu.addOverlay(buildInfo);
+        menu.addElement(buildInfo);
 
         return menu;
     }
@@ -473,7 +466,7 @@ public class DefaultMainMenu implements MainMenu {
 
                         Container container = RenJava.getInstance().getMainMenu().loadMenu(RenJava.PLAYER.isRightClickMenu(), page, false);
                         Container side = RenJava.getInstance().getMainMenu().sideMenu(RenJava.PLAYER.isRightClickMenu());
-                        container.addContainer(side);
+                        container.addElement(side);
 
                         gameWindow.addContainer(container);
 
@@ -519,7 +512,7 @@ public class DefaultMainMenu implements MainMenu {
                      // Re-render
                      RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
                      Container menu = loadMenu(false, 1, false); // Builds first page
-                     menu.addContainers(sideMenu(true));
+                     menu.addElement(sideMenu(true));
                      RenJava.getInstance().getGameWindow().clearContainers();
                      RenJava.getInstance().getGameWindow().addContainer(menu);
                      RenJava.getInstance().getGameWindow().render();
@@ -541,7 +534,7 @@ public class DefaultMainMenu implements MainMenu {
                     // Re-render
                     RenJava.PLAYER.setCurrentStageType(StageType.SAVE_MENU);
                     Container menu = loadMenu(false, page, false); // Builds first page
-                    menu.addContainers(sideMenu(true));
+                    menu.addElement(sideMenu(true));
                     RenJava.getInstance().getGameWindow().clearContainers();
                     RenJava.getInstance().getGameWindow().addContainer(menu);
                     RenJava.getInstance().getGameWindow().render();

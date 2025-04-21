@@ -4,12 +4,9 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.layouts.Layout;
-import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.AbstractMap;
 import java.util.LinkedList;
@@ -36,16 +33,16 @@ public class EmptyContainer extends Container {
         super(x, y, width, height);
     }
 
-    public EmptyContainer(double x, double y, double width, double height, DisplayOrder order) {
-        super(x, y, width, height, order);
+    public EmptyContainer(double x, double y, double width, double height, int index) {
+        super(x, y, width, height, index);
     }
 
     public EmptyContainer(double width, double height) {
         super(0, 0, width, height);
     }
 
-    public EmptyContainer(double width, double height, DisplayOrder order) {
-        super(0, 0, width, height, order);
+    public EmptyContainer(double width, double height, int index) {
+        super(0, 0, width, height, index);
     }
 
     @Override
@@ -55,13 +52,9 @@ public class EmptyContainer extends Container {
         pane.setTranslateY(getY());
         pane.setPrefSize(getWidth(), getHeight());
 
-        LinkedList<Node> lowOrder = new LinkedList<>();
-        LinkedList<Node> normalOrder = new LinkedList<>();
-        LinkedList<Node> highOrder = new LinkedList<>();
-
-        buildBase(lowOrder, normalOrder, highOrder);
+        LinkedList<Node> order = buildBase();
 
         // Return loworder because the other orders are added onto the low order.
-        return new AbstractMap.SimpleEntry<>(pane, lowOrder);
+        return new AbstractMap.SimpleEntry<>(pane, order);
     }
 }

@@ -9,7 +9,6 @@ import me.piitex.renjava.RenJava;
 
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.menus.MainMenu;
 import me.piitex.renjava.gui.overlays.ButtonOverlay;
@@ -42,12 +41,13 @@ public class MenuClickEventListener implements EventListener {
             RenJava.PLAYER.setCurrentStageType(StageType.LOAD_MENU);
 
             Container load = mainMenu.loadMenu(rightClicked, 1, true); //TODO: Pages
+            load.setIndex(1);
             Container side = mainMenu.sideMenu(rightClicked);
-            side.setOrder(DisplayOrder.HIGH);
-            load.addContainers(side);
+            side.setIndex(2);
+            load.addElement(side, 10);
 
             gameWindow.clearContainers();
-            gameWindow.addContainer(load);
+            gameWindow.addContainer(load, 1);
             gameWindow.render();
 
         }
@@ -55,19 +55,19 @@ public class MenuClickEventListener implements EventListener {
             RenJava.PLAYER.setCurrentStageType(StageType.OPTIONS_MENU);
             Container container = mainMenu.settingMenu(rightClicked);
             Container side = mainMenu.sideMenu(rightClicked);
-            container.addContainer(side);
+            container.addElement(side, 10);
 
             gameWindow.clearContainers();
 
-            gameWindow.addContainer(container);
+            gameWindow.addContainer(container, 1);
             gameWindow.render();
         }
         if (button.getId().equalsIgnoreCase("menu-about-button") && RenJava.PLAYER.getCurrentStageType() != StageType.ABOUT_MENU) {
             RenJava.PLAYER.setCurrentStageType(StageType.ABOUT_MENU);
             Container container = mainMenu.aboutMenu(rightClicked);
+
             Container side = mainMenu.sideMenu(rightClicked);
-            side.setOrder(DisplayOrder.HIGH);
-            container.addContainer(side);
+            container.addElement(side); // Should be able to add in the correct order without the need to specify. Will look into it later.
 
             gameWindow.clearContainers();
 
@@ -79,12 +79,11 @@ public class MenuClickEventListener implements EventListener {
 
             Container menu = mainMenu.loadMenu(rightClicked,1, false); // Builds first page
             Container side = mainMenu.sideMenu(rightClicked);
-            side.setOrder(DisplayOrder.HIGH);
-            menu.addContainers(side);
+            menu.addElement(side, 10);
 
             gameWindow.clearContainers();
 
-            gameWindow.addContainer(menu);
+            gameWindow.addContainer(menu, 10);
             gameWindow.render();
         }
         if (button.getId().equalsIgnoreCase("menu-quit-button")) {
@@ -115,10 +114,9 @@ public class MenuClickEventListener implements EventListener {
                     Container menu = mainMenu.mainMenu(false);
                     Container side = mainMenu.sideMenu(false);
                     RenJava.PLAYER.resetSession();
-                    side.setOrder(DisplayOrder.HIGH);
-                    menu.addContainer(side);
+                    menu.addElement(side, 2);
                     gameWindow.clearContainers();
-                    gameWindow.addContainers(menu);
+                    gameWindow.addContainer(menu, 1);
                     gameWindow.render();
 
                     // Close the prompt
@@ -145,10 +143,9 @@ public class MenuClickEventListener implements EventListener {
                 Container menu = mainMenu.mainMenu(false);
                 Container side = mainMenu.sideMenu(false);
                 RenJava.PLAYER.resetSession();
-                side.setOrder(DisplayOrder.HIGH);
-                menu.addContainer(side);
+                menu.addElement(side, 2);
                 gameWindow.clearContainers();
-                gameWindow.addContainers(menu);
+                gameWindow.addContainer(menu, 1);
                 gameWindow.render();
             }
         }

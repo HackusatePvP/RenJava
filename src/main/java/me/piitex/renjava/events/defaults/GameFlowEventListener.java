@@ -85,7 +85,7 @@ public class GameFlowEventListener implements EventListener {
                     }
 
                     Container menu = renJava.getMainMenu().mainMenu(true);
-                    menu.addContainers(renJava.getMainMenu().sideMenu(true));
+                    menu.addElement(renJava.getMainMenu().sideMenu(true));
 
                     MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
                     RenJava.getEventHandler().callEvent(buildEvent);
@@ -115,7 +115,7 @@ public class GameFlowEventListener implements EventListener {
                     RenJava.getEventHandler().callEvent(sceneBuildEvent);
 
                     window.clearContainers();
-                    window.addContainers(menu);
+                    window.addContainer(menu);
                     window.render();
 
                     player.setRightClickMenu(false);

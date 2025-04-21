@@ -8,7 +8,6 @@ import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
@@ -189,9 +188,9 @@ public class ChoiceScene extends RenScene {
                 }
 
             }
-            backgroundImage.setOrder(DisplayOrder.LOW);
-            menu.addOverlays(backgroundImage);
-            menu.addLayout(layout);
+            backgroundImage.setIndex(0);
+            menu.addElement(backgroundImage);
+            menu.addElement(layout);
         }
         return menu;
     }

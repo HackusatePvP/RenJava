@@ -8,7 +8,6 @@ import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
@@ -128,12 +127,12 @@ public class ImageScene extends RenScene {
     public Container build(boolean ui) {
         Container container = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
         if (backgroundImage != null) {
-            backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
-            container.addOverlays(backgroundImage);
+            backgroundImage.setIndex(0); // Bg should always be at low priority. They will be pushed to the back of the scene.
+            container.addElement(backgroundImage);
         } else {
             BoxOverlay boxOverlay = new BoxOverlay(container.getWidth(), configuration.getHeight(), Color.BLACK);
-            boxOverlay.setOrder(DisplayOrder.LOW);
-            container.addOverlay(boxOverlay);
+            boxOverlay.setIndex(0);
+            container.addElement(boxOverlay);
         }
 
         if (ui) {
@@ -151,7 +150,7 @@ public class ImageScene extends RenScene {
                     Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
 
                     ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-                    textboxMenu.addOverlay(textBoxImage);
+                    textboxMenu.addElement(textBoxImage);
 
                     LinkedList<Overlay> texts = StringFormatter.formatText(dialogue);
                     TextFlowOverlay textFlowOverlay;
@@ -166,16 +165,16 @@ public class ImageScene extends RenScene {
                     textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
                     textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
                     textFlowOverlay.setFont(font);
-                    textboxMenu.addOverlay(textFlowOverlay);
+                    textboxMenu.addElement(textFlowOverlay);
 
                     TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
                             configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
                             configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
                     characterText.setTextFill(character.getColor());
-                    characterText.setOrder(DisplayOrder.HIGH);
-                    textboxMenu.addOverlay(characterText);
+                    characterText.setIndex(2);
+                    textboxMenu.addElement(characterText);
 
-                    container.addContainers(textboxMenu);
+                    container.addElement(textboxMenu);
                 }
             }
         }

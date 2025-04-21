@@ -1,21 +1,15 @@
 package me.piitex.renjava.api.scenes.types.input;
 
-import javafx.scene.control.TextField;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.text.StringFormatter;
-import me.piitex.renjava.api.scenes.types.ImageScene;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
-import me.piitex.renjava.events.types.SceneStartEvent;
 
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.*;
 import me.piitex.renjava.gui.overlays.events.IInputSetEvent;
@@ -107,8 +101,8 @@ public class InputScene extends RenScene {
     @Override
     public Container build(boolean ui) {
         Container container = new EmptyContainer(0, 0,1920, 1080);
-        loader.setOrder(DisplayOrder.LOW);
-        container.addOverlays(loader);
+        loader.setIndex(2);
+        container.addElement(loader);
 
         if (ui) {
             // Textbox
@@ -116,7 +110,7 @@ public class InputScene extends RenScene {
             Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
 
             ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-            textboxMenu.addOverlay(textBoxImage);
+            textboxMenu.addElement(textBoxImage);
 
 
             if (text != null && !text.isEmpty()) {
@@ -140,7 +134,7 @@ public class InputScene extends RenScene {
                     RenJava.getEventHandler().callEvent(event);
                 });
 
-                inputField.setOrder(DisplayOrder.HIGH);
+                inputField.setIndex(2);
 
                 if (font == null) {
                     // Default font
@@ -151,10 +145,10 @@ public class InputScene extends RenScene {
 
                 textFlowOverlay.add(inputField);
 
-                textboxMenu.addOverlay(textFlowOverlay);
+                textboxMenu.addElement(textFlowOverlay);
 
 
-                container.addContainers(textboxMenu);
+                container.addElement(textboxMenu);
             }
         }
 

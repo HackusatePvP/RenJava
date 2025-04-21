@@ -2,17 +2,16 @@ package me.piitex.renjava.gui.layouts;
 
 import javafx.scene.layout.Pane;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
+import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.overlays.Overlay;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class Layout {
+public abstract class Layout extends Element {
     private final Pane pane;
     private double x, y;
     private final double width, height;
-    private DisplayOrder order = DisplayOrder.LOW;
     private final LinkedList<Overlay> overlays = new LinkedList<>();
     private final LinkedList<Layout> childLayouts = new LinkedList<>();
 
@@ -42,22 +41,6 @@ public abstract class Layout {
         this.y = y;
     }
 
-    public DisplayOrder getOrder() {
-        return order;
-    }
-
-    public void setOrder(DisplayOrder order) {
-        this.order = order;
-
-        // Update order for all overlays
-        for (Overlay overlay : getOverlays()) {
-            overlay.setOrder(order);
-        }
-
-        for (Layout layout : getChildLayouts()) {
-            layout.setOrder(order);
-        }
-    }
 
     public LinkedList<Overlay> getOverlays() {
         return overlays;

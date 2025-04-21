@@ -25,10 +25,7 @@ import me.piitex.renjava.utils.ModifierKeyList;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 /**
@@ -120,7 +117,7 @@ public class Window {
     private Instant firstRun;
     private boolean captureInput = true;
 
-    private LinkedList<Container> containers = new LinkedList<>();
+    private LinkedHashMap<Integer, Container> containers = new LinkedHashMap<>();
 
     private boolean focused = true;
 
@@ -397,42 +394,47 @@ public class Window {
         }
     }
 
+    public void addContainer(Container container, int index) {
+        container.setIndex(index);
+        containers.put(index, container);
+    }
+
     public void addContainer(Container container) {
-        this.containers.add(container);
+        addContainer(container, container.getIndex());
     }
 
+    @Deprecated
     public void addContainers(Container... containers) {
-        this.containers.addAll(List.of(containers));
+        for (Container container : containers) {
+            int index = this.containers.size();
+            container.setIndex(index);
+            this.containers.put(index, container);
+        }
     }
 
-    public void addContainers(LinkedList<Container> cont) {
-        this.containers.addAll(cont);
+    public void addContainers(LinkedHashMap<Integer, Container> con) {
+        this.containers.putAll(con);
     }
 
-    public void setContainers(LinkedList<Container> containers) {
+    public void setContainers(LinkedHashMap<Integer, Container> containers) {
         this.containers = containers;
     }
 
     public void replaceContainer(Container oldContainer, Container newContainer) {
-        if (containers.contains(oldContainer)) {
-            int index = containers.indexOf(oldContainer);
-            containers.remove(oldContainer);
-            containers.add(index, newContainer);
-            render();
-        } else {
-            RenLogger.LOGGER.warn("Could not find value to replace.");
+        if (containers.containsValue(oldContainer)) {
+            containers.replace(oldContainer.getIndex(), newContainer);
         }
     }
 
     public void replaceContainer(int index, Container container) {
         // Remove current index
         containers.remove(index);
-        containers.add(index, container);
+        containers.replace(index, container);
         render();
     }
 
     public void removeContainer(Container container) {
-        this.containers.remove(container);
+        this.containers.remove(container.getIndex());
     }
 
     public void clearContainers() {
@@ -447,7 +449,7 @@ public class Window {
         render();
     }
 
-    public LinkedList<Container> getContainers() {
+    public LinkedHashMap<Integer, Container> getContainers() {
         return containers;
     }
 
@@ -538,35 +540,14 @@ public class Window {
             this.stage.setScene(scene);
         }
 
-        // Gather orders
-        LinkedList<Container> lowOrder = new LinkedList<>();
-        LinkedList<Container> normalOrder = new LinkedList<>();
-        LinkedList<Container> highOrder = new LinkedList<>();
-
-        for (Container container : containers) {
-            if (container.getOrder() == DisplayOrder.LOW) {
-                lowOrder.add(container);
-            } else if (container.getOrder() == DisplayOrder.NORMAL) {
-                normalOrder.add(container);
-            } else if (container.getOrder() == DisplayOrder.HIGH) {
-                highOrder.add(container);
-            }
-        }
-
-
-        lowOrder.forEach(this::renderContainer);
-        normalOrder.forEach(this::renderContainer);
-        highOrder.forEach(this::renderContainer);
-
-        // Not sure if this will cause issues but to reduce resource usage the mappings need to be cleared
-        lowOrder.clear();
-        normalOrder.clear();
-        highOrder.clear();
+        containers.values().forEach(this::renderContainer);
     }
 
     // Renders container on top of current window
     public void render(Container container) {
-        containers.add(container);
+        int index = containers.size();
+        container.setIndex(index);
+        containers.put(index, container);
         renderContainer(container);
     }
 

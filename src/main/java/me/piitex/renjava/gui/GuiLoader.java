@@ -157,13 +157,15 @@ public class GuiLoader {
 
         // Render main menu
         Container container = menu.mainMenu(false);
+
         MainMenuBuildEvent event = new MainMenuBuildEvent(container);
         RenJava.getEventHandler().callEvent(event);
+
         window.addContainer(container);
 
         Container sideMenu = menu.sideMenu(false);
 
-        window.addContainers(sideMenu);
+        window.addContainer(sideMenu);
 
         MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(container);
         RenJava.getEventHandler().callEvent(dispatchEvent);

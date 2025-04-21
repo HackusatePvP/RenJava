@@ -3,7 +3,6 @@ package me.piitex.renjava.gui.containers;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 
 import java.util.AbstractMap;
 import java.util.LinkedList;
@@ -20,8 +19,8 @@ public class LayoutContainer extends Container {
         super(x, y, width, height);
     }
 
-    public LayoutContainer(double x, double y, double width, double height, DisplayOrder order) {
-        super(x, y, width, height, order);
+    public LayoutContainer(double x, double y, double width, double height, int index) {
+        super(x, y, width, height, index);
     }
 
     public Node getRight() {
@@ -82,11 +81,8 @@ public class LayoutContainer extends Container {
         borderPane.setTranslateY(getY());
         borderPane.setPrefSize(getWidth(), getHeight());
 
-        LinkedList<Node> lowOrder = new LinkedList<>();
-        LinkedList<Node> normalOrder = new LinkedList<>();
-        LinkedList<Node> highOrder = new LinkedList<>();
-        buildBase(lowOrder, normalOrder, highOrder);
+        LinkedList<Node> order = buildBase();
 
-        return new AbstractMap.SimpleEntry<>(borderPane, lowOrder);
+        return new AbstractMap.SimpleEntry<>(borderPane, order);
     }
 }
