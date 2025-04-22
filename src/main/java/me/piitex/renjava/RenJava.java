@@ -1,6 +1,7 @@
 package me.piitex.renjava;
 
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -474,6 +475,14 @@ public abstract class RenJava {
      */
     public static void openLink(String url) {
         getInstance().getHost().showDocument(url);
+    }
+
+    /**
+     * Forcefully closes the application.
+     */
+    public static void shutdown() {
+        Platform.exit();
+        System.exit(0);
     }
 
     public static void writeStackTrace(Exception e) {

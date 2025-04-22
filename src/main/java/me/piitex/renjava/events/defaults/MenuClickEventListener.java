@@ -89,7 +89,7 @@ public class MenuClickEventListener implements EventListener {
         if (button.getId().equalsIgnoreCase("menu-quit-button")) {
             // Prompt before exiting...
             RenJava.ADDONLOADER.disable();
-            Platform.exit();
+            RenJava.shutdown();
 
         }
 

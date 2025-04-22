@@ -137,8 +137,7 @@ public class GuiLoader {
                 }
             }
 
-            Platform.exit();
-            System.exit(0);
+            RenJava.shutdown();
         });
 
 

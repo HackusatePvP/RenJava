@@ -32,8 +32,7 @@ public class RenLoader {
         setupGame();
         if (shutdown) {
             // Shutdown application if startup fails.
-            Platform.exit();
-            System.exit(0);
+            RenJava.shutdown();
             return;
         }
 
