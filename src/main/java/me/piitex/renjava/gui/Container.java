@@ -156,6 +156,27 @@ public abstract class Container extends Element {
         }
     }
 
+    public void removeElement(int index) {
+        elements.remove(index);
+    }
+
+    public void removeAllElement(Element element) {
+        LinkedHashMap<Integer, Element> toRemove = new LinkedHashMap<>(elements);
+        toRemove.forEach((integer, e) -> {
+            if (e == element) {
+                elements.remove(integer);
+            }
+        });
+    }
+
+    public void moveElement(int oldIndex, int newIndex) {
+        Element element = elements.get(oldIndex);
+        if (element != null) {
+            elements.put(newIndex, element);
+            elements.remove(oldIndex);
+        }
+    }
+
     /**
      * Adds an overlay to the container. The added overlay will be indexed to the front of the container.
      * @deprecated Use {@link #addElement(Element)} instead.
