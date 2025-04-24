@@ -127,11 +127,9 @@ public class ImageScene extends RenScene {
     public Container build(boolean ui) {
         Container container = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
         if (backgroundImage != null) {
-            backgroundImage.setIndex(0); // Bg should always be at low priority. They will be pushed to the back of the scene.
             container.addElement(backgroundImage);
         } else {
             BoxOverlay boxOverlay = new BoxOverlay(container.getWidth(), configuration.getHeight(), Color.BLACK);
-            boxOverlay.setIndex(0);
             container.addElement(boxOverlay);
         }
 
@@ -171,7 +169,6 @@ public class ImageScene extends RenScene {
                             configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
                             configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
                     characterText.setTextFill(character.getColor());
-                    characterText.setIndex(2);
                     textboxMenu.addElement(characterText);
 
                     container.addElement(textboxMenu);

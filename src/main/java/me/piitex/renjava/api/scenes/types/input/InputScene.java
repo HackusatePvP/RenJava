@@ -101,7 +101,6 @@ public class InputScene extends RenScene {
     @Override
     public Container build(boolean ui) {
         Container container = new EmptyContainer(0, 0,1920, 1080);
-        loader.setIndex(2);
         container.addElement(loader);
 
         if (ui) {
@@ -134,7 +133,6 @@ public class InputScene extends RenScene {
                     RenJava.getEventHandler().callEvent(event);
                 });
 
-                inputField.setIndex(2);
 
                 if (font == null) {
                     // Default font

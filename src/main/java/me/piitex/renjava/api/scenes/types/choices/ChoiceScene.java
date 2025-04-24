@@ -188,7 +188,6 @@ public class ChoiceScene extends RenScene {
                 }
 
             }
-            backgroundImage.setIndex(0);
             menu.addElement(backgroundImage);
             menu.addElement(layout);
         }
