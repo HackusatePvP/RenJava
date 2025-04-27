@@ -17,7 +17,7 @@ import java.util.Map;
  * The container must be added to a {@link Window} to be rendered.
  * <pre>
  *     {@code
- *       EmptyContainer container = new EmptyContainer(x, y, width, height, displayOrder);
+ *       EmptyContainer container = new EmptyContainer(x, y, width, height, index);
  *       window.addContainer(container);
  *       window.render();
  *     }
