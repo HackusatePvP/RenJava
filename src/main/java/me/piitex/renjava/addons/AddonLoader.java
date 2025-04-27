@@ -40,7 +40,7 @@ public class AddonLoader {
             logger.info("No addons to load.");
             return; // No need to load if there are no addons.
         } else {
-            logger.info("Loading " + size + " addon(s)...");
+            logger.info("Loading {} addon(s)...", size);
         }
 
         Map<File, String> lateLoaders = new HashMap<>();
@@ -207,6 +207,11 @@ public class AddonLoader {
     private void initAddon(File file, @Nullable Collection<Addon> dependencies) throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         try (JarFile jarFile = new JarFile(file)) {
             Enumeration<JarEntry> entries = jarFile.entries();
+
+            // Deprecation notice!
+            // new URL is deprecated and moved to new URI(str).toUrl();
+            // This method does not work with the string.
+            // So I'm keeping it in for now.
             URL[] urls = {new URL("jar:file:" + file.getPath() + "!/")};
             URLClassLoader cl = URLClassLoader.newInstance(urls);
             while (entries.hasMoreElements()) {
@@ -217,7 +222,7 @@ public class AddonLoader {
 
                     // Authors should warn users about using pirated versions or getting addons from unknown sources.
                     // This can easily allow malicious code to be executed. I will not be adding any form on 'anti malware' checks. Don't download something you don't trust.
-                    // Also be aware of the licence renjava uses. Authors are required to provide source to code per the GPL 3.0 license.
+                    // Also be aware of the licence renjava uses. Authors are required to provide source code per the GPL 3.0 license.
                     Class<?> clazz = cl.loadClass(clazzName);
                     if (Addon.class.isAssignableFrom(clazz)) {
                         Object object = clazz.getDeclaredConstructor().newInstance();
@@ -226,7 +231,6 @@ public class AddonLoader {
                             addon.getDependencies().addAll(dependencies);
                         }
                         addons.add(addon);
-                        //clazz.getMethod("onLoad").invoke(object, null);
                         boolean failed = false;
                         try {
                             addon.onLoad(); // Loads addon
