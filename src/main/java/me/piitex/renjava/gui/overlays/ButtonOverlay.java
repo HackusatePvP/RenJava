@@ -489,8 +489,11 @@ public class ButtonOverlay extends Overlay implements Region {
             }
         }
 
-        if (getX() != 0 && getY() != 0) {
+        if (getX() != 0) {
             button.setTranslateX(getX());
+        }
+
+        if (getY() != 0) {
             button.setTranslateY(getY());
         }
 
