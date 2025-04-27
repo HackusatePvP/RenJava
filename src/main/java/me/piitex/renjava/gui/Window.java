@@ -574,7 +574,8 @@ public class Window {
             try {
                 root.getStylesheets().add(file.toURI().toURL().toExternalForm());
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e); // TODO: Handle exception
+                RenLogger.LOGGER.error(e.getMessage());
+                RenJava.writeStackTrace(e);
             }
         }
 
