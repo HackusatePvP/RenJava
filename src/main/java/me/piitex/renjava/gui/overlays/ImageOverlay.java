@@ -38,7 +38,7 @@ import me.piitex.renjava.loggers.RenLogger;
  *       image.setHeight(1080);
  *     }
  * </pre>
- * Make sure images are compressed to normal sizes. Images which have expressive sizes will result in longer rendering times and slower performance.
+ * Make sure images are compressed to normal sizes. Images which have large sizes will result in longer rendering times and slower performance.
  * If the image file could not be located or found it will throw {@link ImageNotFoundException}.
  *
  * @see ImageLoader
