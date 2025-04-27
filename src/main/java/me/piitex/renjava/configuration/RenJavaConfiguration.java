@@ -1,6 +1,8 @@
 package me.piitex.renjava.configuration;
 
 import javafx.scene.paint.Color;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.exceptions.GameWindowNotSetException;
 import me.piitex.renjava.api.loaders.FontLoader;
@@ -27,6 +29,8 @@ public class RenJavaConfiguration {
     private FontLoader uiFont;
     private FontLoader characterDisplayFont;
     private FontLoader choiceButtonFont;
+    private FontLoader italicFont;
+    private FontLoader boldFont;
     private Color dialogueColor = Color.BLACK;
     private Color choiceButtonColor = Color.BLACK;
     private Color hoverColor = Color.BLUE;
@@ -163,6 +167,28 @@ public class RenJavaConfiguration {
 
     public void setCharacterDisplayFont(FontLoader characterDisplayFont) {
         this.characterDisplayFont = characterDisplayFont;
+    }
+
+    public FontLoader getItalicFont() {
+        if (italicFont == null) {
+            return new FontLoader(getDialogueFont().getFont(), FontWeight.NORMAL, FontPosture.ITALIC, getDialogueFont().getSize());
+        }
+        return italicFont;
+    }
+
+    public void setItalicFont(FontLoader italicFont) {
+        this.italicFont = italicFont;
+    }
+
+    public FontLoader getBoldFont() {
+        if (boldFont == null) {
+            return new FontLoader(getDialogueFont().getFont(), FontWeight.BOLD, FontPosture.REGULAR, getDialogueFont().getSize());
+        }
+        return boldFont;
+    }
+
+    public void setBoldFont(FontLoader boldFont) {
+        this.boldFont = boldFont;
     }
 
     public Color getDialogueColor() {
