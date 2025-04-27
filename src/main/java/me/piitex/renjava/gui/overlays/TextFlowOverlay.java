@@ -117,27 +117,31 @@ public class TextFlowOverlay extends Overlay implements Region {
         TextFlow textFlow = new TextFlow();
         for (Overlay overlay : texts) {
             // Check node type
-            if (overlay instanceof TextOverlay text) {
-                text.setText(text.getText().replace("\\n", System.lineSeparator()));
-                if (font != null) {
-                    text.setFont(font);
+            switch (overlay) {
+                case TextOverlay text -> {
+                    text.setText(text.getText().replace("\\n", System.lineSeparator()));
+                    if (font != null && text.getFontLoader() == null) {
+                        text.setFont(font);
+                    }
+                    text.setTextFill(textFillColor);
                 }
-                text.setTextFill(textFillColor);
-            } else if (overlay instanceof HyperLinkOverlay hyperlink) {
-                if (font != null) {
-                    hyperlink.setFont(font);
+                case HyperLinkOverlay hyperlink -> {
+                    if (font != null) {
+                        hyperlink.setFont(font);
+                    }
                 }
-            } else if (overlay instanceof ButtonOverlay button) {
-                if (font != null) {
-                    button.setFont(font);
+                case ButtonOverlay button -> {
+                    if (font != null) {
+                        button.setFont(font);
+                    }
+                    button.setTextFill(textFillColor);
                 }
-                button.setTextFill(textFillColor);
-            } else if (overlay instanceof InputFieldOverlay inputField) {
-                if (font != null) {
-                    inputField.setFont(font);
+                case InputFieldOverlay inputField -> {
+                    if (font != null) {
+                        inputField.setFont(font);
+                    }
                 }
-            } else {
-                RenLogger.LOGGER.warn("Unsupported overlay in TextFlow. {}", overlay.toString());
+                default -> RenLogger.LOGGER.warn("Unsupported overlay in TextFlow. {}", overlay.toString());
             }
 
             textFlow.getChildren().add(overlay.render());
