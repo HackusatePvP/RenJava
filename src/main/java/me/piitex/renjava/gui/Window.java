@@ -23,6 +23,8 @@ import me.piitex.renjava.utils.KeyUtils;
 import me.piitex.renjava.tasks.Tasks;
 import me.piitex.renjava.utils.ModifierKeyList;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -532,6 +534,7 @@ public class Window {
         }
 
         root.getChildren().clear();
+        root.getStylesheets().clear();
         if (reset) {
             // Causes flickering but needed when capturing scene.
             // Resets the scene.
@@ -565,6 +568,14 @@ public class Window {
                 pane.getChildren().add(n);
             }
             // Different pane types
+        }
+
+        for (File file : container.getStylesheets()) {
+            try {
+                root.getStylesheets().add(file.toURI().toURL().toExternalForm());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e); // TODO: Handle exception
+            }
         }
 
         getRoot().getChildren().add(node);

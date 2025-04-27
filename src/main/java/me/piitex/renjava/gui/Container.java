@@ -6,6 +6,7 @@ import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.loggers.RenLogger;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -38,6 +39,9 @@ public abstract class Container extends Element {
     public boolean debug = false;
 
     private final LinkedHashMap<Integer, Element> elements = new LinkedHashMap<>();
+
+    private final List<File> stylesheets = new ArrayList<>();
+
 
     public Container(double x, double y, double width, double height) {
         this.x = x;
@@ -330,6 +334,15 @@ public abstract class Container extends Element {
         }
     }
 
+    public void addStyleSheet(File file) {
+        this.stylesheets.add(file);
+    }
+
+    public List<File> getStylesheets() {
+        return stylesheets;
+    }
+
+    /* Generic methods */
     public LinkedList<Node> buildBase() {
         LinkedList<Node> toReturn = new LinkedList<>();
         int i = 0;
@@ -358,7 +371,7 @@ public abstract class Container extends Element {
     }
 
     /**
-     * Builds and assembles the container.
+     * Builds and assembles the container. Converts RenJava API into JavaFX.
      * @return An entry set where the key is the pane as a node. The value is the collection of nodes which the pane contains.
      */
     public abstract Map.Entry<Node, LinkedList<Node>> build();
