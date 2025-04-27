@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.function.UnaryOperator;
 
 /**
  * Window is the main GUI component which handle the rendering process for the engine. There are three components to windows which are {@link Container}, {@link Overlay}, {@link Layout}.
@@ -107,7 +106,7 @@ public class Window {
     private final String title;
     private final ImageLoader icon;
     private final StageStyle stageStyle;
-    private int width, height;
+    private final int width, height;
     private boolean fullscreen = false, maximized = false;
     private Color backgroundColor = Color.BLACK;
     private Stage stage;

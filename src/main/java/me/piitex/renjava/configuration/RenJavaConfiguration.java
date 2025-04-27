@@ -3,12 +3,8 @@ package me.piitex.renjava.configuration;
 import javafx.scene.paint.Color;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.exceptions.GameWindowNotSetException;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.gui.Window;
-import me.piitex.renjava.loggers.RenLogger;
 
 import java.util.Map;
 

@@ -1,9 +1,5 @@
 package me.piitex.renjava.api.scenes.text;
 
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import me.piitex.renjava.RenJava;
 
 import me.piitex.renjava.api.loaders.FontLoader;
@@ -12,7 +8,6 @@ import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.gui.overlays.TextOverlay;
 
 import java.util.LinkedList;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringFormatter {
