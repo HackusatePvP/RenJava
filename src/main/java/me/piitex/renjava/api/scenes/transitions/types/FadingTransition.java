@@ -105,7 +105,7 @@ public class FadingTransition extends Transitions {
             }
             try {
                 fadeTransition.stop();
-                fadeTransition.getNode().setOpacity(1); // Resets opacity
+                fadeTransition.getNode().setOpacity(toValue);
                 handleEvents(scene);
             } catch (Exception e) {
                 RenLogger.LOGGER.error("Error stopping transition!", e);

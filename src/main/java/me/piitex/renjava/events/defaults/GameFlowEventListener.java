@@ -263,6 +263,9 @@ public class GameFlowEventListener implements EventListener {
             return; // Don't process scene when stopping the transition.
         }
 
+        // Force set the opacity. Fixes issues for fading out transitions.
+        RenJava.getInstance().getGameWindow().getRoot().setOpacity(1);
+
         // Next if the scene is an interactable or choice don't process next scene.
         if (currentScene instanceof InteractableScene || currentScene instanceof ChoiceScene) {
             return;
