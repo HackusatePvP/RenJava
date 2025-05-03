@@ -124,7 +124,7 @@ public class Save {
     }
 
 
-    public ImageOverlay buildPreview(int page) {
+    public ImageOverlay buildPreview() {
         if (!file.exists()) {
             return null;
         }
