@@ -103,7 +103,6 @@ public class InteractableScene extends RenScene {
     public Container build(boolean ui) {
         Container container = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
         if (backgroundImage != null) {
-            backgroundImage.setIndex(0); // Bg should always be at low priority. They will be pushed to the back of the scene.
             container.addElement(backgroundImage);
         }
 
