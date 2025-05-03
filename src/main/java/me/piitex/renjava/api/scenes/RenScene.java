@@ -14,6 +14,7 @@ import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.types.SceneRenderEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
@@ -22,6 +23,7 @@ import me.piitex.renjava.gui.overlays.Overlay;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 
 /**
@@ -52,7 +54,7 @@ public abstract class RenScene {
     private Transitions startTransition;
     private Transitions endTransition;
 
-    private final Collection<Overlay> additionalOverlays = new HashSet<>();
+    private final LinkedList<Element> elements = new LinkedList<>();
 
     private final Collection<File> styleSheets = new HashSet<>();
 
@@ -171,16 +173,19 @@ public abstract class RenScene {
     /**
      * Adds an overlay to the scene.
      * @param overlay The {@link Overlay} to be added.
+     * @deprecated Use {@link #addElement(Element)} instead.
      */
+    @Deprecated
     public void addOverlay(Overlay overlay) {
-        additionalOverlays.add(overlay);
+        elements.add(overlay);
     }
 
-    /**
-     * @return All added overlays for the scene. This excludes the mandatory ones, like the background image and text-box.
-     */
-    public Collection<Overlay> getAdditionalOverlays() {
-        return additionalOverlays;
+    public void addElement(Element element) {
+        elements.add(element);
+    }
+
+    public LinkedList<Element> getElements() {
+        return elements;
     }
 
     /**
