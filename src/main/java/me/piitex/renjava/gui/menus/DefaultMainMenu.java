@@ -389,7 +389,7 @@ public class DefaultMainMenu implements MainMenu {
 
         loadButton = new ButtonOverlay("save-" + index, saveImage, 0, 0, 404, 319);
         loadButton.setAlignGraphicToBox(false);
-        ImageOverlay preview = save.buildPreview(page);
+        ImageOverlay preview = save.buildPreview();
         if (preview != null) {
             preview.setWidth(384);
             preview.setHeight(215);
