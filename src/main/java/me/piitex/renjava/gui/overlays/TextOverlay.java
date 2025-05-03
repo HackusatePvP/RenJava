@@ -7,20 +7,11 @@ import javafx.scene.text.Text;
 import me.piitex.renjava.api.loaders.FontLoader;
 
 /**
- * The TextOverlay is a visual element which displays text. The overlay supports font, positioning, and color.
- * This overlay has a defined {@link Region}.
+ * Represents a graphical overlay for displaying text within a GUI.
  * <p>
- * <pre>
- *     {@code
- *     TextOverlay overlay = new TextOverlay("Text");
- *     overlay.setFont(font);
- *     overlay.setTextFill(color);
- *     overlay.setX(x);
- *     overlay.setY(y);
- *     overlay.setWidth(width);
- *     overlay.setHeight(height);
- *     }
- * </pre>
+ * The {@code TextOverlay} class allows customization of text appearance and position, such as its font, color, size, and location.
+ * It supports the use of external font loaders and integrates seamlessly with the GUI framework.
+ * </p>
  */
 public class TextOverlay extends Overlay implements Region {
     private String text;
@@ -31,18 +22,18 @@ public class TextOverlay extends Overlay implements Region {
     private boolean strikeout;
 
     /**
-     * Creates an overlay of the text.
-     * @param text The text for the overlay.
+     * Constructs a TextOverlay with the specified text content.
+     *
+     * @param text The text to display in this overlay.
      */
     public TextOverlay(String text) {
         this.text = text;
     }
 
     /**
-     * Creates a TextOverlay with a specific font.
-     * @param text The text for the overlay.
-     * @param fontLoader The font to be used.
-     * @see FontLoader
+     * Constructs a TextOverlay with the specified text and font loader.
+     * @param text       The text to display in this overlay.
+     * @param fontLoader The font loader used to set the font for the text.
      */
     public TextOverlay(String text, FontLoader fontLoader) {
         this.text = text;
@@ -50,10 +41,9 @@ public class TextOverlay extends Overlay implements Region {
     }
 
     /**
-     * Creates a TextOverlay with a specific text color.
-     * @param text The text for the overlay.
-     * @param textFillColor The color of the text.
-     * @see Color
+     * Constructs a TextOverlay with the specified text and color.
+     * @param text          The text to display in this overlay.
+     * @param textFillColor The color used to fill the text characters.
      */
     public TextOverlay(String text, Color textFillColor) {
         this.text = text;
@@ -61,12 +51,10 @@ public class TextOverlay extends Overlay implements Region {
     }
 
     /**
-     * Creates a TextOverlay with a specific color and font.
-     * @param text The text for the overlay.
-     * @param textFillColor The color of the text.
-     * @param fontLoader The font to be used.
-     * @see Color
-     * @see FontLoader
+     * Constructs a TextOverlay with the specified text, color, and font loader.
+     * @param text          The text to display in this overlay.
+     * @param textFillColor The color used to fill the text characters.
+     * @param fontLoader    The font loader used to set the font for the text.
      */
     public TextOverlay(String text, Color textFillColor, FontLoader fontLoader) {
         this.text = text;
@@ -75,13 +63,11 @@ public class TextOverlay extends Overlay implements Region {
     }
 
     /**
-     * Creates a TextOverlay with a specific font and positioning.
-     * @param text The text for the overlay.
-     * @param fontLoader The font to be used.
-     * @param x The x position of the overlay.
-     * @param y The y position of the overlay.
-     * @see FontLoader
-     * @see Region
+     * Constructs a TextOverlay with the specified text, font loader, and position.
+     * @param text       The text to display in this overlay.
+     * @param fontLoader The font loader used to set the font for the text.
+     * @param x          The x-coordinate of the overlay's position.
+     * @param y          The y-coordinate of the overlay's position.
      */
     public TextOverlay(String text, FontLoader fontLoader, double x, double y) {
         this.text = text;
@@ -91,15 +77,12 @@ public class TextOverlay extends Overlay implements Region {
     }
 
     /**
-     * Creates a TextOverlay with a specific color, font, and positioning.
-     * @param text The text for the overlay.
-     * @param textFillColor The color of the text.
-     * @param fontLoader The font to be used.
-     * @param x The x position of the overlay.
-     * @param y The y position of the overlay.
-     * @see Color
-     * @see FontLoader
-     * @see Region
+     * Constructs a TextOverlay with the specified text, color, font loader, and position.
+     * @param text          The text to display in this overlay.
+     * @param textFillColor The color used to fill the text characters.
+     * @param fontLoader    The font loader used to set the font for the text.
+     * @param x             The x-coordinate of the overlay's position.
+     * @param y             The y-coordinate of the overlay's position.
      */
     public TextOverlay(String text, Color textFillColor, FontLoader fontLoader, int x, int y) {
         this.text = text;
@@ -109,6 +92,14 @@ public class TextOverlay extends Overlay implements Region {
         setY(y);
     }
 
+    /**
+     * Renders the overlay as a JavaFX {@link Text} node.
+     * <p>
+     * The method applies all configured properties, such as font, color, position, and effects, to the text.
+     * </p>
+     *
+     * @return A {@link Node} representing the rendered text.
+     */
     @Override
     public Node render() {
         Text text = new Text(getText());
