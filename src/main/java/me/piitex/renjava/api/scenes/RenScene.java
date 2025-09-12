@@ -1,6 +1,10 @@
 package me.piitex.renjava.api.scenes;
 
 import me.piitex.renjava.RenJava;
+import me.piitex.renjava.api.characters.Character;
+import me.piitex.renjava.api.loaders.FontLoader;
+import me.piitex.renjava.api.loaders.ImageLoader;
+import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.api.scenes.transitions.types.FadingTransition;
 import me.piitex.renjava.api.scenes.transitions.types.ImageFlashTransition;
 import me.piitex.renjava.api.scenes.types.animation.VideoScene;
@@ -11,14 +15,18 @@ import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
 import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.Story;
 
+import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.SceneRenderEvent;
 import me.piitex.renjava.events.types.SceneStartEvent;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.gui.overlays.Overlay;
+import me.piitex.renjava.gui.overlays.TextFlowOverlay;
+import me.piitex.renjava.gui.overlays.TextOverlay;
 
 import java.io.File;
 import java.util.Collection;
@@ -57,6 +65,8 @@ public abstract class RenScene {
     private final LinkedList<Element> elements = new LinkedList<>();
 
     private final Collection<File> styleSheets = new HashSet<>();
+
+    private final Window window = RenJava.getInstance().getGameWindow();
 
     public RenScene(String id, ImageOverlay backgroundImage) {
         this.id = id;
@@ -125,6 +135,10 @@ public abstract class RenScene {
         return this;
     }
 
+    public Window getWindow() {
+        return window;
+    }
+
     /**
      * @return The beginning {@link Transitions}.
      */
@@ -173,7 +187,7 @@ public abstract class RenScene {
     /**
      * Adds an overlay to the scene.
      * @param overlay The {@link Overlay} to be added.
-     * @deprecated Use {@link #addElement(Element)} instead.
+     * @deprecated Use {@link #addElement(Element)} instead for index rendering. Will be removed for the next main release.
      */
     @Deprecated
     public void addOverlay(Overlay overlay) {
@@ -252,6 +266,53 @@ public abstract class RenScene {
         if (this instanceof VideoScene videoScene) {
             videoScene.play();
         }
+    }
+
+    protected Container buildTextBox(Character character, String displayName, String dialogue, FontLoader font) {
+        RenJavaConfiguration configuration = RenJava.getConfiguration();
+
+        Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+        String characterDisplay = null;
+        if (character != null) {
+            if (displayName != null) {
+                // Set character display
+                characterDisplay = displayName;
+            } else {
+                characterDisplay = character.getDisplayName();
+            }
+        }
+
+        if (dialogue != null && !dialogue.isEmpty()) {
+            ImageLoader textbox = new ImageLoader("gui/textbox.png");
+
+            ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
+            textboxMenu.addElement(textBoxImage);
+
+            LinkedList<Overlay> texts = StringFormatter.formatText(dialogue);
+            TextFlowOverlay textFlowOverlay;
+            if (texts.isEmpty()) {
+                TextOverlay text = new TextOverlay(dialogue);
+                text.setFont(RenJava.CONFIGURATION.getDialogueFont());
+                textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+            } else {
+                textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
+            }
+            textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
+            textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
+            textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
+            textFlowOverlay.setFont(font);
+            textboxMenu.addElement(textFlowOverlay);
+
+            if (characterDisplay != null) {
+                TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
+                        configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
+                        configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
+                characterText.setTextFill(character.getColor());
+                textboxMenu.addElement(characterText);
+            }
+        }
+
+        return textboxMenu;
     }
 
     /**

@@ -132,51 +132,9 @@ public class ImageScene extends RenScene {
             BoxOverlay boxOverlay = new BoxOverlay(container.getWidth(), configuration.getHeight(), Color.BLACK);
             container.addElement(boxOverlay);
         }
-
         if (ui) {
-            String characterDisplay;
-            if (character != null) {
-                if (getCharacterNameDisplay() != null) {
-                    // Set character display
-                    characterDisplay = getCharacterNameDisplay();
-                } else {
-                    characterDisplay = character.getDisplayName();
-                }
-
-                if (dialogue != null && !dialogue.isEmpty()) {
-                    ImageLoader textbox = new ImageLoader("gui/textbox.png");
-                    Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-
-                    ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-                    textboxMenu.addElement(textBoxImage);
-
-                    LinkedList<Overlay> texts = StringFormatter.formatText(dialogue);
-                    TextFlowOverlay textFlowOverlay;
-                    if (texts.isEmpty()) {
-                        TextOverlay text = new TextOverlay(dialogue);
-                        text.setFont(RenJava.CONFIGURATION.getDialogueFont());
-                        textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                    } else {
-                        textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                    }
-                    textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
-                    textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
-                    textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
-                    textFlowOverlay.setFont(font);
-                    textboxMenu.addElement(textFlowOverlay);
-
-                    TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
-                            configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
-                            configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
-                    characterText.setTextFill(character.getColor());
-                    textboxMenu.addElement(characterText);
-
-                    container.addElement(textboxMenu);
-                }
-            }
+            container.addElement(buildTextBox(character, getCharacterNameDisplay(), dialogue, font));
         }
-
-
         for (File file : getStyleSheets()) {
             try {
                 RenJava.getInstance().getGameWindow().getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());
