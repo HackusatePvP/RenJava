@@ -6,6 +6,7 @@ import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
@@ -20,7 +21,7 @@ import me.piitex.renjava.gui.overlays.Overlay;
  *
  * <p>
  * InteractableScene is designed to be instantiated rather than extended. To create an interactable scene, create a new instance of the InteractableScene class.
- * You can then add overlays to the scene using the {@link #addOverlay(Overlay)} method, which allows you to display buttons, images, and text on top of the background image.
+ * You can then add overlays to the scene using the {@link #addElement(Element)} (Overlay)} method, which allows you to display buttons, images, and text on top of the background image.
  * The {@link Overlay} interface provides the necessary methods for positioning the overlays.
  * </p>
  *
@@ -58,8 +59,6 @@ import me.piitex.renjava.gui.overlays.Overlay;
 public class InteractableScene extends RenScene {
 
     private final ImageOverlay backgroundImage;
-
-    private static final RenJava renJava = RenJava.getInstance();
 
     @Override
     public StageType getStageType() {
