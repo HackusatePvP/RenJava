@@ -1,7 +1,11 @@
 package me.piitex.renjava.api.scenes.transitions.types;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
@@ -82,6 +86,10 @@ public class FadingTransition extends Transitions {
         });
         playing = true;
         RenJava.PLAYER.setCurrentTransition(this);
+        if (root instanceof MediaView mediaView) {
+            Timeline timeline = new Timeline(new KeyFrame(Duration.valueOf(getDuration() + "ms"), new KeyValue(mediaView.getMediaPlayer().volumeProperty(), toValue)));
+            timeline.play();
+        }
         fadeTransition.play();
     }
 
