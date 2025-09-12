@@ -136,12 +136,19 @@ public class AddonLoader {
             }
         });
 
+        // Java will scan the files randomly with no certain order.
+        // This will loop through the addons and attempt to load them.
+        // If the addon succeeds it will be added to passed and removed from validations.
+        // The loop will continue until validations is empty or the same addon fails twice.
         Map<File, String> validations = new HashMap<>(lateLoaders);
         Collection<String> passed = new HashSet<>();
         AtomicReference<String> lastValidated = new AtomicReference<>("");
 
         while (!validations.isEmpty()) {
             lateLoaders.forEach((file, string) -> {
+
+                // The same addon can only be looped twice in a row if it's the only addon left.
+                // If the addon failed twice it means there was a problem with that addon.
                 if (lastValidated.get().equalsIgnoreCase(file.getName())) {
                     logger.error("Could not initialize " + file.getName() + ": May be the result of a missing dependency.");
                     validations.remove(file);
