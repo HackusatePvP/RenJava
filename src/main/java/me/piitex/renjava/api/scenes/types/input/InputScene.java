@@ -102,37 +102,17 @@ public class InputScene extends RenScene {
     public Container build(boolean ui) {
         Container container = new EmptyContainer(0, 0,1920, 1080);
         container.addElement(loader);
-
         if (ui) {
-            // Textbox
-            ImageLoader textbox = new ImageLoader("gui/textbox.png");
-            Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-
-            ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-            textboxMenu.addElement(textBoxImage);
-
-
-            if (text != null && !text.isEmpty()) {
-                TextFlowOverlay textFlowOverlay;
-                LinkedList<Overlay> texts = StringFormatter.formatText(text);
-                if (texts.isEmpty()) {
-                    Text text1 = new Text(text);
-                    text1.setFont(RenJava.CONFIGURATION.getDialogueFont().getFont());
-                    textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                } else {
-                    textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                }
-                textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
-                textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
-                textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
-
-                inputField = new InputFieldOverlay(defaultInput, 0,0,500,0);
-
+            Container textBox = buildTextBox(null, "", text, font);
+            this.inputField = new InputFieldOverlay(defaultInput, 0,0,500,0);
+            TextFlowOverlay textFlowOverlay = (TextFlowOverlay) textBox.getElements().stream().filter(element -> element instanceof TextFlowOverlay).findAny().orElse(null);
+            if (textFlowOverlay != null) {
+                System.out.println("Adding text flow...");
+                textFlowOverlay.add(inputField);
                 inputField.onInputSetEvent(event -> {
                     getSetInterface().onInputSet(event);
                     RenJava.getEventHandler().callEvent(event);
                 });
-
 
                 if (font == null) {
                     // Default font
@@ -141,13 +121,9 @@ public class InputScene extends RenScene {
                 inputField.setFont(font);
                 textFlowOverlay.setFont(font);
 
-                textFlowOverlay.add(inputField);
-
-                textboxMenu.addElement(textFlowOverlay);
-
-
-                container.addElement(textboxMenu);
             }
+
+            container.addElement(textBox);
         }
 
         return container;
