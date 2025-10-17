@@ -13,12 +13,10 @@ import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.overlays.ButtonOverlay;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
-import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ChoiceButtonBuildEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 
 import java.util.LinkedHashSet;
 import java.util.Map;

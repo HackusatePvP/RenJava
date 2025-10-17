@@ -4,10 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.api.exceptions.ImageNotFoundException;
-import me.piitex.renjava.loggers.RenLogger;
 
 /**
  * The ImageOverlay is a visual element used to display images. The ImageOverlay uses the {@link ImageLoader} to load images into the application. The image must be in either the classpath or the game directory to be loaded.
@@ -39,7 +36,6 @@ import me.piitex.renjava.loggers.RenLogger;
  *     }
  * </pre>
  * Make sure images are compressed to normal sizes. Images which have large sizes will result in longer rendering times and slower performance.
- * If the image file could not be located or found it will throw {@link ImageNotFoundException}.
  *
  * @see ImageLoader
  * @see Region
@@ -158,7 +154,6 @@ public class ImageOverlay extends Overlay implements Region {
      *     }
      * </pre>
      * @param imagePath The path to the file from the game directory.
-     * @exception ImageNotFoundException if the file could not be located. The engine will handle the throw in the logger to prevent crashing.
      */
     public ImageOverlay(String directory, String imagePath) {
         ImageLoader loader = new ImageLoader(directory, imagePath);

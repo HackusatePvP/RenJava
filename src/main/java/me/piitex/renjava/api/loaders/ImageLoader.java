@@ -2,12 +2,10 @@ package me.piitex.renjava.api.loaders;
 
 import javafx.scene.image.*;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.LimitedHashMap;
 import org.apache.commons.io.IOUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
