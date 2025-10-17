@@ -32,7 +32,8 @@ import java.util.Map;
 public class ImageLoader {
     private final File file;
 
-    private static final Map<String, Image> imageCache = new LimitedHashMap<>(50);
+    public static final Map<String, Image> imageCache = new LimitedHashMap<>(50);
+    private static final Map<String, Double> imageSizeCache = new LimitedHashMap<>(50);
 
     /**
      * Loads an image via a filename from the base directory or defaults to class-path.
@@ -125,36 +126,21 @@ public class ImageLoader {
      * The JavaFX image has limited formats and slower loading.
      *
      * @return A loaded {@link BufferedImage} or {@link Image}.
-     * @throws ImageNotFoundException If the image file does not exist.
      */
-    public Image build() throws ImageNotFoundException {
-        if (imageCache.containsKey(file.getPath())) {
+    public Image build() {
+        if (imageCache.containsKey(file.getPath()) && (width + height == imageSizeCache.get(file.getPath()))) {
             return imageCache.get(file.getPath());
         }
-        try {
-            BufferedImage bufferedImage = ImageIO.read(file);
-            Image image = getImage(bufferedImage);
-            imageCache.put(file.getPath(), image);
-            return image;
-        } catch (FileNotFoundException ignored) {
-            // Better logging
-            ImageNotFoundException exception = new ImageNotFoundException(this);
-            RenLogger.LOGGER.error(exception.getMessage(), exception);
-            RenJava.writeStackTrace(exception);
-            throw exception;
-        } catch (IOException e) {
-            return buildRaw();
-        }
-    }
 
-    public Image buildRaw() throws ImageNotFoundException {
         try {
-            return new Image(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
-            ImageNotFoundException exception = new ImageNotFoundException(this);
-            RenLogger.LOGGER.error(exception.getMessage(), exception);
-            RenJava.writeStackTrace(exception);
-            throw exception;
+            Image image = new Image(new FileInputStream(file), width, height, false, false);
+            imageCache.put(file.getPath(), image);
+            imageSizeCache.put(file.getPath(), width + height);
+
+            return image;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
