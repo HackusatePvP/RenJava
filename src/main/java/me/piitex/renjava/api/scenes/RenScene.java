@@ -184,15 +184,6 @@ public abstract class RenScene {
         return buildInterface;
     }
 
-    /**
-     * Adds an overlay to the scene.
-     * @param overlay The {@link Overlay} to be added.
-     * @deprecated Use {@link #addElement(Element)} instead for index rendering. Will be removed for the next main release.
-     */
-    @Deprecated
-    public void addOverlay(Overlay overlay) {
-        elements.add(overlay);
-    }
 
     public void addElement(Element element) {
         elements.add(element);
