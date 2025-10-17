@@ -3,86 +3,128 @@ package me.piitex.renjava.gui.containers;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import me.piitex.renjava.gui.Container;
-
-import java.util.AbstractMap;
-import java.util.LinkedList;
-import java.util.Map;
+import me.piitex.renjava.gui.Element;
 
 public class LayoutContainer extends Container {
-    private Node right, middle, left, top, bottom;
+    private final BorderPane pane;
 
-    public LayoutContainer(double width, double height) {
-        super(0, 0, width, height);
+    private Element top, bottom, right, left, center, border;
+
+    public LayoutContainer(double x, double y, double width, double height, int index) {
+        super(new BorderPane(), x, y, width, height, index);
+        this.pane = (BorderPane) getNode();
     }
 
     public LayoutContainer(double x, double y, double width, double height) {
-        super(x, y, width, height);
+        this(x, y, width, height, 0);
     }
 
-    public LayoutContainer(double x, double y, double width, double height, int index) {
-        super(x, y, width, height, index);
+    public LayoutContainer(double width, double height) {
+        this(0, 0, width, height, 0);
     }
 
-    public Node getRight() {
-        return right;
+    public LayoutContainer(double width, double height, int index) {
+        this(0, 0, width, height, index);
     }
 
-    public void setRight(Node right) {
-        this.right = right;
+    public BorderPane getPane() {
+        return pane;
     }
 
-    public Node getMiddle() {
-        return middle;
-    }
-
-    public void setMiddle(Node middle) {
-        this.middle = middle;
-    }
-
-    public Node getLeft() {
-        return left;
-    }
-
-    public void setLeft(Node left) {
-        this.left = left;
-    }
-
-    public Node getTop() {
+    public Element getTop() {
         return top;
     }
 
-    public void setTop(Node top) {
+    public void setTop(Element top) {
         this.top = top;
     }
 
-    public Node getBottom() {
+    public Element getBottom() {
         return bottom;
     }
 
-    public void setBottom(Node bottom) {
+    public void setBottom(Element bottom) {
         this.bottom = bottom;
     }
 
+    public Element getRight() {
+        return right;
+    }
+
+    public void setRight(Element right) {
+        this.right = right;
+    }
+
+    public Element getLeft() {
+        return left;
+    }
+
+    public void setLeft(Element left) {
+        this.left = left;
+    }
+
+    public Element getCenter() {
+        return center;
+    }
+
+    public void setCenter(Element center) {
+        this.center = center;
+    }
+
+    public Element getBorder() {
+        return border;
+    }
+
+    public void setBorder(Element border) {
+        this.border = border;
+    }
+
     @Override
-    public Map.Entry<Node, LinkedList<Node>> build() {
-        BorderPane borderPane = new BorderPane();
-        if (left != null)
-            borderPane.setLeft(left);
-        if (middle != null)
-            borderPane.setCenter(middle);
-        if (right != null)
-            borderPane.setRight(right);
-        if (top != null)
-            borderPane.setTop(top);
-        if (bottom != null)
-            borderPane.setTop(top);
+    public Node build() {
+        pane.setTranslateX(getX());
+        pane.setTranslateY(getY());
+        if (getWidth() > 0) {
+            pane.setMinWidth(getWidth());
+        }
+        if (getHeight() > 0) {
+            pane.setMinHeight(getHeight());
+        }
 
-        borderPane.setTranslateX(getX());
-        borderPane.setTranslateY(getY());
-        borderPane.setPrefSize(getWidth(), getHeight());
+        if (getPrefWidth() > 0) {
+            pane.setPrefWidth(getPrefWidth());
+        }
+        if (getPrefHeight() > 0) {
+            pane.setPrefHeight(getPrefHeight());
+        }
 
-        LinkedList<Node> order = buildBase();
+        if (getMaxWidth() > 0) {
+            pane.setMaxWidth(getMaxWidth());
+        }
+        if (getMaxHeight() > 0) {
+            pane.setMaxHeight(getMaxHeight());
+        }
 
-        return new AbstractMap.SimpleEntry<>(borderPane, order);
+        if (top != null) {
+            pane.setTop(top.assemble());
+        }
+        if (bottom != null) {
+            pane.setBottom(bottom.assemble());
+        }
+        if (right != null) {
+            pane.setRight(right.assemble());
+        }
+        if (left != null) {
+            pane.setLeft(left.assemble());
+        }
+        if (center != null) {
+            pane.setCenter(center.assemble());
+        }
+        if (border != null) {
+            pane.setBottom(border.assemble());
+        }
+
+        setStyling(pane);
+
+        return pane;
     }
 }

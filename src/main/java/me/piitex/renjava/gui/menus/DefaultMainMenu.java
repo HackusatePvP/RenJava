@@ -27,7 +27,8 @@ public class DefaultMainMenu implements MainMenu {
     public Container mainMenu(boolean rightClicked) {
         // Empty container behaves like the old menu system.
         // It is essentially an empty box which you add overlays to.
-        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight(), 0);
+        System.out.println("Using default execute...");
+        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
 
         menu.addElement(new ImageOverlay("/gui/main_menu.png"));
 
@@ -38,16 +39,29 @@ public class DefaultMainMenu implements MainMenu {
         // Add the overlay to the container
         menu.addElement(gameText);
 
+
+        // FIXME: Something very wrong with the rendering pipe line. Broken when a sub-container is added to a container BEFORE the container is rendered.
+        //   For example, Container A which hasn't been added via window.addContainer() Will not render Container B.
+        //     Container a = new EmptyContainer();
+        //     Container b = new EmptyContainer();
+        //     a.addElement(b);
+        //     window.addContainer(a);
+        //   It will work if the container is rendered before hand.
+        //     Container a = new EmptyContainer();
+        //     window.addContainer(a);
+        //     Container b = new EmptyContainer();
+        //     a.addElement(b);
+        //menu.addElement(sideMenu(rightClicked));
+
         return menu;
     }
 
     @Override
     public Container sideMenu(boolean rightClick) {
-        Container menu = new EmptyContainer(1920, 1080, 2);
+        Container container = new EmptyContainer(1920, 1080);
 
         ImageOverlay imageOverlay = new ImageOverlay("gui/overlay/main_menu.png");
-        imageOverlay.setIndex(0);
-        menu.addElement(imageOverlay);
+        container.addElement(imageOverlay);
 
         FontLoader uiFont = RenJava.CONFIGURATION.getUiFont();
 
@@ -60,18 +74,15 @@ public class DefaultMainMenu implements MainMenu {
         ButtonOverlay aboutButton = new ButtonOverlay(ButtonID.ABOUT.getId(),"About", Color.BLACK, uiFont, Color.TRANSPARENT, Color.TRANSPARENT, hoverColor);
         // Create vbox for the buttons. You can also do an HBox
         VerticalLayout layout = new VerticalLayout(400, 500);
-        layout.setIndex(1);
         layout.setX(50);
         layout.setY(250);
         layout.setSpacing(20);
-        layout.addOverlays(startButton, loadButton);
+        container.addElement(layout);
+        layout.addElements(startButton, loadButton);
         if (rightClick) {
-            layout.addOverlays(saveButton);
+            layout.addElement(saveButton);
         }
-        layout.addOverlays(optionsButton, aboutButton);
-
-        // You don't have to add the button overlays just add the layout which already contains the overlays.
-        menu.addElement(layout);
+        layout.addElements(optionsButton, aboutButton);
 
         ButtonOverlay returnButton;
 
@@ -82,17 +93,17 @@ public class DefaultMainMenu implements MainMenu {
         }
         returnButton.setX(25);
         returnButton.setY(980);
-        menu.addElement(returnButton);
+        container.addElement(returnButton);
 
-        SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(menu);
+        SideMenuBuildEvent sideMenuBuildEvent = new SideMenuBuildEvent(container);
         RenJava.getEventHandler().callEvent(sideMenuBuildEvent);
 
-        return menu;
+        return container;
     }
 
     @Override
     public Container loadMenu(boolean rightClicked, int page, boolean loadMenu) {
-        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight(), 1);
+        Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
         menu.addElement(imageOverlay);
 
@@ -134,8 +145,7 @@ public class DefaultMainMenu implements MainMenu {
             VerticalLayout buttonBox = new VerticalLayout(414, 320);
 
             ButtonOverlay loadButton = savePreview(save, page, index);
-            loadButton.setIndex(1);
-            buttonBox.addOverlay(loadButton);
+            buttonBox.addElement(loadButton);
 
             FontLoader bottomFont = new FontLoader(RenJava.CONFIGURATION.getUiFont(), 12);
             TextOverlay createdTime = new TextOverlay(save.getLocalizedCreationDate(), bottomFont);
@@ -144,29 +154,28 @@ public class DefaultMainMenu implements MainMenu {
 
             createdTime.setY(-80); // Moves the text up a little in the vbox
             createdTime.setX(120); // Moves over to the center hopefully
-            buttonBox.addOverlay(createdTime);
+            buttonBox.addElement(createdTime);
             if (save.getName() != null && !save.getName().isEmpty() && !save.getName().equalsIgnoreCase("null")) {
                 TextOverlay saveName = new TextOverlay(save.getName(), bottomFont);
                 saveName.onClick(loadButton.getOnClick());
                 saveName.setY(-80);
                 saveName.setX(120);
-                buttonBox.addOverlay(saveName);
+                buttonBox.addElement(saveName);
             }
 
             if (index <= 3) {
-                topLayout.addChildLayout(buttonBox);
+                topLayout.addElement(buttonBox);
             } else {
-                bottomLayout.addChildLayout(buttonBox);
+                bottomLayout.addElement(buttonBox);
             }
             index++;
         }
 
         // Once the fetching is done re-render the view.
-        gameWindow.setContainers(containers);
         gameWindow.render();
 
-        rootLayout.addChildLayout(topLayout);
-        rootLayout.addChildLayout(bottomLayout);
+        rootLayout.addElement(topLayout);
+        rootLayout.addElement(bottomLayout);
 
         rootLayout.setX(500);
         rootLayout.setY(250);
@@ -205,7 +214,7 @@ public class DefaultMainMenu implements MainMenu {
                 gameWindow.render();
             });
 
-            pageLayout.addOverlay(pageButton);
+            pageLayout.addElement(pageButton);
         }
         pageLayout.setX(1000);
         pageLayout.setY(950);
@@ -219,7 +228,6 @@ public class DefaultMainMenu implements MainMenu {
     public Container settingMenu(boolean rightClicked) {
         Container menu = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
         ImageOverlay imageOverlay = new ImageOverlay("gui/main_menu.png");
-        imageOverlay.setIndex(0);
         menu.addElement(imageOverlay);
 
         Color themeColor = RenJava.CONFIGURATION.getThemeColor();
@@ -242,24 +250,24 @@ public class DefaultMainMenu implements MainMenu {
         TextOverlay displayText = new TextOverlay("Display", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
         ButtonOverlay windowButton = new ButtonOverlay("windowed-display", "Windowed", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
         ButtonOverlay fullscreenButton = new ButtonOverlay("windowed-fullscreen", "Fullscreen", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
-        displayBox.addOverlays(displayText, windowButton, fullscreenButton);
+        displayBox.addElements(displayText, windowButton, fullscreenButton);
 
         VerticalLayout rollbackBox = new VerticalLayout(300, 400);
         TextOverlay rollbackText = new TextOverlay("Rollback", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
         ButtonOverlay disabledButton = new ButtonOverlay("disabled-rollback", "Disabled", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
         ButtonOverlay leftButton = new ButtonOverlay("left-rollback", "Left", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
         ButtonOverlay rightButton = new ButtonOverlay("right-rollback", "Right", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
-        rollbackBox.addOverlays(rollbackText, disabledButton, leftButton, rightButton);
+        rollbackBox.addElements(rollbackText, disabledButton, leftButton, rightButton);
 
         VerticalLayout skipBox = new VerticalLayout(300, 400);
         TextOverlay skipText = new TextOverlay("Skip", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
         ButtonOverlay unseenTextButton = new ButtonOverlay("unseen-skip", "Unseen Text", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
         ButtonOverlay afterChoicesButton = new ButtonOverlay("after-skip", "After Choices", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
         ButtonOverlay transitionButton = new ButtonOverlay("transitions-skip", "Transitions", subColor, RenJava.CONFIGURATION.getUiFont(), 0,0);
-        skipBox.addOverlays(skipText, unseenTextButton, afterChoicesButton, transitionButton);
+        skipBox.addElements(skipText, unseenTextButton, afterChoicesButton, transitionButton);
 
         // Add all to root layout
-        rootLayout.addChildLayouts(displayBox, rollbackBox, skipBox);
+        rootLayout.addElements(displayBox, rollbackBox, skipBox);
 
         menu.addElement(rootLayout);
 
@@ -275,7 +283,7 @@ public class DefaultMainMenu implements MainMenu {
         masterVolumeSlider.onSliderMove(event -> {
             RenJava.SETTINGS.setMasterVolume(event.getValue());
         });
-        masterBox.addOverlays(masterVolumeText, masterVolumeSlider);
+        masterBox.addElements(masterVolumeText, masterVolumeSlider);
 
         VerticalLayout musicBox = new VerticalLayout(1000, 100);
         TextOverlay musicVolumeText = new TextOverlay("Music Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
@@ -283,7 +291,7 @@ public class DefaultMainMenu implements MainMenu {
         musicVolumeSlider.onSliderMove(event -> {
             RenJava.SETTINGS.setMusicVolume(event.getValue());
         });
-        musicBox.addOverlays(musicVolumeText, musicVolumeSlider);
+        musicBox.addElements(musicVolumeText, musicVolumeSlider);
 
         VerticalLayout soundBox = new VerticalLayout(1000, 100);
         TextOverlay soundVolumeText = new TextOverlay("Sound Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
@@ -291,7 +299,7 @@ public class DefaultMainMenu implements MainMenu {
         soundVolumeSlider.onSliderMove(event -> {
             RenJava.SETTINGS.setSoundVolume(event.getValue());
         });
-        soundBox.addOverlays(soundVolumeText, soundVolumeSlider);
+        soundBox.addElements(soundVolumeText, soundVolumeSlider);
 
         VerticalLayout voiceBox = new VerticalLayout(1000, 100);
         TextOverlay voiceVolumeText = new TextOverlay("Voice Volume", themeColor, RenJava.CONFIGURATION.getUiFont(), 0, 0);
@@ -299,10 +307,10 @@ public class DefaultMainMenu implements MainMenu {
         voiceVolumeSlider.onSliderMove(event -> {
             RenJava.SETTINGS.setVoiceVolume(event.getValue());
         });
-        voiceBox.addOverlays(voiceVolumeText, voiceVolumeSlider);
+        voiceBox.addElements(voiceVolumeText, voiceVolumeSlider);
 
 
-        soundRoot.addChildLayouts(masterBox, musicBox, soundBox, voiceBox);
+        soundRoot.addElements(masterBox, musicBox, soundBox, voiceBox);
 
         menu.addElement(soundRoot);
 
@@ -473,13 +481,13 @@ public class DefaultMainMenu implements MainMenu {
                         gameWindow.render();
                     });
 
-                    prompt.addOverlay(confirm);
+                    prompt.addElement(confirm);
 
                     ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
                     cancel.setX(700);
                     cancel.setY(300);
 
-                    prompt.addOverlay(cancel);
+                    prompt.addElement(cancel);
 
                     cancel.onClick(event1 -> {
                         prompt.closeWindow();
@@ -517,7 +525,7 @@ public class DefaultMainMenu implements MainMenu {
                      RenJava.getInstance().getGameWindow().addContainer(menu);
                      RenJava.getInstance().getGameWindow().render();
                  });
-                 prompt.addOverlay(confirm);
+                 prompt.addElement(confirm);
 
                  ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
                  cancel.setX(700);
@@ -525,7 +533,7 @@ public class DefaultMainMenu implements MainMenu {
                  cancel.onClick(event1 -> {
                      prompt.closeWindow();
                  });
-                 prompt.addOverlay(cancel);
+                 prompt.addElement(cancel);
 
                  prompt.render();
                 } else {

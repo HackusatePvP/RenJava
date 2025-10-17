@@ -1,315 +1,141 @@
 package me.piitex.renjava.gui;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.events.types.*;
-import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.Overlay;
-import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.utils.KeyUtils;
-import me.piitex.renjava.tasks.Tasks;
-import me.piitex.renjava.utils.ModifierKeyList;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
- * Window is the main GUI component which handle the rendering process for the engine. There are three components to windows which are {@link Container}, {@link Overlay}, {@link Layout}.
- * Window houses and manages these components.
- * <p>
- * You can create and render multiple windows at once. The title is used for the process name and label in the top left corner.
- * The stage style is used to control how the window is displayed. A decorated style will contain a "X", minimize, and maximize button.
- * An undecorated style will not contain any top bar similar to a full-screen game.
- * <pre>
- * {@code
- * Window window = new Window("Window Title", StageStyle.DECORATED, new ImageLoader("path/to/icon.png"));
- * }
- * </pre>
- * <p>
- * To display various elements to a window you must create a container first. Once the container is created you simply have to add it the window.
- * Note, you can add and position multiple containers to a single window.
- * <pre>
- * {@code
- *  Window window = application.getWindow();
- *  Container container = new EmptyContainer(x, y, width, height);
- *  window.addContainer(container);
- * }
- * </pre>
- * <p>
- * There is no game loop which handles rendering. All the rendering is handled by JavaFX which does it automatically when a node is modified.
- * To change or render a different container, you must remove the current containers and re-render the window.
- * <pre>
- * {@code
- *  // Render different container
- *  Window window = application.getWindow();
- *  window.clearContainers(); // Clear existing containers
+ * The Window serves as the primary GUI component, managing the rendering process for the engine.
+ * It houses and manages three core components: {@link Container}, {@link Overlay}, and {@link Layout}.
  *
- *  window.addContainer(newContainer);
+ * <p>Multiple windows can be created and rendered simultaneously. The window's title serves as its process name and label.
+ * The stage style dictates the window's appearance, with {@link StageStyle#DECORATED} providing standard
+ * window controls (close, minimize, maximize) and {@link StageStyle#UNDECORATED} removing the title bar
+ * for a borderless experience, often used in full-screen applications.</p>
  *
- *  window.render(); // Process newly added container
+ * <pre>{@code
+ * Window window = new WindowBuilder("My Application Window")
+ * .setStageStyle(StageStyle.UNDECORATED)
+ * .setDimensions(800, 600)
+ * .setBackgroundColor(Color.BLACK)
+ * .build();
+ * }</pre>
  *
- *  // Re-render modified container
- *  Container container;
- *  container.addOverlay(overlay); // Example addition.
- *  window.replaceContainer(container.getIndex(), container);
- *  window.render();
- * }
- * </pre>
  * <p>
- * RenJava framework handles the game window which you can access via the {@link RenJava} class.
- * It is recommended to have your own application instance but isn't necessarily required.
- * You can modify the game window at any point pass the initial loading stage.
- * <pre>
- * {@code
- *  Window gameWindow = RenJava.getInstance().getGameWindow();
- * }
- * </pre>
- * <p>
- * All GUI related functions must be called in the JavaFX thread. You can use the {@link Tasks} utility to switch between different threads.
- * <pre>
- * {@code
- *  Tasks.runAsync(() -> {
- *      // Some code to be ran asynchronously
+ * To display elements within a window, a {@link Container} must first be created and added to the window.
+ * Multiple containers can be added and positioned within a single window.</p>
+ * <pre>{@code
+ * Window window = application.getWindow();
+ * Container container = new EmptyContainer(x, y, width, height);
+ * window.addContainer(container);
+ * }</pre>
  *
- *      // Handle JavaFX in async
- *      Tasks.runJavaFXThread(() -> {
- *          // Gui related code
- *          window.render();
- *      })
- *  })
- * }
- * </pre>
+ * <p>
+ * All GUI-related functions, especially those involving scene graph modifications,
+ * must be executed on the JavaFX Application Thread.</p>
+ * <pre>{@code
+ *     new Thread( () -> {
+ *         // Code to be ran asynchronously
+ *         loadBackend();
+ *
+ *         Platform.runLater( () -> {
+ *             // Any gui related code.
+ *             initializeProgressIndicator();
+ *         })
+ *     })
+ * }</pre>
  *
  * @see Container
  * @see Overlay
  * @see Layout
- * @see Tasks
- * @see RenJava#getGameWindow()
+ * @see Platform#runLater(Runnable)
  */
 public class Window {
     private final String title;
     private final ImageLoader icon;
     private final StageStyle stageStyle;
-    private final int width, height;
-    private boolean fullscreen = false, maximized = false;
-    private Color backgroundColor = Color.BLACK;
+    private double initialWidth, initialHeight;
+    private double width, height;
+    private boolean fullscreen, maximized ;
+    private Color backgroundColor;
     private Stage stage;
     private Scene scene;
     private Pane root;
 
-    // Time tracking for thresholds
-    private Instant lastRun;
-    private Instant firstRun;
-    private boolean captureInput = true;
+    private final boolean scale;
+    private final boolean focused;
 
-    private LinkedHashMap<Integer, Container> containers = new LinkedHashMap<>();
-
-    private boolean focused = true;
+    private TreeMap<Integer, Container> containers = new TreeMap<>();
+    private Container currentPopup = null;
 
     /**
-     * Creates a stylized window with a title, and icon. The stage style changes the style of the window.
-     * You only need to create a window if you want to add a sub-window. The game window should be managed with {@link RenJava#getGameWindow()}.
-     * <p>
-     * The common style is {@link StageStyle#DECORATED} which adds the basic buttons like exit, minimize, and maximize.
-     * You can explore with other styles that suit your needs with the deisred window.
-     * </p>
-     * <p>
-     *     Example usage:
-     *     <pre>
-     *         {@code
-     *           Window window = new Window("Window Title", StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
+     * Constructs a Window instance using properties defined in a {@link WindowBuilder}.
+     * This allows for a flexible and readable way to configure window properties.
      *
-     *           // Add containers
-     *           window.addContainer(Container container);
-     *           window.render();
-     *         }
-     *     </pre>
-     * </p>
-     * @param title Title of the window.
-     * @param stageStyle Style of the window.
-     * @param icon Image for the icon.
+     * <p>Common styles include {@link StageStyle#DECORATED}, which provides standard
+     * window controls, and {@link StageStyle#UNDECORATED} for a borderless window.</p>
+     *
+     * <p>Example usage:</p>
+     * <pre>{@code
+     * WindowBuilder builder = new WindowBuilder()
+     * .setStageStyle(StageStyle.UNDECORATED)
+     * .setDimensions(800, 600)
+     * .setBackgroundColor(Color.BLACK)
+     * Window window = new Window(builder);
+     *
+     * // Add containers
+     * window.addContainer(someContainer);
+     * }</pre>
+     * @param builder The {@link WindowBuilder} instance containing window configuration.
      */
-    public Window(String title, StageStyle stageStyle, ImageLoader icon) {
-        this.width = RenJava.CONFIGURATION.getWidth();
-        this.height = RenJava.CONFIGURATION.getHeight();
-        this.title = title;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
+    public Window(WindowBuilder builder) {
+        this.title = builder.getTitle();
+        this.stageStyle = builder.getStageStyle();
+        this.root = builder.getRoot();
+        this.icon = builder.getIcon();
+        this.width = builder.getWidth();
+        this.height = builder.getHeight();
+        this.initialWidth = builder.getWidth();
+        this.initialHeight = builder.getHeight();
+        this.backgroundColor = builder.getBackgroundColor();
+        this.fullscreen = builder.isFullscreen();
+        this.maximized = builder.isMaximized();
+        this.focused = builder.isFocused();
+        this.scale = builder.isScale();
         buildStage();
+
+        // Display stage.
+        render();
     }
 
     /**
-     * Creates a stylized window with a title, and icon. The stage style changes the style of the window.
-     * You only need to create a window if you want to add a sub-window. The game window should be managed with {@link RenJava#getGameWindow()}.
-     * <p>
-     * The common style is {@link StageStyle#DECORATED} which adds the basic buttons like exit, minimize, and maximize.
-     * You can explore with other styles that suit your needs with the deisred window.
-     * </p>
-     * <p>
-     * The 'captureInput' is used to capture user input like {@link MouseClickEvent}. There are cases where you do not want to capture input, like a splash screen.
-     * </p>
-     * <p>
-     *     Example usage:
-     *     <pre>
-     *         {@code
-     *           // Will capture input.
-     *           Window window = new Window("Window Title", StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"), ture);
-     *
-     *           // Add containers
-     *           window.addContainer(Container container);
-     *           window.render();
-     *         }
-     *     </pre>
-     * </p>
-     * @param title Title of the window.
-     * @param stageStyle Style of the window.
-     * @param icon Image for the icon.
-     * @param captureInput If the window should capture user input.
+     * Initializes the JavaFX Stage with the configured properties from the `WindowBuilder`.
+     * This method sets up the title, style, dimensions, icon, and initial scene.
      */
-    public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
-        this.width = RenJava.CONFIGURATION.getWidth();
-        this.height = RenJava.CONFIGURATION.getHeight();
-        this.captureInput = captureInput;
-        this.title = title;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        buildStage();
-    }
-
-    public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean fullscreen, boolean maximized) {
-        this.width = RenJava.CONFIGURATION.getWidth();
-        this.height = RenJava.CONFIGURATION.getHeight();
-        this.title = title;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.setFullscreen(fullscreen);
-        this.setMaximized(maximized);
-        buildStage();
-    }
-
-    public Window(String title, StageStyle stageStyle, ImageLoader icon, boolean fullscreen, boolean maximized, boolean captureInput) {
-        this.width = RenJava.CONFIGURATION.getWidth();
-        this.height = RenJava.CONFIGURATION.getHeight();
-        this.captureInput = captureInput;
-        this.title = title;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.setFullscreen(fullscreen);
-        this.setMaximized(maximized);
-        buildStage();
-    }
-
-    public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height) {
-        this.title = title;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.width = width;
-        this.height = height;
-        buildStage();
-    }
-
-    public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput) {
-        this.title = title;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.width = width;
-        this.height = height;
-        this.captureInput = captureInput;
-        buildStage();
-    }
-
-    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon) {
-        this.width = RenJava.CONFIGURATION.getWidth();
-        this.height = RenJava.CONFIGURATION.getHeight();
-        this.title = title;
-        this.backgroundColor = backgroundColor;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        buildStage();
-    }
-
-    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, boolean captureInput) {
-        this.width = RenJava.CONFIGURATION.getWidth();
-        this.height = RenJava.CONFIGURATION.getHeight();
-        this.title = title;
-        this.backgroundColor = backgroundColor;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.captureInput = captureInput;
-        buildStage();
-    }
-
-    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height) {
-        this.title = title;
-        this.backgroundColor = backgroundColor;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.width = width;
-        this.height = height;
-        buildStage();
-    }
-
-    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput) {
-        this.title = title;
-        this.backgroundColor = backgroundColor;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.width = width;
-        this.height = height;
-        this.captureInput = captureInput;
-        buildStage();
-    }
-
-    public Window(String title, Color backgroundColor, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput, boolean focused) {
-        this.title = title;
-        this.backgroundColor = backgroundColor;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.width = width;
-        this.height = height;
-        this.captureInput = captureInput;
-        this.focused = focused;
-        buildStage();
-    }
-
-    public Window(String title, StageStyle stageStyle, ImageLoader icon, int width, int height, boolean captureInput, boolean focused) {
-        this.title = title;
-        this.stageStyle = stageStyle;
-        this.icon = icon;
-        this.width = width;
-        this.height = height;
-        this.captureInput = captureInput;
-        this.focused = focused;
-        buildStage();
-    }
-
     protected void buildStage() {
         stage = new Stage();
 
         if (icon != null) {
-            Image windowIcon = null;
-            try {
-                windowIcon = icon.buildRaw();
-            } catch (ImageNotFoundException e) {
-                RenLogger.LOGGER.error(e.getMessage(), e);
-                RenJava.writeStackTrace(e);
-            }
+            Image windowIcon = icon.build();
             if (windowIcon != null) {
                 stage.getIcons().add(windowIcon);
             }
@@ -321,57 +147,102 @@ public class Window {
         stage.setMaximized(maximized);
         stage.setFullScreen(fullscreen);
 
+        root.setPrefSize(width, height);
 
-        root = new BorderPane();
+        if (scale) {
+            Scale scale = new Scale(getWidthScale(), getHeightScale(), 0, 0);
+            root.getTransforms().setAll(scale);
+        }
 
-        root.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
+        handleWindowScaling(stage);
 
         scene = new Scene(root);
 
-        scene.setFill(Color.BLACK);
-
         stage.setScene(scene);
-        if (captureInput) {
-            handleStageInput(stage);
-        }
     }
 
+    /**
+     * Updates the background color of the window's root pane and scene.
+     * @param color The new background color.
+     */
     public void updateBackground(Color color) {
         this.backgroundColor = color;
         root.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
         stage.getScene().setFill(color);
     }
 
+    /**
+     * Retrieves the current background color of the window.
+     * @return The current background color.
+     */
     public Color getBackgroundColor() {
         return backgroundColor;
     }
 
+    /**
+     * Retrieves the JavaFX Stage associated with this window.
+     * @return The current Stage.
+     */
     public Stage getStage() {
         return stage;
     }
 
+    /**
+     * Retrieves the JavaFX Scene associated with this window.
+     * @return The current Scene.
+     */
     public Scene getScene() {
         return scene;
     }
+    /**
+     * Retrieves the root Pane of the window's scene graph.
+     * @return The root Pane.
+     */
     public Pane getRoot() {
         return root;
     }
 
-    public int getWidth() {
+    /**
+     * Retrieves the configured width of the window.
+     * @return The window width.
+     */
+    public double getWidth() {
         return width;
     }
 
-    public int getHeight() {
-        return height;
+    public void setWidth(double width) {
+        this.width = width;
+        this.initialWidth = width;
+        stage.setWidth(width);
+        root.getTransforms().clear();
     }
 
-    public boolean hasCaptureInput() {
-        return captureInput;
+    public void setHeight(double height) {
+        this.height = height;
+        this.initialHeight = height;
+        stage.setHeight(height);
+        root.getTransforms().clear();
     }
 
     /**
-     * Toggles the stage to full-screen or windowed.
-     * @param fullscreen Pass true for fullscreen, false for windowed.
+     * Retrieves the configured height of the window.
+     * @return The window height.
+     */
+    public double getHeight() {
+        return height;
+    }
+
+    public double getWidthScale() {
+        return width / initialWidth;
+    }
+
+    public double getHeightScale() {
+        return height / initialHeight;
+    }
+
+    /**
+     * Toggles the window between full-screen and windowed modes.
+     * @param fullscreen True to set to full-screen, false for windowed.
      */
     public void setFullscreen(boolean fullscreen) {
         this.fullscreen = fullscreen;
@@ -384,6 +255,10 @@ public class Window {
         }
     }
 
+    /**
+     * Toggles the window between maximized and normal states.
+     * @param maximized True to maximize the window, false for normal size.
+     */
     public void setMaximized(boolean maximized) {
         this.maximized = maximized;
         if (stage != null) {
@@ -395,79 +270,181 @@ public class Window {
         }
     }
 
-    public void addContainer(Container container, int index) {
-        container.setIndex(index);
-        containers.put(index, container);
-    }
-
+    /**
+     * Adds a {@link Container} to the window using its intrinsic index.
+     * @param container The container to add.
+     */
     public void addContainer(Container container) {
         addContainer(container, container.getIndex());
     }
 
-    @Deprecated
-    public void addContainers(Container... containers) {
-        for (Container container : containers) {
-            int index = this.containers.size();
-            container.setIndex(index);
-            this.containers.put(index, container);
+    public void addContainer(Container container, Node node) {
+        addContainer(container, node, container.getIndex());
+    }
+
+
+    /**
+     * Adds a {@link Container} to the window at a specific index. If a container already exists at the given index,
+     * it attempts to shift existing containers to accommodate the new one.
+     * @param container The container to add.
+     * @param index The desired rendering index for the container.
+     */
+    public void addContainer(Container container, int index) {
+        Container current = containers.get(index);
+        if (current != null) {
+            int i = index + 1;
+            removeContainer(current);
+            addContainer(current, i);
+        }
+        containers.put(index, container);
+
+        Node assemble = container.assemble();
+
+        if (index > 0) {
+            if (root.getChildren().size() < index) {
+                root.getChildren().addLast(assemble);
+            } else {
+                root.getChildren().add(index, assemble);
+            }
+        } else {
+            root.getChildren().add(assemble);
         }
     }
 
-    public void addContainers(LinkedHashMap<Integer, Container> con) {
+    /**
+     * Adds a pre-compiled {@link Container} to the window. Use {@link Container#assemble()} to build the {@link Node}.
+     * @param container The container to add.
+     * @param node The pre-compiled node to add.
+     * @param index The desired rendering index for the container.
+     */
+    public void addContainer(Container container, Node node, int index) {
+        Container current = containers.get(index);
+        if (current != null) {
+            int i = index + 1;
+            removeContainer(current);
+            addContainer(current, i);
+        }
+        containers.put(index, container);
+        root.getChildren().add(node);
+    }
+
+    /**
+     * Adds all containers from the given TreeMap to this window's container collection.
+     * Existing containers with matching indices will be overwritten.
+     * @param con The TreeMap of containers to add.
+     */
+    public void addContainers(TreeMap<Integer, Container> con) {
         this.containers.putAll(con);
     }
 
-    public void setContainers(LinkedHashMap<Integer, Container> containers) {
+    /**
+     * Replaces the entire set of containers in the window with a new TreeMap of containers.
+     * @param containers The new TreeMap of containers.
+     */
+    public void setContainers(TreeMap<Integer, Container> containers) {
         this.containers = containers;
     }
 
+    /**
+     * Replaces an old container instance with a new container instance, preserving its original index.
+     * The old container must already exist in the window's collection.
+     * @param oldContainer The container instance to be replaced.
+     * @param newContainer The new container instance to take its place.
+     */
     public void replaceContainer(Container oldContainer, Container newContainer) {
         if (containers.containsValue(oldContainer)) {
             containers.replace(oldContainer.getIndex(), newContainer);
         }
     }
 
+    /**
+     * Replaces the container at a specific index with a new container.
+     * The window is then re-rendered to reflect this change.
+     * @param index The index at which to replace the container.
+     * @param container The new container to place at the specified index.
+     */
     public void replaceContainer(int index, Container container) {
-        // Remove current index
         containers.remove(index);
         containers.replace(index, container);
         render();
     }
 
+    /**
+     * Removes a specific {@link Container} instance from the window's collection.
+     * Note: This only removes the container from the internal map,
+     * it does not automatically remove its corresponding JavaFX Node from the scene graph.
+     * A subsequent `render()` call would be needed to update the display.
+     * @param container The container instance to remove.
+     */
     public void removeContainer(Container container) {
-        this.containers.remove(container.getIndex());
+        int toRemove = -1;
+        for (Map.Entry<Integer, Container> entry : containers.entrySet()) {
+            if (entry.getValue() == container) {
+                toRemove = entry.getKey();
+                root.getChildren().remove(container.getNode());
+                break;
+            }
+        }
+        containers.remove(toRemove);
+
+        if (currentPopup == container) {
+            currentPopup = null;
+        }
     }
 
+    /**
+     * Clears all containers from the window.
+     * A garbage collection hint is provided to the JVM.
+     */
     public void clearContainers() {
+        new LinkedList<>(containers.values()).forEach(this::removeContainer);
         containers.clear();
-        System.gc();
     }
 
+    /**
+     * Removes the container at a specific index from the window and re-renders the display.
+     * @param index The index of the container to remove.
+     */
     public void clearContainer(int index) {
         containers.remove(index);
-
-        // Re-render
         render();
     }
 
-    public LinkedHashMap<Integer, Container> getContainers() {
+    /**
+     * Retrieves the TreeMap of all containers currently managed by the window.
+     * @return A TreeMap mapping container indices to Container objects.
+     */
+    public TreeMap<Integer, Container> getContainers() {
         return containers;
     }
 
+    /**
+     * Clears all child nodes from the root pane and re-sets the scene's root.
+     * The stage is then shown.
+     */
     public void clean() {
         root.getChildren().clear();
         scene.setRoot(root);
         stage.show();
     }
 
-    // Clears and resets current window.
+    /**
+     * Clears all containers and resets the window's root pane and scene.
+     * The stage is not automatically shown after this operation.
+     */
     public void clear() {
         clear(false);
     }
 
+    /**
+     * Clears all containers and resets the window's root pane and scene.
+     * Optionally shows the stage after clearing.
+     * @param render True to show the stage after clearing, false otherwise.
+     */
     public void clear(boolean render) {
         clearContainers();
         this.root = new Pane();
+        root.setPrefSize(width, height);
         this.scene = new Scene(root);
         this.stage.setScene(scene);
         if (render) {
@@ -475,31 +452,46 @@ public class Window {
         }
     }
 
+    /**
+     * Closes the JavaFX Stage associated with this window.
+     * A garbage collection hint is provided to the JVM.
+     */
     public void close() {
         if (stage != null) {
             stage.close();
-            System.gc(); // Force garbage collection once the window is closed.
         }
     }
 
+    /**
+     * Clears the root pane's children, creates a new Stage, and hides it.
+     * This method essentially resets the visual state of the window without closing it.
+     */
     public void resetStage() {
-        root.getChildren().clear();
-        stage = new Stage();
-        stage.hide();
+        buildStage();
     }
 
+    /**
+     * Shows the window's stage.
+     * Note: This method is named "hide" but performs "show". This might be a naming inconsistency.
+     */
     public void hide() {
         stage.show();
     }
 
+    /**
+     * Builds the JavaFX Stage and then renders all active nodes on the screen.
+     */
     public void buildAndRender() {
         buildStage();
         render();
     }
 
     /**
-     * Builds and displays all active nodes on the screen. Can cause flicker if called excessively. If you changed by adding, modifying, or removing {@link Overlay} or {@link Container} you must call this function.
-     * This function translates RenJava API into JavaFX and updates the stage and scene.
+     * Builds and displays all active nodes on the screen. This function translates the engine's API into JavaFX and updates the stage and scene.
+     * <p>
+     * Calling this excessively can cause visual flicker. It must be called after adding,
+     * modifying, or removing {@link Overlay} or {@link Container} to update the display.
+     * </p>
      */
     public void render() {
         build();
@@ -507,37 +499,30 @@ public class Window {
             stage.requestFocus();
         }
         stage.show();
-        // Force clear resources that are unused.
-        // To those who feel like GC is bad practice or indicates broken code allow me to explain.
-        // Garbage is automatically collected and deleted by the JVM which is good enough for most cases.
-        // HOWEVER, when you are rendering and loading multiple 10mb+ images within a 5 minute time period auto GC is far too slow.
-        // This call may not do anything at all at times. It tells the JVM that I want to clear any unused references pronto not when it wants to.
-        // There are multiple gc calls within the framework and when testing on my own machine they dramatically decrease resource usage by 300mb+
-        // I will admit that there may be in a memory leak somewhere in the framework, but this is not the solution to that.
-        //
-        // TL;DR I ain't waiting for your slow ass jvm to clear resources.
-        System.gc();
-
     }
 
     /**
-     * This function is used to build the RenJava API onto the JavaFX framework. This will not render the built nodes onto the screen. Recommended to use {@link #render()} for most use cases.
+     * Builds the engine's API onto the JavaFX framework without displaying the built nodes on the screen.
+     * For most use cases, {@link #render()} is recommended as it also shows the updated display.
      */
     public void build() {
-        build(false);
+        if (!containers.isEmpty()) {
+            build(false);
+        }
     }
 
+    /**
+     * Builds the engine's API onto the JavaFX framework, optionally resetting the scene.
+     * This method processes and prepares containers for display but does not automatically show them.
+     * @param reset True to reset the scene (clears and initialises the root pane and scene), false to only clear children.
+     */
     public void build(boolean reset) {
-        if (containers.isEmpty()) {
-            RenLogger.LOGGER.error("You must add containers to the window before every render call.");
-        }
-
         root.getChildren().clear();
         root.getStylesheets().clear();
         if (reset) {
-            // Causes flickering but needed when capturing scene.
-            // Resets the scene.
+            // Resets the scene. This can cause flickering but might be needed in specific capture scenarios.
             this.root = new Pane();
+            root.setPrefSize(width, height);
             this.scene = new Scene(root);
             this.stage.setScene(scene);
         }
@@ -545,150 +530,74 @@ public class Window {
         containers.values().forEach(this::renderContainer);
     }
 
-    // Renders container on top of current window
+    /**
+     * Renders a specific container by adding it on top of the current window's content.
+     * The container is automatically assigned an index that places it at the highest layer.
+     * @param container The container to render.
+     */
     public void render(Container container) {
-        int index = containers.size();
+        int index = containers.isEmpty() ? 1 : containers.lastKey() + 1;
         container.setIndex(index);
         containers.put(index, container);
         renderContainer(container);
     }
 
+    /**
+     * Renders a single {@link Container} instance by building its corresponding JavaFX Node
+     * and adding it to the window's root pane.
+     * @param container The container to render.
+     */
     private void renderContainer(Container container) {
-        Map.Entry<Node, LinkedList<Node>> entry = container.build();
-        Node node = entry.getKey();
-
-        node.prefHeight(container.getHeight());
-        node.prefWidth(container.getWidth());
-        node.setTranslateX(container.getX());
-        node.setTranslateY(container.getY());
-
-        for (Node n : entry.getValue()) {
-            if (node instanceof Pane pane) {
-                pane.getChildren().add(n);
-            }
-            // Different pane types
+        if (container.getNode() != null) {
+            root.getChildren().remove(container.getNode());
         }
 
-        for (File file : container.getStylesheets()) {
-            try {
-                root.getStylesheets().add(file.toURI().toURL().toExternalForm());
-            } catch (MalformedURLException e) {
-                RenLogger.LOGGER.error(e.getMessage());
-                RenJava.writeStackTrace(e);
-            }
-        }
-
-        getRoot().getChildren().add(node);
-
-        ContainerRenderEvent renderEvent = new ContainerRenderEvent(container, node);
-        RenJava.getEventHandler().callEvent(renderEvent);
+        root.getChildren().add(container.assemble());
     }
 
-    private void handleStageInput(Stage stage) {
-        stage.addEventFilter(ScrollEvent.SCROLL, event -> {
-            double y = event.getDeltaY();
-            if (y > 0) {
-                // Scroll up
-                ScrollUpEvent scrollUpEvent = new ScrollUpEvent();
-                RenJava.getEventHandler().callEvent(scrollUpEvent);
-            } else {
-                ScrollDownEvent downEvent = new ScrollDownEvent();
-                RenJava.getEventHandler().callEvent(downEvent);
-            }
-        });
-        stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
+    /**
+     * Renders a popup container, ensuring that only one popup is active at a time.
+     * If a previous popup exists, its Node is removed from the scene graph before the new one is added.
+     * This method does not apply translation (X, Y) from the container's properties directly to the node,
+     * assuming these are handled by the calling `renderPopup` method.
+     * @param container The container to render as a popup.
+     */
+    private void renderPopupContainer(Container container) {
+        if (currentPopup != null) {
+            removeContainer(currentPopup);
+        }
+        currentPopup = container;
 
-                // Modifier key is being held
-                KeyCode keyCode = KeyUtils.getCurrentKeyDown();
-                if (keyCode != event.getCode()) {
-                    // Set the modifier
-                    KeyUtils.setModifierDown(keyCode, false);
-                }
+        addContainer(container);
+    }
 
-                if (keyCode == null) {
-                    // Engine says key was not held before but it is now.
-                    // Update engine
-                    KeyUtils.setModifierDown(event.getCode(), true); // So far it is down.
+    public Container getCurrentPopup() {
+        return currentPopup;
+    }
 
-                    // Control key.
-                    if (event.getCode() == KeyCode.CONTROL && RenJava.PLAYER.inGame()) {
-                        // Start Sub-thread for continuous event
-                        Tasks.runAsync(() -> {
-                            firstRun = Instant.now();
-                            while (KeyUtils.getCurrentKeyDown() != null) {
-                                // Add delay threshold
-                                Instant current = Instant.now();
-                                if (lastRun == null) {
-                                    Tasks.runJavaFXThread(() -> {
-                                        KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
-                                        RenJava.getEventHandler().callEvent(event1);
-                                    });
-                                    lastRun = current;
-                                } else {
-                                    long diff = Duration.between(lastRun, current).toMillis();
-                                    long firstDiff = Duration.between(firstRun, current).toMinutes();
-                                    if (firstDiff > 20) { // This broke randomly???
-                                        RenLogger.LOGGER.warn("Modifier key was held for 2 minutes. Killing task...");
-                                        KeyUtils.setModifierDown(event.getCode(), false);
-                                        return; // Kill after 2min
-                                    }
-                                    if (diff > 75) {
-                                        Tasks.runJavaFXThread(() -> {
-                                            KeyPressEvent event1 = new KeyPressEvent(event); // Might not pass
-                                            RenJava.getEventHandler().callEvent(event1);
-                                        });
-                                        lastRun = current;
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-            } else {
-                KeyPressEvent pressEvent = new KeyPressEvent(event);
-                RenJava.getEventHandler().callEvent(pressEvent);
-            }
-        });
-
-        stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            KeyCodeCombination debug = new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN, KeyCodeCombination.SHIFT_DOWN);
-
-        });
-
-
-        stage.addEventFilter(KeyEvent.KEY_RELEASED,event -> {
-
-            if (Arrays.stream(ModifierKeyList.modifier).anyMatch(keyCode -> keyCode == event.getCode())) {
-                // If CTRL is being set to down set to false to stop the while thread
-                if (KeyUtils.getCurrentKeyDown() != null) {
-                    KeyUtils.setModifierDown(event.getCode(), false);
-                    KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
-                    RenJava.getEventHandler().callEvent(releaseEvent);
-                }
-            } else {
-                KeyReleaseEvent releaseEvent = new KeyReleaseEvent(event);
-                RenJava.getEventHandler().callEvent(releaseEvent);
-            }
-        });
-
+    private void handleWindowScaling(Stage stage) {
+        // This scales the application to the desired width and height that it is running at.
         stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            RenJava.CONFIGURATION.setCurrentWindowHeight(newValue.doubleValue());
+            this.height = newValue.doubleValue();
 
-            double scaleWidth = RenJava.CONFIGURATION.getWidthScale();
-            double scaleHeight = newValue.doubleValue() / RenJava.CONFIGURATION.getHeight();
+            double scaleWidth = getWidthScale();
+            double scaleHeight = getHeightScale();
 
-            Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
-            root.getTransforms().setAll(scale);
+            if (scale) {
+                Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
+                root.getTransforms().setAll(scale);
+            }
         });
         stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            RenJava.CONFIGURATION.setCurrentWindowWidth(newValue.doubleValue());
+            this.width = newValue.doubleValue();
 
-            double scaleWidth = newValue.doubleValue() / RenJava.CONFIGURATION.getWidth();
-            double scaleHeight = RenJava.CONFIGURATION.getHeightScale();
+            double scaleWidth = getWidthScale();
+            double scaleHeight = getHeightScale();
 
-            Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
-            root.getTransforms().setAll(scale);
+            if (scale) {
+                Scale scale = new Scale(scaleWidth, scaleHeight, 0, 0);
+                root.getTransforms().setAll(scale);
+            }
         });
     }
 
@@ -696,5 +605,4 @@ public class Window {
         // Play transition on the current root
         transitions.play(scene);
     }
-
 }

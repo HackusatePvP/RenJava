@@ -7,11 +7,11 @@ import me.piitex.renjava.api.saves.exceptions.SaveFileEncryptedState;
 import me.piitex.renjava.api.saves.file.SaveFileState;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.WindowBuilder;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.stories.Story;
-import me.piitex.renjava.tasks.Tasks;
 import me.piitex.renjava.utils.FileCrypter;
 
 import java.io.File;
@@ -157,7 +157,7 @@ public class Save {
         // When the render function is called, the stage type will be set to scene type. This will cause issues as the player is technically in the save/load screen.
         // To prevent the white flash when loading preview use diff window.
         // On slower machines the window may pop-up for a few seconds but if that's the case your pc doesn't meet spec requirements to begin with.
-        Window hiddenWindow = new Window("", StageStyle.DECORATED, null, 1920, 1080, false, false);
+        Window hiddenWindow = new WindowBuilder("").setStageStyle(StageStyle.DECORATED).setDimensions(1920, 1080).build();
 
         Container container = currentScene.build(true);
         hiddenWindow.addContainer(container);

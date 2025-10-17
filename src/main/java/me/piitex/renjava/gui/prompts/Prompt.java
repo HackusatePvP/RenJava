@@ -7,10 +7,11 @@ import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.gui.Container;
+import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.WindowBuilder;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
-import me.piitex.renjava.gui.overlays.Overlay;
 import me.piitex.renjava.gui.overlays.TextFlowOverlay;
 
 import java.util.LinkedList;
@@ -22,9 +23,9 @@ import java.util.LinkedList;
 public class Prompt {
     private final String message;
 
-    private final LinkedList<Overlay> overlays = new LinkedList<>();
+    private final LinkedList<Element> elements = new LinkedList<>();
 
-    private Window promptWindow = new Window("", StageStyle.UNDECORATED, null, 900, 375, false);
+    private Window promptWindow = new WindowBuilder("").setStageStyle(StageStyle.UNDECORATED).setDimensions(900, 375).setScale(false).build();
 
     private double x= 900, y = 400;
 
@@ -102,12 +103,12 @@ public class Prompt {
         this.anchorToGame = anchorToGame;
     }
 
-    public LinkedList<Overlay> getOverlays() {
-        return overlays;
+    public LinkedList<Element> getElements() {
+        return elements;
     }
 
-    public void addOverlay(Overlay overlay) {
-        this.overlays.add(overlay);
+    public void addElement(Element element) {
+        this.elements.add(element);
     }
 
 
@@ -127,7 +128,7 @@ public class Prompt {
 
             container.addElement(textFlowOverlay);
 
-            container.addOverlays(overlays);
+            container.addElements(elements);
 
             this.cachedContainer = container;
         }

@@ -1,24 +1,22 @@
 package me.piitex.renjava.gui.layouts;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.Element;
-import me.piitex.renjava.gui.overlays.Overlay;
+import me.piitex.renjava.gui.Renderer;
 
-import java.util.LinkedList;
-import java.util.List;
-
-public abstract class Layout extends Element {
+public abstract class Layout extends Renderer {
     private final Pane pane;
     private double x, y;
-    private final double width, height;
-    private final LinkedList<Overlay> overlays = new LinkedList<>();
-    private final LinkedList<Layout> childLayouts = new LinkedList<>();
+    private Insets padding;
+    private Pos alignment;
 
     protected Layout(Pane pane, double width, double height) {
         this.pane = pane;
-        this.width = width;
-        this.height = height;
+        setNode(pane);
+        setWidth(width);
+        setHeight(height);
     }
 
     public Pane getPane() {
@@ -41,38 +39,21 @@ public abstract class Layout extends Element {
         this.y = y;
     }
 
-
-    public LinkedList<Overlay> getOverlays() {
-        return overlays;
+    public Pos getAlignment() {
+        return alignment;
     }
 
-    public void addOverlay(Overlay overlay) {
-        this.overlays.add(overlay);
+    public void setAlignment(Pos alignment) {
+        this.alignment = alignment;
     }
 
-    public void addOverlays(Overlay... overlays) {
-        this.overlays.addAll(List.of(overlays));
+    public void setPadding(Insets padding) {
+        this.padding = padding;
     }
 
-    public void addOverlays(List<Overlay> overlays) {
-        this.overlays.addAll(overlays);
+    public Insets getPadding() {
+        return padding;
     }
 
-    public LinkedList<Layout> getChildLayouts() {
-        return childLayouts;
-    }
-
-    public void addChildLayout(Layout layout) {
-        this.childLayouts.add(layout);
-    }
-
-    public void addChildLayouts(LinkedList<Layout> layouts) {
-        this.childLayouts.addAll(layouts);
-    }
-
-    public void addChildLayouts(Layout... layouts) {
-        this.childLayouts.addAll(List.of(layouts));
-    }
-
-    public abstract Pane render(Container container);
+    public abstract Node render();
 }

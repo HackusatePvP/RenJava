@@ -3,7 +3,6 @@ package me.piitex.renjava;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.configuration.Game;
@@ -20,6 +19,7 @@ import me.piitex.renjava.events.EventHandler;
 import me.piitex.renjava.events.defaults.*;
 import me.piitex.renjava.gui.GuiLoader;
 import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.WindowBuilder;
 import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.menus.MainMenu;
@@ -82,7 +82,6 @@ public abstract class RenJava {
     private final Collection<PersistentData> registeredData = new HashSet<>();
 
     protected String buildVersion;
-
 
     // Error tracking
     private static long lastErrorTimeStamp;
@@ -521,7 +520,7 @@ public abstract class RenJava {
         }
 
         if (errorWindow == null) {
-            errorWindow = new Window("Error", StageStyle.DECORATED, CONFIGURATION.getGameIcon(), 920, 650, false);
+            errorWindow = new WindowBuilder("Error").setStageStyle(StageStyle.DECORATED).setIcon(CONFIGURATION.getGameIcon()).setDimensions(920, 650).setScale(false).build();
         } else {
             errorWindow.clearContainers();
         }
@@ -547,7 +546,7 @@ public abstract class RenJava {
         texts.add(stackTrace);
 
         TextFlowOverlay textFlowOverlay = new TextFlowOverlay(texts, 900, 600);
-        rootLayout.addOverlay(textFlowOverlay);
+        rootLayout.addElement(textFlowOverlay);
 
         container.addElement(rootLayout);
 

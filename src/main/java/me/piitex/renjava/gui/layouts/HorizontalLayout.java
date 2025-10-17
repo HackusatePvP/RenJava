@@ -1,16 +1,16 @@
 package me.piitex.renjava.gui.layouts;
 
+import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.overlays.Overlay;
+import javafx.scene.layout.*;
 
 public class HorizontalLayout extends Layout {
     private int spacing;
+    private final HBox pane;
 
     public HorizontalLayout(double width, double height) {
         super(new HBox(), width, height);
+        this.pane = (HBox) getPane();
     }
 
     public int getSpacing() {
@@ -22,23 +22,42 @@ public class HorizontalLayout extends Layout {
     }
 
     @Override
-    public Pane render(Container container) {
+    public Node render() {
         // Clear
-        HBox pane = (HBox) getPane();
+        VBox.setVgrow(pane, Priority.ALWAYS);
         pane.setSpacing(getSpacing());
         pane.setTranslateX(getX());
         pane.setTranslateY(getY());
         pane.getChildren().clear();
-
-        for (Overlay overlay : getOverlays()) {
-            Node node = overlay.render();
-            pane.getChildren().add(node);
+        if (getWidth() > 0) {
+            pane.setMinWidth(getWidth());
+        }
+        if (getHeight() > 0) {
+            pane.setMinHeight(getHeight());
         }
 
-        for (Layout layout : getChildLayouts()) {
-            pane.getChildren().add(layout.render(container));
+        if (getPrefWidth() > 0) {
+            pane.setPrefWidth(getPrefWidth());
+        }
+        if (getPrefHeight() > 0) {
+            pane.setPrefHeight(getPrefHeight());
         }
 
-        return getPane();
+        if (getMaxWidth() > 0) {
+            pane.setMaxWidth(getMaxWidth());
+        }
+        if (getMaxHeight() > 0) {
+            pane.setMaxHeight(getMaxHeight());
+        }
+        if (getAlignment() != null) {
+            pane.setAlignment(getAlignment());
+        }
+        if (getBackgroundColor() != null) {
+            pane.setBackground(new Background(new BackgroundFill(getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY)));
+        }
+
+
+        setStyling(pane);
+        return pane;
     }
 }
