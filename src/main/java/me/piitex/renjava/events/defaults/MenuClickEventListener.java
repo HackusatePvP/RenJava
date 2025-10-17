@@ -37,13 +37,9 @@ public class MenuClickEventListener implements EventListener {
             renJava.start();
         }
         if (button.getId().equalsIgnoreCase("menu-load-button") && RenJava.PLAYER.getCurrentStageType() != StageType.LOAD_MENU) {
-            // Caching the save menu may not be a good idea...
             RenJava.PLAYER.setCurrentStageType(StageType.LOAD_MENU);
-
             Container load = mainMenu.loadMenu(rightClicked, 1, true); //TODO: Pages
-            load.setIndex(1);
             Container side = mainMenu.sideMenu(rightClicked);
-            side.setIndex(2);
             load.addElement(side, 10);
 
             gameWindow.clearContainers();
@@ -58,7 +54,6 @@ public class MenuClickEventListener implements EventListener {
             container.addElement(side, 10);
 
             gameWindow.clearContainers();
-
             gameWindow.addContainer(container, 1);
             gameWindow.render();
         }
@@ -70,7 +65,6 @@ public class MenuClickEventListener implements EventListener {
             container.addElement(side); // Should be able to add in the correct order without the need to specify. Will look into it later.
 
             gameWindow.clearContainers();
-
             gameWindow.addContainer(container);
             gameWindow.render();
         }
@@ -82,7 +76,6 @@ public class MenuClickEventListener implements EventListener {
             menu.addElement(side, 10);
 
             gameWindow.clearContainers();
-
             gameWindow.addContainer(menu, 10);
             gameWindow.render();
         }
@@ -123,7 +116,7 @@ public class MenuClickEventListener implements EventListener {
                     prompt.closeWindow();
                 });
 
-                prompt.addOverlay(confirm);
+                prompt.addElement(confirm);
 
                 ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
                 cancel.setX(700);
@@ -134,7 +127,7 @@ public class MenuClickEventListener implements EventListener {
                     window.close();
                 });
 
-                prompt.addOverlay(cancel);
+                prompt.addElement(cancel);
 
                 prompt.render();
             } else {
