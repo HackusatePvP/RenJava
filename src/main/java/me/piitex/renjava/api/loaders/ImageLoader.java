@@ -31,6 +31,7 @@ import java.util.Map;
  */
 public class ImageLoader {
     private final File file;
+    private double width, height;
 
     public static final Map<String, Image> imageCache = new LimitedHashMap<>(50);
     private static final Map<String, Double> imageSizeCache = new LimitedHashMap<>(50);
@@ -146,6 +147,22 @@ public class ImageLoader {
 
     public File getFile() {
         return file;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
     }
 
 
