@@ -75,8 +75,10 @@ public class EventHandler {
         }
 
         Collection<EventListener> eventListeners = new HashSet<>(registeredListeners);
-        for (Addon addon : RenJava.ADDONLOADER.getAddons()) {
-            eventListeners.addAll(addon.getRegisteredListeners());
+        if (RenJava.ADDONLOADER != null) {
+            for (Addon addon : RenJava.ADDONLOADER.getAddons()) {
+                eventListeners.addAll(addon.getRegisteredListeners());
+            }
         }
 
         invokeEvent(eventListeners, event);

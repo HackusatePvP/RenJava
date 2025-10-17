@@ -2,12 +2,13 @@ package me.piitex.renjava.events.defaults;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.menus.MainMenu;
 import me.piitex.renjava.gui.overlays.ButtonOverlay;
@@ -28,11 +29,7 @@ public class MenuClickEventListener implements EventListener {
         MainMenu mainMenu = renJava.getMainMenu();
 
         if (button.getId().equalsIgnoreCase("menu-start-button")) {
-            RenLogger.LOGGER.info("Creating new game...");
             RenJava.PLAYER.resetSession();
-            renJava.createBaseData();
-            renJava.createStory();
-
             // Call GameStartEvent
             GameStartEvent event1 = new GameStartEvent(renJava);
             RenJava.getEventHandler().callEvent(event1);
@@ -40,16 +37,13 @@ public class MenuClickEventListener implements EventListener {
             renJava.start();
         }
         if (button.getId().equalsIgnoreCase("menu-load-button") && RenJava.PLAYER.getCurrentStageType() != StageType.LOAD_MENU) {
-            // Caching the save menu may not be a good idea...
             RenJava.PLAYER.setCurrentStageType(StageType.LOAD_MENU);
-
             Container load = mainMenu.loadMenu(rightClicked, 1, true); //TODO: Pages
             Container side = mainMenu.sideMenu(rightClicked);
-            side.setOrder(DisplayOrder.HIGH);
-            load.addContainers(side);
+            load.addElement(side, 10);
 
             gameWindow.clearContainers();
-            gameWindow.addContainer(load);
+            gameWindow.addContainer(load, 1);
             gameWindow.render();
 
         }
@@ -57,22 +51,20 @@ public class MenuClickEventListener implements EventListener {
             RenJava.PLAYER.setCurrentStageType(StageType.OPTIONS_MENU);
             Container container = mainMenu.settingMenu(rightClicked);
             Container side = mainMenu.sideMenu(rightClicked);
-            container.addContainer(side);
+            container.addElement(side, 10);
 
             gameWindow.clearContainers();
-
-            gameWindow.addContainer(container);
+            gameWindow.addContainer(container, 1);
             gameWindow.render();
         }
         if (button.getId().equalsIgnoreCase("menu-about-button") && RenJava.PLAYER.getCurrentStageType() != StageType.ABOUT_MENU) {
             RenJava.PLAYER.setCurrentStageType(StageType.ABOUT_MENU);
             Container container = mainMenu.aboutMenu(rightClicked);
+
             Container side = mainMenu.sideMenu(rightClicked);
-            side.setOrder(DisplayOrder.HIGH);
-            container.addContainer(side);
+            container.addElement(side); // Should be able to add in the correct order without the need to specify. Will look into it later.
 
             gameWindow.clearContainers();
-
             gameWindow.addContainer(container);
             gameWindow.render();
         }
@@ -81,18 +73,16 @@ public class MenuClickEventListener implements EventListener {
 
             Container menu = mainMenu.loadMenu(rightClicked,1, false); // Builds first page
             Container side = mainMenu.sideMenu(rightClicked);
-            side.setOrder(DisplayOrder.HIGH);
-            menu.addContainers(side);
+            menu.addElement(side, 10);
 
             gameWindow.clearContainers();
-
-            gameWindow.addContainer(menu);
+            gameWindow.addContainer(menu, 10);
             gameWindow.render();
         }
         if (button.getId().equalsIgnoreCase("menu-quit-button")) {
             // Prompt before exiting...
             RenJava.ADDONLOADER.disable();
-            Platform.exit();
+            RenJava.shutdown();
 
         }
 
@@ -117,17 +107,16 @@ public class MenuClickEventListener implements EventListener {
                     Container menu = mainMenu.mainMenu(false);
                     Container side = mainMenu.sideMenu(false);
                     RenJava.PLAYER.resetSession();
-                    side.setOrder(DisplayOrder.HIGH);
-                    menu.addContainer(side);
+                    menu.addElement(side, 2);
                     gameWindow.clearContainers();
-                    gameWindow.addContainers(menu);
+                    gameWindow.addContainer(menu, 1);
                     gameWindow.render();
 
                     // Close the prompt
                     prompt.closeWindow();
                 });
 
-                prompt.addOverlay(confirm);
+                prompt.addElement(confirm);
 
                 ButtonOverlay cancel = new ButtonOverlay("cancel", "Cancel", Color.WHITE, RenJava.CONFIGURATION.getUiFont());
                 cancel.setX(700);
@@ -138,7 +127,7 @@ public class MenuClickEventListener implements EventListener {
                     window.close();
                 });
 
-                prompt.addOverlay(cancel);
+                prompt.addElement(cancel);
 
                 prompt.render();
             } else {
@@ -147,12 +136,20 @@ public class MenuClickEventListener implements EventListener {
                 Container menu = mainMenu.mainMenu(false);
                 Container side = mainMenu.sideMenu(false);
                 RenJava.PLAYER.resetSession();
-                side.setOrder(DisplayOrder.HIGH);
-                menu.addContainer(side);
+                menu.addElement(side, 2);
                 gameWindow.clearContainers();
-                gameWindow.addContainers(menu);
+                gameWindow.addContainer(menu, 1);
                 gameWindow.render();
             }
+        }
+    }
+
+    @Listener
+    public void onDebugControl(KeyPressEvent event) {
+        KeyEvent keyEvent = event.getEvent();
+        if (keyEvent.isControlDown() && keyEvent.isShiftDown() && keyEvent.getCode() == KeyCode.R) {
+            RenLogger.LOGGER.info("Reloading game...");
+            renJava.reload(RenJava.PLAYER.inMenu()); // Reload graphics if they are in the main menu.
         }
     }
 

@@ -1,16 +1,16 @@
 package me.piitex.renjava.gui.layouts;
 
+import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.overlays.Overlay;
+import javafx.scene.layout.*;
 
 public class VerticalLayout extends Layout {
+    private final VBox pane;
     private double spacing = 10;
 
     public VerticalLayout(double width, double height) {
         super(new VBox(), width, height);
+        this.pane = (VBox) getPane();
     }
 
     public double getSpacing() {
@@ -22,23 +22,40 @@ public class VerticalLayout extends Layout {
     }
 
     @Override
-    public Pane render(Container container) {
+    public Node render() {
         // Clear
-        VBox pane = (VBox) getPane();
         pane.setSpacing(getSpacing());
         pane.setTranslateX(getX());
         pane.setTranslateY(getY());
         pane.getChildren().clear();
-
-        for (Overlay overlay : getOverlays()) {
-            Node node = overlay.render();
-            pane.getChildren().add(node);
+        if (getWidth() > 0) {
+            pane.setMinWidth(getWidth());
+        }
+        if (getHeight() > 0) {
+            pane.setMinHeight(getHeight());
         }
 
-        for (Layout layout : getChildLayouts()) {
-            pane.getChildren().add(layout.render(container));
+        if (getPrefWidth() > 0) {
+            pane.setPrefWidth(getPrefWidth());
+        }
+        if (getPrefHeight() > 0) {
+            pane.setPrefHeight(getPrefHeight());
         }
 
-        return getPane();
+        if (getMaxWidth() > 0) {
+            pane.setMaxWidth(getMaxWidth());
+        }
+        if (getMaxHeight() > 0) {
+            pane.setMaxHeight(getMaxHeight());
+        }
+        if (getAlignment() != null) {
+            pane.setAlignment(getAlignment());
+        }
+        if (getBackgroundColor() != null) {
+            pane.setBackground(new Background(new BackgroundFill(getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY)));
+        }
+
+        setStyling(pane);
+        return pane;
     }
 }

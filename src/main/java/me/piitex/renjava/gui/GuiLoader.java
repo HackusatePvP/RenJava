@@ -3,16 +3,13 @@ package me.piitex.renjava.gui;
 import javafx.animation.PauseTransition;
 
 import javafx.application.HostServices;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.menus.DefaultMainMenu;
 import me.piitex.renjava.gui.menus.MainMenu;
-import me.piitex.renjava.gui.overlays.ImageOverlay;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
@@ -41,7 +38,9 @@ public class GuiLoader {
 
     private void buildSplashScreen() {
         RenLogger.LOGGER.info("Creating Splash screen...");
-        stage.initStyle(StageStyle.UNDECORATED);
+        try {
+            stage.initStyle(StageStyle.UNDECORATED);
+        } catch (IllegalStateException ignored) {}
         // Update Stage
         RenJava.PLAYER.setCurrentStageType(StageType.MAIN_MENU);
 
@@ -105,7 +104,10 @@ public class GuiLoader {
 
         RenLogger.LOGGER.info("Rendering main menu...");
         // When building title screen create a new window and eventually store the window for easy access
-        Window window = new Window(RenJava.CONFIGURATION.getGameTitle(), StageStyle.DECORATED, new ImageLoader("gui/window_icon.png"));
+        Window window = new WindowBuilder(RenJava.CONFIGURATION.getGameTitle()).setStageStyle(StageStyle.DECORATED).setIcon(new ImageLoader("gui/window_icon.png")).build();
+        window.setMaximized(configuration.isMaximizedGameWindow());
+        renJava.setGameWindow(window);
+
         // Specifically for the gameWindow it is needed to setup the shutdown events.
         window.getStage().setOnHiding(windowEvent -> {
             ShutdownEvent shutdownEvent = new ShutdownEvent();
@@ -135,12 +137,8 @@ public class GuiLoader {
                 }
             }
 
-            Platform.exit();
-            System.exit(0);
+            RenJava.shutdown();
         });
-
-
-        renJava.setGameWindow(window);
 
         MainMenu menu = renJava.getMainMenu();
 
@@ -155,20 +153,10 @@ public class GuiLoader {
 
         // Render main menu
         Container container = menu.mainMenu(false);
-        MainMenuBuildEvent event = new MainMenuBuildEvent(container);
-        RenJava.getEventHandler().callEvent(event);
         window.addContainer(container);
 
-        Container sideMenu = menu.sideMenu(false);
-
-        window.addContainers(sideMenu);
-
-        MainMenuDispatchEvent dispatchEvent = new MainMenuDispatchEvent(container);
-        RenJava.getEventHandler().callEvent(dispatchEvent);
-
-        window.setMaximized(configuration.isMaximizedGameWindow());
-
-        window.render(); // Renders the window
+        Container sideBar = menu.sideMenu(false);
+        container.addElement(sideBar);
 
         MainMenuRenderEvent renderEvent = new MainMenuRenderEvent(container, false);
         RenJava.getEventHandler().callEvent(renderEvent);

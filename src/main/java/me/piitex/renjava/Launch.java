@@ -1,6 +1,7 @@
 package me.piitex.renjava;
 
 import javafx.application.Application;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -19,6 +20,8 @@ import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
 import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.overlays.ButtonOverlay;
+import me.piitex.renjava.gui.prompts.Prompt;
 import me.piitex.renjava.loggers.ApplicationLogger;
 import me.piitex.renjava.loggers.RenLogger;
 import org.reflections.Reflections;
@@ -93,7 +96,6 @@ public class Launch extends Application {
 
             // Try to create info file if it didn't exist.
             if (!infoFile.exists()) {
-
                 // Try to re-create
                 infoFile = new InfoFile(new File(renJava.getBaseDirectory(), "/renjava/build.info"), true);
                 if (!infoFile.exists()) {
@@ -117,7 +119,6 @@ public class Launch extends Application {
 
                 infoFile.write("main", clazz.getName());
                 infoFile.write("file", fileName);
-
             } catch (URISyntaxException e) {
                 RenLogger.LOGGER.error("Could retrieve runtime information.", e);
             }
@@ -179,6 +180,10 @@ public class Launch extends Application {
 
     /**
      * This is just a default execute for testing purposes only.
+     * To make this execute work in your own environment, create a 'test' folder.
+     * The folder should be in the root directory of this project.
+     * Place gui default assets inside /~test/game/
+     * Run {@link Main#main(String[])}
      */
     @Game(name = "Default Execute", author = "piitex", version = "0.0.0")
     @Configuration(title = "{name}", width = 1920, height = 1080)
@@ -214,7 +219,29 @@ public class Launch extends Application {
 
         @Override
         public void start() {
+            Prompt prompt = new Prompt("Are you sure you want to start a new game?");
+            prompt.setBlockMainWindow(false);
 
+            ButtonOverlay yes = new ButtonOverlay("yes", "Yes", Color.WHITE);
+            yes.setY(325);
+            prompt.addElement(yes);
+
+            yes.onClick(event -> {
+                // TODO: Play the first story of the game. (New game)
+                System.out.println("Starting new game...");
+            });
+
+            ButtonOverlay no = new ButtonOverlay("no", "No", Color.WHITE);
+            no.setY(325);
+            no.setX(840);
+
+            no.onClick(event -> {
+                prompt.closeWindow();
+            });
+
+            prompt.addElement(no);
+
+            prompt.render();
         }
     }
 }

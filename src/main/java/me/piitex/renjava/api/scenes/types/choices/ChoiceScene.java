@@ -8,18 +8,15 @@ import javafx.scene.paint.Color;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.overlays.ButtonOverlay;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
-import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.events.types.ChoiceButtonBuildEvent;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -175,23 +172,18 @@ public class ChoiceScene extends RenScene {
 
             for (Choice choice : choices) {
                 ButtonOverlay buttonOverlay;
-                try {
-                    buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.CONFIGURATION.getChoiceButtonFont(), 0, 0);
-                    buttonOverlay.setBorderColor(Color.TRANSPARENT);
-                    buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
-                    buttonOverlay.setHover(true);
-                    buttonOverlay.setTextFill(RenJava.CONFIGURATION.getChoiceButtonColor());
-                    buttonOverlay.build(); // Sets all the parameters for text
-                    buildImageButton(buttonOverlay, choice, choiceBoxImage.build()); // Sets all the parameters for the image.
-                    layout.addOverlays(buttonOverlay);
-                } catch (ImageNotFoundException e) {
-                    RenLogger.LOGGER.error(e.getMessage());
-                }
+                buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.CONFIGURATION.getChoiceButtonFont(), 0, 0);
+                buttonOverlay.setBorderColor(Color.TRANSPARENT);
+                buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
+                buttonOverlay.setHover(true);
+                buttonOverlay.setTextFill(RenJava.CONFIGURATION.getChoiceButtonColor());
+                buttonOverlay.build(); // Sets all the parameters for text
+                buildImageButton(buttonOverlay, choice, choiceBoxImage.build()); // Sets all the parameters for the image.
+                layout.addElements(buttonOverlay);
 
             }
-            backgroundImage.setOrder(DisplayOrder.LOW);
-            menu.addOverlays(backgroundImage);
-            menu.addLayout(layout);
+            menu.addElement(backgroundImage);
+            menu.addElement(layout);
         }
         return menu;
     }

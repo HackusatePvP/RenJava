@@ -1,11 +1,12 @@
 package me.piitex.renjava.gui.overlays;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.scenes.transitions.Transitions;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
+import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.overlays.events.IOverlayClick;
 import me.piitex.renjava.gui.overlays.events.IOverlayClickRelease;
@@ -34,7 +35,7 @@ import java.util.List;
  *       Container container = new EmptyContainer(x, y, width, height, displayOrder);
  *
  *       // Add the overlay to the container.
- *       container.addOverlay(overlay);
+ *       container.addElement(overlay);
  *
  *       // Add the container to the window if needed.
  *       window.addContainer(container);
@@ -58,10 +59,9 @@ import java.util.List;
  *     }
  * </pre>
  */
-public abstract class Overlay {
+public abstract class Overlay extends Element {
     private double x,y;
     private double scaleX, scaleY;
-    private DisplayOrder order = DisplayOrder.NORMAL;
 
     private IOverlayHover iOverlayHover;
     private IOverlayHoverExit iOverlayHoverExit;
@@ -102,14 +102,6 @@ public abstract class Overlay {
 
     public void setScaleY(double scaleY) {
         this.scaleY = scaleY;
-    }
-
-    public DisplayOrder getOrder() {
-        return order;
-    }
-
-    public void setOrder(DisplayOrder order) {
-        this.order = order;
     }
 
     public void onClick(IOverlayClick iOverlayClick) {
@@ -165,7 +157,27 @@ public abstract class Overlay {
      * Converts the overlay into a {@link Node} which is used for the JavaFX API.
      * @return The converted {@link Node} for the overlay.
      */
-    public abstract Node render();
+    protected abstract Node render();
+
+    @Override
+    public Node assemble() {
+        Node node = render();
+        setNode(node);
+
+        // Starting to implement sub-thread loading.
+        // Input controls directly access JavaFX's event listeners.
+        // Event listeners are required to be executed on the FXThread.
+        // Check if the current thread is the FXThread, if not run it on the FXThread.
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(() -> {
+                setInputControls(node);
+            });
+        } else {
+            setInputControls(node);
+        }
+
+        return node;
+    }
 
     public void renderTransitions(Node node) {
         for (Transitions transitions1 : getTransitions()) {

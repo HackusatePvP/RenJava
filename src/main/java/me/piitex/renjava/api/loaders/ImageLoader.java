@@ -2,12 +2,10 @@ package me.piitex.renjava.api.loaders;
 
 import javafx.scene.image.*;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.exceptions.ImageNotFoundException;
 import me.piitex.renjava.loggers.RenLogger;
 import me.piitex.renjava.utils.LimitedHashMap;
 import org.apache.commons.io.IOUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
@@ -31,8 +29,10 @@ import java.util.Map;
  */
 public class ImageLoader {
     private final File file;
+    private double width, height;
 
-    private static final Map<String, Image> imageCache = new LimitedHashMap<>(50);
+    public static final Map<String, Image> imageCache = new LimitedHashMap<>(50);
+    private static final Map<String, Double> imageSizeCache = new LimitedHashMap<>(50);
 
     /**
      * Loads an image via a filename from the base directory or defaults to class-path.
@@ -46,7 +46,6 @@ public class ImageLoader {
      */
     public ImageLoader(String name) {
         File directory = new File(RenJava.getInstance().getBaseDirectory(), "game/images/");
-
         File f = new File(directory, name);
 
         // If the file does not exist check to see if its in the class path
@@ -118,34 +117,29 @@ public class ImageLoader {
         this.file = f;
     }
 
-    public Image build() throws ImageNotFoundException {
-        if (imageCache.containsKey(file.getPath())) {
+    /**
+     * Builds the specified image file into an image object that can be rendered.
+     * The function will attempt to build into a {@link BufferedImage} first.
+     * The WebP-Image-IO library hooks into a buffered image allowing more support for image formats.
+     * If the file cannot be rendered into a BufferedImage it will try to be rendered as a base {@link Image}.
+     * The JavaFX image has limited formats and slower loading.
+     *
+     * @return A loaded {@link BufferedImage} or {@link Image}.
+     */
+    public Image build() {
+        if (imageCache.containsKey(file.getPath()) && (width + height == imageSizeCache.get(file.getPath()))) {
             return imageCache.get(file.getPath());
         }
-        try {
-            BufferedImage bufferedImage = ImageIO.read(file);
-            Image image = getImage(bufferedImage);
-            imageCache.put(file.getPath(), image);
-            return image;
-        } catch (FileNotFoundException ignored) {
-            // Better logging
-            ImageNotFoundException exception = new ImageNotFoundException(this);
-            RenLogger.LOGGER.error(exception.getMessage(), exception);
-            RenJava.writeStackTrace(exception);
-            throw exception;
-        } catch (IOException e) {
-            return buildRaw();
-        }
-    }
 
-    public Image buildRaw() throws ImageNotFoundException {
         try {
-            return new Image(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
-            ImageNotFoundException exception = new ImageNotFoundException(this);
-            RenLogger.LOGGER.error(exception.getMessage(), exception);
-            RenJava.writeStackTrace(exception);
-            throw exception;
+            Image image = new Image(new FileInputStream(file), width, height, false, false);
+            imageCache.put(file.getPath(), image);
+            imageSizeCache.put(file.getPath(), width + height);
+
+            return image;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -153,8 +147,24 @@ public class ImageLoader {
         return file;
     }
 
+    public double getWidth() {
+        return width;
+    }
 
-    // Credit: https://stackoverflow.com/questions/30970005/bufferedimage-to-javafx-image
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+
+    // Credit: https://stackoverflow.com/a/75703543
     private Image getImage(BufferedImage img) {
         //converting to a good type, read about types here: https://openjfx.io/javadoc/13/javafx.graphics/javafx/scene/image/PixelBuffer.html
         BufferedImage newImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);

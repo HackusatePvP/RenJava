@@ -1,6 +1,7 @@
 package me.piitex.renjava;
 
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import me.piitex.renjava.addons.AddonLoader;
@@ -16,7 +17,9 @@ import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.configuration.SettingsProperties;
 import me.piitex.renjava.events.EventHandler;
 import me.piitex.renjava.events.defaults.*;
+import me.piitex.renjava.gui.GuiLoader;
 import me.piitex.renjava.gui.Window;
+import me.piitex.renjava.gui.WindowBuilder;
 import me.piitex.renjava.gui.containers.ScrollContainer;
 import me.piitex.renjava.gui.layouts.VerticalLayout;
 import me.piitex.renjava.gui.menus.MainMenu;
@@ -80,7 +83,6 @@ public abstract class RenJava {
 
     protected String buildVersion;
 
-
     // Error tracking
     private static long lastErrorTimeStamp;
     private static int spamTrack = 0;
@@ -99,6 +101,7 @@ public abstract class RenJava {
         // Run after super
         PLAYER = new Player();
         TRACKS = new Tracks();
+        ADDONLOADER = new AddonLoader();
         EVENTHANDLER = new EventHandler();
 
         EVENTHANDLER.registerListener(new MenuClickEventListener());
@@ -109,25 +112,71 @@ public abstract class RenJava {
         this.registerData(PLAYER);
         this.registerData(TRACKS);
         new RenLoader(this);
-        ADDONLOADER = new AddonLoader();
     }
 
+    public void reload(boolean resetGraphics) {
+        // Reloads the game. Do not call unless you know what you are doing.
+        PLAYER = null;
+        TRACKS = null;
+        EVENTHANDLER.getRegisteredListeners().clear();
+        registeredCharacters.clear();
+        registeredData.clear();
+        ADDONLOADER.disable();
+        ADDONLOADER = null;
+
+        gameWindow.clear();
+        gameWindow.render();
+
+        // Re-initialize.
+        init();
+
+        if (resetGraphics) {
+            gameWindow.getStage().setOnHiding(null);
+            gameWindow.getStage().hide();
+            new GuiLoader(gameWindow.getStage(), this, hostServices);
+        }
+    }
+
+    /**
+     * Used when displaying game information.
+     *
+     * @return The name of the project.
+     */
     public String getName() {
          return name;
      }
 
+    /**
+     * Used when displaying game information.
+     *
+     * @return The author of the project.
+     */
     public String getAuthor() {
         return author;
     }
 
+    /**
+     * Used when displaying game information.
+     *
+     * @return The version of the project.
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * The engine will automatically create a unique id for every project. See {@link me.piitex.renjava.utils.MDUtils#getGameID(String)}
+     * <p>
+     * The id is used as a unique game folder stored on the local system. Used for storing global data that can transfer between different save versions.
+     * @return The generated game id.
+     */
     public Integer getID() {
         return id;
     }
 
+    /**
+     * @return The applications logger.
+     */
     public Logger getLogger() {
         return logger;
     }
@@ -214,8 +263,6 @@ public abstract class RenJava {
 
     /**
      * Registers a character in the RenJava framework.
-     * <p>
-     * The registerCharacter() method is used to register a character in the RenJava framework.
      * Registered characters can be accessed and managed by other parts of the framework using their unique ID.
      *
      * @param character The character object to be registered.
@@ -233,8 +280,6 @@ public abstract class RenJava {
 
     /**
      * Retrieves a character by its ID.
-     * <p>
-     * The getCharacter() method is used to retrieve a character object based on its ID.
      * Characters are registered using the registerCharacter() method and can be accessed using their unique ID.
      *
      * @param id The ID of the character to retrieve.
@@ -431,6 +476,14 @@ public abstract class RenJava {
         getInstance().getHost().showDocument(url);
     }
 
+    /**
+     * Forcefully closes the application.
+     */
+    public static void shutdown() {
+        Platform.exit();
+        System.exit(0);
+    }
+
     public static void writeStackTrace(Exception e) {
         if (lastErrorTimeStamp > 0) {
             spamTrack++;
@@ -467,7 +520,7 @@ public abstract class RenJava {
         }
 
         if (errorWindow == null) {
-            errorWindow = new Window("Error", StageStyle.DECORATED, CONFIGURATION.getGameIcon(), 920, 650, false);
+            errorWindow = new WindowBuilder("Error").setStageStyle(StageStyle.DECORATED).setIcon(CONFIGURATION.getGameIcon()).setDimensions(920, 650).setScale(false).build();
         } else {
             errorWindow.clearContainers();
         }
@@ -493,11 +546,11 @@ public abstract class RenJava {
         texts.add(stackTrace);
 
         TextFlowOverlay textFlowOverlay = new TextFlowOverlay(texts, 900, 600);
-        rootLayout.addOverlay(textFlowOverlay);
+        rootLayout.addElement(textFlowOverlay);
 
-        container.addLayout(rootLayout);
+        container.addElement(rootLayout);
 
-        errorWindow.addContainers(container);
+        errorWindow.addContainer(container);
 
         errorWindow.render();
     }

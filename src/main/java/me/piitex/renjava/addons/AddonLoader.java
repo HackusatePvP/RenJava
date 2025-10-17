@@ -3,6 +3,7 @@ package me.piitex.renjava.addons;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.loggers.RenLogger;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -24,6 +24,7 @@ public class AddonLoader {
     private final List<Addon> addons = new ArrayList<>();
 
     private final Logger logger;
+
     public AddonLoader() {
         logger = RenLogger.LOGGER;
     }
@@ -39,7 +40,7 @@ public class AddonLoader {
             logger.info("No addons to load.");
             return; // No need to load if there are no addons.
         } else {
-            logger.info("Loading " + size + " addon(s)...");
+            logger.info("Loading {} addon(s)...", size);
         }
 
         Map<File, String> lateLoaders = new HashMap<>();
@@ -65,10 +66,18 @@ public class AddonLoader {
 
             // Convert entry to file then load info file
             try {
-                File buildFile = new File(RenJava.getInstance().getBaseDirectory(), "addons/build.info");
-                Files.copy(zipFile.getInputStream(entry), Path.of(buildFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
+                File buildFile = File.createTempFile("build", ".info");
+                buildFile.deleteOnExit();
 
-                InfoFile build = new InfoFile(buildFile, false);
+                InfoFile build;
+                try (FileOutputStream outputStream = new FileOutputStream(buildFile)) {
+                    IOUtils.copy(zipFile.getInputStream(entry), outputStream);
+                    build = new InfoFile(buildFile, false);
+                } catch (IOException e) {
+                    RenLogger.LOGGER.error("Could not create temp-file for '{}'.", file.getName());
+                    RenJava.writeStackTrace(e);
+                    continue;
+                }
 
                 boolean invalidVersion = false;
 
@@ -107,9 +116,6 @@ public class AddonLoader {
                     nonDependants.add(file);
 
                 }
-                // Delete after
-                buildFile.delete();
-
                 extractResources(zipFile);
 
             } catch (IOException e) {
@@ -130,12 +136,19 @@ public class AddonLoader {
             }
         });
 
+        // Java will scan the files randomly with no certain order.
+        // This will loop through the addons and attempt to load them.
+        // If the addon succeeds it will be added to passed and removed from validations.
+        // The loop will continue until validations is empty or the same addon fails twice.
         Map<File, String> validations = new HashMap<>(lateLoaders);
         Collection<String> passed = new HashSet<>();
         AtomicReference<String> lastValidated = new AtomicReference<>("");
 
         while (!validations.isEmpty()) {
             lateLoaders.forEach((file, string) -> {
+
+                // The same addon can only be looped twice in a row if it's the only addon left.
+                // If the addon failed twice it means there was a problem with that addon.
                 if (lastValidated.get().equalsIgnoreCase(file.getName())) {
                     logger.error("Could not initialize " + file.getName() + ": May be the result of a missing dependency.");
                     validations.remove(file);
@@ -145,9 +158,13 @@ public class AddonLoader {
                     return;
                 }
                 String dependency = string.trim();
+
+                // Dependencies are configured; dependencies=test1,test2
+                // If it contains a ',' it is likely to have multiple dependencies.
                 if (dependency.contains(",")) {
                     boolean canExecute = true;
                     Collection<Addon> dep = new HashSet<>();
+                    // Loop the dependencies by its comma. test1,test2
                     for (String depend : dependency.split(",")) {
                         Addon addon = addons.stream().filter(addon1 -> addon1.getName().equalsIgnoreCase(depend)).findAny().orElse(null);
                         if (addon == null) {
@@ -197,6 +214,11 @@ public class AddonLoader {
     private void initAddon(File file, @Nullable Collection<Addon> dependencies) throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         try (JarFile jarFile = new JarFile(file)) {
             Enumeration<JarEntry> entries = jarFile.entries();
+
+            // Deprecation notice!
+            // new URL is deprecated and moved to new URI(str).toUrl();
+            // This method does not work with the string.
+            // So I'm keeping it in for now.
             URL[] urls = {new URL("jar:file:" + file.getPath() + "!/")};
             URLClassLoader cl = URLClassLoader.newInstance(urls);
             while (entries.hasMoreElements()) {
@@ -207,7 +229,7 @@ public class AddonLoader {
 
                     // Authors should warn users about using pirated versions or getting addons from unknown sources.
                     // This can easily allow malicious code to be executed. I will not be adding any form on 'anti malware' checks. Don't download something you don't trust.
-                    // Also be aware of the licence renjava uses. Authors are required to provide source to code per the GPL 3.0 license.
+                    // Also be aware of the licence renjava uses. Authors are required to provide source code per the GPL 3.0 license.
                     Class<?> clazz = cl.loadClass(clazzName);
                     if (Addon.class.isAssignableFrom(clazz)) {
                         Object object = clazz.getDeclaredConstructor().newInstance();
@@ -216,7 +238,6 @@ public class AddonLoader {
                             addon.getDependencies().addAll(dependencies);
                         }
                         addons.add(addon);
-                        //clazz.getMethod("onLoad").invoke(object, null);
                         boolean failed = false;
                         try {
                             addon.onLoad(); // Loads addon

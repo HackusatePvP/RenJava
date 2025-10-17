@@ -1,25 +1,22 @@
 package me.piitex.renjava.gui.layouts;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
-import me.piitex.renjava.gui.overlays.Overlay;
+import me.piitex.renjava.gui.Renderer;
 
-import java.util.LinkedList;
-import java.util.List;
-
-public abstract class Layout {
+public abstract class Layout extends Renderer {
     private final Pane pane;
     private double x, y;
-    private final double width, height;
-    private DisplayOrder order = DisplayOrder.LOW;
-    private final LinkedList<Overlay> overlays = new LinkedList<>();
-    private final LinkedList<Layout> childLayouts = new LinkedList<>();
+    private Insets padding;
+    private Pos alignment;
 
     protected Layout(Pane pane, double width, double height) {
         this.pane = pane;
-        this.width = width;
-        this.height = height;
+        setNode(pane);
+        setWidth(width);
+        setHeight(height);
     }
 
     public Pane getPane() {
@@ -42,54 +39,21 @@ public abstract class Layout {
         this.y = y;
     }
 
-    public DisplayOrder getOrder() {
-        return order;
+    public Pos getAlignment() {
+        return alignment;
     }
 
-    public void setOrder(DisplayOrder order) {
-        this.order = order;
-
-        // Update order for all overlays
-        for (Overlay overlay : getOverlays()) {
-            overlay.setOrder(order);
-        }
-
-        for (Layout layout : getChildLayouts()) {
-            layout.setOrder(order);
-        }
+    public void setAlignment(Pos alignment) {
+        this.alignment = alignment;
     }
 
-    public LinkedList<Overlay> getOverlays() {
-        return overlays;
+    public void setPadding(Insets padding) {
+        this.padding = padding;
     }
 
-    public void addOverlay(Overlay overlay) {
-        this.overlays.add(overlay);
+    public Insets getPadding() {
+        return padding;
     }
 
-    public void addOverlays(Overlay... overlays) {
-        this.overlays.addAll(List.of(overlays));
-    }
-
-    public void addOverlays(List<Overlay> overlays) {
-        this.overlays.addAll(overlays);
-    }
-
-    public LinkedList<Layout> getChildLayouts() {
-        return childLayouts;
-    }
-
-    public void addChildLayout(Layout layout) {
-        this.childLayouts.add(layout);
-    }
-
-    public void addChildLayouts(LinkedList<Layout> layouts) {
-        this.childLayouts.addAll(layouts);
-    }
-
-    public void addChildLayouts(Layout... layouts) {
-        this.childLayouts.addAll(List.of(layouts));
-    }
-
-    public abstract Pane render(Container container);
+    public abstract Node render();
 }

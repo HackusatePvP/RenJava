@@ -4,10 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.api.exceptions.ImageNotFoundException;
-import me.piitex.renjava.loggers.RenLogger;
 
 /**
  * The ImageOverlay is a visual element used to display images. The ImageOverlay uses the {@link ImageLoader} to load images into the application. The image must be in either the classpath or the game directory to be loaded.
@@ -38,8 +35,7 @@ import me.piitex.renjava.loggers.RenLogger;
  *       image.setHeight(1080);
  *     }
  * </pre>
- * Make sure images are compressed to normal sizes. Images which have expressive sizes will result in longer rendering times and slower performance.
- * If the image file could not be located or found it will throw {@link ImageNotFoundException}.
+ * Make sure images are compressed to normal sizes. Images which have large sizes will result in longer rendering times and slower performance.
  *
  * @see ImageLoader
  * @see Region
@@ -82,15 +78,11 @@ public class ImageOverlay extends Overlay implements Region {
      * @see ImageLoader
      */
     public ImageOverlay(ImageLoader imageLoader) {
-        try {
-            this.image = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = imageLoader.build();
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.fileName = imageLoader.getFile().getName();
+        this.path = imageLoader.getFile().getAbsolutePath();
     }
 
     /**
@@ -123,12 +115,7 @@ public class ImageOverlay extends Overlay implements Region {
      */
     public ImageOverlay(String imagePath) {
         ImageLoader loader = new ImageLoader(imagePath);
-        try {
-            this.image = loader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = loader.build();
         this.fileName = loader.getFile().getName();
         this.path = imagePath;
         this.width = image.getWidth();
@@ -167,16 +154,10 @@ public class ImageOverlay extends Overlay implements Region {
      *     }
      * </pre>
      * @param imagePath The path to the file from the game directory.
-     * @exception ImageNotFoundException if the file could not be located. The engine will handle the throw in the logger to prevent crashing.
      */
     public ImageOverlay(String directory, String imagePath) {
         ImageLoader loader = new ImageLoader(directory, imagePath);
-        try {
-            this.image = loader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = loader.build();
         this.fileName = loader.getFile().getName();
         this.width = image.getWidth();
         this.height = image.getHeight();
@@ -206,12 +187,7 @@ public class ImageOverlay extends Overlay implements Region {
      * @see ImageLoader
      */
     public ImageOverlay(ImageLoader imageLoader, double x, double y) {
-        try {
-            this.image = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = imageLoader.build();
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.fileName = imageLoader.getFile().getName();
@@ -225,6 +201,10 @@ public class ImageOverlay extends Overlay implements Region {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public boolean isPreserveRatio() {

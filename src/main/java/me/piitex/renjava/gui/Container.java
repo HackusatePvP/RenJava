@@ -5,9 +5,9 @@ import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.layouts.Layout;
 import me.piitex.renjava.gui.overlays.Overlay;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.util.*;
 
 /**
  * The container houses all the elements that render onto the {@link Window}. The class can be extended to support different containers that can handle rendering differently.
@@ -31,30 +31,25 @@ import java.util.Map;
  * }
  * </pre>
  */
-public abstract class Container {
+public abstract class Container extends Renderer {
     private double x, y;
-    private final double width, height;
-    private DisplayOrder order;
+    private final List<String> stylesheets = new ArrayList<>();
 
-    // Might be better to index that way someone can modify the index and move overlays around.
-    private final LinkedList<Overlay> overlays = new LinkedList<>();
-    private final LinkedList<Layout> layouts = new LinkedList<>();
-    private final LinkedList<Container> containers = new LinkedList<>();
-
-    public Container(double x, double y, double width, double height) {
+    public Container(Node view, double x, double y, double width, double height) {
+        setNode(view);
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
-        this.order = DisplayOrder.NORMAL;
+        setWidth(width);
+        setHeight(height);
     }
 
-    public Container(double x, double y, double width, double height, DisplayOrder order) {
+    public Container(Node view, double x, double y, double width, double height, int index) {
+        setNode(view);
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
-        this.order = order;
+        setWidth(width);
+        setHeight(height);
+        setIndex(index);
     }
 
     /**
@@ -88,66 +83,16 @@ public abstract class Container {
     }
 
     /**
-     * @return The width of the container.
-     */
-    public double getWidth() {
-        return width;
-    }
-
-    /**
-     * @return The height of the container.
-     */
-    public double getHeight() {
-        return height;
-    }
-
-    /**
-     * {@link DisplayOrder} is used to order the stacking of elements or containers.
-     * @return The display order of the container.
-     */
-    public DisplayOrder getOrder() {
-        return order;
-    }
-
-    /**
-     * Sets the {@link DisplayOrder} for the container.
-     * @param order The {@link DisplayOrder}.
-     */
-    public void setOrder(DisplayOrder order) {
-        this.order = order;
-    }
-
-    /**
-     * Adds a singular {@link Overlay} to the container.
-     * @param overlay The {@link Overlay} to be added.
-     */
-    public void addOverlay(Overlay overlay) {
-        this.overlays.add(overlay);
-    }
-
-    /**
-     * Adds an array of {@link Overlay}s to the container. The overlays are positioned by the order of the array.
-     * The first overlay of the array is the first to be added.
-     * @param overlays An array of {@link Overlay}s to be added.
-     */
-    public void addOverlays(Overlay... overlays) {
-        this.overlays.addAll(List.of(overlays));
-    }
-
-    /**
-     * Adds a linked list of {@link Overlay}s to the container.
-     * @param overlays The list of {@link Overlay}s to be added.
-     */
-    public void addOverlays(LinkedList<Overlay> overlays) {
-        this.overlays.addAll(overlays);
-    }
-
-    /**
      * Gets all {@link Overlay}s added to the container.
      * @return The current linked list of {@link Overlay}s.
      */
     public LinkedList<Overlay> getOverlays() {
-        return overlays;
+        LinkedList<Overlay> toReturn = new LinkedList<>();
+        getElements().values().stream().filter(element -> element instanceof Overlay).forEach(element -> {
+            Overlay overlay = (Overlay) element;
+            toReturn.add(overlay);
+        });
+        return toReturn;
     }
 
     /**
@@ -155,24 +100,12 @@ public abstract class Container {
      * @return The current linked list of sub-containers.
      */
     public LinkedList<Container> getContainers() {
-        return containers;
-    }
-
-    /**
-     * Adds a container as a sub-container to this container.
-     * @param container The sub-container to be added.
-     */
-    public void addContainer(Container container) {
-        this.containers.add(container);
-    }
-
-    /**
-     * Adds an array of sub-containers to be added. The containers are positioned by the order of the array.
-     * The first container of the array is the first to be added.
-     * @param containers An array of containers to be added.
-     */
-    public void addContainers(Container... containers) {
-        this.containers.addAll(List.of(containers));
+        LinkedList<Container> toReturn = new LinkedList<>();
+        getElements().values().stream().filter(element -> element instanceof Container).forEach(element -> {
+            Container container = (Container) element;
+            toReturn.add(container);
+        });
+        return toReturn;
     }
 
     /**
@@ -180,72 +113,29 @@ public abstract class Container {
      * @return The current linked list of {@link Layout}s
      */
     public LinkedList<Layout> getLayouts() {
-        return layouts;
+        LinkedList<Layout> toReturn = new LinkedList<>();
+        getElements().values().stream().filter(element -> element instanceof Layout).forEach(element -> {
+            Layout layout = (Layout) element;
+            toReturn.add(layout);
+        });
+        return toReturn;
     }
 
-    /**
-     * Adds a {@link Layout} to be added to the container.
-     * @param layout The {@link Layout} to be added.
-     */
-    public void addLayout(Layout layout) {
-        this.layouts.add(layout);
-    }
-
-    /**
-     * Adds an array of {@link Layout}s to be added. The layouts are positioned by the order of the array.
-     * The first layout of the array is the first to be added.
-     * @param layouts An array {@link Layout}s to be added.
-     */
-    public void addLayouts(Layout... layouts) {
-        this.layouts.addAll(List.of(layouts));
-    }
-
-    /**
-     * This should only be used by the engine. This builds the overlays, layouts, and containers.
-     * It translates the RenJava API into JavaFX by converting the gui components into {@link Node}s.
-     * @param lowOrder The list of low order nodes.
-     * @param normalOrder The list of normal order nodes.
-     * @param highOrder The list of high order nodes.
-     */
-    public void buildBase(LinkedList<Node> lowOrder, LinkedList<Node> normalOrder, LinkedList<Node> highOrder) {
-        for (Overlay overlay : getOverlays()) {
-            Node node = overlay.render();
-            if (node != null) {
-                if (overlay.getOrder() == DisplayOrder.LOW) {
-                    lowOrder.add(node);
-                } else if (overlay.getOrder() == DisplayOrder.NORMAL) {
-                    normalOrder.add(node);
-                } else if (overlay.getOrder() == DisplayOrder.HIGH) {
-                    highOrder.add(node);
-                }
-            }
-        }
-
-        for (Layout layout : getLayouts()) {
-            Node node = layout.render(this);
-            if (node != null) {
-                if (layout.getOrder() == DisplayOrder.LOW) {
-                    lowOrder.add(node);
-                } else if (layout.getOrder() == DisplayOrder.NORMAL) {
-                    normalOrder.add(node);
-                } else if (layout.getOrder() == DisplayOrder.HIGH) {
-                    highOrder.add(node);
-                }
-            }
-        }
-
-        lowOrder.addAll(normalOrder);
-        lowOrder.addAll(highOrder);
-
-        // Render sub containers
-        for (Container container : getContainers()) {
-            lowOrder.addAll(container.build().getValue()); // Might not work
+    public void addStyleSheet(File file) {
+        try {
+            stylesheets.add(file.toURI().toURL().toExternalForm());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    public List<String> getStylesheets() {
+        return stylesheets;
+    }
+
     /**
-     * Builds and assembles the container.
+     * Builds and assembles the container. Converts RenJava API into JavaFX.
      * @return An entry set where the key is the pane as a node. The value is the collection of nodes which the pane contains.
      */
-    public abstract Map.Entry<Node, LinkedList<Node>> build();
+    public abstract Node build();
 }

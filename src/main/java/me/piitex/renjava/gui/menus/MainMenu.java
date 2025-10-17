@@ -26,7 +26,7 @@ public interface MainMenu {
      *         // Add overlays to the main menu
      *         ImageOverlay backgroundImage = new ImageOverlay("gui/main_menu.png");
      *         backgroundImage.setOrder(DisplayOrder.LOW); // Sends the background image to the back of the container.
-     *         container.addOverlay(backgroundImage);
+     *         container.addElement(backgroundImage);
      *
      *         return container;
      *     }

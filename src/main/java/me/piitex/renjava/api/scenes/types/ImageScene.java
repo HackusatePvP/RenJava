@@ -8,7 +8,6 @@ import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.api.loaders.FontLoader;
 import me.piitex.renjava.api.loaders.ImageLoader;
@@ -36,13 +35,10 @@ import java.util.LinkedList;
  * <p>
  * Example usage:
  * <pre>{@code
- * TODO
+ *   ImageScene scene = new ImageScene("id", character, "Dialogue", new ImageOverlay("image.png");
  * }</pre>
  * </p>
  *
- * <p>
- * Note: The ImageScene class is used to create image scenes in the RenJava framework.
- * </p>
  */
 public class ImageScene extends RenScene {
     private Character character;
@@ -131,59 +127,14 @@ public class ImageScene extends RenScene {
     public Container build(boolean ui) {
         Container container = new EmptyContainer(configuration.getWidth(), configuration.getHeight());
         if (backgroundImage != null) {
-            backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
-            container.addOverlays(backgroundImage);
+            container.addElement(backgroundImage);
         } else {
             BoxOverlay boxOverlay = new BoxOverlay(container.getWidth(), configuration.getHeight(), Color.BLACK);
-            boxOverlay.setOrder(DisplayOrder.LOW);
-            container.addOverlay(boxOverlay);
+            container.addElement(boxOverlay);
         }
-
         if (ui) {
-            String characterDisplay;
-            if (character != null) {
-                if (getCharacterNameDisplay() != null) {
-                    // Set character display
-                    characterDisplay = getCharacterNameDisplay();
-                } else {
-                    characterDisplay = character.getDisplayName();
-                }
-
-                if (dialogue != null && !dialogue.isEmpty()) {
-                    ImageLoader textbox = new ImageLoader("gui/textbox.png");
-                    Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-
-                    ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-                    textboxMenu.addOverlay(textBoxImage);
-
-                    LinkedList<Overlay> texts = StringFormatter.formatText(dialogue);
-                    TextFlowOverlay textFlowOverlay;
-                    if (texts.isEmpty()) {
-                        TextOverlay text = new TextOverlay(dialogue);
-                        text.setFont(RenJava.CONFIGURATION.getDialogueFont());
-                        textFlowOverlay = new TextFlowOverlay(text, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                    } else {
-                        textFlowOverlay = new TextFlowOverlay(texts, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
-                    }
-                    textFlowOverlay.setX(configuration.getTextX() + configuration.getTextOffsetX());
-                    textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
-                    textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
-                    textFlowOverlay.setFont(font);
-                    textboxMenu.addOverlay(textFlowOverlay);
-
-                    TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
-                            configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
-                            configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
-                    characterText.setTextFill(character.getColor());
-                    characterText.setOrder(DisplayOrder.HIGH);
-                    textboxMenu.addOverlay(characterText);
-
-                    container.addContainers(textboxMenu);
-                }
-            }
+            container.addElement(buildTextBox(character, getCharacterNameDisplay(), dialogue, font));
         }
-
-
         for (File file : getStyleSheets()) {
             try {
                 RenJava.getInstance().getGameWindow().getScene().getStylesheets().add(file.toURI().toURL().toExternalForm());

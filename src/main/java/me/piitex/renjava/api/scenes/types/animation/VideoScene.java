@@ -10,7 +10,6 @@ import me.piitex.renjava.api.scenes.RenScene;
 import me.piitex.renjava.api.scenes.text.StringFormatter;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.gui.containers.EmptyContainer;
@@ -164,7 +163,7 @@ public class VideoScene extends RenScene {
             mediaOverlay.setHeight(videoHeight);
         }
         mediaOverlay.setLoop(loop);
-        container.addOverlay(mediaOverlay);
+        container.addElement(mediaOverlay);
 
         if (dialogue != null && !dialogue.isEmpty()) {
             // Render TextBox
@@ -180,7 +179,7 @@ public class VideoScene extends RenScene {
                 Container textboxMenu = new EmptyContainer(0, 0, configuration.getDialogueBoxWidth(), configuration.getDialogueBoxHeight());
 
                 ImageOverlay textBoxImage = new ImageOverlay(textbox, configuration.getDialogueBoxX() + configuration.getDialogueOffsetX(), configuration.getDialogueBoxY() + configuration.getDialogueOffsetY());
-                textboxMenu.addOverlay(textBoxImage);
+                textboxMenu.addElement(textBoxImage);
 
                 LinkedList<Overlay> texts = StringFormatter.formatText(dialogue);
                 TextFlowOverlay textFlowOverlay;
@@ -195,16 +194,15 @@ public class VideoScene extends RenScene {
                 textFlowOverlay.setY(configuration.getTextY() + configuration.getTextOffsetY());
                 textFlowOverlay.setTextFillColor(configuration.getDialogueColor());
                 textFlowOverlay.setFont(font);
-                textboxMenu.addOverlay(textFlowOverlay);
+                textboxMenu.addElement(textFlowOverlay);
 
                 TextOverlay characterText = new TextOverlay(characterDisplay, new FontLoader(configuration.getCharacterDisplayFont(), configuration.getCharacterTextSize()),
                         configuration.getCharacterTextX() + configuration.getCharacterTextOffsetX(),
                         configuration.getCharacterTextY() + configuration.getCharacterTextOffsetY());
                 characterText.setTextFill(character.getColor());
-                characterText.setOrder(DisplayOrder.HIGH);
-                textboxMenu.addOverlay(characterText);
+                textboxMenu.addElement(characterText);
 
-                container.addContainers(textboxMenu);
+                container.addElement(textboxMenu);
             }
         }
         return container;

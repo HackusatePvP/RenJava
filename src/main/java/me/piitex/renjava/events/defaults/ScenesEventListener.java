@@ -27,9 +27,6 @@ public class ScenesEventListener implements EventListener {
         if (scene instanceof VideoScene videoScene) {
             videoScene.stop();
         }
-
-        // Fix opacity issues caused by improperly applied transitions.
-        RenJava.getInstance().getGameWindow().getRoot().setOpacity(1);
     }
 
     @Listener(priority = Priority.HIGHEST)

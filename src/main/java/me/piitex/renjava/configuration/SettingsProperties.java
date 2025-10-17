@@ -21,7 +21,7 @@ public class SettingsProperties {
 
     public SettingsProperties() {
         File directory = RenJava.getInstance().getBaseDirectory();
-        this.file = new File(directory, "settings.properties");
+        this.file = new File(directory, "/renjava/settings.properties");
         if (!file.exists()) {
             try {
                 file.createNewFile();

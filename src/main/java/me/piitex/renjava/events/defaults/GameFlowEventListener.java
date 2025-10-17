@@ -22,6 +22,7 @@ import me.piitex.renjava.events.Listener;
 import me.piitex.renjava.events.Priority;
 import me.piitex.renjava.events.types.*;
 import me.piitex.renjava.gui.StageType;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class GameFlowEventListener implements EventListener {
             }
             case PRIMARY -> {
                 // Go Forward
-                playNextScene(event.getEvent().getY());
+                playNextScene(event);
             }
             case SECONDARY -> {
                 // Open Main Menu
@@ -85,7 +86,7 @@ public class GameFlowEventListener implements EventListener {
                     }
 
                     Container menu = renJava.getMainMenu().mainMenu(true);
-                    menu.addContainers(renJava.getMainMenu().sideMenu(true));
+                    menu.addElement(renJava.getMainMenu().sideMenu(true));
 
                     MainMenuBuildEvent buildEvent = new MainMenuBuildEvent(menu);
                     RenJava.getEventHandler().callEvent(buildEvent);
@@ -115,7 +116,7 @@ public class GameFlowEventListener implements EventListener {
                     RenJava.getEventHandler().callEvent(sceneBuildEvent);
 
                     window.clearContainers();
-                    window.addContainers(menu);
+                    window.addContainer(menu);
                     window.render();
 
                     player.setRightClickMenu(false);
@@ -144,7 +145,7 @@ public class GameFlowEventListener implements EventListener {
         }
 
         if (code == KeyCode.SPACE || code == KeyCode.ENTER) {
-            playNextScene();
+            playNextScene(event);
         }
 
         if (code == KeyCode.CONTROL) {
@@ -155,7 +156,7 @@ public class GameFlowEventListener implements EventListener {
                 if (story != null && story.getNextScene(currentScene.getId()) != null) {
                     RenScene nextScene = story.getNextScene(currentScene.getId());
                     if (RenJava.PLAYER.hasSeenScene(story, nextScene.getId())) {
-                        playNextScene();
+                        playNextScene(event);
                     }
                 }
             }
@@ -236,11 +237,7 @@ public class GameFlowEventListener implements EventListener {
         }
     }
 
-    private void playNextScene() {
-        playNextScene(-1);
-    }
-
-    private void playNextScene(double pressedY) {
+    private void playNextScene(@Nullable Event trigger) {
         Window window = RenJava.getInstance().getGameWindow();
         Player player = RenJava.PLAYER;
         RenScene currentScene = player.getCurrentScene();
@@ -263,6 +260,9 @@ public class GameFlowEventListener implements EventListener {
             return; // Don't process scene when stopping the transition.
         }
 
+        // Force set the opacity. Fixes issues for fading out transitions.
+        RenJava.getInstance().getGameWindow().getRoot().setOpacity(1);
+
         // Next if the scene is an interactable or choice don't process next scene.
         if (currentScene instanceof InteractableScene || currentScene instanceof ChoiceScene) {
             return;
@@ -270,12 +270,20 @@ public class GameFlowEventListener implements EventListener {
 
 
         // Lastly, don't process if they click inside the text-field area.
-        if (currentScene instanceof InputScene) {
-            double textBoxY = RenJava.CONFIGURATION.getTextY();
-            if (pressedY > 0) {
-                if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {
-                    return;
+        if (currentScene instanceof InputScene inputScene) {
+            if (trigger instanceof MouseClickEvent mouseClickEvent) {
+                double textBoxY = RenJava.CONFIGURATION.getTextY();
+                double pressedY = mouseClickEvent.getEvent().getY();
+                if (pressedY > 0) {
+                    if (pressedY > textBoxY - 200 && pressedY < textBoxY + 200) {
+                        return;
+                    }
                 }
+            }
+
+            //FIXME: For some reason getInputField is returning null.
+            if (inputScene.getInputField().getCurrentText().trim().isEmpty()) {
+                return;
             }
         }
 

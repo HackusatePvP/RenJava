@@ -2,21 +2,24 @@ package me.piitex.renjava.gui.containers;
 
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import me.piitex.renjava.gui.Container;
 import me.piitex.renjava.gui.layouts.Layout;
 
-import java.util.AbstractMap;
-import java.util.LinkedList;
-import java.util.Map;
-
 public class ScrollContainer extends Container {
+    private final ScrollPane scrollPane;
     private final Layout layout;
-    private ScrollPane scrollPane;
     private double xOffset, yOffset;
+    private boolean horizontalScroll = true;
+    private boolean verticalScroll = true;
+    private boolean scrollWhenNeeded = true;
+    private boolean scrollToBottom = false;
+    private boolean pannable = false;
+    private double scrollPosition;
 
     public ScrollContainer(Layout layout, double x, double y, double width, double height) {
-        super(x, y, width, height);
+        super(new ScrollPane(), x, y, width, height);
+        this.scrollPane = (ScrollPane) getNode();
         this.layout = layout;
     }
 
@@ -36,35 +39,106 @@ public class ScrollContainer extends Container {
         this.yOffset = yOffset;
     }
 
+    public boolean isHorizontalScroll() {
+        return horizontalScroll;
+    }
+
+    public void setHorizontalScroll(boolean horizontalScroll) {
+        this.horizontalScroll = horizontalScroll;
+    }
+
+    public boolean isVerticalScroll() {
+        return verticalScroll;
+    }
+
+    public void setVerticalScroll(boolean verticalScroll) {
+        this.verticalScroll = verticalScroll;
+    }
+
+    public boolean isScrollWhenNeeded() {
+        return scrollWhenNeeded;
+    }
+
+    public void setScrollWhenNeeded(boolean scrollWhenNeeded) {
+        this.scrollWhenNeeded = scrollWhenNeeded;
+    }
+
+    public void setScrollPosition(double scrollPosition) {
+        this.scrollPosition = scrollPosition;
+    }
+
+    public void setScrollToBottom(boolean scrollToBottom) {
+        this.scrollToBottom = scrollToBottom;
+    }
+
+    public void setPannable(boolean pannable) {
+        this.pannable = pannable;
+    }
+
+    public ScrollPane getScrollPane() {
+        return scrollPane;
+    }
+
+    public Layout getLayout() {
+        return layout;
+    }
+
     @Override
-    public Map.Entry<Node, LinkedList<Node>> build() {
-        scrollPane = new ScrollPane();
+    public Node build() {
+        scrollPane.setVvalue(scrollPosition);
         scrollPane.setTranslateX(getX());
         scrollPane.setTranslateY(getY());
-        scrollPane.setPrefSize(getWidth(), getHeight());
-        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setPannable(pannable);
+        if (getWidth() > 0) {
+            scrollPane.setMinWidth(getWidth());
+        }
+        if (getHeight() > 0) {
+            scrollPane.setMinHeight(getHeight());
+        }
+
+        if (getPrefWidth() > 0) {
+            scrollPane.setPrefWidth(getPrefWidth());
+        }
+        if (getPrefHeight() > 0) {
+            scrollPane.setPrefHeight(getPrefHeight());
+        }
+
+        if (getMaxWidth() > 0) {
+            scrollPane.setMaxWidth(getMaxWidth());
+        }
+        if (getMaxHeight() > 0) {
+            scrollPane.setMaxHeight(getMaxHeight());
+        }
+        if (verticalScroll) {
+            scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.ALWAYS);
+        } else if (scrollWhenNeeded) {
+            scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        } else {
+            scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+        }
+        if (horizontalScroll) {
+            scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.ALWAYS);
+        } else if (scrollWhenNeeded) {
+            scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        } else {
+            scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+        }
+
+        setStyling(scrollPane);
 
         // Build pane layout for the scroll content
-        Pane pane = layout.getPane();
-        scrollPane.setContent(pane);
+        VBox pane = (VBox) layout.assemble();
+        pane.setAlignment(layout.getAlignment());
 
-
-        LinkedList<Node> lowOrder = new LinkedList<>();
-        LinkedList<Node> normalOrder = new LinkedList<>();
-        LinkedList<Node> highOrder = new LinkedList<>();
-
-        lowOrder.add(layout.render(this));
-
-        buildBase(lowOrder, normalOrder, highOrder);
-
-        // Offset overlays by 10
-        if (xOffset > 0 || yOffset > 0) {
-            lowOrder.forEach(node -> {
-                node.setTranslateX(node.getTranslateX() + xOffset);
-                node.setTranslateY(node.getTranslateX() + yOffset);
+        if (scrollToBottom) {
+            pane.heightProperty().addListener(observable -> {
+                scrollPane.setVvalue(1);
             });
         }
 
-        return new AbstractMap.SimpleEntry<>(scrollPane, lowOrder);
+        scrollPane.setContent(pane);
+        scrollPane.requestFocus();
+
+        return scrollPane;
     }
 }

@@ -38,6 +38,10 @@ public class SectionKeyValue {
         return subSection;
     }
 
+    public SectionKeyValue getSection(String section) {
+        return subSection.stream().filter(sectionKeyValue -> sectionKeyValue.getSection().equalsIgnoreCase(section)).findAny().orElse(null);
+    }
+
     public Map<String, ArrayList<?>> getArrayMap() {
         return arrayMap;
     }

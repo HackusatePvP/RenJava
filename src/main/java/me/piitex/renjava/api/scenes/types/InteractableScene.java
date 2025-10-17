@@ -6,7 +6,7 @@ import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.events.EventListener;
 import me.piitex.renjava.events.types.SceneBuildEvent;
 import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.DisplayOrder;
+import me.piitex.renjava.gui.Element;
 import me.piitex.renjava.gui.StageType;
 import me.piitex.renjava.gui.containers.EmptyContainer;
 import me.piitex.renjava.gui.overlays.ImageOverlay;
@@ -21,7 +21,7 @@ import me.piitex.renjava.gui.overlays.Overlay;
  *
  * <p>
  * InteractableScene is designed to be instantiated rather than extended. To create an interactable scene, create a new instance of the InteractableScene class.
- * You can then add overlays to the scene using the {@link #addOverlay(Overlay)} method, which allows you to display buttons, images, and text on top of the background image.
+ * You can then add overlays to the scene using the {@link #addElement(Element)} (Overlay)} method, which allows you to display buttons, images, and text on top of the background image.
  * The {@link Overlay} interface provides the necessary methods for positioning the overlays.
  * </p>
  *
@@ -35,9 +35,9 @@ import me.piitex.renjava.gui.overlays.Overlay;
  * Example usage:
  * <pre>{@code
  * InteractableScene scene = new InteractableScene("myScene", backgroundImage);
- * scene.addOverlay(new ButtonOverlay(button));
- * scene.addOverlay(new ImageOverlay(image, x, y));
- * scene.addOverlay(new TextOverlay(text, x, y, xScale, yScale));
+ * scene.addElement(new ButtonOverlay(button));
+ * scene.addElement(new ImageOverlay(image, x, y));
+ * scene.addElement(new TextOverlay(text, x, y, xScale, yScale));
  *
  * Story story = new Story("myStory");
  * story.addScene(scene);
@@ -59,8 +59,6 @@ import me.piitex.renjava.gui.overlays.Overlay;
 public class InteractableScene extends RenScene {
 
     private final ImageOverlay backgroundImage;
-
-    private static final RenJava renJava = RenJava.getInstance();
 
     @Override
     public StageType getStageType() {
@@ -104,8 +102,7 @@ public class InteractableScene extends RenScene {
     public Container build(boolean ui) {
         Container container = new EmptyContainer(RenJava.CONFIGURATION.getWidth(), RenJava.CONFIGURATION.getHeight());
         if (backgroundImage != null) {
-            backgroundImage.setOrder(DisplayOrder.LOW); // Bg should always be at low priority. They will be pushed to the back of the scene.
-            container.addOverlays(backgroundImage);
+            container.addElement(backgroundImage);
         }
 
         SceneBuildEvent event = new SceneBuildEvent(this, container);
