@@ -82,15 +82,11 @@ public class ImageOverlay extends Overlay implements Region {
      * @see ImageLoader
      */
     public ImageOverlay(ImageLoader imageLoader) {
-        try {
-            this.image = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = imageLoader.build();
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.fileName = imageLoader.getFile().getName();
+        this.path = imageLoader.getFile().getAbsolutePath();
     }
 
     /**
@@ -123,12 +119,7 @@ public class ImageOverlay extends Overlay implements Region {
      */
     public ImageOverlay(String imagePath) {
         ImageLoader loader = new ImageLoader(imagePath);
-        try {
-            this.image = loader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = loader.build();
         this.fileName = loader.getFile().getName();
         this.path = imagePath;
         this.width = image.getWidth();
@@ -171,12 +162,7 @@ public class ImageOverlay extends Overlay implements Region {
      */
     public ImageOverlay(String directory, String imagePath) {
         ImageLoader loader = new ImageLoader(directory, imagePath);
-        try {
-            this.image = loader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = loader.build();
         this.fileName = loader.getFile().getName();
         this.width = image.getWidth();
         this.height = image.getHeight();
@@ -206,12 +192,7 @@ public class ImageOverlay extends Overlay implements Region {
      * @see ImageLoader
      */
     public ImageOverlay(ImageLoader imageLoader, double x, double y) {
-        try {
-            this.image = imageLoader.build();
-        } catch (ImageNotFoundException e) {
-            RenLogger.LOGGER.error(e.getMessage(), e);
-            RenJava.writeStackTrace(e);
-        }
+        this.image = imageLoader.build();
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.fileName = imageLoader.getFile().getName();
@@ -225,6 +206,10 @@ public class ImageOverlay extends Overlay implements Region {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public boolean isPreserveRatio() {

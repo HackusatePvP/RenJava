@@ -174,18 +174,14 @@ public class ChoiceScene extends RenScene {
 
             for (Choice choice : choices) {
                 ButtonOverlay buttonOverlay;
-                try {
-                    buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.CONFIGURATION.getChoiceButtonFont(), 0, 0);
-                    buttonOverlay.setBorderColor(Color.TRANSPARENT);
-                    buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
-                    buttonOverlay.setHover(true);
-                    buttonOverlay.setTextFill(RenJava.CONFIGURATION.getChoiceButtonColor());
-                    buttonOverlay.build(); // Sets all the parameters for text
-                    buildImageButton(buttonOverlay, choice, choiceBoxImage.build()); // Sets all the parameters for the image.
-                    layout.addOverlays(buttonOverlay);
-                } catch (ImageNotFoundException e) {
-                    RenLogger.LOGGER.error(e.getMessage());
-                }
+                buttonOverlay = new ButtonOverlay(choice.getId(), choice.getText(), Color.BLACK, RenJava.CONFIGURATION.getChoiceButtonFont(), 0, 0);
+                buttonOverlay.setBorderColor(Color.TRANSPARENT);
+                buttonOverlay.setBackgroundColor(Color.TRANSPARENT);
+                buttonOverlay.setHover(true);
+                buttonOverlay.setTextFill(RenJava.CONFIGURATION.getChoiceButtonColor());
+                buttonOverlay.build(); // Sets all the parameters for text
+                buildImageButton(buttonOverlay, choice, choiceBoxImage.build()); // Sets all the parameters for the image.
+                layout.addElements(buttonOverlay);
 
             }
             menu.addElement(backgroundImage);
