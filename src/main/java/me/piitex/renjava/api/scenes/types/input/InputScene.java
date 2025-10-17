@@ -105,7 +105,7 @@ public class InputScene extends RenScene {
         if (ui) {
             Container textBox = buildTextBox(null, "", text, font);
             this.inputField = new InputFieldOverlay(defaultInput, 0,0,500,0);
-            TextFlowOverlay textFlowOverlay = (TextFlowOverlay) textBox.getElements().stream().filter(element -> element instanceof TextFlowOverlay).findAny().orElse(null);
+            TextFlowOverlay textFlowOverlay = (TextFlowOverlay) textBox.getElements().values().stream().filter(element -> element instanceof TextFlowOverlay).findAny().orElse(null);
             if (textFlowOverlay != null) {
                 System.out.println("Adding text flow...");
                 textFlowOverlay.add(inputField);
