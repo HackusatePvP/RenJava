@@ -35,9 +35,9 @@ import me.piitex.renjava.gui.overlays.Overlay;
  * Example usage:
  * <pre>{@code
  * InteractableScene scene = new InteractableScene("myScene", backgroundImage);
- * scene.addOverlay(new ButtonOverlay(button));
- * scene.addOverlay(new ImageOverlay(image, x, y));
- * scene.addOverlay(new TextOverlay(text, x, y, xScale, yScale));
+ * scene.addElement(new ButtonOverlay(button));
+ * scene.addElement(new ImageOverlay(image, x, y));
+ * scene.addElement(new TextOverlay(text, x, y, xScale, yScale));
  *
  * Story story = new Story("myStory");
  * story.addScene(scene);
