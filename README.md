@@ -1,3 +1,5 @@
+
+
 # RenJava
 Visual novel game engine based off of [RenPy](https://www.renpy.org/) built with [JavaFX](https://openjfx.io/).
 
@@ -10,7 +12,7 @@ This is a passion project, which means I'm learning as I go. There are a lot of 
 
 ## Disclaimer
 RenJava does not claim ownership over any copyrighted material such as music, video, or assets. RenJava is only the framework not the game made by an author.
-Any copyright claims must be filed against the author. RenJava does not own or distribute any game(s). It would be similar to suing YouTube because someone else uploaded an entire move without permission.
+Any copyright claims must be filed against the author. RenJava does not own or distribute any game(s). It would be similar to suing YouTube because someone else uploaded an entire movie without permission.
 
 As an author you must have expressed consent to use any copyrighted material like music. Alternatively, you could look for royalty free options.
 
