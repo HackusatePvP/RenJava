@@ -107,7 +107,7 @@ public class GuiLoader {
 
         // TODO: Update window path
         window.getWindowOptions().setStyle(WindowStyle.STANDARD)
-                .setIcon(ImageLoader.load(new File(RenJava.getInstance().getBaseDirectory(), "icon.ico")));
+                .setIcon(ImageLoader.load(new File(RenJava.getInstance().getBaseDirectory(), "game/images/gui/window_icon.png")));
         window.onClose(() -> {
             ShutdownEvent shutdownEvent = new ShutdownEvent();
             RenJava.getEventHandler().callEvent(shutdownEvent);
