@@ -199,8 +199,8 @@ public class Launch {
     /**
      * This is just a default execute for testing purposes only.
      */
-    @Game(name = "Default Execute", author = "piitex", version = "0.0.0")
-    @Configuration(title = "{name}", width = 1920, height = 1080)
+    @Game(name = "Default Execute", author = "piitex", version = "1.0")
+    @Configuration(title = "{name}", width = 1280, height = 720)
     private static class DefaultExecute extends RenJava {
 
         public DefaultExecute() {
