@@ -48,15 +48,6 @@ public class GuiLoader {
 
         Tasks.runAsync(this::renJavaFrameworkBuild);
 
-        // Not yet implemented.
-//        PauseTransition wait = new PauseTransition(Duration.seconds(3)); // TODO: 2/17/2024 Make this configurable.
-//        wait.setOnFinished(actionEvent -> {
-//            window.close(); // Closes stage for the splash screen (required)
-//            buildMainMenu();
-//        });
-//
-//        wait.play();
-
         Scheduler.after(3f, () -> {
             window.hide();
             buildMainMenu();
