@@ -5,6 +5,7 @@ import me.piitex.engine.ui.overlays.IconOverlay;
 import me.piitex.engine.ui.text.Font;
 import org.jetbrains.skia.Image;
 
+import java.io.File;
 import java.util.Map;
 
 public class RenJavaConfiguration {
@@ -16,14 +17,15 @@ public class RenJavaConfiguration {
     private boolean maximizedGameWindow = true;
     private final Image gameIcon;
 
+    private Color textColor = new Color(0.85f, 0.85f, 0.85f, 1);
     private Color themeColor = Color.BLACK;
     private Color subColor = Color.DARK_GRAY;
 
-    private Font defaultFont;
-    private Font dialogueFont;
-    private Font uiFont;
-    private Font characterDisplayFont;
-    private Font choiceButtonFont;
+    private File defaultFont;
+    private File dialogueFont;
+    private File uiFont;
+    private File characterDisplayFont;
+    private File choiceButtonFont;
     private Color dialogueColor = Color.BLACK;
     private Color choiceButtonColor = Color.BLACK;
     private Color hoverColor = Color.BLUE;
@@ -119,46 +121,48 @@ public class RenJavaConfiguration {
         this.subColor = subColor;
     }
 
-    public Font getDialogueFont() {
+    public File getDialogueFont() {
         if (dialogueFont != null) {
             return dialogueFont;
         }
         return defaultFont;
     }
 
-    public void setDialogueFont(Font dialogueFont) {
+    public void setDialogueFont(File dialogueFont) {
         this.dialogueFont = dialogueFont;
     }
 
-    public Font getDefaultFont() {
+    public File getDefaultFont() {
         return defaultFont;
     }
 
-    public void setDefaultFont(Font defaultFont) {
+    public void setDefaultFont(File defaultFont) {
         this.defaultFont = defaultFont;
+        // RenGL widgets built without an explicit font file resolve their typeface from the engine's own default.
+        Font.setDefaultFont(defaultFont);
     }
 
-    public Font getUiFont() {
+    public File getUiFont() {
         return uiFont;
     }
 
-    public void setUiFont(Font uiFont) {
+    public void setUiFont(File uiFont) {
         this.uiFont = uiFont;
     }
 
-    public Font getCharacterDisplayFont() {
+    public File getCharacterDisplayFont() {
         return characterDisplayFont;
     }
 
-    public Font getChoiceButtonFont() {
+    public File getChoiceButtonFont() {
         return choiceButtonFont;
     }
 
-    public void setChoiceButtonFont(Font choiceButtonFont) {
+    public void setChoiceButtonFont(File choiceButtonFont) {
         this.choiceButtonFont = choiceButtonFont;
     }
 
-    public void setCharacterDisplayFont(Font characterDisplayFont) {
+    public void setCharacterDisplayFont(File characterDisplayFont) {
         this.characterDisplayFont = characterDisplayFont;
     }
 
@@ -176,6 +180,14 @@ public class RenJavaConfiguration {
 
     public void setChoiceButtonColor(Color choiceButtonColor) {
         this.choiceButtonColor = choiceButtonColor;
+    }
+
+    public Color getTextColor() {
+        return textColor;
+    }
+
+    public void setTextColor(Color textColor) {
+        this.textColor = textColor;
     }
 
     public Color getHoverColor() {
