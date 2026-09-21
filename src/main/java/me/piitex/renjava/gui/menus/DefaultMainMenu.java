@@ -25,28 +25,45 @@ public class DefaultMainMenu implements MainMenu {
         ImageOverlay background = new ImageOverlay(new File(renJava.getGuiDirectory(), "main_menu.png"));
         container.addElement(background);
 
+        VerticalLayout layout = new VerticalLayout(600, 200);
+        layout.getStyling().setBackgroundColor(Color.TRANSPARENT);
+        layout.getStyling().setBorderColor(Color.TRANSPARENT);
+        layout.setAlignment(Layout.Alignment.CENTER_RIGHT);
+        layout.setSpacing(5);
+        layout.setPosition(configuration.getWidth() - 620, configuration.getHeight() - 180);
+        container.addElement(layout);
+
         TextOverlay title = new TextOverlay(renJava.getName());
-        title.setFontFile(configuration.getDefaultFont());
+        title.setFontFile(configuration.getUiFont());
         title.setFontSize(48);
         title.setTextColor(Color.BLUE);
+        layout.addElement(title);
+
+        TextOverlay version = new TextOverlay(renJava.getVersion());
+        version.setFontFile(configuration.getUiFont());
+        version.setFontSize(32);
+        version.setTextColor(Color.BLUE);
+        version.setTextAlignment(Layout.Alignment.CENTER_RIGHT);
+        layout.addElement(version);
 
         return container;
     }
 
     @Override
     public Container sideMenu(boolean rightClick) {
-        Container container = new Container(420, configuration.getHeight());
+        Container container = new Container(300, configuration.getHeight());
         container.getStyling().setBackgroundColor(Color.TRANSPARENT);
         container.getStyling().setBorderColor(Color.TRANSPARENT);
 
         ImageOverlay background = new ImageOverlay(new File(renJava.getGuiDirectory(), "overlay/main_menu.png"));
+        background.setWidth(1280);
         container.addElement(background);
 
-        VerticalLayout items = new VerticalLayout(400, 800);
+        VerticalLayout items = new VerticalLayout(container.getWidth() - 50, 800);
         items.getStyling().setBackgroundColor(Color.TRANSPARENT);
         items.getStyling().setBorderColor(Color.TRANSPARENT);
         items.setAlignment(Layout.Alignment.CENTER);
-        items.setSpacing(15);
+        items.setSpacing(5);
         container.addElement(items);
 
         ButtonOverlay start = new ButtonOverlay("Start", 100, 50);
@@ -71,6 +88,10 @@ public class DefaultMainMenu implements MainMenu {
 
         ButtonOverlay quit = new ButtonOverlay("Quit", 100, 50);
         applyStyling(quit);
+        quit.onMouseClick(_ -> {
+            // FIXME: Should hook into a shutdown event to properly clean before exiting
+            System.exit(0);
+        });
         items.addElement(quit);
 
         return container;
@@ -78,7 +99,7 @@ public class DefaultMainMenu implements MainMenu {
 
     private void applyStyling(ButtonOverlay button) {
         button.setFontFile(configuration.getUiFont());
-        button.setFontSize(32);
+        button.setFontSize(24);
         button.setTextAlignment(Layout.Alignment.CENTER_LEFT);
         button.getStyling().setBackgroundColor(Color.TRANSPARENT);
         button.getStyling().setBorderColor(Color.TRANSPARENT);
