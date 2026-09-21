@@ -1,24 +1,23 @@
 package me.piitex.renjava;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 
+import me.piitex.engine.Engine;
+import me.piitex.engine.Window;
+import me.piitex.engine.WindowOptions;
+import me.piitex.engine.io.AppEnvironment;
+import me.piitex.engine.ui.image.ImageLoader;
 import me.piitex.renjava.configuration.Game;
-import me.piitex.renjava.api.loaders.ImageLoader;
 import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.InfoFile;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.ApplicationLogger;
 import me.piitex.renjava.loggers.RenLogger;
 import org.reflections.Reflections;
@@ -28,7 +27,7 @@ import org.reflections.util.ConfigurationBuilder;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Launch extends Application {
+public class Launch {
     private static long start;
 
     public static void main(String[] args) {
@@ -133,15 +132,19 @@ public class Launch extends Application {
                 renJava.author = "Error";
                 renJava.version = "Error";
             }
+            renJava.environment = AppEnvironment.builder(renJava.name)
+                    .devDataDirectory(Path.of("ren-game/"))
+                    .dataDirectory(Path.of(renJava.name + "/"))
+                    .build();
 
             // Build configuration
             if (renJava.getClass().isAnnotationPresent(Configuration.class)) {
                 Configuration conf = renJava.getClass().getAnnotation(Configuration.class);
-                RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name).replace("{author}", renJava.author), conf.width(), conf.height(), new ImageLoader(conf.windowIconPath()));
+                RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name).replace("{author}", renJava.author), conf.width(), conf.height(), ImageLoader.load(conf.windowIconPath()));
                 renJava.setConfiguration(configuration);
             } else {
                 RenLogger.LOGGER.error("Configuration annotation not found. Please annotate your main class with 'Configuration'");
-                RenJavaConfiguration configuration = new RenJavaConfiguration("Error", 1920, 1080, new ImageLoader("gui/window_icon.png"));
+                RenJavaConfiguration configuration = new RenJavaConfiguration("Error", 1920, 1080, ImageLoader.load("gui/window_icon.png"));
                 renJava.setConfiguration(configuration);
             }
 
@@ -152,30 +155,37 @@ public class Launch extends Application {
             renJava.getLogger().info("Initialized logger...");
 
             renJava.init(); // Initialize game
-            launch(args);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            start(renJava);
+        } catch (IOException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             RenLogger.LOGGER.error("Could initialize the RenJava framework: {}", e.getMessage());
         }
     }
 
-    @Override
-    public void start(Stage stage) {
-        // When launched, load the gui stuff.
-        new GuiLoader(stage, RenJava.getInstance(), getHostServices());
+    public static void start(RenJava renJava) {
+        Window window = new Window(new WindowOptions(renJava.name + " v" + renJava.version).setDimensions(RenJava.getConfiguration().getWidth(), RenJava.getConfiguration().getHeight()));
+        new Engine().start(window);
 
-        long end = System.currentTimeMillis();
-        long time = end - start;
-        DateFormat format = new SimpleDateFormat("ss.SS");
-
-        String s = format.format(time);
-        // I hate that it displays the leading 0: 01.26s
-        // Fix
-        if (s.startsWith("0")) {
-            s = s.replaceFirst("0", "");
-        }
-
-        RenJava.getInstance().getLogger().info("Loaded in " + s + "s");
+        new GuiLoader(window, RenJava.getInstance());
     }
+
+//    @Override
+//    public void start(Stage stage) {
+//        // When launched, load the gui stuff.
+//        new GuiLoader(stage, RenJava.getInstance(), getHostServices());
+//
+//        long end = System.currentTimeMillis();
+//        long time = end - start;
+//        DateFormat format = new SimpleDateFormat("ss.SS");
+//
+//        String s = format.format(time);
+//        // I hate that it displays the leading 0: 01.26s
+//        // Fix
+//        if (s.startsWith("0")) {
+//            s = s.replaceFirst("0", "");
+//        }
+//
+//        RenJava.getInstance().getLogger().info("Loaded in " + s + "s");
+//    }
 
     /**
      * This is just a default execute for testing purposes only.
@@ -188,7 +198,6 @@ public class Launch extends Application {
             RenLogger.LOGGER.error("No game execute was found. Creating a default testing execute...");
             File dir = new File(System.getProperty("user.dir") + "/test/");
             dir.mkdirs();
-            setBaseDir(dir);
         }
 
         @Override

@@ -1,12 +1,9 @@
 package me.piitex.renjava.configuration;
 
-import javafx.scene.paint.Color;
-import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.exceptions.GameWindowNotSetException;
-import me.piitex.renjava.api.loaders.FontLoader;
-import me.piitex.renjava.api.loaders.ImageLoader;
-import me.piitex.renjava.gui.Window;
-import me.piitex.renjava.loggers.RenLogger;
+import me.piitex.engine.ui.color.Color;
+import me.piitex.engine.ui.overlays.IconOverlay;
+import me.piitex.engine.ui.text.Font;
+import org.jetbrains.skia.Image;
 
 import java.util.Map;
 
@@ -17,16 +14,16 @@ public class RenJavaConfiguration {
     private double currentWindowWidth;
     private double currentWindowHeight;
     private boolean maximizedGameWindow = true;
-    private final ImageLoader gameIcon;
+    private final Image gameIcon;
 
     private Color themeColor = Color.BLACK;
-    private Color subColor = Color.DARKGRAY;
+    private Color subColor = Color.DARK_GRAY;
 
-    private FontLoader defaultFont;
-    private FontLoader dialogueFont;
-    private FontLoader uiFont;
-    private FontLoader characterDisplayFont;
-    private FontLoader choiceButtonFont;
+    private Font defaultFont;
+    private Font dialogueFont;
+    private Font uiFont;
+    private Font characterDisplayFont;
+    private Font choiceButtonFont;
     private Color dialogueColor = Color.BLACK;
     private Color choiceButtonColor = Color.BLACK;
     private Color hoverColor = Color.BLUE;
@@ -67,7 +64,7 @@ public class RenJavaConfiguration {
      * @param height    - Height of the game.
      * @param gameIcon  - The game icon is used for the windows bar on the top as well as the icon for the taskbar.
      */
-    public RenJavaConfiguration(String gameTitle, int width, int height, ImageLoader gameIcon) {
+    public RenJavaConfiguration(String gameTitle, int width, int height, Image gameIcon) {
         this.gameTitle = gameTitle;
         this.width = width;
         this.height = height;
@@ -102,7 +99,7 @@ public class RenJavaConfiguration {
         return maximizedGameWindow;
     }
 
-    public ImageLoader getGameIcon() {
+    public Image getGameIcon() {
         return gameIcon;
     }
 
@@ -122,46 +119,46 @@ public class RenJavaConfiguration {
         this.subColor = subColor;
     }
 
-    public FontLoader getDialogueFont() {
+    public Font getDialogueFont() {
         if (dialogueFont != null) {
             return dialogueFont;
         }
         return defaultFont;
     }
 
-    public void setDialogueFont(FontLoader dialogueFont) {
+    public void setDialogueFont(Font dialogueFont) {
         this.dialogueFont = dialogueFont;
     }
 
-    public FontLoader getDefaultFont() {
+    public Font getDefaultFont() {
         return defaultFont;
     }
 
-    public void setDefaultFont(FontLoader defaultFont) {
+    public void setDefaultFont(Font defaultFont) {
         this.defaultFont = defaultFont;
     }
 
-    public FontLoader getUiFont() {
+    public Font getUiFont() {
         return uiFont;
     }
 
-    public void setUiFont(FontLoader uiFont) {
+    public void setUiFont(Font uiFont) {
         this.uiFont = uiFont;
     }
 
-    public FontLoader getCharacterDisplayFont() {
+    public Font getCharacterDisplayFont() {
         return characterDisplayFont;
     }
 
-    public FontLoader getChoiceButtonFont() {
+    public Font getChoiceButtonFont() {
         return choiceButtonFont;
     }
 
-    public void setChoiceButtonFont(FontLoader choiceButtonFont) {
+    public void setChoiceButtonFont(Font choiceButtonFont) {
         this.choiceButtonFont = choiceButtonFont;
     }
 
-    public void setCharacterDisplayFont(FontLoader characterDisplayFont) {
+    public void setCharacterDisplayFont(Font characterDisplayFont) {
         this.characterDisplayFont = characterDisplayFont;
     }
 

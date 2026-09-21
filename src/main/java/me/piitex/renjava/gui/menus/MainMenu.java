@@ -1,10 +1,9 @@
 package me.piitex.renjava.gui.menus;
 
+import me.piitex.engine.Window;
+import me.piitex.engine.ui.containers.Container;
+import me.piitex.engine.ui.overlays.ButtonOverlay;
 import me.piitex.renjava.api.saves.Save;
-import me.piitex.renjava.gui.Container;
-import me.piitex.renjava.gui.Window;
-import me.piitex.renjava.gui.containers.EmptyContainer;
-import me.piitex.renjava.gui.overlays.ButtonOverlay;
 
 public interface MainMenu {
 
@@ -35,7 +34,6 @@ public interface MainMenu {
      * </p>
      * @see Container
      * @see Window
-     * @see EmptyContainer
      * @param rightClick If it is the right-clicked main menu.
      * @return Container to be used for the main menu.
      */

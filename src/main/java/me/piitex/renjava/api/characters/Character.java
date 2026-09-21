@@ -1,7 +1,6 @@
 package me.piitex.renjava.api.characters;
 
-import javafx.scene.paint.Color;
-import me.piitex.renjava.RenJava;
+import me.piitex.engine.ui.color.Color;
 import me.piitex.renjava.api.saves.data.Data;
 
 public abstract class Character {
