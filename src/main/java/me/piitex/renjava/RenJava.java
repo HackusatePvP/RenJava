@@ -155,6 +155,10 @@ public abstract class RenJava {
          }
      }
 
+    public AppEnvironment getEnvironment() {
+        return environment;
+    }
+
     /**
      * Retrieves the running directory, where the jar file is located.
      *
@@ -163,6 +167,23 @@ public abstract class RenJava {
     public File getBaseDirectory() {
         return environment.getDataDirectory().toFile();
     }
+
+    public File getGameDirectory() {
+        return new File(getBaseDirectory(), "game/");
+    }
+
+    public File getImagesDirectory() {
+        return new File(getGameDirectory(), "images/");
+    }
+
+    public File getGuiDirectory() {
+        return new File(getImagesDirectory(), "gui/");
+    }
+
+    public File getFontsDirectory() {
+        return new File(getGameDirectory(), "fonts/");
+    }
+
 
     /**
      * Registers a character in the RenJava framework.
