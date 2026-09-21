@@ -20,6 +20,8 @@ import me.piitex.renjava.configuration.RenJavaConfiguration;
 import me.piitex.renjava.gui.GuiLoader;
 import me.piitex.renjava.loggers.ApplicationLogger;
 import me.piitex.renjava.loggers.RenLogger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
@@ -28,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Launch {
+    private static final Logger log = LogManager.getLogger(Launch.class);
     private static long start;
 
     public static void main(String[] args) {
@@ -85,6 +88,24 @@ public class Launch {
             Object o = clazz.getDeclaredConstructor().newInstance();
             RenJava renJava = (RenJava) o;
 
+            if (renJava.getClass().isAnnotationPresent(Game.class)) {
+                Game game = renJava.getClass().getAnnotation(Game.class);
+                renJava.name = game.name();
+                renJava.author = game.author();
+                renJava.version = game.version();
+            } else {
+                RenLogger.LOGGER.error("Please annotate your main class with 'Game'.");
+                renJava.name = "Error";
+                renJava.author = "Error";
+                renJava.version = "Error";
+            }
+
+
+            renJava.environment = AppEnvironment.builder(renJava.name)
+                    .devDataDirectory(Path.of("ren-game/"))
+                    .dataDirectory(Path.of(renJava.name + "/"))
+                    .build();
+
             // Double check base dir
             renJava.getBaseDirectory().mkdirs();
             File file = new File(renJava.getBaseDirectory(), "/renjava/");
@@ -121,26 +142,15 @@ public class Launch {
                 RenLogger.LOGGER.error("Could retrieve runtime information.", e);
             }
 
-            if (renJava.getClass().isAnnotationPresent(Game.class)) {
-                Game game = renJava.getClass().getAnnotation(Game.class);
-                renJava.name = game.name();
-                renJava.author = game.author();
-                renJava.version = game.version();
-            } else {
-                RenLogger.LOGGER.error("Please annotate your main class with 'Game'.");
-                renJava.name = "Error";
-                renJava.author = "Error";
-                renJava.version = "Error";
-            }
-            renJava.environment = AppEnvironment.builder(renJava.name)
-                    .devDataDirectory(Path.of("ren-game/"))
-                    .dataDirectory(Path.of(renJava.name + "/"))
-                    .build();
-
             // Build configuration
             if (renJava.getClass().isAnnotationPresent(Configuration.class)) {
                 Configuration conf = renJava.getClass().getAnnotation(Configuration.class);
-                RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name).replace("{author}", renJava.author), conf.width(), conf.height(), ImageLoader.load(conf.windowIconPath()));
+                File icon = renJava.environment.getDataPath("game/images/gui/window_icon.png").toFile();
+                log.info("Icon: {}", icon.getAbsolutePath());
+                RenJavaConfiguration configuration = new RenJavaConfiguration(conf.title().replace("{version}", renJava.version).replace("{name}", renJava.name).replace("{author}", renJava.author),
+                        conf.width(),
+                        conf.height(),
+                        ImageLoader.load(renJava.environment.getDataPath("game/images/gui/window_icon.png").toFile()));
                 renJava.setConfiguration(configuration);
             } else {
                 RenLogger.LOGGER.error("Configuration annotation not found. Please annotate your main class with 'Configuration'");
