@@ -163,7 +163,7 @@ public class Launch {
             renJava.setLogger(applicationLogger.LOGGER);
 
             renJava.getLogger().info("Initialized logger...");
-
+            renJava.preEnabled();
             renJava.init(); // Initialize game
             start(renJava);
         } catch (IOException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -173,9 +173,8 @@ public class Launch {
 
     public static void start(RenJava renJava) {
         Window window = new Window(new WindowOptions(renJava.name + " v" + renJava.version).setDimensions(RenJava.getConfiguration().getWidth(), RenJava.getConfiguration().getHeight()));
-        new Engine().start(window);
-
         new GuiLoader(window, RenJava.getInstance());
+        new Engine().start(window);
     }
 
 //    @Override
@@ -212,7 +211,10 @@ public class Launch {
 
         @Override
         public void preEnabled() {
+            System.out.println("Loading pre data...");
             RenJavaConfiguration configuration = getConfiguration();
+            configuration.setDefaultFont(new File(getFontsDirectory(), "Roboto-Regular.ttf"));
+            configuration.setUiFont(new File(getFontsDirectory(), "Roboto-Regular.ttf"));
             configuration.setStoreLocalSaves(false);
         }
 
