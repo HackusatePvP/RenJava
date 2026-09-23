@@ -2,6 +2,11 @@ package me.piitex.renjava;
 
 import me.piitex.engine.Window;
 import me.piitex.engine.io.AppEnvironment;
+import me.piitex.engine.ui.color.Color;
+import me.piitex.engine.ui.layout.Layout;
+import me.piitex.engine.ui.layout.VerticalLayout;
+import me.piitex.engine.ui.overlays.TextFlowOverlay;
+import me.piitex.engine.ui.scroll.ScrollContainer;
 import me.piitex.renjava.addons.AddonLoader;
 import me.piitex.renjava.configuration.Game;
 import me.piitex.renjava.api.exceptions.InvalidCharacterException;
@@ -419,8 +424,29 @@ public abstract class RenJava {
             RenJava.writeStackTrace(e);
         }
 
+        StringWriter sw = new StringWriter();
+        PrintWriter writer = new PrintWriter(sw);
+        e.printStackTrace(writer);
 
-        // FIXME: Engine only allows a single window. Will have to come back to this.
+        Window window = RenJava.getInstance().getGameWindow();
+        window.setBackgroundColor(Color.DARK_GRAY); // doesn't work
+        window.clear();
+
+        ScrollContainer container = new ScrollContainer(CONFIGURATION.getWidth(), CONFIGURATION.getHeight());
+        container.getStyling().setBackgroundColor(Color.TRANSPARENT);
+        window.addContainer(container);
+
+        VerticalLayout layout = new VerticalLayout(container.getWidth(), container.getHeight());
+        layout.getStyling().setBackgroundColor(Color.TRANSPARENT);
+        layout.setAlignment(Layout.Alignment.TOP_CENTER);
+        container.addElement(layout);
+
+        TextFlowOverlay stackTrace = new TextFlowOverlay("A fatal error occurred.\n\n" + sw.toString(), 800);
+        stackTrace.setTextColor(Color.WHITE);
+        stackTrace.setFontFile(CONFIGURATION.getUiFont());
+        container.addElement(stackTrace);
+        layout.addElement(stackTrace);
+
 
     }
 }

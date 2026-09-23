@@ -10,6 +10,8 @@ import me.piitex.engine.ui.overlays.TextOverlay;
 import me.piitex.renjava.RenJava;
 import me.piitex.renjava.api.saves.Save;
 import me.piitex.renjava.configuration.RenJavaConfiguration;
+import me.piitex.renjava.events.types.GameStartEvent;
+import me.piitex.renjava.loggers.RenLogger;
 
 import java.io.File;
 
@@ -68,6 +70,18 @@ public class DefaultMainMenu implements MainMenu {
 
         ButtonOverlay start = new ButtonOverlay("Start", 100, 50);
         applyStyling(start);
+        start.onMouseClick(_ -> {
+            RenLogger.LOGGER.info("Creating new game...");
+            RenJava.PLAYER.resetSession();
+            renJava.createBaseData();
+            renJava.createStory();
+
+            // Call GameStartEvent
+            GameStartEvent event = new GameStartEvent(renJava);
+            RenJava.getEventHandler().callEvent(event);
+
+            renJava.start();
+        });
         items.addElement(start);
 
         ButtonOverlay load = new ButtonOverlay("Load", 100, 50);
