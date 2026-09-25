@@ -39,28 +39,27 @@ public class ImageScene extends Scene {
 
     @Override
     public Container build() {
-        double w = RenJava.getConfiguration().getWidth();
-        double h = RenJava.getConfiguration().getHeight();
-        double s = w / 1920.0; // Ren'Py's default gui is authored at 1920x1080
+        double width = RenJava.getConfiguration().getWidth();
+        double height = RenJava.getConfiguration().getHeight();
+        double scale = width / 1920.0;
 
-        Container container = new Container(w, h);
+        Container container = new Container(width, height);
 
-        // 1. Background (back-most)
+        // Render background image or draw black
         if (background != null) {
             container.addElement(background);
         } else {
             container.getStyling().setBackgroundColor(Color.BLACK);
         }
 
-        // 2. Character sprites go here, before the textbox so the box draws over them.
 
+        // Check if dialogue exists to render text box
         if (dialogue != null) {
-            // 3. Textbox: full width, anchored to the bottom (gui.textbox_height = 278)
             File textboxFile = new File(renJava.getGuiDirectory(), "textbox.png");
             Image image = ImageLoader.load(textboxFile);
-            double boxW = w;
-            double boxH = image.getHeight() * (w / image.getWidth()); // keep aspect ratio
-            double boxY = h - boxH;
+            double boxW = width;
+            double boxH = image.getHeight() * (width / image.getWidth());
+            double boxY = height - boxH;
 
             ImageOverlay textBox = new ImageOverlay(textboxFile, boxW, boxH);
             textBox.setPosition(0, boxY);
@@ -68,32 +67,30 @@ public class ImageScene extends Scene {
 
             String characterName = character.getDisplayName();
             if (characterName != null) {
-                TextOverlay name = new TextOverlay(characterName, (float) (45 * s), character.getColor());
-                name.setPosition(360 * s, boxY);
+                TextOverlay name = new TextOverlay(characterName, (float) (45 * scale), character.getColor());
+                name.setPosition(360 * scale, boxY);
                 container.addElement(name);
             }
 
-            // 5. Dialogue (gui.dialogue_xpos = 402, dialogue_ypos = 75, dialogue_width = 1116, text_size = 33)
-            TextFlowOverlay text = new TextFlowOverlay(dialogue, 1116 * s, (float) (33 * s), Color.WHITE);
-            text.setPosition(402 * s, boxY + 75 * s);
+            TextFlowOverlay text = new TextFlowOverlay(dialogue, 1116 * scale, (float) (33 * scale), Color.WHITE);
+            text.setPosition(402 * scale, boxY + 75 * scale);
             container.addElement(text);
         }
 
-        // 6. Quick menu: centered along the bottom edge
-        container.addElement(buildQuickMenu(w, h, s));
+        // Bottom menu
+        container.addElement(buildQuickMenu(width, height, scale));
 
         return container;
     }
 
-    private HorizontalLayout buildQuickMenu(double w, double h, double s) {
-        double menuH = 30 * s;
-        HorizontalLayout quickMenu = new HorizontalLayout(0, h - menuH, w, menuH);
+    private HorizontalLayout buildQuickMenu(double width, double height, double scale) {
+        double menuH = 30 * scale;
+        HorizontalLayout quickMenu = new HorizontalLayout(0, height - menuH, width, menuH);
         quickMenu.setAlignment(Layout.Alignment.CENTER);
-        quickMenu.setSpacing((float) (15 * s));
+        quickMenu.setSpacing((float) (15 * scale));
 
         for (String label : List.of("Back", "History", "Skip", "Auto", "Save", "Q.Save", "Q.Load", "Prefs")) {
-            ButtonOverlay button = new ButtonOverlay(label, (float) (21 * s), Color.WHITE, 70 * s, menuH);
-            // ButtonOverlay picks up the theme's button box and text color; these setters override that
+            ButtonOverlay button = new ButtonOverlay(label, (float) (21 * scale), Color.WHITE, 70 * scale, menuH);
             button.getStyling().setBackgroundColor(Color.TRANSPARENT);
             button.getStyling().setHoverColor(Color.TRANSPARENT);
             button.getStyling().setBorderThickness(0f);
