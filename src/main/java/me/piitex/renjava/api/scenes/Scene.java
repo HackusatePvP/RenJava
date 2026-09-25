@@ -24,9 +24,8 @@ public abstract class Scene {
     private Consumer<SceneEndEvent> endEventConsumer;
     private Consumer<SceneBuildEvent> buildEventConsumer;
 
-    public Scene(String id, Container container) {
+    public Scene(String id) {
         this.id = id;
-        this.container = container;
     }
 
     public String getId() {
