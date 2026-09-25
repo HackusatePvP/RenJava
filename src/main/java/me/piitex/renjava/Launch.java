@@ -12,7 +12,12 @@ import me.piitex.engine.Engine;
 import me.piitex.engine.Window;
 import me.piitex.engine.WindowOptions;
 import me.piitex.engine.io.AppEnvironment;
+import me.piitex.engine.ui.color.Color;
 import me.piitex.engine.ui.image.ImageLoader;
+import me.piitex.engine.ui.overlays.ImageOverlay;
+import me.piitex.renjava.api.characters.Character;
+import me.piitex.renjava.api.scenes.types.ImageScene;
+import me.piitex.renjava.api.stories.Story;
 import me.piitex.renjava.configuration.Game;
 import me.piitex.renjava.configuration.Configuration;
 import me.piitex.renjava.configuration.InfoFile;
@@ -220,7 +225,8 @@ public class Launch {
 
         @Override
         public void createBaseData() {
-
+            registerCharacter(new Character("ren", "Ren", Color.RED) {
+            });
         }
 
         @Override
@@ -235,7 +241,14 @@ public class Launch {
 
         @Override
         public void start() {
-
+            Story story = new Story("story") {
+                @Override
+                public void init() {
+                    ImageOverlay background = new ImageOverlay(new File(getImagesDirectory(), "image.png"));
+                    addScene(new ImageScene("test", background, getCharacter("ren"), "Some text."));
+                }
+            };
+            story.start();
         }
     }
 }
