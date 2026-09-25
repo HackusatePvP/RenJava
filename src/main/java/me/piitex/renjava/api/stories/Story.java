@@ -1,16 +1,10 @@
 package me.piitex.renjava.api.stories;
 
+import me.piitex.engine.Window;
 import me.piitex.renjava.RenJava;
-import me.piitex.renjava.api.scenes.transitions.Transitions;
-import me.piitex.renjava.api.scenes.types.animation.VideoScene;
+import me.piitex.renjava.api.scenes.Scene;
 import me.piitex.renjava.events.types.SceneStartEvent;
-import me.piitex.renjava.gui.Window;
 import me.piitex.renjava.loggers.RenLogger;
-import me.piitex.renjava.api.scenes.RenScene;
-import me.piitex.renjava.api.scenes.types.ImageScene;
-import me.piitex.renjava.api.scenes.types.InteractableScene;
-import me.piitex.renjava.api.scenes.types.choices.ChoiceScene;
-import me.piitex.renjava.api.scenes.types.input.InputScene;
 import me.piitex.renjava.api.stories.handler.StoryEndInterface;
 import me.piitex.renjava.api.stories.handler.StoryStartInterface;
 import org.slf4j.Logger;
@@ -19,52 +13,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * The Story class represents a narrative or gameplay progression in the RenJava framework.
- * It provides a way to organize and present a collection of scenes in a specific order to create a cohesive story or gameplay experience.
- * Stories provide a structured way to define the flow and progression of the game.
- *
- * <p>
- * To create a custom story, create a subclass of the Story class and implement the necessary methods and functionality to define your story.
- * Add scenes to the story using the {@link #addScene(RenScene)} or {@link #addScenes(RenScene...)} methods.
- * Define the starting and ending points of the story using the {@link #onStart(StoryStartInterface)} and {@link #onEnd(StoryEndInterface)} methods, respectively.
- * </p>
- *
- * <p>
- * Example usage:
- * <pre>{@code
- * public class MyStory extends Story {
- *
- *     public MyStory(String id) {
- *         super(id);
- *     }
- *
- *      @Override
- *      public void init() {
- *          // Add scenes to the story.
- *      }
- *
- *     // Implement necessary methods and functionality for your story
- * }
- * }</pre>
- * </p>
- *
- * <p>
- * Note: The Story class is now abstract and should be extended to create custom stories.
- * </p>
- *
- * @see RenScene
- * @see ImageScene
- * @see InteractableScene
- * @see VideoScene
- * @see ChoiceScene
- * @see InputScene
- */
 public abstract class Story {
     private final String id;
 
-    private final LinkedHashMap<String, RenScene> scenes = new LinkedHashMap<>(); // Linked maps should order by insertion.
-    private final TreeMap<Integer, RenScene> sceneIndexMap = new TreeMap<>();
+    private final LinkedHashMap<String, Scene> scenes = new LinkedHashMap<>(); // Linked maps should order by insertion.
+    private final TreeMap<Integer, Scene> sceneIndexMap = new TreeMap<>();
 
     private StoryStartInterface startInterface;
     private StoryEndInterface endInterface;
@@ -129,17 +82,17 @@ public abstract class Story {
 
         refresh();
 
-        RenScene renScene = getScene(0); // Gets the first scene index.
+        Scene scene = getScene(0); // Gets the first scene index.
 
-        if (renScene == null) {
+        if (scene == null) {
             RenLogger.LOGGER.error("Story has no scenes in index. Is the story empty?");
             return;
         }
 
         RenLogger.LOGGER.debug("Rendering first scene...");
-        SceneStartEvent startEvent = new SceneStartEvent(renScene);
+        SceneStartEvent startEvent = new SceneStartEvent(scene);
         RenJava.getEventHandler().callEvent(startEvent);
-        displayScene(renScene, false, true);
+        displayScene(scene, false, true);
     }
 
     /**
@@ -153,7 +106,7 @@ public abstract class Story {
     }
 
     /**
-     * Clears all {@link RenScene} mappings.
+     * Clears all {@link Scene} mappings.
      */
     public void clear() {
         scenes.clear();
@@ -164,7 +117,7 @@ public abstract class Story {
      * Scenes are ordered the same way they are created. The first scene in a story is the first scene that was created.
      * @param scene Scene to add the story.
      */
-    public void addScene(RenScene scene) {
+    public void addScene(Scene scene) {
         scene.setStory(this);
         scenes.put(scene.getId(), scene);
         int index = sceneIndexMap.size();
@@ -176,9 +129,9 @@ public abstract class Story {
      * Scenes are ordered the same way they are created. The first scene in a story is the first scene that was created.
      * @param scenes All the scenes to add to the story.
      */
-    public void addScenes(RenScene... scenes) {
-        for (RenScene renScene : scenes) {
-            addScene(renScene);
+    public void addScenes(Scene... scenes) {
+        for (Scene scene : scenes) {
+            addScene(scene);
         }
     }
 
@@ -187,7 +140,7 @@ public abstract class Story {
      * @param scene The scene you want the index of.
      * @return Index of the scene provided. This will return -1 if the scene was not found.
      */
-    public int getSceneIndex(RenScene scene) {
+    public int getSceneIndex(Scene scene) {
         return scene.getIndex();
     }
 
@@ -202,28 +155,28 @@ public abstract class Story {
     /**
      * Gets the scene based on the index
      * @param index The index of the scene you want to get.
-     * @return {@link RenScene} or null if the index does not exist.
+     * @return {@link Scene} or null if the index does not exist.
      */
-    public RenScene getScene(int index) {
+    public Scene getScene(int index) {
         return sceneIndexMap.get(index);
     }
 
     /**
      * Gets a scene by its string id.
      * @param id of the Scene
-     * @return the {@link RenScene} of the id or null if none found.
+     * @return the {@link Scene} of the id or null if none found.
      */
-    public RenScene getScene(String id) {
+    public Scene getScene(String id) {
         return scenes.get(id);
     }
 
     /**
      * Gets the next scene based on the current scene id.
      * @param id ID of the next scene.
-     * @return Returns the next {@link RenScene} or null.
+     * @return Returns the next {@link Scene} or null.
      */
-    public RenScene getNextScene(String id) {
-        RenScene scene = scenes.get(id);
+    public Scene getNextScene(String id) {
+        Scene scene = scenes.get(id);
         if (scene == null) {
             return null;
         }
@@ -233,9 +186,9 @@ public abstract class Story {
 
     /**
      * Gets the next from the current scene.
-     * @return Returns the next {@link RenScene} or null.
+     * @return Returns the next {@link Scene} or null.
      */
-    public RenScene getNextSceneFromCurrent() {
+    public Scene getNextSceneFromCurrent() {
         if (RenJava.PLAYER.getCurrentScene() != null) {
             return getNextScene(RenJava.PLAYER.getCurrentScene().getId());
         }
@@ -243,28 +196,28 @@ public abstract class Story {
     }
 
     /**
-     * @return The current tracked {@link RenScene} or null.
+     * @return The current tracked {@link Scene} or null.
      */
-    public RenScene getCurrentScene() {
+    public Scene getCurrentScene() {
         return RenJava.PLAYER.getCurrentScene();
     }
 
     /**
      * Gets the next scene based on the current scene id.
      * @param id ID of the previous scene.
-     * @return Returns the previous {@link RenScene} or null.
+     * @return Returns the previous {@link Scene} or null.
      */
-    public RenScene getPreviousSceneFromID(String id) {
-        RenScene scene = scenes.get(id);
+    public Scene getPreviousSceneFromID(String id) {
+        Scene scene = scenes.get(id);
         int index = scene.getIndex() - 1;
         return sceneIndexMap.get(index);
     }
 
     /**
      * Gets the previous scene from the current scene.
-     * @return Returns the previous {@link RenScene} or null.
+     * @return Returns the previous {@link Scene} or null.
      */
-    public RenScene getPreviousSceneFromCurrent() {
+    public Scene getPreviousSceneFromCurrent() {
         if (RenJava.PLAYER.getCurrentScene() != null) {
             return getPreviousSceneFromID(RenJava.PLAYER.getCurrentScene().getId());
         }
@@ -273,57 +226,57 @@ public abstract class Story {
 
     /**
      * Renders the scene at the index.
-     * @param index Index of the {@link RenScene}
+     * @param index Index of the {@link Scene}
      */
     public void displayScene(int index) {
-        RenScene scene = getScene(index);
+        Scene scene = getScene(index);
         displayScene(scene);
     }
 
     /**
      * Renders the scene from the id.
-     * @param id Of the {@link RenScene}.
+     * @param id Of the {@link Scene}.
      */
     public void displayScene(String id) {
-        RenScene scene = getScene(id);
+        Scene scene = getScene(id);
         displayScene(scene);
     }
 
 
     /**
      * Renders the set scene.
-     * @param scene The {@link RenScene} to be rendered.
+     * @param scene The {@link Scene} to be rendered.
      */
-    public void displayScene(RenScene scene) {
+    public void displayScene(Scene scene) {
         displayScene(scene, false);
     }
 
     /**
      * Renders the set scene.
-     * @param scene The {@link RenScene} to be rendered.
+     * @param scene The {@link Scene} to be rendered.
      * @param rollback If the event was being roll backed.
      */
-    public void displayScene(RenScene scene, boolean rollback) {
+    public void displayScene(Scene scene, boolean rollback) {
         displayScene(scene, rollback, true);
     }
 
     /**
      * Renders the set scene.
-     * @param scene The {@link RenScene} to be rendered.
+     * @param scene The {@link Scene} to be rendered.
      * @param rollback If the event was being roll backed.
      * @param events If the scene events should be called.
      */
-    public void displayScene(RenScene scene, boolean rollback, boolean events) {
+    public void displayScene(Scene scene, boolean rollback, boolean events) {
         long estTime = System.currentTimeMillis();
         Window window = RenJava.getInstance().getGameWindow();
 
         scene.render(window, true, events);
 
         // Next play the transition after the scene is set and rendered. (Should be fast enough to not flicker, depends on hardware.)
-        Transitions startTransition = scene.getStartTransition();
-        if (startTransition != null && !startTransition.isPlaying()) {
-            window.handleSceneTransition(scene, startTransition);
-        }
+//        Transition startTransition = scene.getStartTransition();
+//        if (startTransition != null && !startTransition.isPlaying()) {
+//            window.handleSceneTransition(scene, startTransition);
+//        }
 
         RenJava.PLAYER.setCurrentStageType(scene.getStageType());
         if (!rollback) {
@@ -338,18 +291,18 @@ public abstract class Story {
     }
 
     /**
-     * Renders the next {@link RenScene} from the current.
+     * Renders the next {@link Scene} from the current.
      */
     public void displayNextScene() {
-        RenScene renScene = getNextSceneFromCurrent();
-        displayScene(renScene);
+        Scene scene = getNextSceneFromCurrent();
+        displayScene(scene);
     }
 
-    public LinkedHashMap<String, RenScene> getScenes() {
+    public LinkedHashMap<String, Scene> getScenes() {
         return scenes;
     }
 
-    public TreeMap<Integer, RenScene> getSceneIndexMap() {
+    public TreeMap<Integer, Scene> getSceneIndexMap() {
         return sceneIndexMap;
     }
 }

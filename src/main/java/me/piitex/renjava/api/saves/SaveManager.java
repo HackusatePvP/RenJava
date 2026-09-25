@@ -127,7 +127,7 @@ public class SaveManager {
         RenLogger.LOGGER.info("Loaded save '{}", save.getName());
 
         // Re-encrypt the save if necessary
-        Tasks.runJavaFXThread(() -> {
+        Tasks.runRendererThread(() -> {
             // Necessary to run on JavaFX to prevent rendering issues.
             if (RenJava.CONFIGURATION.isEncryptSaves())
                 save.encrypt();
